@@ -12,7 +12,7 @@ LTS 任务调度框架(Light Task Schedule)
 * 1. 一个节点组等同于一个集群，同一个节点组中的各个节点是对等的，外界无论连接节点组中的任务一个节点都是可以的。
 * 2. 每个节点组中都有一个master节点，采用zookeeper进行master选举(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。
 * 3. JobClient和TaskTracker都可以存在多个节点组。譬如 JobClient 可以存在多个节点组。 譬如：JobClient 节点组为 ‘QN_WEB’ 中的一个节点提交提交一个 只有节点组为’QN_TRADE’的 TaskTracker 才能执行的任务。
-* 4. JobTracker 没有节点组的概念，JobTacker只有一个节点组。
+* 4. (每个集群中)JobTacker只有一个节点组。
 * 5. 多个JobClient节点组和多个TaskTracker节点组再加上一个JobTacker节点组, 组成一个大的集群。
 
 ## 工作流程:
