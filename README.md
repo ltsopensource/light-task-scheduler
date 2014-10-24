@@ -62,7 +62,7 @@ LTS 任务调度框架(Light Task Schedule)
         // 启动节点
         jobTracker.start();
 
-    ```java
+    ```
 
     ## JobClient端
     ```java
@@ -81,7 +81,7 @@ LTS 任务调度框架(Light Task Schedule)
         job.setExtParams(extParams);
         job.setTaskTrackerNodeGroup("TEST_TRADE");
         Response response = jobClient.submitJob(job);
-    ```java
+    ```
 
     ## TaskTracker端
     ```java
@@ -111,4 +111,4 @@ LTS 任务调度框架(Light Task Schedule)
 
             }
         }
-    ```java
+    ```
