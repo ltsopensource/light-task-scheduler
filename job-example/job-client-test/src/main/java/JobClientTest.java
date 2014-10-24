@@ -1,0 +1,99 @@
+import com.lts.job.client.JobClient;
+import com.lts.job.client.RetryJobClient;
+import com.lts.job.client.support.JobFinishedHandler;
+import com.lts.job.common.constant.Constants;
+import com.lts.job.common.domain.Job;
+import com.lts.job.client.domain.Response;
+import com.lts.job.common.domain.JobResult;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * @author Robert HG (254963746@qq.com) on 8/13/14.
+ */
+public class JobClientTest {
+
+    public static void main(String[] args) {
+
+        final JobClient jobClient = new RetryJobClient();
+//      final JobClient jobClient = new JobClient();
+        jobClient.setNodeGroup("TEST");
+        jobClient.setClusterName("QN");
+        jobClient.setZookeeperAddress("localhost:2181");
+        // 任务重试保存地址，默认用户目录下
+        jobClient.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+        jobClient.setJobFinishedHandler(new JobFinishedHandler() {
+            @Override
+            public void handle(List<JobResult> jobResults) {
+                // 任务执行反馈结果处理
+            }
+        });
+        jobClient.start();
+
+        // 提交任务
+        Job job = new Job();
+        job.setTaskId(UUID.randomUUID().toString());
+        Map<String, String> extParams = new HashMap<String, String>();
+        extParams.put("key", "value");
+        job.setExtParams(extParams);
+        job.setTaskTrackerNodeGroup("TEST_TRADE");
+        Response response = jobClient.submitJob(job);
+
+        try {
+            Thread.sleep(2000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Integer i = 0;
+                while (true) {
+                    try {
+                        try {
+                            Thread.sleep(5000L);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Job job = new Job();
+                        job.setTaskId((i++) + "_");
+                        Map<String, String> extParams = new HashMap<String, String>();
+                        extParams.put("key", "value");
+                        job.setExtParams(extParams);
+                        job.setTaskTrackerNodeGroup("TEST_TRADE");
+                        Response response = jobClient.submitJob(job);
+                        System.out.println(response);
+
+                        if (i > 1000000) {
+                            break;
+                        }
+                    }catch (Exception t){
+                        t.printStackTrace();
+                    }
+                }
+
+            }
+        }).start();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                jobClient.stop();
+            }
+        }));
+
+        try {
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
+}
