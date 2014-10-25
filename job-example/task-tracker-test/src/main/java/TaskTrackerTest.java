@@ -1,4 +1,6 @@
+import com.lts.job.common.cluster.Node;
 import com.lts.job.common.constant.Constants;
+import com.lts.job.common.listener.MasterNodeChangeListener;
 import com.lts.job.task.tracker.TaskTracker;
 
 import java.io.IOException;
@@ -17,6 +19,8 @@ public class TaskTrackerTest {
         taskTracker.setClusterName("QN");
         taskTracker.setWorkThreads(20);
         taskTracker.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+        taskTracker.addMasterNodeChangeListener(new MasterListener());
+
         taskTracker.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -32,5 +36,20 @@ public class TaskTrackerTest {
             e.printStackTrace();
         }
 
+    }
+}
+
+class MasterListener implements MasterNodeChangeListener{
+
+    /**
+     * master 为 master节点
+     * isMaster 表示当前节点是不是master节点
+     * @param master
+     * @param isMaster
+     */
+    @Override
+    public void change(Node master, boolean isMaster) {
+
+        // 一个节点组master节点变化后的处理
     }
 }

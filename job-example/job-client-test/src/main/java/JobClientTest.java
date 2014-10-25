@@ -1,10 +1,12 @@
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.support.JobFinishedHandler;
+import com.lts.job.common.cluster.Node;
 import com.lts.job.common.constant.Constants;
 import com.lts.job.common.domain.Job;
 import com.lts.job.client.domain.Response;
 import com.lts.job.common.domain.JobResult;
+import com.lts.job.common.listener.MasterNodeChangeListener;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class JobClientTest {
                 // 任务执行反馈结果处理
             }
         });
+        jobClient.addMasterNodeChangeListener(new MasterListener());
         jobClient.start();
 
         // 提交任务
@@ -96,4 +99,20 @@ public class JobClientTest {
 
     }
 
+}
+
+
+class MasterListener implements MasterNodeChangeListener {
+
+    /**
+     * master 为 master节点
+     * isMaster 表示当前节点是不是master节点
+     * @param master
+     * @param isMaster
+     */
+    @Override
+    public void change(Node master, boolean isMaster) {
+
+        // 一个节点组master节点变化后的处理 , 譬如我多个JobClient， 但是有些事情只想只有一个节点能做。
+    }
 }
