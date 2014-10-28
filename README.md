@@ -76,10 +76,7 @@ LTS 任务调度框架(Light Task Schedule)
 
     // 提交任务
     Job job = new Job();
-    job.setTaskId(UUID.randomUUID().toString());
-    Map<String, String> extParams = new HashMap<String, String>();
-    extParams.put("key", "value");
-    job.setExtParams(extParams);
+    job.setParam("shopId", 11111);
     job.setTaskTrackerNodeGroup("TEST_TRADE");
     Response response = jobClient.submitJob(job);
 ```
