@@ -11,6 +11,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  * 心跳处理器
@@ -19,8 +22,12 @@ public class HeartBeatProcessor extends AbstractProcessor {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(HeartBeatProcessor.class);
 
+    private final ExecutorService executor;
+
     public HeartBeatProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
+
+        executor = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -33,7 +40,7 @@ public class HeartBeatProcessor extends AbstractProcessor {
         // 1. 分发任务给TaskTracker
         if (NodeType.TASK_TRACKER.equals(nodeType)) {
 
-            new Thread(new Runnable() {
+            executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
@@ -42,7 +49,8 @@ public class HeartBeatProcessor extends AbstractProcessor {
                         LOGGER.error(t.getMessage(), t);
                     }
                 }
-            }).start();
+            });
+
         }
         return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.HEART_BEAT_SUCCESS.code(), "heart beat received success!");
     }
