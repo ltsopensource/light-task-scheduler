@@ -11,6 +11,8 @@ db.JobPo.ensureIndex({"nodeGroup":1, "taskId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTracker":1});
 db.JobPo.ensureIndex({"gmtCreate":1});
 db.JobPo.ensureIndex({"priority":1});
+db.JobPo.ensureIndex({"isRunning":1});
+db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "isRunning":1, "isFinished":1,"priority":1,"gmtCreate":1});
 
 
 db.createCollection("JobLogPo");
