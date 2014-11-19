@@ -26,4 +26,5 @@ db.JobLogPo.ensureIndex({"gmtCreate":1});
 db.JobLogPo.ensureIndex({"priority":1});
 db.JobLogPo.ensureIndex({"logType":1});
 db.JobLogPo.ensureIndex({"timestamp":1});
+db.JobLogPo.ensureIndex({"taskId":1});
 
