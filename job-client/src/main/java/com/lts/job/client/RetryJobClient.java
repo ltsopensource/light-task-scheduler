@@ -34,7 +34,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
 
             @Override
             protected boolean retry(List<Job> jobs) {
-                return submitJob(jobs).isSuccess();
+                return superSubmitJob(jobs).isSuccess();
             }
         };
         fileAccessor = retryScheduler.getFileAccessor();
@@ -56,7 +56,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
 
     @Override
     public Response submitJob(List<Job> jobs) {
-        Response response = super.submitJob(jobs);
+        Response response = superSubmitJob(jobs);
 
         if (!response.isSuccess()) {
             // 存储文件
@@ -83,4 +83,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
         return response;
     }
 
+    private Response superSubmitJob(List<Job> jobs){
+        return super.submitJob(jobs);
+    }
 }

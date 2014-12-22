@@ -40,7 +40,7 @@ public class JobClientTest {
         // 提交任务
         Job job = new Job();
         job.setTaskId(UUID.randomUUID().toString());
-        job.setParam("shopId", 1111);
+        job.setParam("shopId", "111");
         job.setTaskTrackerNodeGroup("TEST_TRADE");
         Response response = jobClient.submitJob(job);
 
