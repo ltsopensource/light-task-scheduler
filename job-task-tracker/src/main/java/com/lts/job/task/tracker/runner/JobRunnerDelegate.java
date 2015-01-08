@@ -1,6 +1,7 @@
 package com.lts.job.task.tracker.runner;
 
 import com.lts.job.common.domain.Job;
+import com.lts.job.common.exception.JobInfoException;
 import com.lts.job.task.tracker.domain.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,16 @@ public class JobRunnerDelegate implements Runnable {
                 LOGGER.info("执行任务成功 : " + job);
             } catch (Throwable t) {
                 response.setSuccess(false);
-                StringWriter sw = new StringWriter();
-                t.printStackTrace(new PrintWriter(sw));
-                response.setMsg(sw.toString());
-                LOGGER.info("任务执行失败: " + job + " " + t.getMessage(), t);
+
+                if( t instanceof JobInfoException){
+                    LOGGER.warn("任务执行失败: " + job + " " + t.getMessage());
+                    response.setMsg(t.getMessage());
+                }else{
+                    StringWriter sw = new StringWriter();
+                    t.printStackTrace(new PrintWriter(sw));
+                    response.setMsg(sw.toString());
+                    LOGGER.info("任务执行失败: " + job + " " + t.getMessage(), t);
+                }
             } finally {
                 RunnerPool.RunningJobManager.out(job.getJobId());
             }
