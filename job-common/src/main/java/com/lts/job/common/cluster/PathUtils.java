@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  */
 public class PathUtils {
 
-    private static String getBasePath(){
+    public static String getBasePath(){
         // 集群名字
         String clusterName =  Application.Config.getClusterName();
         return "/LTS/" + clusterName + "/NODES";

@@ -8,7 +8,6 @@ import com.lts.job.common.domain.Job;
 import com.lts.job.client.domain.JobClientNode;
 import com.lts.job.client.domain.Response;
 import com.lts.job.client.domain.ResponseCode;
-import com.lts.job.common.cluster.NodeType;
 import com.lts.job.common.exception.JobTrackerNotFoundException;
 import com.lts.job.common.protocol.JobProtos;
 import com.lts.job.common.protocol.command.JobSubmitRequest;
@@ -59,7 +58,6 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
 
             // 同步调用
             RemotingCommand responseCommand = remotingClient.invokeSync(requestCommand);
-            JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
 
             if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
 
@@ -68,6 +66,7 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
 
             } else {
                 // 失败的job
+                JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
                 response.setFailedJobs(jobSubmitResponse.getFailedJobs());
                 response.setSuccess(false);
                 response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
@@ -75,9 +74,11 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
             }
 
         } catch (RemotingCommandFieldCheckException e) {
+            response.setSuccess(false);
             response.setCode(ResponseCode.REQUEST_FILED_CHECK_ERROR);
             response.setMsg("the request body's field check error : " + e.getMessage());
         } catch (JobTrackerNotFoundException e) {
+            response.setSuccess(false);
             response.setCode(ResponseCode.JOB_TRACKER_NOT_FOUND);
             response.setMsg("can not found JobTracker node!");
         }
