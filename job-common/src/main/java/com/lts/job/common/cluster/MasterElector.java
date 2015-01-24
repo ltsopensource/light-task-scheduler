@@ -69,7 +69,7 @@ public class MasterElector {
         if (master != null) {
             if (master.getIdentity().equals(removedNode.getIdentity())) {
                 // 如果挂掉的是master, 需要重新选举
-                List<Node> nodes = NodeManager.getNodeList(Application.Config.getNodeType());
+                List<Node> nodes = NodeManager.getNodeList(Application.Config.getNodeType(), Application.Config.getNodeGroup());
                 if (CollectionUtils.isNotEmpty(nodes)) {
                     Node newMaster = null;
                     for (Node node : nodes) {

@@ -2,6 +2,7 @@ package com.lts.job.common.cluster;
 
 
 import com.lts.job.common.util.CollectionUtils;
+import com.lts.job.common.util.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,17 @@ public class NodeManager {
         LOGGER.info("添加节点" + node);
     }
 
+    public static List<Node> getNodeList(NodeType nodeType, final String nodeGroup) {
+
+        List<Node> nodes = NODES.get(nodeType);
+
+        return ListUtils.filter(nodes, new ListUtils.Filter<Node>() {
+            @Override
+            public boolean filter(Node node) {
+                return node.getGroup().equals(nodeGroup);
+            }
+        });
+    }
     public static List<Node> getNodeList(NodeType nodeType) {
         return NODES.get(nodeType);
     }
