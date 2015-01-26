@@ -3,6 +3,7 @@ package com.lts.job.common.cluster;
 import com.lts.job.common.remoting.HeartBeatMonitor;
 import com.lts.job.common.remoting.RemotingClientDelegate;
 import com.lts.job.common.support.Application;
+import com.lts.job.common.util.StringUtils;
 import com.lts.job.remoting.netty.NettyClientConfig;
 import com.lts.job.remoting.netty.NettyRemotingClient;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
@@ -65,7 +66,9 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
     }
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
-        config.setJobInfoSavePath(jobInfoSavePath);
+        if(StringUtils.isNotEmpty(jobInfoSavePath)){
+            config.setJobInfoSavePath(jobInfoSavePath);
+        }
     }
 
     public boolean isServerEnable() {
