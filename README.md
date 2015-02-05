@@ -2,7 +2,7 @@ LTS 任务调度框架(Light Task Schedule)
 -----------------
 
 ## 框架概况：
- LTS是一个轻任务调度框架，参考hadoop的部分思想。有三种角色, JobClient, JobTracker, TaskTracker。各个节点都是无状态的，可以部署多个，来实现负载均衡，实现更大的负载量, 并且框架具有很好的容错能力。
+ LTS是一个轻量级分布式任务调度框架，参考hadoop的部分思想。有三种角色, JobClient, JobTracker, TaskTracker。各个节点都是无状态的，可以部署多个，来实现负载均衡，实现更大的负载量, 并且框架具有很好的容错能力。
  采用Zookeeper暴露节点信息，master选举。Mongo存储任务队列和任务执行日志, netty做底层通信。
 * JobClient : 主要负责提交任务, 和 接收任务执行反馈结果。
 * JobTracker : 负责接收并分配任务，任务调度。
@@ -28,7 +28,7 @@ LTS 任务调度框架(Light Task Schedule)
 
 * 负载均衡:
      * JobClient 和 TaskTracker会随机连接JobTracker节点组中的一个节点，实现JobTracker负载均衡。当连接上后，将一直保持连接这个节点,保持连接通道，知道这个节点不可用，减少每次都重新连接一个节点带来的性能开销。
-     * JobTracker 分发任务时，是优先分配给最空间的一个TaskTracker节点，实现TaskTracker节点的负载均衡。
+     * JobTracker 分发任务时，是优先分配给最空闲的一个TaskTracker节点，实现TaskTracker节点的负载均衡。
 
 * 健壮性:
      * 当节点组中的一个节点当机之后，自动转到其他节点工作。当整个节点组当机之后，将会采用存储文件的方式，待节点组可用的时候进行重发。
