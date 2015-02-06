@@ -36,7 +36,7 @@ public class PathUtils {
         node.setIp(ip);
         if(address.contains(":")){
             String port = address.split(":")[1];
-            if (port != null && port != "") {
+            if (port != null && "".equals(port.trim())) {
                 node.setPort(Integer.valueOf(port));
             }
         }
@@ -107,7 +107,7 @@ public class PathUtils {
         if (node.getListenNodeTypes() != null && node.getListenNodeTypes().size() != 0) {
             path.append("&listenNodeTypes=");
             for (NodeType nodeType : node.getListenNodeTypes()) {
-                path.append(nodeType + ",");
+                path.append(nodeType).append(",");
             }
             path.deleteCharAt(path.length() - 1);
         }

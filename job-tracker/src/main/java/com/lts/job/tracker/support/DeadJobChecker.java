@@ -38,10 +38,10 @@ public class DeadJobChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeadJobChecker.class);
 
     private static JobMongoRepository jobRepository;
-    // 10 分钟没有收到反馈信息 (并且该节点不存在了)，表示这个任务已经死掉了
-    private static final long MAX_DEAD_CHECK_TIME = 10 * 60 * 1000;
-    // 15 分钟没有收到反馈信息 并且该节点存在, 那么主动去询问taskTracker 这个任务是否在执行, 如果没有，则表示这个任务已经死掉了
-    private static final long MAX_TIME_OUT = 15 * 60 * 1000;
+    // 5 分钟没有收到反馈信息 (并且该节点不存在了)，表示这个任务已经死掉了
+    private static final long MAX_DEAD_CHECK_TIME = 5 * 60 * 1000;
+    // 5 分钟没有收到反馈信息 并且该节点存在, 那么主动去询问taskTracker 这个任务是否在执行, 如果没有，则表示这个任务已经死掉了
+    private static final long MAX_TIME_OUT = 5 * 60 * 1000;
 
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 

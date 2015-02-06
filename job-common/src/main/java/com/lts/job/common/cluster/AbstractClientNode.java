@@ -67,7 +67,7 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
         if(StringUtils.isNotEmpty(jobInfoSavePath)){
-            config.setJobInfoSavePath(jobInfoSavePath);
+            config.setJobInfoSavePath(jobInfoSavePath + "/.job");
         }
     }
 

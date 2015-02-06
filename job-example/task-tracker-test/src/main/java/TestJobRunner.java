@@ -13,8 +13,8 @@ public class TestJobRunner implements JobRunner {
     @Override
     public void run(Job job) throws Throwable {
 
-
         System.out.println("我要执行"+ job);
+        System.out.println(job.getParam("shopId"));
 
         try {
             Thread.sleep(5*1000L);

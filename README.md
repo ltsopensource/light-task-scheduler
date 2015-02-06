@@ -49,28 +49,35 @@ LTS 任务调度框架(Light Task Schedule)
     final JobTracker jobTracker = new JobTracker();
     // 节点信息配置
     jobTracker.setZookeeperAddress("localhost:2181");
-    jobTracker.setListenPort(8089);
-    jobTracker.setClusterName("QN");
+    // jobTracker.setListenPort(35001); // 默认 35001
+    // jobTracker.setClusterName("QN");
 
     // mongo 配置 （也可以配置在 mongo.properties中）
     Config config = new Config();
-    config.setAddresses(new String[]{"127.0.0.1:27017"});
+    config.setAddresses(new String[]{"localhost:27017"});
     config.setUsername("lts");
     config.setPassword("lts");
     config.setDbName("job");
-
     jobTracker.setStoreConfig(config);
 
     // 启动节点
     jobTracker.start();
+
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+        @Override
+        public void run() {
+            jobTracker.stop();
+        }
+    }));
+
 ```
 
 ## JobClient端
 ```java
     JobClient jobClient = new RetryJobClient();
-    //JobClient jobClient = new JobClient();
+    // JobClient jobClient = new JobClient();
     jobClient.setNodeGroup("TEST");
-    jobClient.setClusterName("QN");
+    // jobClient.setClusterName("QN");
     jobClient.setZookeeperAddress("localhost:2181");
     jobClient.start();
 
@@ -85,10 +92,9 @@ LTS 任务调度框架(Light Task Schedule)
 ```java
     TaskTracker taskTracker = new TaskTracker();
     taskTracker.setJobRunnerClass(TestJobRunner.class);
-
+    // jobClient.setClusterName("QN");
     taskTracker.setZookeeperAddress("localhost:2181");
     taskTracker.setNodeGroup("TEST_TRADE");
-    taskTracker.setClusterName("QN");
     taskTracker.setWorkThreads(20);
     taskTracker.start();
 
@@ -98,8 +104,8 @@ LTS 任务调度框架(Light Task Schedule)
         @Override
         public void run(Job job) throws Throwable {
 
-
             System.out.println("我要执行"+ job);
+            System.out.println(job.getParam("shopId"));
 
             try {
                 Thread.sleep(5*1000L);

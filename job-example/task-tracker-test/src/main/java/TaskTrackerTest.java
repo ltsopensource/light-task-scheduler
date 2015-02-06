@@ -16,9 +16,9 @@ public class TaskTrackerTest {
 
         taskTracker.setZookeeperAddress("localhost:2181");
         taskTracker.setNodeGroup("TEST_TRADE");
-        taskTracker.setClusterName("QN");
+//        taskTracker.setClusterName("QN");
         taskTracker.setWorkThreads(20);
-        taskTracker.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+//        taskTracker.setJobInfoSavePath(Constants.USER_HOME);
         taskTracker.addMasterNodeChangeListener(new MasterListener());
 
         taskTracker.start();

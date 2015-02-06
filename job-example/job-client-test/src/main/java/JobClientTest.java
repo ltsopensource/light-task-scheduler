@@ -24,10 +24,10 @@ public class JobClientTest {
         final JobClient jobClient = new RetryJobClient();
 //      final JobClient jobClient = new JobClient();
         jobClient.setNodeGroup("TEST");
-        jobClient.setClusterName("QN");
+//        jobClient.setClusterName("QN");
         jobClient.setZookeeperAddress("localhost:2181");
         // 任务重试保存地址，默认用户目录下
-        jobClient.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+//        jobClient.setJobInfoSavePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandler() {
             @Override
             public void handle(List<JobResult> jobResults) {

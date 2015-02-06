@@ -10,7 +10,7 @@ import java.net.SocketAddress;
  */
 public class RemotingHelper {
 
-    public static final String RemotingLogName = "JobRemoting";
+    public static final String RemotingLogName = "LTSRemoting";
 
     public static String exceptionSimpleDesc(final Exception e) {
         StringBuffer sb = new StringBuffer();

@@ -22,6 +22,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode> {
 
     public JobTracker() {
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
+        config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
         addNodeChangeListener(new JobNodeChangeListener());
         addMasterNodeChangeListener(new JobTrackerMasterChangeListener());
     }

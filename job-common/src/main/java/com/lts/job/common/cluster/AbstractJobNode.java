@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractJobNode<T extends Node> implements JobNode {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractJobNode.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(JobNode.class);
 
     protected NodeRegistry registry;
     protected T node;
@@ -45,14 +45,14 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         addNodeChangeListener(new MasterNodeElectionListener());
     }
 
-    public void start() {
+    final public void start() {
         try {
 
             Class<T> nodeClass = GenericsUtils.getSuperClassGenericType(this.getClass());
             node = NodeFactory.create(nodeClass, config);
             config.setNodeType(node.getNodeType());
 
-            LOGGER.info("节点配置:" + config);
+            LOGGER.info("当前节点配置:" + config);
 
             nodeStart();
 
@@ -64,7 +64,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         }
     }
 
-    public void stop() {
+    final public void stop() {
         try {
             registry.unregister(node);
             nodeStop();

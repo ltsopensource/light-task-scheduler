@@ -5,14 +5,12 @@ import com.lts.job.common.support.Application;
 import com.lts.job.remoting.netty.NettyRemotingServer;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.netty.NettyServerConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
- * 抽象 netty 服务端
+ *         抽象 netty 服务端
  */
 public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode<T> {
 

@@ -13,16 +13,15 @@ public class JobTrackerTest {
         final JobTracker jobTracker = new JobTracker();
         // 节点信息配置
         jobTracker.setZookeeperAddress("localhost:2181");
-        jobTracker.setListenPort(8089);
-        jobTracker.setClusterName("QN");
+//        jobTracker.setListenPort(35001); // 默认 35001
+//        jobTracker.setClusterName("QN");
 
         // mongo 配置 （也可以配置在 mongo.properties中）
         Config config = new Config();
-        config.setAddresses(new String[]{"127.0.0.1:27017"});
+        config.setAddresses(new String[]{"localhost:27017"});
         config.setUsername("lts");
         config.setPassword("lts");
         config.setDbName("job");
-
         jobTracker.setStoreConfig(config);
 
         // 启动节点
