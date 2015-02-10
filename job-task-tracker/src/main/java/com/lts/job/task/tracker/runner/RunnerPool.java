@@ -43,13 +43,13 @@ public class RunnerPool {
     }
 
     public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
-        if(LOGGER.isDebugEnabled()){
-            LOGGER.debug("receive job success ! " + job);
-        }
         try {
             threadPoolExecutor.execute(new JobRunnerDelegate(RunnerFactory.newRunner(), job, callback));
             // 更新应用可用线程数
             Application.setAttribute(Application.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+            if(LOGGER.isDebugEnabled()){
+                LOGGER.debug("receive job success ! " + job);
+            }
         } catch (RejectedExecutionException e) {
             LOGGER.warn("there has no available thread to run job .");
             throw new NoAvailableJobRunnerException(e);
