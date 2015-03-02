@@ -36,7 +36,7 @@ public class PathUtils {
         node.setIp(ip);
         if(address.contains(":")){
             String port = address.split(":")[1];
-            if (port != null && "".equals(port.trim())) {
+            if (port != null && !"".equals(port.trim())) {
                 node.setPort(Integer.valueOf(port));
             }
         }

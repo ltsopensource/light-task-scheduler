@@ -21,11 +21,13 @@ public class NodeManager {
     private static final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
 
     public static void addNode(Node node) {
-        // JobClient 和 TaskTracker 只对自己同一个组的节点关注
+
+        // JobClient 和 TaskTracker 只对自己同一个组的节点关注和JobTracker节点关注
         // JobTracker 要对所有节点都要关注
-        if ((Application.Config.getNodeType().equals(node.getNodeType())
+        if (    (NodeType.JOB_TRACKER.equals(node.getNodeType())) ||
+                ((Application.Config.getNodeType().equals(node.getNodeType())
                 && Application.Config.getNodeGroup().equals(node.getGroup()))
-                || (NodeType.JOB_TRACKER.equals(Application.Config.getNodeType()))
+                || (NodeType.JOB_TRACKER.equals(Application.Config.getNodeType())))
                 ) {
 
             List<Node> nodeList = NODES.get(node.getNodeType());
