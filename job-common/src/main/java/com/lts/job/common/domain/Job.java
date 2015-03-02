@@ -29,6 +29,12 @@ public class Job {
     // 是否要反馈给客户端
     protected boolean needFeedback = true;
 
+    /**
+     * 执行表达式 和 quartz 的一样
+     * 如果这个为空，表示立即执行的
+     */
+    private String cronExpression;
+
     public Integer getPriority() {
         return priority;
     }
@@ -99,6 +105,18 @@ public class Job {
         extParams.put(key, value);
     }
 
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
+    }
+
+    public boolean isSchedule(){
+        return this.cronExpression != null && !"".equals(this.cronExpression.trim());
+    }
+
     @Override
     public String toString() {
         return "Job{" +
@@ -109,6 +127,7 @@ public class Job {
                 ", taskTrackerNodeGroup='" + taskTrackerNodeGroup + '\'' +
                 ", extParams=" + extParams +
                 ", needFeedback=" + needFeedback +
+                ", cronExpression='" + cronExpression + '\'' +
                 '}';
     }
 }

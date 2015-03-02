@@ -2,17 +2,13 @@ import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.support.JobFinishedHandler;
 import com.lts.job.common.cluster.Node;
-import com.lts.job.common.constant.Constants;
 import com.lts.job.common.domain.Job;
 import com.lts.job.client.domain.Response;
 import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.listener.MasterNodeChangeListener;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
@@ -42,7 +38,9 @@ public class JobClientTest {
         job.setTaskId(UUID.randomUUID().toString());
         job.setParam("shopId", "111");
         job.setTaskTrackerNodeGroup("TEST_TRADE");
+//        job.setCronExpression("0 15 10 ? * 6L 2014-2016");
         Response response = jobClient.submitJob(job);
+        System.out.println(response);
 
         try {
             Thread.sleep(2000L);

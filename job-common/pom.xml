@@ -27,6 +27,11 @@
             <artifactId>job-store</artifactId>
             <version>1.1-SNAPSHOT</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.iq80.leveldb</groupId>-->
+            <!--<artifactId>leveldb</artifactId>-->
+            <!--<version>0.7</version>-->
+        <!--</dependency>-->
     </dependencies>
 
 </project>

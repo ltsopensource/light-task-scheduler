@@ -8,7 +8,7 @@ import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/8/14.
- * 存储的Jod对象
+ *         存储的Jod对象
  */
 @Entity
 public class JobPo {
@@ -67,6 +67,44 @@ public class JobPo {
 
     // 是否需要反馈给客户端
     private boolean needFeedback;
+
+    /**
+     * 执行时间表达式 (和 quartz 表达式一样)
+     */
+    private String cronExpression;
+    /**
+     * 下一次执行时间
+     */
+    private Long triggerTime;
+
+    /**
+     * 上一次的执行时间
+     */
+    private Long prevExeTime;
+
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression) {
+        this.cronExpression = cronExpression;
+    }
+
+    public Long getTriggerTime() {
+        return triggerTime;
+    }
+
+    public void setTriggerTime(Long triggerTime) {
+        this.triggerTime = triggerTime;
+    }
+
+    public Long getPrevExeTime() {
+        return prevExeTime;
+    }
+
+    public void setPrevExeTime(Long prevExeTime) {
+        this.prevExeTime = prevExeTime;
+    }
 
     public boolean isSuccess() {
         return success;
@@ -188,24 +226,7 @@ public class JobPo {
         this.msg = msg;
     }
 
-    @Override
-    public String toString() {
-        return "JobPo{" +
-                "jobId='" + jobId + '\'' +
-                ", priority=" + priority +
-                ", taskId='" + taskId + '\'' +
-                ", gmtCreate=" + gmtCreate +
-                ", gmtModify=" + gmtModify +
-                ", nodeGroup='" + nodeGroup + '\'' +
-                ", taskTrackerNodeGroup='" + taskTrackerNodeGroup + '\'' +
-                ", extParams=" + extParams +
-                ", remark='" + remark + '\'' +
-                ", isRunning=" + isRunning +
-                ", taskTracker='" + taskTracker + '\'' +
-                ", isFinished=" + isFinished +
-                ", success=" + success +
-                ", msg='" + msg + '\'' +
-                ", needFeedback=" + needFeedback +
-                '}';
+    public boolean isSchedule() {
+        return this.cronExpression != null && !"".equals(this.cronExpression.trim());
     }
 }

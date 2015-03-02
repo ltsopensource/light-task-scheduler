@@ -1,7 +1,6 @@
 package com.lts.job.tracker.support;
 
 import com.lts.job.common.domain.Job;
-import com.lts.job.common.domain.LogType;
 import com.lts.job.common.exception.RemotingSendException;
 import com.lts.job.common.protocol.JobProtos;
 import com.lts.job.common.protocol.command.AbstractCommandBody;
@@ -14,7 +13,6 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 import com.lts.job.common.repository.JobMongoRepository;
 import com.lts.job.common.repository.po.JobPo;
-import com.lts.job.tracker.logger.JobLogger;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,7 @@ import java.util.HashSet;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
- * 任务分发管理
+ *         任务分发管理
  */
 public class JobController {
 
@@ -98,38 +96,35 @@ public class JobController {
             return NO_JOB;
         }
 
-        if (jobPo != null) {
+        JobPushRequest body = new JobPushRequest();
+        Job job = JobDomainConverter.convert(jobPo);
+        body.setJob(job);
+        RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
-            JobPushRequest body = new JobPushRequest();
-            Job job = JobDomainConverter.convert(jobPo);
-            body.setJob(job);
-            RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
+        // 是否分发推送任务成功
+        boolean pushSuccess = false;
 
-            // 是否分发推送任务成功
-            boolean pushSuccess = false;
+        try {
+            RemotingCommand commandResponse = remotingServer.invokeSync(taskTrackerNode.getChannel().getChannel(), commandRequest);
 
-            try {
-                RemotingCommand commandResponse = remotingServer.invokeSync(taskTrackerNode.getChannel().getChannel(), commandRequest);
-
-                if (commandResponse.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
+            if (commandResponse.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
 //                    JobLogger.log(job, LogType.PUSH);
-                    pushSuccess = true;
-                }
-
-            } catch (RemotingSendException e) {
-                LOGGER.error(e.getMessage(), e);
-            } catch (RemotingCommandFieldCheckException e) {
-                LOGGER.error(e.getMessage(), e);
+                pushSuccess = true;
             }
 
-            if (!pushSuccess) {
-                if(LOGGER.isDebugEnabled()){
-                    LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
-                }
-                jobPo.setRemark("identity=" + identity + ", 任务没有推送成功");
-                jobRepository.setJobRunnable(jobPo);
-                return PUSH_FAILED;
+        } catch (RemotingSendException e) {
+            LOGGER.error(e.getMessage(), e);
+        } catch (RemotingCommandFieldCheckException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+
+        if (!pushSuccess) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
             }
+            jobPo.setRemark("identity=" + identity + ", 任务没有推送成功");
+            jobRepository.setJobRunnable(jobPo);
+            return PUSH_FAILED;
         }
 
         return PUSH_SUCCESS;

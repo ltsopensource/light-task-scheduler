@@ -27,7 +27,6 @@ public class JobMongoRepository extends AbstractMongoRepository<JobPo> {
     public JobPo getJobPo(String taskTackerGroup, String identity) {
 
         /**
-
          db.JobPo.findAndModify({
          query : {nodeGroup:'QN_TRADE', isRunning: },
          update : {$set : {isRunning:true}, $set:{taskTracker:'identity'}},
@@ -36,19 +35,20 @@ public class JobMongoRepository extends AbstractMongoRepository<JobPo> {
          });
 
          */
-
-        Map<String, Object> condition = new HashMap<String, Object>();
-        condition.put("taskTrackerNodeGroup", taskTackerGroup);
-        condition.put("isRunning", false);
-        condition.put("isFinished", false);
         // 优先级升序,时间升序
-        Query<JobPo> query = createQuery(condition, " priority, gmtCreate");
+        Query<JobPo> query = createQuery();
+        query.field("taskTrackerNodeGroup").equal(taskTackerGroup)
+                .field("isRunning").equal(false)
+                .field("isFinished").equal(false)
+                .filter("triggerTime < ", System.currentTimeMillis())
+                .order(" priority, triggerTime");
 
         UpdateOperations<JobPo> operations =
                 ds.createUpdateOperations(JobPo.class)
                         .set("isRunning", true)
                         .set("taskTracker", identity)
                         .set("gmtModify", System.currentTimeMillis())
+                        .set("prevExeTime", System.currentTimeMillis())
                         .set("remark", "");
 
         JobPo jobPo = ds.findAndModify(query, operations, false);

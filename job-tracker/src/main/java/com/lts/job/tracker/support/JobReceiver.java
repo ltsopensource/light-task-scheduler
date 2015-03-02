@@ -1,5 +1,6 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.common.util.StringUtils;
 import com.mongodb.MongoException;
 import com.lts.job.common.domain.Job;
 import com.lts.job.common.exception.JobReceiveException;
@@ -15,7 +16,7 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/1/14.
- * 任务处理器
+ *         任务处理器
  */
 public class JobReceiver {
 
@@ -43,18 +44,11 @@ public class JobReceiver {
         }
 
         for (Job job : jobs) {
-
-            JobPo jobPo = JobDomainConverter.convert(job, request);
-
             try {
-                jobRepository.save(jobPo);
-                LOGGER.info("接受任务成功! nodeGroup=" + request.getNodeGroup() + "," + jobPo);
-            } catch (MongoException.DuplicateKey e) {
-                // 已经存在 ignore
-                LOGGER.info("任务已经存在! nodeGroup=" + request.getNodeGroup() + "," + jobPo);
+                persistenceJob(job, request);
             } catch (Throwable t) {
                 if (exception == null) {
-                    exception = new JobReceiveException();
+                    exception = new JobReceiveException(t);
                 }
                 exception.addJob(job);
             }
@@ -63,6 +57,24 @@ public class JobReceiver {
         if (exception != null) {
             throw exception;
         }
+    }
+
+    private static JobPo persistenceJob(Job job, JobSubmitRequest request) {
+
+        JobPo jobPo = null;
+
+        try {
+            jobPo = JobDomainConverter.convert(job);
+            if (StringUtils.isEmpty(jobPo.getNodeGroup())) {
+                jobPo.setNodeGroup(request.getNodeGroup());
+            }
+            jobRepository.save(jobPo);
+            LOGGER.info("接受任务成功! nodeGroup=" + request.getNodeGroup() + "," + job);
+        } catch (MongoException.DuplicateKey e) {
+            // 已经存在 ignore
+            LOGGER.info("任务已经存在! nodeGroup=" + request.getNodeGroup() + "," + job);
+        }
+        return jobPo;
     }
 
 }

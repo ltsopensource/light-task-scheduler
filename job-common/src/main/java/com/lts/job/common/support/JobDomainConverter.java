@@ -2,12 +2,12 @@ package com.lts.job.common.support;
 
 import com.lts.job.common.domain.Job;
 import com.lts.job.common.domain.JobResult;
-import com.lts.job.common.protocol.command.JobSubmitRequest;
 import com.lts.job.common.util.Md5Encrypt;
 import com.lts.job.common.repository.po.JobPo;
-import com.lts.job.common.util.StringUtils;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,33 +15,8 @@ import java.util.List;
  */
 public class JobDomainConverter {
 
-    /**
-     * Job 转 JobPo
-     *
-     * @param job
-     * @param request
-     * @return
-     */
-    public static JobPo convert(Job job, JobSubmitRequest request) {
-        JobPo jobPo = new JobPo();
-        jobPo.setPriority(job.getPriority());
-        jobPo.setTaskId(job.getTaskId());
-        jobPo.setGmtModify(System.currentTimeMillis());
-        if(StringUtils.isEmpty(job.getNodeGroup())){
-            jobPo.setNodeGroup(request.getNodeGroup());
-        }else{
-            jobPo.setNodeGroup(job.getNodeGroup());
-        }
-        jobPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
-        jobPo.setExtParams(job.getExtParams());
-        jobPo.setNeedFeedback(job.isNeedFeedback());
-        String jobId = generateJobId(jobPo);
-        jobPo.setJobId(jobId);
+    public static JobPo convert(Job job) {
 
-        return jobPo;
-    }
-
-    public static JobPo convert(Job job){
         JobPo jobPo = new JobPo();
         jobPo.setPriority(job.getPriority());
         jobPo.setTaskId(job.getTaskId());
@@ -52,6 +27,25 @@ public class JobDomainConverter {
         jobPo.setNeedFeedback(job.isNeedFeedback());
         String jobId = generateJobId(jobPo);
         jobPo.setJobId(jobId);
+
+        jobPo.setCronExpression(job.getCronExpression());
+
+        if (jobPo.isSchedule()) {
+            try {
+                CronExpression cronExpression = new CronExpression(job.getCronExpression());
+                Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
+                if (nextTriggerTime != null) {
+                    jobPo.setTriggerTime(nextTriggerTime.getTime());
+                } else {
+                    // 如果没有下一次执行时间，那么直接忽略掉
+                    jobPo.setFinished(true);
+                }
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            jobPo.setTriggerTime(System.currentTimeMillis());
+        }
 
         return jobPo;
     }
