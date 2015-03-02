@@ -83,18 +83,6 @@
             <version>1.8.0</version>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Local Nexus Repository</name>
-            <url>http://maven.superboss.cc:8081/nexus/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <name>Local Nexus Repository</name>
-            <url>http://maven.superboss.cc:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
     <build>
         <plugins>
             <plugin>
