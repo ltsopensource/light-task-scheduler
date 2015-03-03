@@ -1,4 +1,4 @@
-LTS 分布式任务调度框架(Light Task Schedule)
+LTS 轻量级分布式任务调度框架(Light Task Schedule)
 -----------------
 
 ## 框架概况：
