@@ -38,13 +38,14 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
      * 因为各个节点都是无状态的，可以动态增加机器部署实例, 节点关注者会自动发现。
 
 ## 开发计划：
-    WEB后台管理
-    框架优化
+    * WEB后台管理
+    * 框架优化
 
 ## 调用示例
 * 安装 zookeeper 和 mongo , 执行 data/mongo 目录下的 mongo.md 中的语句
 
-见 job-example模块中的例子
+运行 job-example模块中的例子
+分别执行 JobTrackerTest TaskTrackerTest JobClientTest
 
 这里给出的是java API(设置配置)方式启动，也可以使用配置文件中。
 
