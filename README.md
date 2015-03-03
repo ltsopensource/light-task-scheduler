@@ -44,7 +44,8 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ## 调用示例
 * 安装 zookeeper 和 mongo , 执行 data/mongo 目录下的 mongo.md 中的语句
 
-见 job-example
+见 job-example模块中的例子
+
 这里给出的是java API(设置配置)方式启动，也可以使用配置文件中。
 
 ## JobTracker 端
