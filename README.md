@@ -85,7 +85,7 @@ LTS 任务调度框架(Light Task Schedule)
     job.setParam("shopId", "11111");
     job.setTaskTrackerNodeGroup("TEST_TRADE");
     // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
-    // job.setTriggerTime(new Date().getTime()); // 支持执行时间执行
+    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
     Response response = jobClient.submitJob(job);
 ```
 
