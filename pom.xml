@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>light-task-schedule</artifactId>
     <packaging>pom</packaging>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <modules>
         <module>job-remoting</module>
         <module>job-registry</module>
