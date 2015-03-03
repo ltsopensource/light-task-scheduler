@@ -8,6 +8,9 @@ import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.listener.MasterNodeChangeListener;
 import com.lts.job.common.util.CollectionUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -19,7 +22,7 @@ public class JobClientTest {
 
     private static int mode = 2;
 
-    public static void main(String[] args) throws ParseException {
+    public static void main(String[] args) throws ParseException, IOException {
 
         final JobClient jobClient = new RetryJobClient();
 //      final JobClient jobClient = new JobClient();
@@ -42,7 +45,7 @@ public class JobClientTest {
         jobClient.addMasterNodeChangeListener(new MasterListener());
         jobClient.start();
 
-        Scanner scanner = new Scanner(System.in);
+        BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
 
         String help = "命令参数: \n" +
                 "\t1:cronExpression模式,如 0 0/1 * * * ?(一分钟执行一次), \n\t2:指定时间模式 yyyy-MM-dd HH:mm:ss,在执行时间模式下，如果字符串now，表示立即执行 \n" +
@@ -59,7 +62,7 @@ public class JobClientTest {
         }));
 
         String input;
-        while (!"quit".equals(input = scanner.next())) {
+        while (!"quit".equals(input = buffer.readLine())) {
             try {
                 if("now".equals(input)){
                     input = "";
