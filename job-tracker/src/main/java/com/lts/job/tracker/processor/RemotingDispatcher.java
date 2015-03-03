@@ -9,7 +9,6 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
-import com.lts.job.tracker.support.JobController;
 import com.lts.job.tracker.support.TaskTrackerManager;
 import io.netty.channel.ChannelHandlerContext;
 

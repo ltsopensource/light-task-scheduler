@@ -69,10 +69,15 @@ public class JobReceiver {
                 jobPo.setNodeGroup(request.getNodeGroup());
             }
             jobRepository.save(jobPo);
-            LOGGER.info("接受任务成功! nodeGroup=" + request.getNodeGroup() + "," + job);
+            if (job.isSchedule()) {
+                LOGGER.info("接受定时任务成功! nodeGroup={}, CronExpression={}, {}",
+                        request.getNodeGroup(), job.getCronExpression(), job);
+            } else {
+                LOGGER.info("接受任务成功! nodeGroup={}, {}", request.getNodeGroup(), job);
+            }
         } catch (MongoException.DuplicateKey e) {
             // 已经存在 ignore
-            LOGGER.info("任务已经存在! nodeGroup=" + request.getNodeGroup() + "," + job);
+            LOGGER.info("任务已经存在! nodeGroup={}, {}", request.getNodeGroup(), job);
         }
         return jobPo;
     }

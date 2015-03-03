@@ -91,10 +91,10 @@ public class MasterElector {
     private static void notifyListener() {
         boolean isMaster = false;
         if (Application.Config.getIdentity().equals(master.getIdentity())) {
-            LOGGER.info("Master节点变化为当前节点:" + master.getPath());
+            LOGGER.info("Master节点变化为当前节点:{}", master.getPath());
             isMaster = true;
         } else {
-            LOGGER.info("Master节点为:" + master.getPath());
+            LOGGER.info("Master节点为:{}", master.getPath());
             isMaster = false;
         }
 

@@ -36,7 +36,7 @@ public class NodeManager {
                 NODES.put(node.getNodeType(), nodeList);
             }
             nodeList.add(node);
-            LOGGER.info("添加节点" + node);
+            LOGGER.info("添加节点{}", node);
         }
     }
 
@@ -59,7 +59,7 @@ public class NodeManager {
     public static void removeNode(Node node) {
         List<Node> nodeList = NODES.get(node.getNodeType());
         if (nodeList.remove(node)) {
-            LOGGER.info("删除节点" + node);
+            LOGGER.info("删除节点{}", node);
         }
     }
 

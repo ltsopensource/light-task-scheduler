@@ -12,26 +12,26 @@ import com.lts.job.common.remoting.RemotingClientDelegate;
 import com.lts.job.common.support.RetryScheduler;
 import com.lts.job.common.support.SingletonBeanContext;
 import com.lts.job.common.util.JsonUtils;
+import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
+import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.task.tracker.domain.Response;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
-import com.lts.job.task.tracker.runner.JobRunnerDelegate;
 import com.lts.job.task.tracker.runner.RunnerCallback;
-import com.lts.job.task.tracker.runner.RunnerFactory;
 import com.lts.job.task.tracker.runner.RunnerPool;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
- * 接受任务并执行
+ *         接受任务并执行
  */
 public class JobPushProcessor extends AbstractProcessor {
 
@@ -84,7 +84,8 @@ public class JobPushProcessor extends AbstractProcessor {
         @Override
         public Job runComplete(Response response) {
             // 发送消息给 JobTracker
-            JobResult jobResult = new JobResult();
+            final JobResult jobResult = new JobResult();
+            jobResult.setTime(System.currentTimeMillis());
             jobResult.setJob(response.getJob());
             jobResult.setSuccess(response.isSuccess());
             jobResult.setMsg(response.getMsg());
@@ -96,33 +97,51 @@ public class JobPushProcessor extends AbstractProcessor {
 
             RemotingCommand request = RemotingCommand.createRequestCommand(requestCode, requestBody);
 
-            RemotingCommand commandResponse = null;
+            final Response returnResponse = new Response();
+
             try {
+                final CountDownLatch latch = new CountDownLatch(1);
                 // 这里会容易超时, 造成JobTracker返回来的任务没有拿到, 但JobTracker 认为已经任务拿到了, 这个由JobTracker 定时去修复
-                commandResponse = remotingClient.invokeSync(request);
+                remotingClient.invokeAsync(request, new InvokeCallback() {
+                    @Override
+                    public void operationComplete(ResponseFuture responseFuture) {
+                        try {
+                            RemotingCommand commandResponse = responseFuture.getResponseCommand();
+
+                            if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
+                                JobPushRequest jobPushRequest = commandResponse.getBody();
+                                if (jobPushRequest != null) {
+                                    LOGGER.info("取到新任务:{}", jobPushRequest.getJob());
+                                    returnResponse.setJob(jobPushRequest.getJob());
+                                }
+                            } else {
+                                LOGGER.info("任务完成通知反馈失败, 存储文件。{}", jobResult);
+                                // 通知失败, 存文件
+                                Line line = new Line(JsonUtils.objectToJsonString(jobResult));
+                                try {
+                                    retryScheduler.getFileAccessor().addOneLine(line);
+                                } catch (FileException e) {
+                                    LOGGER.error("保存JobResult失败:{}", jobResult, e);
+                                }
+                            }
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+                });
+
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             } catch (RemotingCommandFieldCheckException e) {
-                LOGGER.error("任务完成通知反馈失败, " + response.getJob() + ", " + e.getMessage(), e);
+                LOGGER.error("任务完成通知反馈失败, {}, {}", response.getJob(), e.getMessage(), e);
             } catch (JobTrackerNotFoundException e) {
-                LOGGER.error("任务完成通知反馈失败, " + response.getJob() + ", " + e.getMessage(), e);
+                LOGGER.error("任务完成通知反馈失败, {},{}", response.getJob(), e.getMessage(), e);
             }
 
-            if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
-                JobPushRequest jobPushRequest = commandResponse.getBody();
-                if (jobPushRequest != null) {
-                    LOGGER.info("取到新任务:" + jobPushRequest.getJob());
-                    return jobPushRequest.getJob();
-                }
-            } else {
-                LOGGER.info("任务完成通知反馈失败, 存储文件。" + jobResult);
-                // 通知失败, 存文件
-                Line line = new Line(JsonUtils.objectToJsonString(jobResult));
-                try {
-                    retryScheduler.getFileAccessor().addOneLine(line);
-                } catch (FileException e) {
-                    LOGGER.error("保存JobResult失败:" + jobResult, e);
-                }
-            }
-            return null;
+            return returnResponse.getJob();
         }
     }
 
@@ -140,19 +159,36 @@ public class JobPushProcessor extends AbstractProcessor {
 
         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 
-        RemotingCommand commandResponse = null;
+        final boolean[] result = new boolean[1];
         try {
-            commandResponse = remotingClient.invokeSync(request);
+            final CountDownLatch latch = new CountDownLatch(1);
+            remotingClient.invokeAsync(request, new InvokeCallback() {
+                @Override
+                public void operationComplete(ResponseFuture responseFuture) {
+                    try {
+                        RemotingCommand commandResponse = responseFuture.getResponseCommand();
+                        if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
+                            result[0] = true;
+                        }else{
+                            result[0] = false;
+                        }
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         } catch (RemotingCommandFieldCheckException e) {
-            LOGGER.error("任务完成通知失败, jobResults=" + jobResults, e);
+            LOGGER.error("任务完成通知失败, jobResults={}", jobResults, e);
         } catch (JobTrackerNotFoundException e) {
-            LOGGER.error("任务完成通知失败, jobResults=" + jobResults, e);
+            LOGGER.error("任务完成通知失败, jobResults={}", jobResults, e);
         }
 
-        if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
-            return true;
-        }
-        return false;
+        return result[0];
     }
 
 }

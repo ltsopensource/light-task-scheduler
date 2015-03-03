@@ -47,7 +47,7 @@ public class TaskTrackerManager {
         }
 
         TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(), node.getThreads(), node.getIdentity(), channel);
-        LOGGER.info("添加TaskTracker节点:" + taskTrackerNode);
+        LOGGER.info("添加TaskTracker节点:{}", taskTrackerNode);
         taskTrackerNodes.add(taskTrackerNode);
     }
 
@@ -61,7 +61,7 @@ public class TaskTrackerManager {
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getIdentity());
             taskTrackerNode.setNodeGroup(node.getGroup());
-            LOGGER.info("删除TaskTracker节点:" + taskTrackerNode);
+            LOGGER.info("删除TaskTracker节点:{}", taskTrackerNode);
             taskTrackerNodes.remove(taskTrackerNode);
         }
     }
@@ -84,7 +84,7 @@ public class TaskTrackerManager {
                     trackerNode.setAvailableThread(availableThreads);
                     trackerNode.setTimestamp(timestamp);
                     if(LOGGER.isDebugEnabled()){
-                        LOGGER.debug("更新节点线程数: " + trackerNode);
+                        LOGGER.debug("更新节点线程数: {}", trackerNode);
                     }
                 }
             }
@@ -120,7 +120,7 @@ public class TaskTrackerManager {
                 if (channel != null) {
                     // 更新channel
                     taskTrackerNode.setChannel(channel);
-                    LOGGER.info("更新节点channel , taskTackerNode=" + taskTrackerNode);
+                    LOGGER.info("更新节点channel , taskTackerNode={}", taskTrackerNode);
                 } else {
                     continue;
                 }

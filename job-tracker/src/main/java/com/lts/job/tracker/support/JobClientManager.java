@@ -47,7 +47,7 @@ public class JobClientManager {
         }
 
         JobClientNode jobClientNode = new JobClientNode(node.getGroup(), node.getIdentity(), channel);
-        LOGGER.info("添加JobClient节点:" + jobClientNode);
+        LOGGER.info("添加JobClient节点:{}", jobClientNode);
         jobClientNodes.add(jobClientNode);
 
     }
@@ -62,7 +62,7 @@ public class JobClientManager {
         if (jobClientNodes != null && jobClientNodes.size() != 0) {
             for (JobClientNode jobClientNode : jobClientNodes) {
                 if(node.getIdentity().equals(jobClientNode.getIdentity())){
-                    LOGGER.info("删除JobClient节点:" + jobClientNode);
+                    LOGGER.info("删除JobClient节点:{}", jobClientNode);
                     jobClientNodes.remove(jobClientNode);
                 }
             }

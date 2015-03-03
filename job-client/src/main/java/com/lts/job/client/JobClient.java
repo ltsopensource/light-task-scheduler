@@ -13,18 +13,21 @@ import com.lts.job.common.protocol.JobProtos;
 import com.lts.job.common.protocol.command.JobSubmitRequest;
 import com.lts.job.common.protocol.command.JobSubmitResponse;
 import com.lts.job.common.util.BatchUtils;
+import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
+import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.
- * 任务客户端
+ *         任务客户端
  */
 public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobClientNode> {
 
@@ -47,8 +50,9 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
         return submitJob(Arrays.asList(job));
     }
 
-    protected Response _submitJob(List<Job> jobs) {
-        Response response = new Response();
+    protected Response _submitJob(final List<Job> jobs) {
+
+        final Response response = new Response();
 
         try {
             JobSubmitRequest jobSubmitRequest = new JobSubmitRequest();
@@ -56,21 +60,46 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
 
             RemotingCommand requestCommand = RemotingCommand.createRequestCommand(JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);
 
-            // 同步调用
-            RemotingCommand responseCommand = remotingClient.invokeSync(requestCommand);
+            final CountDownLatch latch = new CountDownLatch(1);
 
-            if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
+            remotingClient.invokeAsync(requestCommand, new InvokeCallback() {
+                @Override
+                public void operationComplete(ResponseFuture responseFuture) {
+                    try {
+                        RemotingCommand responseCommand = responseFuture.getResponseCommand();
 
-                LOGGER.info("提交任务成功: " + jobs);
-                response.setSuccess(true);
+                        if (responseCommand == null) {
+                            response.setFailedJobs(jobs);
+                            response.setSuccess(false);
+                            LOGGER.warn("提交任务失败: {}, {}",
+                                    jobs, "JobTracker中断了");
+                            return;
+                        }
 
-            } else {
-                // 失败的job
-                JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
-                response.setFailedJobs(jobSubmitResponse.getFailedJobs());
-                response.setSuccess(false);
-                response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
-                LOGGER.warn("提交任务失败: " + jobs + ", " + responseCommand.getRemark() + " " + jobSubmitResponse.getMsg());
+                        if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
+                            LOGGER.info("提交任务成功: {}", jobs);
+                            response.setSuccess(true);
+                            return;
+                        }
+                        // 失败的job
+                        JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
+                        response.setFailedJobs(jobSubmitResponse.getFailedJobs());
+                        response.setSuccess(false);
+                        response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
+                        LOGGER.warn("提交任务失败: {}, {}, {}",
+                                jobs,
+                                responseCommand.getRemark(),
+                                jobSubmitResponse.getMsg());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                throw new RuntimeException("提交任务失败", e);
             }
 
         } catch (RemotingCommandFieldCheckException e) {
@@ -118,6 +147,7 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
 
     /**
      * 设置任务完成接收器
+     *
      * @param jobFinishedHandler
      */
     public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {

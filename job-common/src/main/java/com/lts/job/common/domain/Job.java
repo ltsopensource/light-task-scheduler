@@ -35,6 +35,12 @@ public class Job {
      */
     private String cronExpression;
 
+    /**
+     * 任务的最早出发时间
+     * 如果设置了 cronExpression， 那么这个字段没用
+     */
+    private Long triggerTime;
+
     public Integer getPriority() {
         return priority;
     }
@@ -117,6 +123,14 @@ public class Job {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
     }
 
+    public Long getTriggerTime() {
+        return triggerTime;
+    }
+
+    public void setTriggerTime(Long triggerTime) {
+        this.triggerTime = triggerTime;
+    }
+
     @Override
     public String toString() {
         return "Job{" +
@@ -128,6 +142,7 @@ public class Job {
                 ", extParams=" + extParams +
                 ", needFeedback=" + needFeedback +
                 ", cronExpression='" + cronExpression + '\'' +
+                ", triggerTime=" + triggerTime +
                 '}';
     }
 }

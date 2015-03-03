@@ -6,8 +6,10 @@ import com.lts.job.common.domain.Job;
 import com.lts.job.client.domain.Response;
 import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.listener.MasterNodeChangeListener;
+import com.lts.job.common.util.CollectionUtils;
 
-import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -15,7 +17,9 @@ import java.util.*;
  */
 public class JobClientTest {
 
-    public static void main(String[] args) {
+    private static int mode = 2;
+
+    public static void main(String[] args) throws ParseException {
 
         final JobClient jobClient = new RetryJobClient();
 //      final JobClient jobClient = new JobClient();
@@ -28,56 +32,24 @@ public class JobClientTest {
             @Override
             public void handle(List<JobResult> jobResults) {
                 // 任务执行反馈结果处理
+                if (CollectionUtils.isNotEmpty(jobResults)) {
+                    for (JobResult jobResult : jobResults) {
+                        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " 任务执行完成：" + jobResult);
+                    }
+                }
             }
         });
         jobClient.addMasterNodeChangeListener(new MasterListener());
         jobClient.start();
 
-        // 提交任务
-        Job job = new Job();
-        job.setTaskId(UUID.randomUUID().toString());
-        job.setParam("shopId", "111");
-        job.setTaskTrackerNodeGroup("TEST_TRADE");
-//        job.setCronExpression("0 15 10 ? * 6L 2014-2016");
-        Response response = jobClient.submitJob(job);
-        System.out.println(response);
+        Scanner scanner = new Scanner(System.in);
 
-        try {
-            Thread.sleep(2000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Integer i = 0;
-                while (true) {
-                    try {
-                        try {
-                            Thread.sleep(5000L);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        Job job = new Job();
-                        job.setTaskId((i++) + "_");
-                        Map<String, String> extParams = new HashMap<String, String>();
-                        extParams.put("key", "value");
-                        job.setExtParams(extParams);
-                        job.setTaskTrackerNodeGroup("TEST_TRADE");
-                        Response response = jobClient.submitJob(job);
-                        System.out.println(response);
-
-                        if (i > 1000000) {
-                            break;
-                        }
-                    }catch (Exception t){
-                        t.printStackTrace();
-                    }
-                }
-
-            }
-        }).start();
+        String help = "命令参数: \n" +
+                "\t1:cronExpression模式,如 0 0/1 * * * ?(一分钟执行一次), \n\t2:指定时间模式 yyyy-MM-dd HH:mm:ss,在执行时间模式下，如果字符串now，表示立即执行 \n" +
+                "\tquit:退出\n" +
+                "\thelp:帮助";
+        System.out.println(help);
+        System.out.println("指定时间模式:");
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
@@ -86,13 +58,59 @@ public class JobClientTest {
             }
         }));
 
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String input;
+        while (!"quit".equals(input = scanner.next())) {
+            try {
+                if("now".equals(input)){
+                    input = "";
+                }
+                if ("help".equals(input)) {
+                    System.out.println(help);
+                } else if ("1".equals(input)) {
+                    mode = 1;
+                } else if ("2".equals(input)) {
+                    mode = 2;
+                } else {
+                    if (mode == 1) {
+                        submitWithCronExpression(jobClient, input);
+                    } else if (mode == 2) {
+                        submitWithTrigger(jobClient, input);
+                    }
+                }
+
+                if(mode == 1){
+                    System.out.print("cronExpression模式:");
+                }else if(mode == 2){
+                    System.out.print("指定时间模式:");
+                }
+
+            } catch (Exception e) {
+                System.out.println("输入错误");
+            }
         }
+        System.exit(0);
+    }
 
+    public static void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException {
+        Job job = new Job();
+        job.setTaskId(UUID.randomUUID().toString());
+        job.setParam("shopId", "111");
+        job.setTaskTrackerNodeGroup("TEST_TRADE");
+        job.setCronExpression(cronExpression);
+        Response response = jobClient.submitJob(job);
+        System.out.println(response);
+    }
 
+    public static void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException {
+        Job job = new Job();
+        job.setTaskId(UUID.randomUUID().toString());
+        job.setParam("shopId", "111");
+        job.setTaskTrackerNodeGroup("TEST_TRADE");
+        if (triggerTime != null && !"".equals(triggerTime.trim())) {
+            job.setTriggerTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(triggerTime).getTime());
+        }
+        Response response = jobClient.submitJob(job);
+        System.out.println(response);
     }
 
 }
@@ -103,6 +121,7 @@ class MasterListener implements MasterNodeChangeListener {
     /**
      * master 为 master节点
      * isMaster 表示当前节点是不是master节点
+     *
      * @param master
      * @param isMaster
      */

@@ -7,6 +7,7 @@ import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.repository.po.JobPo;
 import com.lts.job.store.mongo.AbstractMongoRepository;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,6 +161,21 @@ public class JobMongoRepository extends AbstractMongoRepository<JobPo> {
         Query<JobPo> query = createQuery();
         query.field("isFinished").equal(true);
         return query.asList();
+    }
+
+    public void updateTriggerTime(JobResult jobResult, Date triggerTime){
+        Job job = jobResult.getJob();
+        Query<JobPo> query = createQuery().field("jobId").equal(job.getJobId());
+
+        UpdateOperations<JobPo> operations = null;
+        operations = ds.createUpdateOperations(JobPo.class)
+                .set("isRunning", false)
+                .set("gmtModify", System.currentTimeMillis())
+                .set("success", jobResult.isSuccess())        // 执行成功还是失败
+                .set("msg", jobResult.getMsg() == null ? "" : jobResult.getMsg())
+                .set("triggerTime", triggerTime.getTime());
+
+        ds.update(query, operations);
     }
 
 }

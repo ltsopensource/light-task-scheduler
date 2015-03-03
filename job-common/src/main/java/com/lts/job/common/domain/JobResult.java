@@ -12,6 +12,8 @@ public class JobResult {
     private boolean success;
 
     private String msg;
+    // 任务完成时间
+    private Long time;
 
     public Job getJob() {
         return job;
@@ -37,12 +39,21 @@ public class JobResult {
         this.msg = msg;
     }
 
+    public Long getTime() {
+        return time;
+    }
+
+    public void setTime(Long time) {
+        this.time = time;
+    }
+
     @Override
     public String toString() {
         return "JobResult{" +
                 "job=" + job +
                 ", success=" + success +
                 ", msg='" + msg + '\'' +
+                ", time=" + time +
                 '}';
     }
 }

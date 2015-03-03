@@ -139,7 +139,7 @@ public class DeadJobChecker {
     private static void fixedDeadJob(JobPo jobPo) {
         jobRepository.setJobRunnable(jobPo);
         JobLogger.log(jobPo, LogType.FIXED_DEAD);
-        LOGGER.info("修复死掉的任务成功! " + jobPo);
+        LOGGER.info("修复死掉的任务成功! {}", jobPo);
     }
 
     public void stop() {

@@ -25,3 +25,10 @@ db.JobLogPo.ensureIndex({"priority":1});
 db.JobLogPo.ensureIndex({"logType":1});
 db.JobLogPo.ensureIndex({"timestamp":1});
 db.JobLogPo.ensureIndex({"taskId":1});
+
+db.createCollection("JobFeedbackQueuePo");
+db.addUser("lts", "lts");
+db.auth("lts", "lts");
+
+db.JobFeedbackQueuePo.ensureIndex({"id":1});
+db.JobFeedbackQueuePo.ensureIndex({"gmtCreated":1});

@@ -1,14 +1,11 @@
 package com.lts.job.common.support;
 
 import com.lts.job.common.domain.Job;
-import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.util.Md5Encrypt;
 import com.lts.job.common.repository.po.JobPo;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -44,7 +41,11 @@ public class JobDomainConverter {
                 throw new RuntimeException(e);
             }
         } else {
-            jobPo.setTriggerTime(System.currentTimeMillis());
+            if(job.getTriggerTime() == null){
+                jobPo.setTriggerTime(System.currentTimeMillis());
+            }else{
+                jobPo.setTriggerTime(job.getTriggerTime());
+            }
         }
 
         return jobPo;
@@ -65,19 +66,9 @@ public class JobDomainConverter {
         job.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
         job.setNeedFeedback(jobPo.isNeedFeedback());
         job.setJobId(jobPo.getJobId());
+        job.setCronExpression(jobPo.getCronExpression());
+        job.setTriggerTime(jobPo.getTriggerTime());
         return job;
-    }
-
-    public static List<JobResult> convert(List<JobPo> jobPos) {
-        List<JobResult> jobResults = new ArrayList<JobResult>();
-        for (JobPo jobPo : jobPos) {
-            JobResult jobResult = new JobResult();
-            jobResult.setJob(convert(jobPo));
-            jobResult.setMsg(jobPo.getMsg());
-            jobResult.setSuccess(jobPo.isSuccess());
-            jobResults.add(jobResult);
-        }
-        return jobResults;
     }
 
     /**

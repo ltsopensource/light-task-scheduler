@@ -59,7 +59,7 @@ public class ChannelManager {
             for (ChannelWrapper channel : channels) {
                 if (channel.isClosed()) {
                     removeList.add(channel);
-                    LOGGER.info("close channel=" + channel);
+                    LOGGER.info("close channel={}", channel);
                 }
             }
             channels.removeAll(removeList);
@@ -111,11 +111,11 @@ public class ChannelManager {
                 taskTrackerChannelMap.put(nodeGroup, channels);
             }
             channels.add(channel);
-            LOGGER.info("new connected channel=" + channel);
+            LOGGER.info("new connected channel={}", channel);
         } else {
             if (!channels.contains(channel)) {
                 channels.add(channel);
-                LOGGER.info("new connected channel=" + channel);
+                LOGGER.info("new connected channel={}", channel);
             }
         }
     }
@@ -126,7 +126,7 @@ public class ChannelManager {
         List<ChannelWrapper> channels = getChannels(nodeGroup, nodeType);
         if (channels != null) {
             channels.remove(channel);
-            LOGGER.info("remove channel=" + channel);
+            LOGGER.info("remove channel={}", channel);
         }
     }
 }

@@ -3,37 +3,76 @@ package com.lts.job.tracker.processor;
 import com.lts.job.common.domain.Job;
 import com.lts.job.common.domain.JobResult;
 import com.lts.job.common.domain.LogType;
-import com.lts.job.common.exception.RemotingSendException;
-import com.lts.job.common.protocol.JobProtos;
 import com.lts.job.common.protocol.command.JobFinishedRequest;
 import com.lts.job.common.protocol.command.JobPushRequest;
 import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.common.repository.JobFeedbackQueueMongoRepository;
+import com.lts.job.common.repository.po.JobFeedbackQueuePo;
+import com.lts.job.common.support.CronExpression;
+import com.lts.job.common.support.SingletonBeanContext;
 import com.lts.job.common.util.CollectionUtils;
 import com.lts.job.remoting.exception.RemotingCommandException;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
-import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.common.repository.po.JobPo;
 import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.support.JobClientManager;
+import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.common.support.JobDomainConverter;
+import com.lts.job.tracker.support.ClientNotifyHandler;
 import io.netty.channel.ChannelHandlerContext;
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
- * TaskTracker 完成任务 的处理器
+ *         TaskTracker 完成任务 的处理器
  */
 public class JobFinishedProcessor extends AbstractProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("JobFinishedProcessor");
+    private ClientNotifier clientNotifier;
+    private JobFeedbackQueueMongoRepository jobFeedbackQueueMongoRepository;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
+        this.jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
+        this.clientNotifier = new ClientNotifier(remotingServer, new ClientNotifyHandler() {
+            @Override
+            public void handleSuccess(List<JobResult> jobResults) {
+                finishedJob(jobResults);
+            }
+
+            @Override
+            public void handleFailed(List<JobResult> jobResults) {
+                if (CollectionUtils.isNotEmpty(jobResults)) {
+                    List<JobFeedbackQueuePo> jobFeedbackQueuePos = new ArrayList<JobFeedbackQueuePo>(jobResults.size());
+
+                    for (JobResult jobResult : jobResults) {
+                        JobFeedbackQueuePo jobFeedbackQueuePo = new JobFeedbackQueuePo();
+                        try {
+                            BeanUtils.copyProperties(jobFeedbackQueuePo, jobResult);
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                        jobFeedbackQueuePo.setId(UUID.randomUUID().toString());
+                        jobFeedbackQueuePo.setGmtCreated(System.currentTimeMillis());
+                        jobFeedbackQueuePos.add(jobFeedbackQueuePo);
+                    }
+                    // 2. 失败的存储在反馈队列
+                    jobFeedbackQueueMongoRepository.save(jobFeedbackQueuePos);
+                    // 3. 完成任务 
+                    finishedJob(jobResults);
+                }
+            }
+        });
     }
 
     @Override
@@ -45,7 +84,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
         // 1. 检验参数
         if (CollectionUtils.isEmpty(jobResults)) {
-            RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(), "JobFinishedRequest.jobResults can not be empty!");
+            RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(),
+                    "JobFinishedRequest.jobResults can not be empty!");
         }
 
         if (requestBody.isReSend()) {
@@ -54,7 +94,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             JobLogger.log(jobResults, LogType.FINISHED);
         }
 
-        LOGGER.info("任务完成" + jobResults);
+        LOGGER.info("任务完成: {}", jobResults);
 
         return finishJob(requestBody, jobResults);
     }
@@ -70,7 +110,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 过滤出来需要通知客户端的
         List<JobResult> needFeedbackList = null;
         // 不需要反馈的
-        List<JobResult> notNeedFeedbackList = new ArrayList<JobResult>();
+        List<JobResult> notNeedFeedbackList = null;
 
         for (JobResult jobResult : jobResults) {
             if (jobResult.getJob().isNeedFeedback()) {
@@ -86,15 +126,11 @@ public class JobFinishedProcessor extends AbstractProcessor {
             }
         }
 
-        if (CollectionUtils.isNotEmpty(needFeedbackList)) {
-            // 通知客户端
-            notifyClient(needFeedbackList);
-        }
+        // 通知客户端
+        notifyClient(needFeedbackList);
 
-        if (CollectionUtils.isNotEmpty(notNeedFeedbackList)) {
-            // 不需要通知客户端的并且不是定时任务直接删除
-            deleteJob(notNeedFeedbackList);
-        }
+        // 不需要通知客户端的并且不是定时任务直接删除
+        finishedJob(notNeedFeedbackList);
 
         // 判断是否接受新任务
         if (requestBody.isReceiveNewJob()) {
@@ -104,8 +140,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 JobPushRequest jobPushRequest = new JobPushRequest();
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
-//                JobLogger.log(job, LogType.PUSH);
-                LOGGER.info("发送任务" + job + "给 {" + requestBody.getNodeGroup() + " ," + requestBody.getIdentity() + "}");
+                LOGGER.info("发送任务{}给 {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
             }
@@ -120,110 +155,37 @@ public class JobFinishedProcessor extends AbstractProcessor {
      * @param jobResults
      */
     private void notifyClient(final List<JobResult> jobResults) {
-        // 启动新的线程 去通知客户端
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
 
-                try {
-                    // 发送给客户端
-                    List<JobResult> failedJobResults = send(jobResults);
-
-                    if (CollectionUtils.isNotEmpty(failedJobResults)) {
-                        // 发送失败，将任务finished状态设置为true, 并且保存记录并重试
-                        jobRepository.finishedJob(jobResults);
-
-                    }
-                } catch (Throwable t) {
-                    LOGGER.error(t.getMessage(), t);
-                }
-            }
-
-            /**
-             * 发送给客户端
-             *
-             * @param jobResults
-             * @return
-             */
-            private List<JobResult> send(List<JobResult> jobResults) {
-                // 单个 就不用 分组了
-                if (jobResults.size() == 1) {
-
-                    JobResult jobResult = jobResults.get(0);
-                    if (!send0(jobResult.getJob().getNodeGroup(), jobResults)) {
-                        // 如果没有完成就返回
-                        return jobResults;
-                    }
-                    return null;
-
-                } else if (jobResults.size() > 1) {
-
-                    List<JobResult> failedJobResult = new ArrayList<JobResult>();
-
-                    // 有多个要进行分组 (出现在 失败重发的时候)
-                    Map<String/*nodeGroup*/, List<JobResult>> groupMap = new HashMap<String, List<JobResult>>();
-
-                    for (JobResult jobResult : jobResults) {
-                        List<JobResult> jobResultList = groupMap.get(jobResult.getJob().getNodeGroup());
-                        if (jobResultList == null) {
-                            jobResultList = new ArrayList<JobResult>();
-                            groupMap.put(jobResult.getJob().getNodeGroup(), jobResultList);
-                        }
-                        jobResultList.add(jobResult);
-                    }
-                    for (Map.Entry<String, List<JobResult>> entry : groupMap.entrySet()) {
-
-
-                        if (!send0(entry.getKey(), entry.getValue())) {
-                            failedJobResult.addAll(entry.getValue());
-                        }
-                    }
-                    return failedJobResult;
-                }
-
-                return null;
-            }
-
-            /**
-             * 发送给客户端
-             * 返回是否发送成功还是失败
-             *
-             * @param nodeGroup
-             * @param jobResults
-             * @return
-             */
-            private boolean send0(String nodeGroup, List<JobResult> jobResults) {
-                // 得到 可用的客户端节点
-                JobClientNode jobClientNode = JobClientManager.INSTANCE.getAvailableJobClient(nodeGroup);
-
-                if (jobClientNode == null) {
-                    return false;
-                }
-
-                JobFinishedRequest requestBody = new JobFinishedRequest();
-                requestBody.setJobResults(jobResults);
-                RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
-                try {
-                    RemotingCommand commandResponse = remotingServer.invokeSync(jobClientNode.getChannel().getChannel(), commandRequest);
-
-                    if (commandResponse.getCode() == JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code()) {
-                        deleteJob(jobResults);
-                        return true;
-                    }
-                } catch (RemotingSendException e) {
-                    LOGGER.error("通知客户端失败!", e);
-                } catch (RemotingCommandFieldCheckException e) {
-                    LOGGER.error("通知客户端失败!", e);
-                }
-                return false;
-            }
-
-        }).start();
+        if (CollectionUtils.isEmpty(jobResults)) {
+            return;
+        }
+        // 1.发送给客户端
+        clientNotifier.send(jobResults);
     }
 
-    private void deleteJob(List<JobResult> jobResults) {
+    private void finishedJob(List<JobResult> jobResults) {
+        if (CollectionUtils.isEmpty(jobResults)) {
+            return;
+        }
         for (JobResult jobResult : jobResults) {
-            jobRepository.delJob(jobResult.getJob().getJobId());
+            Job job = jobResult.getJob();
+            if (!job.isSchedule()) {
+                jobRepository.delJob(jobResult.getJob().getJobId());
+            } else {
+                try {
+                    CronExpression cronExpression = new CronExpression(job.getCronExpression());
+                    Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
+                    if (nextTriggerTime == null) {
+                        // 执行完成了，要删除
+                        jobRepository.delJob(jobResult.getJob().getJobId());
+                    } else {
+                        // 表示下次还要执行
+                        jobRepository.updateTriggerTime(jobResult, nextTriggerTime);
+                    }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 }

@@ -14,18 +14,18 @@ public class JobTrackerMasterChangeListener implements MasterNodeChangeListener 
     @Override
     public void change(Node master, boolean isMaster) {
 
-        FinishedJobSendChecker finishedJobSendChecker = SingletonBeanContext.getBean(FinishedJobSendChecker.class);
+        FeedbackJobSendChecker feedbackJobSendChecker = SingletonBeanContext.getBean(FeedbackJobSendChecker.class);
 
         if (Application.Config.getIdentity().equals(master.getIdentity())) {
             // 如果 master 节点是自己
             // 2. 启动通知客户端失败检查重发的定时器
-            finishedJobSendChecker.start();
+            feedbackJobSendChecker.start();
 
         } else {
             // 如果 master 节点不是自己
 
             // 2. 关闭通知客户端失败检查重发的定时器
-            finishedJobSendChecker.stop();
+            feedbackJobSendChecker.stop();
         }
     }
 }

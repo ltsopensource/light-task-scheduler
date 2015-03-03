@@ -11,7 +11,7 @@ import java.io.StringWriter;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.
- * Job Runner 的代理类,  要做一些错误处理之类的
+ *         Job Runner 的代理类,  要做一些错误处理之类的
  */
 public class JobRunnerDelegate implements Runnable {
 
@@ -37,18 +37,18 @@ public class JobRunnerDelegate implements Runnable {
             try {
                 jobRunner.run(job);
                 response.setSuccess(true);
-                LOGGER.info("执行任务成功 : " + job);
+                LOGGER.info("执行任务成功 : {}", job);
             } catch (Throwable t) {
                 response.setSuccess(false);
 
-                if( t instanceof JobInfoException){
-                    LOGGER.warn("任务执行失败: " + job + " " + t.getMessage());
+                if (t instanceof JobInfoException) {
+                    LOGGER.warn("任务执行失败: {} {}", job, t.getMessage());
                     response.setMsg(t.getMessage());
-                }else{
+                } else {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setMsg(sw.toString());
-                    LOGGER.info("任务执行失败: " + job + " " + t.getMessage(), t);
+                    LOGGER.info("任务执行失败: {} {}", job, t.getMessage(), t);
                 }
             } finally {
                 RunnerPool.RunningJobManager.out(job.getJobId());

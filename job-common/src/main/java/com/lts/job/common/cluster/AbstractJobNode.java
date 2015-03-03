@@ -31,7 +31,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         config.setWorkThreads(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_WORK_THREADS, Constants.AVAILABLE_PROCESSOR));
         config.setNodeGroup(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_NODE_GROUP));
         config.setZookeeperAddress(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_ZOOKEEPER_ADDRESS));
-        config.setInvokeTimeoutMillis(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_INVOKE_TIMEOUT_MILLIS, 1000 * 3));
+        config.setInvokeTimeoutMillis(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_INVOKE_TIMEOUT_MILLIS, 1000 * 6));
         config.setListenPort(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_LISTEN_PORT, 0));
         config.setJobInfoSavePath(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_INFO_SAVE_PATH, Constants.USER_HOME + "/.job"));
         config.setClusterName(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_CLUSTER_NAME, Constants.DEFAULT_CLUSTER_NAME));
@@ -52,7 +52,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
             node = NodeFactory.create(nodeClass, config);
             config.setNodeType(node.getNodeType());
 
-            LOGGER.info("当前节点配置:" + config);
+            LOGGER.info("当前节点配置:{}", config);
 
             nodeStart();
 

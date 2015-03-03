@@ -1,5 +1,4 @@
 import com.lts.job.common.cluster.Node;
-import com.lts.job.common.constant.Constants;
 import com.lts.job.common.listener.MasterNodeChangeListener;
 import com.lts.job.task.tracker.TaskTracker;
 

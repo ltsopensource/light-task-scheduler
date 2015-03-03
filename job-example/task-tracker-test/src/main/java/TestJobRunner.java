@@ -17,7 +17,7 @@ public class TestJobRunner implements JobRunner {
         System.out.println(job.getParam("shopId"));
 
         try {
-            Thread.sleep(5*1000L);
+            Thread.sleep(2*1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
