@@ -1,3 +1,5 @@
+package com.lts.job.example.jobtracker;
+
 import com.lts.job.store.Config;
 import com.lts.job.tracker.JobTracker;
 

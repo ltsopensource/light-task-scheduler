@@ -4,8 +4,8 @@ package com.lts.job.registry.zookeeper.support;
 import com.lts.job.registry.zookeeper.ChildListener;
 import com.lts.job.registry.zookeeper.StateListener;
 import com.lts.job.registry.zookeeper.ZookeeperClient;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public abstract class AbstractZookeeperClient<TargetChildListener> implements ZookeeperClient {
 
-    private static final Log logger = LogFactory.getLog(AbstractZookeeperClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractZookeeperClient.class);
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
 

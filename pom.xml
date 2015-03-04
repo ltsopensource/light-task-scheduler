@@ -17,11 +17,6 @@
     </modules>
 
     <dependencies>
-        <!--<dependency>-->
-        <!--<groupId>org.iq80.leveldb</groupId>-->
-        <!--<artifactId>leveldb</artifactId>-->
-        <!--<version>0.7</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -42,11 +37,6 @@
             <artifactId>junit</artifactId>
             <version>4.11</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.zookeeper</groupId>

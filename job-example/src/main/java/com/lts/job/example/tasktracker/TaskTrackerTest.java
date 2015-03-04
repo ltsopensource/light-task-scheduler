@@ -1,3 +1,5 @@
+package com.lts.job.example.tasktracker;
+
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.task.tracker.TaskTracker;

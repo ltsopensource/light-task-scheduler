@@ -1,3 +1,5 @@
+package com.lts.job.example.jobclient;
+
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.support.JobFinishedHandler;

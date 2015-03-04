@@ -8,12 +8,23 @@
         <version>1.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <packaging>pom</packaging>
-    <modules>
-        <module>job-client-test</module>
-        <module>job-tracker-test</module>
-        <module>task-tracker-test</module>
-    </modules>
     <artifactId>job-example</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-tracker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-task-tracker</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

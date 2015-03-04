@@ -1,3 +1,5 @@
+package com.lts.job.example.tasktracker;
+
 import com.lts.job.core.domain.Job;
 import com.lts.job.task.tracker.runner.JobRunner;
 

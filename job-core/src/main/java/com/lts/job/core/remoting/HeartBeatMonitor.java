@@ -1,8 +1,8 @@
 package com.lts.job.core.remoting;
 
 import com.lts.job.core.exception.JobTrackerNotFoundException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartBeatMonitor {
 
-    private static final Log LOGGER = LogFactory.getLog("HeartBeat");
+    private static final Logger LOGGER = LoggerFactory.getLogger("HeartBeat");
 
     // 用来定时发送心跳
     private final ScheduledExecutorService HEART_BEAT_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
