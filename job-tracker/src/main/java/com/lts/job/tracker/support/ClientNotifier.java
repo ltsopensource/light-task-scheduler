@@ -1,10 +1,10 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.common.domain.JobResult;
-import com.lts.job.common.exception.RemotingSendException;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.JobFinishedRequest;
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.JobFinishedRequest;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;

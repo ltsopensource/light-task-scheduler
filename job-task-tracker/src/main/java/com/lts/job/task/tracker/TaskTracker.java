@@ -1,8 +1,8 @@
 package com.lts.job.task.tracker;
 
-import com.lts.job.common.cluster.*;
-import com.lts.job.common.constant.Constants;
-import com.lts.job.common.support.Application;
+import com.lts.job.core.cluster.*;
+import com.lts.job.core.constant.Constants;
+import com.lts.job.core.support.Application;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.task.tracker.domain.TaskTrackerNode;
 import com.lts.job.task.tracker.processor.RemotingDispatcher;

@@ -1,18 +1,16 @@
 package com.lts.job.tracker.support;
 
 
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.util.ConcurrentHashSet;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

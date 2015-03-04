@@ -1,7 +1,7 @@
 package com.lts.job.client.domain;
 
 
-import com.lts.job.common.domain.Job;
+import com.lts.job.core.domain.Job;
 
 import java.io.Serializable;
 import java.util.ArrayList;

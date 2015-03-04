@@ -1,7 +1,6 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.common.domain.Job;
-import com.lts.job.task.tracker.expcetion.JobRunException;
+import com.lts.job.core.domain.Job;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.

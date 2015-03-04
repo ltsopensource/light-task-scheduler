@@ -1,6 +1,6 @@
 package com.lts.job.task.tracker.processor;
 
-import com.lts.job.common.remoting.RemotingClientDelegate;
+import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 
 /**

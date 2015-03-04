@@ -1,6 +1,6 @@
 package com.lts.job.tracker.channel;
 
-import com.lts.job.common.cluster.NodeType;
+import com.lts.job.core.cluster.NodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

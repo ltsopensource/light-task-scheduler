@@ -1,9 +1,9 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.HeartBeatRequest;
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.HeartBeatRequest;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.support.JobController;

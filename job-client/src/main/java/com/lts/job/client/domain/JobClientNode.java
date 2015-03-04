@@ -1,7 +1,7 @@
 package com.lts.job.client.domain;
 
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.cluster.NodeType;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.cluster.NodeType;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.

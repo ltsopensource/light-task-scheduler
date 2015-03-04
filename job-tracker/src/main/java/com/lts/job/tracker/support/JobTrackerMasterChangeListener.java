@@ -1,9 +1,9 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.listener.MasterNodeChangeListener;
-import com.lts.job.common.support.Application;
-import com.lts.job.common.support.SingletonBeanContext;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.support.Application;
+import com.lts.job.core.support.SingletonBeanContext;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/24/14.

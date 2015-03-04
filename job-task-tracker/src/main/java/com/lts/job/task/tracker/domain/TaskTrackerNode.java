@@ -1,8 +1,8 @@
 package com.lts.job.task.tracker.domain;
 
 
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.cluster.NodeType;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.cluster.NodeType;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.

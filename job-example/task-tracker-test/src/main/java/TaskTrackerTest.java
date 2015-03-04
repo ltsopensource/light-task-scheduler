@@ -1,5 +1,5 @@
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.listener.MasterNodeChangeListener;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.task.tracker.TaskTracker;
 
 import java.io.IOException;

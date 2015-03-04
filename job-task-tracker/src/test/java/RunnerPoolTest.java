@@ -1,8 +1,7 @@
-import com.lts.job.common.domain.Job;
+import com.lts.job.core.domain.Job;
 import com.lts.job.task.tracker.domain.Response;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.job.task.tracker.runner.RunnerCallback;
-import com.lts.job.task.tracker.runner.RunnerFactory;
 import com.lts.job.task.tracker.runner.RunnerPool;
 import org.junit.Test;
 

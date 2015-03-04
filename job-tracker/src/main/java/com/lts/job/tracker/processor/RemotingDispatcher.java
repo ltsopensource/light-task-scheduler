@@ -1,8 +1,8 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.protocol.command.AbstractCommandBody;
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.protocol.command.AbstractCommandBody;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -15,8 +15,8 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lts.job.common.protocol.JobProtos.RequestCode;
-import static com.lts.job.common.protocol.JobProtos.RequestCode.*;
+import static com.lts.job.core.protocol.JobProtos.RequestCode;
+import static com.lts.job.core.protocol.JobProtos.RequestCode.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/23/14.

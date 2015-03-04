@@ -1,9 +1,9 @@
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.JobSubmitRequest;
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.JobSubmitRequest;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.RemotingClient;
 import com.lts.job.remoting.RemotingServer;
 import com.lts.job.remoting.exception.RemotingCommandException;

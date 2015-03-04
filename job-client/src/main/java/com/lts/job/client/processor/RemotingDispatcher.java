@@ -1,8 +1,8 @@
 package com.lts.job.client.processor;
 
 import com.lts.job.client.support.JobFinishedHandler;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.remoting.RemotingClientDelegate;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -12,8 +12,8 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lts.job.common.protocol.JobProtos.RequestCode.JOB_FINISHED;
-import static com.lts.job.common.protocol.JobProtos.RequestCode.valueOf;
+import static com.lts.job.core.protocol.JobProtos.RequestCode.JOB_FINISHED;
+import static com.lts.job.core.protocol.JobProtos.RequestCode.valueOf;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.

@@ -1,8 +1,8 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.common.domain.Job;
-import com.lts.job.common.support.Application;
-import com.lts.job.common.util.ConcurrentHashSet;
+import com.lts.job.core.domain.Job;
+import com.lts.job.core.support.Application;
+import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.JobSubmitRequest;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import org.junit.Test;

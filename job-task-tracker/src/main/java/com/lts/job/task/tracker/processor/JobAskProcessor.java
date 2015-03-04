@@ -1,8 +1,8 @@
 package com.lts.job.task.tracker.processor;
 
-import com.lts.job.common.protocol.command.JobAskRequest;
-import com.lts.job.common.protocol.command.JobAskResponse;
-import com.lts.job.common.remoting.RemotingClientDelegate;
+import com.lts.job.core.protocol.command.JobAskRequest;
+import com.lts.job.core.protocol.command.JobAskResponse;
+import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;

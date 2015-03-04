@@ -1,10 +1,10 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.common.exception.JobReceiveException;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.JobSubmitRequest;
-import com.lts.job.common.protocol.command.JobSubmitResponse;
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.exception.JobReceiveException;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.JobSubmitRequest;
+import com.lts.job.core.protocol.command.JobSubmitResponse;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.support.JobReceiver;

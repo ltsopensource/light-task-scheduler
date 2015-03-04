@@ -1,8 +1,7 @@
 package com.lts.job.task.tracker.processor;
 
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.remoting.RemotingClientDelegate;
-import com.lts.job.common.support.Application;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -12,7 +11,7 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lts.job.common.protocol.JobProtos.RequestCode.*;
+import static com.lts.job.core.protocol.JobProtos.RequestCode.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.

@@ -1,6 +1,6 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.common.domain.JobResult;
+import com.lts.job.core.domain.JobResult;
 
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.cluster.NodeType;
-import com.lts.job.common.listener.NodeChangeListener;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.listener.NodeChangeListener;
 
 import java.util.List;
 

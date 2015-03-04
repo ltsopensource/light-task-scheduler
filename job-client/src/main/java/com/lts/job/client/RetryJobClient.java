@@ -2,13 +2,13 @@ package com.lts.job.client;
 
 import com.lts.job.client.domain.JobClientNode;
 import com.lts.job.client.domain.ResponseCode;
-import com.lts.job.common.domain.Job;
+import com.lts.job.core.domain.Job;
 import com.lts.job.client.domain.Response;
-import com.lts.job.common.file.FileAccessor;
-import com.lts.job.common.file.FileException;
-import com.lts.job.common.file.Line;
-import com.lts.job.common.support.RetryScheduler;
-import com.lts.job.common.util.JsonUtils;
+import com.lts.job.core.file.FileAccessor;
+import com.lts.job.core.file.FileException;
+import com.lts.job.core.file.Line;
+import com.lts.job.core.support.RetryScheduler;
+import com.lts.job.core.util.JsonUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

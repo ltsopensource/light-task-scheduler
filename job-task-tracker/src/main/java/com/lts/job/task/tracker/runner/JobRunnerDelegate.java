@@ -1,7 +1,7 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.common.domain.Job;
-import com.lts.job.common.exception.JobInfoException;
+import com.lts.job.core.domain.Job;
+import com.lts.job.core.exception.JobInfoException;
 import com.lts.job.task.tracker.domain.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

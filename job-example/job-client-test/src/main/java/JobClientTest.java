@@ -1,12 +1,12 @@
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.support.JobFinishedHandler;
-import com.lts.job.common.cluster.Node;
-import com.lts.job.common.domain.Job;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.domain.Job;
 import com.lts.job.client.domain.Response;
-import com.lts.job.common.domain.JobResult;
-import com.lts.job.common.listener.MasterNodeChangeListener;
-import com.lts.job.common.util.CollectionUtils;
+import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.util.CollectionUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

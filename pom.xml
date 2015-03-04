@@ -9,10 +9,7 @@
     <packaging>pom</packaging>
     <version>1.2-SNAPSHOT</version>
     <modules>
-        <module>job-remoting</module>
-        <module>job-registry</module>
-        <module>job-store</module>
-        <module>job-common</module>
+        <module>job-core</module>
         <module>job-tracker</module>
         <module>job-task-tracker</module>
         <module>job-client</module>
@@ -20,6 +17,11 @@
     </modules>
 
     <dependencies>
+        <!--<dependency>-->
+        <!--<groupId>org.iq80.leveldb</groupId>-->
+        <!--<artifactId>leveldb</artifactId>-->
+        <!--<version>0.7</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>

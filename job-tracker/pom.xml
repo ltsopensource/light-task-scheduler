@@ -11,11 +11,10 @@
 
     <artifactId>job-tracker</artifactId>
 
-
     <dependencies>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>job-common</artifactId>
+            <artifactId>job-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

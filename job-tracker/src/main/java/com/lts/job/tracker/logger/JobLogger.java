@@ -1,12 +1,12 @@
 package com.lts.job.tracker.logger;
 
-import com.lts.job.common.domain.Job;
-import com.lts.job.common.domain.JobResult;
-import com.lts.job.common.domain.LogType;
-import com.lts.job.common.repository.JobLogMongoRepository;
-import com.lts.job.common.repository.po.JobLogPo;
-import com.lts.job.common.repository.po.JobPo;
-import com.lts.job.common.support.SingletonBeanContext;
+import com.lts.job.core.domain.Job;
+import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.domain.LogType;
+import com.lts.job.core.repository.JobLogMongoRepository;
+import com.lts.job.core.repository.po.JobLogPo;
+import com.lts.job.core.repository.po.JobPo;
+import com.lts.job.core.support.SingletonBeanContext;
 import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

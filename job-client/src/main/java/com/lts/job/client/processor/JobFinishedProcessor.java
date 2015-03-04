@@ -1,11 +1,11 @@
 package com.lts.job.client.processor;
 
 import com.lts.job.client.support.JobFinishedHandler;
-import com.lts.job.common.domain.JobResult;
-import com.lts.job.common.protocol.JobProtos;
-import com.lts.job.common.protocol.command.JobFinishedRequest;
-import com.lts.job.common.remoting.RemotingClientDelegate;
-import com.lts.job.common.util.CollectionUtils;
+import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.JobFinishedRequest;
+import com.lts.job.core.remoting.RemotingClientDelegate;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;

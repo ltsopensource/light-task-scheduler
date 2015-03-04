@@ -1,6 +1,6 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.common.domain.Job;
+import com.lts.job.core.domain.Job;
 import com.lts.job.task.tracker.domain.Response;
 
 /**

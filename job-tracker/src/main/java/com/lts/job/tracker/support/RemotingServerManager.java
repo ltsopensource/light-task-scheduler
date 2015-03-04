@@ -1,6 +1,6 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.common.remoting.RemotingServerDelegate;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/21/14.
