@@ -26,7 +26,8 @@ public class HeartBeatMonitor {
     }
 
     public void start() {
-        HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(new HeartBeatRunner(), 5, 10, TimeUnit.SECONDS);  // 10s发送一次心跳
+        HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
+                new HeartBeatRunner(), 5, 5, TimeUnit.SECONDS);  // 5s发送一次心跳
     }
 
     public void destroy() {

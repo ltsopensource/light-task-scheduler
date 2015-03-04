@@ -20,11 +20,9 @@ import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.core.support.JobDomainConverter;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import io.netty.channel.ChannelHandlerContext;
-import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.*;
 
@@ -36,7 +34,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
     private JobFeedbackQueueMongoRepository jobFeedbackQueueMongoRepository;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
@@ -51,19 +48,12 @@ public class JobFinishedProcessor extends AbstractProcessor {
             @Override
             public void handleFailed(List<JobResult> jobResults) {
                 if (CollectionUtils.isNotEmpty(jobResults)) {
-                    List<JobFeedbackQueuePo> jobFeedbackQueuePos = new ArrayList<JobFeedbackQueuePo>(jobResults.size());
+                    List<JobFeedbackQueuePo> jobFeedbackQueuePos =
+                            new ArrayList<JobFeedbackQueuePo>(jobResults.size());
 
                     for (JobResult jobResult : jobResults) {
-                        JobFeedbackQueuePo jobFeedbackQueuePo = new JobFeedbackQueuePo();
-                        try {
-                            BeanUtils.copyProperties(jobFeedbackQueuePo, jobResult);
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-                        jobFeedbackQueuePo.setId(UUID.randomUUID().toString());
-                        jobFeedbackQueuePo.setGmtCreated(System.currentTimeMillis());
+                        JobFeedbackQueuePo jobFeedbackQueuePo =
+                                JobDomainConverter.convert(jobResult);
                         jobFeedbackQueuePos.add(jobFeedbackQueuePo);
                     }
                     // 2. 失败的存储在反馈队列
@@ -94,7 +84,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             JobLogger.log(jobResults, LogType.FINISHED);
         }
 
-        LOGGER.info("任务完成: {}", jobResults);
+        LOGGER.info("执行任务完成: {}", jobResults);
 
         return finishJob(requestBody, jobResults);
     }
@@ -140,7 +130,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 JobPushRequest jobPushRequest = new JobPushRequest();
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
-                LOGGER.info("发送任务{}给 {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
+                if(LOGGER.isDebugEnabled()){
+                    LOGGER.debug("发送任务{}给 {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
+                }
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
             }

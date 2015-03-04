@@ -1,11 +1,15 @@
 package com.lts.job.core.support;
 
 import com.lts.job.core.domain.Job;
+import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.repository.po.JobFeedbackQueuePo;
+import com.lts.job.core.repository.po.JobLogPo;
 import com.lts.job.core.util.Md5Encrypt;
 import com.lts.job.core.repository.po.JobPo;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -41,9 +45,9 @@ public class JobDomainConverter {
                 throw new RuntimeException(e);
             }
         } else {
-            if(job.getTriggerTime() == null){
+            if (job.getTriggerTime() == null) {
                 jobPo.setTriggerTime(System.currentTimeMillis());
-            }else{
+            } else {
                 jobPo.setTriggerTime(job.getTriggerTime());
             }
         }
@@ -69,6 +73,45 @@ public class JobDomainConverter {
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
         return job;
+    }
+
+    public static JobLogPo convertJobLogPo(Job job) {
+        JobLogPo jobLogPo = new JobLogPo();
+        jobLogPo.setPriority(job.getPriority());
+        jobLogPo.setExtParams(job.getExtParams());
+        jobLogPo.setNodeGroup(job.getNodeGroup());
+        jobLogPo.setTaskId(job.getTaskId());
+        jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
+        jobLogPo.setNeedFeedback(job.isNeedFeedback());
+        jobLogPo.setJobId(job.getJobId());
+        jobLogPo.setCronExpression(job.getCronExpression());
+        jobLogPo.setTriggerTime(job.getTriggerTime());
+        return jobLogPo;
+    }
+
+    public static JobLogPo convertJobLogPo(JobPo jobPo) {
+        JobLogPo jobLogPo = new JobLogPo();
+        jobLogPo.setPriority(jobPo.getPriority());
+        jobLogPo.setExtParams(jobPo.getExtParams());
+        jobLogPo.setNodeGroup(jobPo.getNodeGroup());
+        jobLogPo.setTaskId(jobPo.getTaskId());
+        jobLogPo.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
+        jobLogPo.setNeedFeedback(jobPo.isNeedFeedback());
+        jobLogPo.setJobId(jobPo.getJobId());
+        jobLogPo.setCronExpression(jobPo.getCronExpression());
+        jobLogPo.setTriggerTime(jobPo.getTriggerTime());
+        return jobLogPo;
+    }
+
+    public static JobFeedbackQueuePo convert(JobResult jobResult) {
+        JobFeedbackQueuePo jobFeedbackQueuePo = new JobFeedbackQueuePo();
+        jobFeedbackQueuePo.setJob(jobResult.getJob());
+        jobFeedbackQueuePo.setSuccess(jobResult.isSuccess());
+        jobFeedbackQueuePo.setMsg(jobResult.getMsg());
+        jobFeedbackQueuePo.setTime(jobResult.getTime());
+        jobFeedbackQueuePo.setId(UUID.randomUUID().toString());
+        jobFeedbackQueuePo.setGmtCreated(System.currentTimeMillis());
+        return jobFeedbackQueuePo;
     }
 
     /**

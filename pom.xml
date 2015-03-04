@@ -14,6 +14,7 @@
         <module>job-task-tracker</module>
         <module>job-client</module>
         <module>job-example</module>
+        <module>job-extentions</module>
     </modules>
 
     <dependencies>
@@ -67,11 +68,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>1.8.0</version>
         </dependency>
     </dependencies>
     <build>
