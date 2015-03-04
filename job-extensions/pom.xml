@@ -12,6 +12,6 @@
     <modules>
         <module>job-ext-spring</module>
     </modules>
-    <artifactId>job-extentions</artifactId>
+    <artifactId>job-extensions</artifactId>
 
 </project>

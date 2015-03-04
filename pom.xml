@@ -14,7 +14,7 @@
         <module>job-task-tracker</module>
         <module>job-client</module>
         <module>job-example</module>
-        <module>job-extentions</module>
+        <module>job-extensions</module>
     </modules>
 
     <dependencies>
