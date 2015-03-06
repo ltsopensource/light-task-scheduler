@@ -38,10 +38,5 @@ public class JobTrackerTest {
             }
         }));
 
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
