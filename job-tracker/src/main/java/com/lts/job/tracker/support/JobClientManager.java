@@ -9,11 +9,14 @@ import com.lts.job.tracker.domain.JobClientNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
- * 客户端节点管理
+ *         客户端节点管理
  */
 public class JobClientManager {
 
@@ -36,7 +39,7 @@ public class JobClientManager {
         ChannelWrapper channel = ChannelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
 
-        synchronized (NODE_MAP){
+        synchronized (NODE_MAP) {
             if (jobClientNodes == null) {
                 jobClientNodes = new ConcurrentHashSet<JobClientNode>();
                 NODE_MAP.put(node.getGroup(), jobClientNodes);
@@ -58,7 +61,7 @@ public class JobClientManager {
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
         if (jobClientNodes != null && jobClientNodes.size() != 0) {
             for (JobClientNode jobClientNode : jobClientNodes) {
-                if(node.getIdentity().equals(jobClientNode.getIdentity())){
+                if (node.getIdentity().equals(jobClientNode.getIdentity())) {
                     LOGGER.info("删除JobClient节点:{}", jobClientNode);
                     jobClientNodes.remove(jobClientNode);
                 }
@@ -68,31 +71,49 @@ public class JobClientManager {
 
     /**
      * 得到 可用的 客户端节点
+     *
      * @param nodeGroup
      * @return
      */
     public JobClientNode getAvailableJobClient(String nodeGroup) {
 
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(nodeGroup);
+
         if (jobClientNodes == null || jobClientNodes.size() == 0) {
             return null;
         }
 
-        for (JobClientNode jobClientNode : jobClientNodes) {
+        int size = jobClientNodes.size();
+        int index = getRandomIndex(size);
+
+        List<JobClientNode> list = new ArrayList<JobClientNode>(jobClientNodes);
+
+        JobClientNode jobClientNode = null;
+        int retry = 0;
+        while (jobClientNode == null && retry < size) {
+            jobClientNode = list.get(index);
             // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-            if (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed()) {
+            if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
                 ChannelWrapper channel = ChannelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);
                 } else {
-                    continue;
+                    jobClientNode = null;
                 }
             }
-
-            return jobClientNode;
+            index = (index + 1) % size;
+            retry++;
         }
 
-        return null;
+        return jobClientNode;
     }
+
+    private int getRandomIndex(int size) {
+        int min = 1;
+        int max = size;
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        return random.nextInt(max) % (max - min + 1) + min - 1;
+    }
+
 }

@@ -83,6 +83,13 @@ public class FeedbackJobSendChecker {
         @Override
         public void run() {
             try {
+
+                long count = jobFeedbackQueueMongoRepository.count();
+                if (count == 0) {
+                    return;
+                }
+                LOGGER.info("一共有{}个完成的任务要通知客户端.", count);
+
                 List<JobFeedbackQueuePo> jobFeedbackQueuePos;
                 int offset = 0;
                 int limit = 5;
@@ -91,7 +98,6 @@ public class FeedbackJobSendChecker {
                     if (CollectionUtils.isEmpty(jobFeedbackQueuePos)) {
                         return;
                     }
-                    LOGGER.info("一共有{}个完成的任务要通知客户端.", jobFeedbackQueuePos.size());
                     List<JobResult> jobResults = new ArrayList<JobResult>(jobFeedbackQueuePos.size());
                     for (JobFeedbackQueuePo jobFeedbackQueuePo : jobFeedbackQueuePos) {
                         jobResults.add(jobFeedbackQueuePo);

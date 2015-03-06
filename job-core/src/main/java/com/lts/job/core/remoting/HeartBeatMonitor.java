@@ -1,6 +1,8 @@
 package com.lts.job.core.remoting;
 
+import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.support.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,8 +28,13 @@ public class HeartBeatMonitor {
     }
 
     public void start() {
+        // 设置 JobClient 心跳10s一次，TaskTracker 5s一次
+        int delay = 5;
+        if(NodeType.CLIENT.equals(Application.Config.getNodeType())){
+            delay = 10;
+        }
         HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
-                new HeartBeatRunner(), 5, 5, TimeUnit.SECONDS);  // 5s发送一次心跳
+                new HeartBeatRunner(), 5, delay, TimeUnit.SECONDS);
     }
 
     public void destroy() {

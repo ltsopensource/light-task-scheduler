@@ -16,6 +16,11 @@ public class JobFeedbackQueueMongoRepository extends AbstractMongoRepository<Job
         ds.delete(query);
     }
 
+    public long count(){
+        Query<JobFeedbackQueuePo> query = createQuery();
+        return ds.getCount(query);
+    }
+
     public List<JobFeedbackQueuePo> get(int offset, int limit){
         Query<JobFeedbackQueuePo> query = createQuery();
         query.order("gmtCreated").offset(offset).limit(limit);
