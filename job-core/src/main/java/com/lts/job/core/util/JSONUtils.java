@@ -9,28 +9,25 @@ import java.lang.reflect.Type;
 /**
  * @author Robert HG (254963746@qq.com) on 6/23/14.
  */
-public class JsonUtils {
+public class JSONUtils {
 
-    private JsonUtils() {
-    }
-
-    public static <T> T jsonToObject(String json, Type type) {
+    public static <T> T parse(String json, Type type) {
         return (T) JSONObject.parseObject(json, type);
     }
 
-    public static String objectToJsonString(Object obj) {
+    public static String toJSONString(Object obj) {
         return JSONObject.toJSONString(obj);
     }
 
-    public static JSONObject objectToJson(Object obj) {
+    public static JSONObject toJSON(Object obj) {
         return (JSONObject) JSONObject.toJSON(obj);
     }
 
-    public static JSONArray strToJsonArray(String obj) {
+    public static JSONArray parseArray(String obj) {
         return JSON.parseArray(obj);
     }
 
-    public static JSONObject strToJson(String obj) {
+    public static JSONObject parseObject(String obj) {
         return JSON.parseObject(obj);
     }
 
