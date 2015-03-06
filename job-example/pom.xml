@@ -26,5 +26,10 @@
             <artifactId>job-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-ext-spring</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

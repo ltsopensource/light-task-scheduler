@@ -1,5 +1,8 @@
 package com.lts.job.core.util;
 
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  */
@@ -16,8 +19,8 @@ public class StringUtils {
         return !isEmpty(s);
     }
 
-    public static String generateUUID(){
-        return StringUtils.replace(java.util.UUID.randomUUID().toString(),"-","").toUpperCase();
+    public static String generateUUID() {
+        return StringUtils.replace(java.util.UUID.randomUUID().toString(), "-", "").toUpperCase();
     }
 
     public static String replace(String text, String repl, String with) {
@@ -48,5 +51,27 @@ public class StringUtils {
         }
         buf.append(text.substring(start));
         return buf.toString();
+    }
+
+    public static boolean hasLength(String str) {
+        return (str != null && str.length() > 0);
+    }
+
+    public static boolean hasText(String str) {
+        if (!hasLength(str)) {
+            return false;
+        }
+        int strLen = str.length();
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String format(String format, Object...args){
+        FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
+        return ft.getMessage();
     }
 }

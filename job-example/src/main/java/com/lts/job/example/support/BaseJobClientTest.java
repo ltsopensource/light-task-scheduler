@@ -1,51 +1,26 @@
-package com.lts.job.example.jobclient;
+package com.lts.job.example.support;
 
 import com.lts.job.client.JobClient;
-import com.lts.job.client.RetryJobClient;
-import com.lts.job.client.support.JobFinishedHandler;
-import com.lts.job.core.cluster.Node;
-import com.lts.job.core.domain.Job;
 import com.lts.job.client.domain.Response;
-import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.listener.MasterNodeChangeListener;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.domain.Job;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.UUID;
 
 /**
- * @author Robert HG (254963746@qq.com) on 8/13/14.
+ * Created by hugui on 3/6/15.
  */
-public class JobClientTest {
+public class BaseJobClientTest {
 
     private static int mode = 2;
 
-    public static void main(String[] args) throws ParseException, IOException {
+    protected JobClient jobClient;
 
-        final JobClient jobClient = new RetryJobClient();
-//      final JobClient jobClient = new JobClient();
-        jobClient.setNodeGroup("TEST");
-//        jobClient.setClusterName("QN");
-        jobClient.setZookeeperAddress("localhost:2181");
-        // 任务重试保存地址，默认用户目录下
-//        jobClient.setJobInfoSavePath(Constants.USER_HOME);
-        jobClient.setJobFinishedHandler(new JobFinishedHandler() {
-            @Override
-            public void handle(List<JobResult> jobResults) {
-                // 任务执行反馈结果处理
-                if (CollectionUtils.isNotEmpty(jobResults)) {
-                    for (JobResult jobResult : jobResults) {
-                        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) + " 任务执行完成：" + jobResult);
-                    }
-                }
-            }
-        });
-        jobClient.addMasterNodeChangeListener(new MasterListener());
-        jobClient.start();
+    public void startConsole() throws IOException {
 
         BufferedReader buffer = new BufferedReader(new InputStreamReader(System.in));
 
@@ -66,7 +41,7 @@ public class JobClientTest {
         String input;
         while (!"quit".equals(input = buffer.readLine())) {
             try {
-                if("now".equals(input)){
+                if ("now".equals(input)) {
                     input = "";
                 }
                 if ("help".equals(input)) {
@@ -83,9 +58,9 @@ public class JobClientTest {
                     }
                 }
 
-                if(mode == 1){
+                if (mode == 1) {
                     System.out.print("cronExpression模式:");
-                }else if(mode == 2){
+                } else if (mode == 2) {
                     System.out.print("指定时间模式:");
                 }
 
@@ -96,7 +71,7 @@ public class JobClientTest {
         System.exit(0);
     }
 
-    public static void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException {
+    public void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException {
         Job job = new Job();
         job.setTaskId(UUID.randomUUID().toString());
         job.setParam("shopId", "111");
@@ -106,7 +81,7 @@ public class JobClientTest {
         System.out.println(response);
     }
 
-    public static void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException {
+    public void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException {
         Job job = new Job();
         job.setTaskId(UUID.randomUUID().toString());
         job.setParam("shopId", "111");
@@ -116,23 +91,5 @@ public class JobClientTest {
         }
         Response response = jobClient.submitJob(job);
         System.out.println(response);
-    }
-
-}
-
-
-class MasterListener implements MasterNodeChangeListener {
-
-    /**
-     * master 为 master节点
-     * isMaster 表示当前节点是不是master节点
-     *
-     * @param master
-     * @param isMaster
-     */
-    @Override
-    public void change(Node master, boolean isMaster) {
-
-        // 一个节点组master节点变化后的处理 , 譬如我多个JobClient， 但是有些事情只想只有一个节点能做。
     }
 }

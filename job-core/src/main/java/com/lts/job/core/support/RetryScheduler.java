@@ -59,7 +59,7 @@ public abstract class RetryScheduler<T> {
     }
 
     // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-    private static int maxSentSize = 20;
+    private int maxSentSize = 20;
 
     public void stop() {
         RETRY_EXECUTOR_SERVICE.shutdown();

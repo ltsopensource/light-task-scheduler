@@ -1,7 +1,7 @@
-package com.lts.job.example.tasktracker;
+package com.lts.job.example.api;
 
-import com.lts.job.core.cluster.Node;
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.example.support.MasterNodeChangeListenerImpl;
+import com.lts.job.example.support.TestJobRunner;
 import com.lts.job.task.tracker.TaskTracker;
 
 import java.io.IOException;
@@ -17,10 +17,10 @@ public class TaskTrackerTest {
 
         taskTracker.setZookeeperAddress("localhost:2181");
         taskTracker.setNodeGroup("TEST_TRADE");
-//        taskTracker.setClusterName("QN");
+//        taskTracker.setClusterName("lts");
         taskTracker.setWorkThreads(20);
 //        taskTracker.setJobInfoSavePath(Constants.USER_HOME);
-        taskTracker.addMasterNodeChangeListener(new MasterListener());
+        taskTracker.addMasterNodeChangeListener(new MasterNodeChangeListenerImpl());
 
         taskTracker.start();
 
@@ -37,20 +37,5 @@ public class TaskTrackerTest {
             e.printStackTrace();
         }
 
-    }
-}
-
-class MasterListener implements MasterNodeChangeListener{
-
-    /**
-     * master 为 master节点
-     * isMaster 表示当前节点是不是master节点
-     * @param master
-     * @param isMaster
-     */
-    @Override
-    public void change(Node master, boolean isMaster) {
-
-        // 一个节点组master节点变化后的处理
     }
 }

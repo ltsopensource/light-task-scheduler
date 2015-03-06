@@ -1,4 +1,4 @@
-package com.lts.job.example.jobtracker;
+package com.lts.job.example.api;
 
 import com.lts.job.store.Config;
 import com.lts.job.tracker.JobTracker;
@@ -16,7 +16,7 @@ public class JobTrackerTest {
         // 节点信息配置
         jobTracker.setZookeeperAddress("localhost:2181");
 //        jobTracker.setListenPort(35001); // 默认 35001
-//        jobTracker.setClusterName("QN");
+//        jobTracker.setClusterName("lts");
 
         // mongo 配置 （也可以配置在 mongo.properties中）
         Config config = new Config();
