@@ -5,7 +5,7 @@ import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.file.FileAccessor;
 import com.lts.job.core.file.FileException;
 import com.lts.job.core.file.Line;
-import com.lts.job.core.util.JsonUtils;
+import com.lts.job.core.util.JSONUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -28,14 +28,14 @@ public class FileAccessorTest {
             node.setPath("ddd中文测试");
             node.setNodeType(NodeType.CLIENT);
 
-            fileAccessor.addOneLine(new Line(JsonUtils.objectToJsonString(node)));
-            fileAccessor.addOneLine(new Line(JsonUtils.objectToJsonString(node)));
-            fileAccessor.addOneLine(new Line(JsonUtils.objectToJsonString(node)));
+            fileAccessor.addOneLine(new Line(JSONUtils.toJSONString(node)));
+            fileAccessor.addOneLine(new Line(JSONUtils.toJSONString(node)));
+            fileAccessor.addOneLine(new Line(JSONUtils.toJSONString(node)));
 
             List<Line> lines = new ArrayList<Line>();
             for (int i = 0; i < 5; i++) {
                 node.setPath("中文测试" + i);
-                lines.add(new Line(JsonUtils.objectToJsonString(node)));
+                lines.add(new Line(JSONUtils.toJSONString(node)));
             }
 
             fileAccessor.addLines(lines);

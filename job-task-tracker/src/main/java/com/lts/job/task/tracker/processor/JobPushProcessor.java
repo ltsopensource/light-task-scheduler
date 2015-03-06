@@ -3,15 +3,12 @@ package com.lts.job.task.tracker.processor;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
-import com.lts.job.core.file.FileException;
-import com.lts.job.core.file.Line;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.support.RetryScheduler;
 import com.lts.job.core.support.SingletonBeanContext;
-import com.lts.job.core.util.JsonUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
@@ -101,7 +98,6 @@ public class JobPushProcessor extends AbstractProcessor {
 
             try {
                 final CountDownLatch latch = new CountDownLatch(1);
-                // 这里会容易超时, 造成JobTracker返回来的任务没有拿到, 但JobTracker 认为已经任务拿到了, 这个由JobTracker 定时去修复
                 remotingClient.invokeAsync(request, new InvokeCallback() {
                     @Override
                     public void operationComplete(ResponseFuture responseFuture) {
@@ -116,12 +112,12 @@ public class JobPushProcessor extends AbstractProcessor {
                                 }
                             } else {
                                 LOGGER.info("任务完成通知反馈失败, 存储文件。{}", jobResult);
-                                // 通知失败, 存文件
-                                Line line = new Line(JsonUtils.objectToJsonString(jobResult));
                                 try {
-                                    retryScheduler.getFileAccessor().addOneLine(line);
-                                } catch (FileException e) {
-                                    LOGGER.error("保存JobResult失败:{}", jobResult, e);
+                                    retryScheduler.inSchedule(
+                                            jobResult.getJob().getJobId().concat("_") + System.currentTimeMillis(),
+                                            jobResult);
+                                } catch (Exception e) {
+                                    LOGGER.error("任务完成通知反馈存储文件失败", e);
                                 }
                             }
                         } finally {
@@ -169,7 +165,8 @@ public class JobPushProcessor extends AbstractProcessor {
                         RemotingCommand commandResponse = responseFuture.getResponseCommand();
                         if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                             result[0] = true;
-                        }else{
+                        } else {
+                            LOGGER.warn("send job failed, {}", commandResponse);
                             result[0] = false;
                         }
                     } finally {

@@ -4,11 +4,10 @@ import com.lts.job.client.domain.JobClientNode;
 import com.lts.job.client.domain.ResponseCode;
 import com.lts.job.core.domain.Job;
 import com.lts.job.client.domain.Response;
-import com.lts.job.core.file.FileAccessor;
 import com.lts.job.core.file.FileException;
 import com.lts.job.core.file.Line;
 import com.lts.job.core.support.RetryScheduler;
-import com.lts.job.core.util.JsonUtils;
+import com.lts.job.core.util.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,12 +15,11 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
- * 重试 客户端, 如果 没有可用的JobTracker, 那么存文件, 定时重试
+ *         重试 客户端, 如果 没有可用的JobTracker, 那么存文件, 定时重试
  */
 public class RetryJobClient extends JobClient<JobClientNode> {
 
     private RetryScheduler retryScheduler;
-    private FileAccessor fileAccessor;
 
     @Override
     protected void nodeStart() {
@@ -37,8 +35,6 @@ public class RetryJobClient extends JobClient<JobClientNode> {
                 return superSubmitJob(jobs).isSuccess();
             }
         };
-        fileAccessor = retryScheduler.getFileAccessor();
-
         super.nodeStart();
         retryScheduler.start();
     }
@@ -59,22 +55,13 @@ public class RetryJobClient extends JobClient<JobClientNode> {
         Response response = superSubmitJob(jobs);
 
         if (!response.isSuccess()) {
-            // 存储文件
-            List<Line> lines = new ArrayList<Line>();
-            for (Job job : response.getFailedJobs()) {
-                String line = JsonUtils.objectToJsonString(job);
-                lines.add(new Line(line));
-            }
-
             try {
-                if (fileAccessor == null) {
-                    throw new RuntimeException("save file error ! can not get file accessor !");
+                for (Job job : response.getFailedJobs()) {
+                    retryScheduler.inSchedule(job.getTaskId(), job);
                 }
-                fileAccessor.addLines(lines);
                 response.setSuccess(true);
                 response.setCode(ResponseCode.FAILED_AND_SAVE_FILE);
-
-            } catch (FileException e) {
+            } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg(e.getMessage());
             }
@@ -83,7 +70,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
         return response;
     }
 
-    private Response superSubmitJob(List<Job> jobs){
+    private Response superSubmitJob(List<Job> jobs) {
         return super.submitJob(jobs);
     }
 }

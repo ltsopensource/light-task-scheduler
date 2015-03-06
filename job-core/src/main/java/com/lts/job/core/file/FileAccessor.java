@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
- * 文件访问器 (多进程多线程互斥)
+ *         文件访问器 (多进程多线程互斥)
  */
 public class FileAccessor {
 
@@ -20,6 +20,10 @@ public class FileAccessor {
     private static final String SEPARATOR = "\r\n";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileAccessor.class);
     private File file;
+
+    RandomAccessFile randomAccessFile = null;
+    FileChannel channel = null;
+    FileLock lock = null;
 
     public FileAccessor(String filename) throws FileException {
         file = new File(filename);
@@ -49,16 +53,8 @@ public class FileAccessor {
         return file.exists();
     }
 
-    public void create() throws FileException {
-        if (!file.exists()) {
-            // 创建父目录
-            file.getParentFile().mkdirs();
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                throw new FileException("create file[" + file.getAbsolutePath() + "] failed!", e, FileException.FILE_CREATE);
-            }
-        }
+    public void createIfNotExist(){
+        FileUtils.createFileIfNotExist(file.getAbsolutePath());
     }
 
     /**
@@ -70,7 +66,7 @@ public class FileAccessor {
      */
     public static FileAccessor create(String filename) throws FileException {
         FileAccessor fileAccessor = new FileAccessor(filename);
-        fileAccessor.create();
+        fileAccessor.createIfNotExist();
         return fileAccessor;
     }
 
@@ -119,13 +115,8 @@ public class FileAccessor {
     public List<Line> readLines() throws FileException {
 
         List<Line> lines = new ArrayList<Line>();
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        FileLock lock = null;
         try {
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            channel = randomAccessFile.getChannel();
-            tryLock(lock, channel);
+            tryLock();
 
             BufferedReader reader = new BufferedReader(new FileReader(randomAccessFile.getFD()));
             // 读取所有内容
@@ -139,7 +130,7 @@ public class FileAccessor {
         } catch (Exception e) {
             throw new FileException(e, FileException.FILE_CONTENT_GET);
         } finally {
-            closeFile(lock, channel, randomAccessFile);
+            unlock();
         }
         return lines;
     }
@@ -152,14 +143,8 @@ public class FileAccessor {
     public void deleteFirstLines(int num) throws FileException {
 
         List<Line> lines = new ArrayList<Line>();
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        FileLock lock = null;
         try {
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            channel = randomAccessFile.getChannel();
-
-            tryLock(lock, channel);
+            tryLock();
 
             BufferedReader reader = new BufferedReader(new FileReader(randomAccessFile.getFD()));
             // 读取所有内容
@@ -184,7 +169,7 @@ public class FileAccessor {
         } catch (Exception e) {
             throw new FileException(e, FileException.FILE_CONTENT_GET);
         } finally {
-            closeFile(lock, channel, randomAccessFile);
+            unlock();
         }
     }
 
@@ -192,21 +177,15 @@ public class FileAccessor {
      * 清空文件
      */
     public void empty() throws FileException {
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        FileLock lock = null;
         try {
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            channel = randomAccessFile.getChannel();
-
-            tryLock(lock, channel);
+            tryLock();
 
             channel.truncate(0);
 
         } catch (Exception e) {
             throw new FileException(e, FileException.FILE_CONTENT_EMPTY);
         } finally {
-            closeFile(lock, channel, randomAccessFile);
+            unlock();
         }
     }
 
@@ -215,15 +194,8 @@ public class FileAccessor {
      * 如果当前 修改时间和给定相同，那么情况
      */
     public boolean compareAndEmpty(Long lastModified) throws FileException {
-
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        FileLock lock = null;
         try {
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            channel = randomAccessFile.getChannel();
-
-            tryLock(lock, channel);
+            tryLock();
 
             if (lastModified == lastModified()) {
                 channel.truncate(0);
@@ -234,7 +206,7 @@ public class FileAccessor {
         } catch (Exception e) {
             throw new FileException(e, FileException.FILE_CONTENT_EMPTY);
         } finally {
-            closeFile(lock, channel, randomAccessFile);
+            unlock();
         }
     }
 
@@ -244,34 +216,27 @@ public class FileAccessor {
      * @throws FileException
      */
     public boolean isEmpty() throws FileException {
-        RandomAccessFile randomAccessFile = null;
-        FileChannel channel = null;
-        FileLock lock = null;
         try {
-            randomAccessFile = new RandomAccessFile(file, "rw");
-            channel = randomAccessFile.getChannel();
-
-            tryLock(lock, channel);
+            tryLock();
 
             return randomAccessFile.length() == 0;
 
         } catch (Exception e) {
             throw new FileException(e, FileException.FILE_CONTENT_EMPTY);
         } finally {
-            closeFile(lock, channel, randomAccessFile);
+            unlock();
         }
     }
 
     /**
      * 获得锁
-     *
-     * @param lock
-     * @param channel
      */
-    private void tryLock(FileLock lock, FileChannel channel) {
+    public void tryLock() {
         while (true) {
-
             try {
+                randomAccessFile = new RandomAccessFile(file, "rw");
+                channel = randomAccessFile.getChannel();
+
                 lock = channel.tryLock();
                 if (lock == null) {
                     throw new AccessDeniedException("can not get file lock!");
@@ -291,12 +256,8 @@ public class FileAccessor {
 
     /**
      * 关闭文件
-     *
-     * @param lock
-     * @param channel
-     * @param randomAccessFile
      */
-    private void closeFile(FileLock lock, FileChannel channel, RandomAccessFile randomAccessFile) {
+    public void unlock() {
 
         if (lock != null) {
             try {

@@ -4,7 +4,7 @@ import com.lts.job.core.cluster.NodeType;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/20/14.
- * 任务节点配置
+ *         任务节点配置
  */
 public class JobNodeConfig {
 
@@ -100,7 +100,7 @@ public class JobNodeConfig {
     }
 
     public String getFilePath() {
-        return jobInfoSavePath + "/" + nodeGroup + ".info";
+        return jobInfoSavePath + "/" + nodeType + "/" + nodeGroup + "/";
     }
 
     @Override
