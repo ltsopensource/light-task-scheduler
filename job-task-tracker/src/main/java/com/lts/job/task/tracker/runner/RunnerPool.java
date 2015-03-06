@@ -1,5 +1,6 @@
 package com.lts.job.task.tracker.runner;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.support.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
@@ -20,9 +21,11 @@ public class RunnerPool {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("RunnerPool");
 
-    private static ThreadPoolExecutor threadPoolExecutor = null;
+    private ThreadPoolExecutor threadPoolExecutor = null;
     // 定时更新可用线程
     private ScheduledExecutorService REFRESH_EXECUTOR_SERVICE = null;
+
+    private RunnerFactory runnerFactory;
 
     public RunnerPool() {
 
@@ -37,17 +40,23 @@ public class RunnerPool {
         REFRESH_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                Application.setAttribute(Application.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+                Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
             }
         }, 60, 30, TimeUnit.SECONDS);
+
+        runnerFactory = Application.getAttribute(Constants.RUNNER_FACTORY);
+        if (runnerFactory == null) {
+            runnerFactory = new DefaultRunnerFactory();
+        }
     }
 
     public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
         try {
-            threadPoolExecutor.execute(new JobRunnerDelegate(RunnerFactory.newRunner(), job, callback));
+            threadPoolExecutor.execute(
+                    new JobRunnerDelegate(runnerFactory, job, callback));
             // 更新应用可用线程数
-            Application.setAttribute(Application.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
-            if(LOGGER.isDebugEnabled()){
+            Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+            if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("receive job success ! " + job);
             }
         } catch (RejectedExecutionException e) {
@@ -95,6 +104,7 @@ public class RunnerPool {
 
         /**
          * 返回给定list中不存在的jobId
+         *
          * @param jobIds
          * @return
          */

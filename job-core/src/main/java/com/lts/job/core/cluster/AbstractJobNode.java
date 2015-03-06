@@ -1,6 +1,5 @@
 package com.lts.job.core.cluster;
 
-import com.lts.job.core.AppConfigure;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.listener.MasterNodeChangeListener;
@@ -28,15 +27,15 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
     public AbstractJobNode() {
         config = new JobNodeConfig();
         config.setIdentity(StringUtils.generateUUID());
-        config.setWorkThreads(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_WORK_THREADS, Constants.AVAILABLE_PROCESSOR));
-        config.setNodeGroup(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_NODE_GROUP));
-        config.setZookeeperAddress(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_ZOOKEEPER_ADDRESS));
-        config.setInvokeTimeoutMillis(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_INVOKE_TIMEOUT_MILLIS, 1000 * 6));
-        config.setListenPort(AppConfigure.getInteger(Constants.PropertiesKey.KEY_JOB_LISTEN_PORT, 0));
-        config.setJobInfoSavePath(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_INFO_SAVE_PATH, Constants.USER_HOME + "/.job"));
-        config.setClusterName(AppConfigure.getString(Constants.PropertiesKey.KEY_JOB_CLUSTER_NAME, Constants.DEFAULT_CLUSTER_NAME));
+        config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
+        config.setNodeGroup("lts");
+        config.setZookeeperAddress("localhost:2181");
+        config.setInvokeTimeoutMillis(1000 * 6);
+        config.setListenPort(0);
+        config.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+        config.setClusterName(Constants.DEFAULT_CLUSTER_NAME);
         // 可用的线程数
-        Application.setAttribute(Application.KEY_AVAILABLE_THREADS, config.getWorkThreads());
+        Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
 
         Application.Config = config;
 

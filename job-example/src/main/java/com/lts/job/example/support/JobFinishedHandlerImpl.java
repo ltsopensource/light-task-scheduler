@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Created by hugui on 3/6/15.
+ * Created by Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class JobFinishedHandlerImpl implements JobFinishedHandler {
 

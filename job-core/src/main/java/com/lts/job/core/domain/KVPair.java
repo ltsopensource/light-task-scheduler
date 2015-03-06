@@ -1,7 +1,7 @@
 package com.lts.job.core.domain;
 
 /**
- * Created by hugui on 3/6/15.
+ * Created by Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class KVPair<Key, Value> {
     private Key key;

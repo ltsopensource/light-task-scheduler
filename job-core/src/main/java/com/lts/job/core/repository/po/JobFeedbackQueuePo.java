@@ -3,7 +3,7 @@ package com.lts.job.core.repository.po;
 import com.lts.job.core.domain.JobResult;
 
 /**
- * Created by hugui on 3/3/15.
+ * Created by Robert HG (254963746@qq.com) on 3/3/15.
  */
 public class JobFeedbackQueuePo extends JobResult{
 

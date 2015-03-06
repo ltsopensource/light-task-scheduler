@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by hugui on 3/3/15.
+ * Created by Robert HG (254963746@qq.com) on 3/3/15.
  */
 public class CronExpressionTest {
 

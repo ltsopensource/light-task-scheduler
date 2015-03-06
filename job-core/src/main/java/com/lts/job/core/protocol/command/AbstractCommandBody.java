@@ -1,5 +1,6 @@
 package com.lts.job.core.protocol.command;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.support.Application;
 import com.lts.job.remoting.CommandBody;
 import com.lts.job.remoting.annotation.NotNull;
@@ -46,7 +47,7 @@ public class AbstractCommandBody implements CommandBody {
         this.nodeGroup = Application.Config.getNodeGroup();
         this.nodeType = Application.Config.getNodeType().name();
         this.identity = Application.Config.getIdentity();
-        this.availableThreads = Application.getAttribute(Application.KEY_AVAILABLE_THREADS);
+        this.availableThreads = Application.getAttribute(Constants.KEY_AVAILABLE_THREADS);
     }
 
     public Integer getAvailableThreads() {

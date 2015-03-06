@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Created by hugui on 3/2/15.
+ * Created by Robert HG (254963746@qq.com) on 3/2/15.
  */
 public class ClientNotifier {
 

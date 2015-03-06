@@ -49,7 +49,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode> {
     }
 
     /**
-     * 设置存储配置 (这里是mongo，也可以配置mongo.properties)
+     * 设置存储配置
      *
      * @param config
      */

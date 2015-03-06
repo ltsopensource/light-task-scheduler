@@ -35,6 +35,7 @@ public class JobPushProcessor extends AbstractProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPushProcessor.class);
 
     private RetryScheduler retryScheduler;
+    private JobRunnerCallback jobRunnerCallback;
 
     protected JobPushProcessor(final RemotingClientDelegate remotingClient) {
         super(remotingClient);
@@ -52,6 +53,9 @@ public class JobPushProcessor extends AbstractProcessor {
         };
 
         retryScheduler.start();
+
+        // 线程安全的
+        jobRunnerCallback = new JobRunnerCallback();
     }
 
     @Override
@@ -64,7 +68,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
         try {
             RunnerPool runnerPool = SingletonBeanContext.getBean(RunnerPool.class);
-            runnerPool.execute(job, new JobRunnerCallback());
+            runnerPool.execute(job, jobRunnerCallback);
         } catch (NoAvailableJobRunnerException e) {
             // 任务推送失败
             return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(), "job push failure , no available job runner!");

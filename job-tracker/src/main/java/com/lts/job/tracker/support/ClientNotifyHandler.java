@@ -5,7 +5,7 @@ import com.lts.job.core.domain.JobResult;
 import java.util.List;
 
 /**
- * Created by hugui on 3/3/15.
+ * Created by Robert HG (254963746@qq.com) on 3/3/15.
  */
 public interface ClientNotifyHandler {
 

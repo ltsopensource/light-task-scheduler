@@ -15,7 +15,6 @@
         <spring.version>3.2.4.RELEASE</spring.version>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -31,11 +30,19 @@
             <groupId>com.lts</groupId>
             <artifactId>job-client</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
             <artifactId>job-task-tracker</artifactId>
             <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-tracker</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

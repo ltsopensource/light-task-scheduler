@@ -12,7 +12,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * JobClient 的 FactoryBean
- * Created by hugui on 3/6/15.
+ * Created by Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class JobClientFactoryBean implements FactoryBean<JobClient>, InitializingBean, DisposableBean {
 
@@ -147,5 +147,30 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
 
     public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
         this.masterNodeChangeListeners = masterNodeChangeListeners;
+    }
+}
+
+enum JobClientType {
+
+    NORMAL("normal"),       // 正常的
+    RETRY("retry");         // 重试的
+
+    private String value;
+
+    JobClientType(String value) {
+        this.value = value;
+    }
+
+    public String value() {
+        return this.value;
+    }
+
+    public static JobClientType parse(String value) {
+        for (JobClientType jobClientType : JobClientType.values()) {
+            if (jobClientType.value.equals(value)) {
+                return jobClientType;
+            }
+        }
+        throw new IllegalArgumentException("value" + value + "错误");
     }
 }

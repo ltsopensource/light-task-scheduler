@@ -1,5 +1,6 @@
 package com.lts.job.core.cluster;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.support.Application;
@@ -52,7 +53,7 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
 
     public void setWorkThreads(int workThreads) {
         config.setWorkThreads(workThreads);
-        Application.setAttribute(Application.KEY_AVAILABLE_THREADS, config.getWorkThreads());
+        Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
     }
 
     /**

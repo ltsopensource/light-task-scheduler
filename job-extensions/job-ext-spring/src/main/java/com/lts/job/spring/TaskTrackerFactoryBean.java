@@ -4,14 +4,23 @@ import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.task.tracker.TaskTracker;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
- * Created by hugui on 3/6/15.
+ * TaskTracker Spring Bean 工厂类
+ * Created by Robert HG (254963746@qq.com) on 3/6/15.
  */
-public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, InitializingBean, DisposableBean {
+public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, ApplicationContextAware, InitializingBean, DisposableBean {
+
+    private ApplicationContext applicationContext;
 
     private TaskTracker taskTracker;
 
@@ -91,10 +100,27 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Initial
         taskTracker.setZookeeperAddress(zookeeperAddress);
         taskTracker.setJobRunnerClass(Class.forName(jobRunnerClass));
 
+        registerRunnerBeanDefinition();
+
         if (masterNodeChangeListeners != null) {
             for (MasterNodeChangeListener masterNodeChangeListener : masterNodeChangeListeners) {
                 taskTracker.addMasterNodeChangeListener(masterNodeChangeListener);
             }
+        }
+    }
+
+    /**
+     * 将 JobRunner 生成Bean放入spring容器中管理
+     * 采用原型 scope， 所以可以在JobRunner中使用@Autowired
+     */
+    private void registerRunnerBeanDefinition() {
+        DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)
+                ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+        String beanName = jobRunnerClass;
+        if (!beanFactory.containsBean(beanName)) {
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(jobRunnerClass);
+            builder.setScope("prototype");
+            beanFactory.registerBeanDefinition(beanName, builder.getBeanDefinition());
         }
     }
 
@@ -131,5 +157,10 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Initial
 
     public void setWorkThreads(int workThreads) {
         this.workThreads = workThreads;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

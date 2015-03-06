@@ -1,5 +1,6 @@
 package com.lts.job.example.api;
 
+import com.lts.job.example.support.MasterNodeChangeListenerImpl;
 import com.lts.job.store.Config;
 import com.lts.job.tracker.JobTracker;
 
@@ -18,13 +19,14 @@ public class JobTrackerTest {
 //        jobTracker.setListenPort(35001); // 默认 35001
 //        jobTracker.setClusterName("lts");
 
-        // mongo 配置 （也可以配置在 mongo.properties中）
+        // mongo 配置
         Config config = new Config();
         config.setAddresses(new String[]{"localhost:27017"});
         config.setUsername("lts");
         config.setPassword("lts");
         config.setDbName("job");
         jobTracker.setStoreConfig(config);
+        jobTracker.addMasterNodeChangeListener(new MasterNodeChangeListenerImpl());
 
         // 启动节点
         jobTracker.start();

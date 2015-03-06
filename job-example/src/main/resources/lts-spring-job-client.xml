@@ -6,8 +6,8 @@
        default-lazy-init="false">
 
     <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
-        <property name="clientType" value="retry"/>
-        <!--<property name="clusterName" value="lts"/>-->
+        <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
+        <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
         <property name="nodeGroup" value="TEST"/>
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="jobFinishedHandler">

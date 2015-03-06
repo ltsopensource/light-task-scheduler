@@ -24,6 +24,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode> {
     }
 
     public void setJobRunnerClass(Class clazz){
-        Application.setAttribute(Application.JOB_RUNNING_CLASS, clazz);
+        Application.setAttribute(Constants.JOB_RUNNING_CLASS, clazz);
     }
 }

@@ -24,13 +24,10 @@ public interface Constants {
     // 默认TaskTracker节点组
     public static final String DEFAULT_NODE_TASK_TRACKER_GROUP = "TASK_TRACKER_GROUP";
 
-    public static interface PropertiesKey{
-        public static final String KEY_JOB_WORK_THREADS = "app.job.work.threads";
-        public static final String KEY_JOB_NODE_GROUP = "p.job.node.group";
-        public static final String KEY_JOB_ZOOKEEPER_ADDRESS = "app.job.zookeeper.address";
-        public static final String KEY_JOB_INVOKE_TIMEOUT_MILLIS = "invoke.timeout.millis";
-        public static final String KEY_JOB_LISTEN_PORT = "app.job.listen.port";
-        public static final String KEY_JOB_INFO_SAVE_PATH = "app.job.info.save.path";
-        public static final String KEY_JOB_CLUSTER_NAME = "app.job.cluster.name";
-    }
+    public static final String KEY_AVAILABLE_THREADS = "availableThreads";
+
+    public static final String JOB_RUNNING_CLASS = "JOB_RUNNING_CLASS";
+
+    public static final String RUNNER_FACTORY = "RUNNER_FACTORY";
+
 }

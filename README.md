@@ -49,7 +49,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 运行 job-example模块中的例子
 分别执行 JobTrackerTest TaskTrackerTest JobClientTest
 
-这里给出的是java API(设置配置)方式启动，也可以使用配置文件中。
+这里给出的是java API(设置配置)方式启动, 也可以使用spring启动默认不启用spring，需引入job-ext-spring包
 
 ## JobTracker 端
 ```java
@@ -59,7 +59,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     // jobTracker.setListenPort(35001); // 默认 35001
     // jobTracker.setClusterName("QN");
 
-    // mongo 配置 （也可以配置在 mongo.properties中）
+    // mongo 配置
     Config config = new Config();
     config.setAddresses(new String[]{"localhost:27017"});
     config.setUsername("lts");

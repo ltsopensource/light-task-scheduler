@@ -15,11 +15,16 @@
         <property name="password" value="lts"/>
         <property name="dbName" value="job"/>
     </bean>
-    <bean id="jobTracker" class="com.lts.job.tracker.JobTracker" init-method="start">
+    <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
-        <!--<property name="listenPort" value="8888"/>-->
+        <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="storeConfig" ref="mongoConfig"/>
+        <property name="masterNodeChangeListeners">
+            <array>
+                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+            </array>
+        </property>
     </bean>
 
 </beans>

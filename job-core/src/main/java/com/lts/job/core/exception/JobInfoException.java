@@ -2,7 +2,7 @@ package com.lts.job.core.exception;
 
 /**
  * 这个异常不会打印堆栈信息
- * Created by hugui on 1/8/15.
+ * Created by Robert HG (254963746@qq.com) on 1/8/15.
  */
 public class JobInfoException extends Exception {
 

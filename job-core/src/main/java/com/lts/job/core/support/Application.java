@@ -24,9 +24,6 @@ public class Application {
 
         return (T) object;
     }
-    public static final String KEY_AVAILABLE_THREADS = "availableThreads";
-
-    public static final String JOB_RUNNING_CLASS = "JOB_RUNNING_CLASS";
 
     public static JobNodeConfig Config;
 
