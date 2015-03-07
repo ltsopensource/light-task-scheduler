@@ -8,7 +8,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 * JobTracker : 负责接收并分配任务，任务调度。
 * TaskTracker: 负责执行任务，执行完反馈给JobTracker。
 
- 框架支持实时任务，也支持定时任务，同时也支持CronExpression
+框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请联系QQ
 
 ##架构图
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/data/%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
@@ -40,13 +40,13 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
      * 因为各个节点都是无状态的，可以动态增加机器部署实例, 节点关注者会自动发现。
 
 ## 开发计划：
-    * WEB后台管理
-    * 框架优化
+* WEB后台管理
+* 框架优化
 
 ## 调用示例
 * 安装 zookeeper 和 mongo , 执行 data/mongo 目录下的 mongo.md 中的语句
 
-运行 job-example模块中的例子
+运行 job-example模块中的例子（包含API启动例子和Spring例子）
 分别执行 JobTrackerTest TaskTrackerTest JobClientTest
 
 这里给出的是java API(设置配置)方式启动, 也可以使用spring启动默认不启用spring，需引入job-ext-spring包
@@ -78,6 +78,31 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     }));
 
 ```
+或者Spring配置
+```xml
+    <bean id="mongoConfig" class="com.lts.job.store.Config">
+        <property name="addresses">
+            <array>
+                <value>localhost:27017</value>
+            </array>
+        </property>
+        <property name="username" value="lts"/>
+        <property name="password" value="lts"/>
+        <property name="dbName" value="job"/>
+    </bean>
+    <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
+        <!--<property name="clusterName" value="lts"/>--> <!-- 集群名称 -->
+        <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
+        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="storeConfig" ref="mongoConfig"/>
+        <property name="masterNodeChangeListeners">
+            <array>
+                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+            </array>
+        </property>
+    </bean>
+```
+
 
 ## JobClient端
 ```java
@@ -88,6 +113,34 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     jobClient.setZookeeperAddress("localhost:2181");
     jobClient.start();
 
+    // 提交任务
+    Job job = new Job();
+    job.setParam("shopId", "11111");
+    job.setTaskTrackerNodeGroup("TEST_TRADE");
+    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
+    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
+    Response response = jobClient.submitJob(job);
+```
+或者spring方式启动
+```xml
+   <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
+        <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
+        <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
+        <property name="nodeGroup" value="TEST"/> <!-- 节点组名称 -->
+        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="jobFinishedHandler">
+            <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
+        </property>
+        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
+            <array>
+                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+            </array>
+        </property>
+    </bean>
+```
+```java
+    // 从Spring容器中取得JobClient Bean
+    JobClient jobClient = (JobClient) applicationContext.getBean("jobClient");
     // 提交任务
     Job job = new Job();
     job.setParam("shopId", "11111");
@@ -125,5 +178,20 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
         }
     }
 ```
+或者Spring方式配置
+```xml
+    <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
+        <!--<property name="clusterName" value="lts"/>-->
+        <property name="nodeGroup" value="TEST_TRADE"/><!-- 所属节点组名称 -->
+        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
+        <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->
+        <property name="masterNodeChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
+            <array>
+                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+            </array>
+        </property>
+    </bean>
+```
 
-有问题联系QQ:254963746
+

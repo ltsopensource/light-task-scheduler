@@ -4,6 +4,7 @@ import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.task.tracker.TaskTracker;
+import com.lts.job.task.tracker.runner.JobRunner;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -48,7 +49,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
     /**
      * 任务执行类
      */
-    private String jobRunnerClass;
+    private Class jobRunnerClass;
     /**
      * master节点变化监听器
      */
@@ -81,7 +82,9 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         Assert.hasText(nodeGroup, "nodeGroup必须设值!");
         Assert.hasText(zookeeperAddress, "zookeeperAddress必须设值!");
         Assert.isTrue(workThreads > 0, "workThreads必须大于0!");
-        Assert.hasText(jobRunnerClass, "jobRunnerClass不能唯恐");
+        Assert.notNull(jobRunnerClass, "jobRunnerClass不能为空");
+        Assert.isAssignable(JobRunner.class, jobRunnerClass,
+                StringUtils.format("jobRunnerClass必须实现{}接口!", JobRunner.class.getName()));
     }
 
     @Override
@@ -98,7 +101,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         taskTracker.setWorkThreads(workThreads);
         taskTracker.setNodeGroup(nodeGroup);
         taskTracker.setZookeeperAddress(zookeeperAddress);
-        taskTracker.setJobRunnerClass(Class.forName(jobRunnerClass));
+        taskTracker.setJobRunnerClass(jobRunnerClass);
 
         registerRunnerBeanDefinition();
 
@@ -116,7 +119,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
     private void registerRunnerBeanDefinition() {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)
                 ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-        String beanName = jobRunnerClass;
+        String beanName = jobRunnerClass.getName();
         if (!beanFactory.containsBean(beanName)) {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(jobRunnerClass);
             builder.setScope("prototype");
@@ -151,7 +154,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         this.masterNodeChangeListeners = masterNodeChangeListeners;
     }
 
-    public void setJobRunnerClass(String jobRunnerClass) {
+    public void setJobRunnerClass(Class jobRunnerClass) {
         this.jobRunnerClass = jobRunnerClass;
     }
 

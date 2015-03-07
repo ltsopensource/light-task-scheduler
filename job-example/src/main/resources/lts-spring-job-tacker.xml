@@ -20,7 +20,7 @@
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="storeConfig" ref="mongoConfig"/>
-        <property name="masterNodeChangeListeners">
+        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
                 <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
             </array>
