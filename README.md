@@ -8,7 +8,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 * JobTracker : 负责接收并分配任务，任务调度。
 * TaskTracker: 负责执行任务，执行完反馈给JobTracker。
 
-框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请联系QQ254963746
+框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请联系QQ254963746, 或加入QQ群：109500214
 
 ##架构图
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/data/%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
