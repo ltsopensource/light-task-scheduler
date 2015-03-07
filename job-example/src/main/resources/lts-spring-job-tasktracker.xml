@@ -7,7 +7,7 @@
 
     <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
-        <property name="nodeGroup" value="TEST_TRADE"/><!-- 所属节点组名称 -->
+        <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
         <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->

@@ -17,7 +17,7 @@ public class JobClientTest extends BaseJobClientTest {
 
         JobClient jobClient = new RetryJobClient();
 //      final JobClient jobClient = new JobClient();
-        jobClient.setNodeGroup("TEST");
+        jobClient.setNodeGroup("test_jobClient");
 //        jobClient.setClusterName("lts");
         jobClient.setZookeeperAddress("localhost:2181");
         // 任务重试保存地址，默认用户目录下

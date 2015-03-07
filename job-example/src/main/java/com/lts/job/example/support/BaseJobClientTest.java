@@ -75,7 +75,7 @@ public class BaseJobClientTest {
         Job job = new Job();
         job.setTaskId(UUID.randomUUID().toString());
         job.setParam("shopId", "111");
-        job.setTaskTrackerNodeGroup("TEST_TRADE");
+        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         job.setCronExpression(cronExpression);
         Response response = jobClient.submitJob(job);
         System.out.println(response);
@@ -85,7 +85,7 @@ public class BaseJobClientTest {
         Job job = new Job();
         job.setTaskId(UUID.randomUUID().toString());
         job.setParam("shopId", "111");
-        job.setTaskTrackerNodeGroup("TEST_TRADE");
+        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         if (triggerTime != null && !"".equals(triggerTime.trim())) {
             job.setTriggerTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(triggerTime).getTime());
         }

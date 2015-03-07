@@ -15,7 +15,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ##节点组:
 * 1. 一个节点组等同于一个集群，同一个节点组中的各个节点是对等的，外界无论连接节点组中的任务一个节点都是可以的。
 * 2. 每个节点组中都有一个master节点，采用zookeeper进行master选举(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。
-* 3. JobClient和TaskTracker都可以存在多个节点组。譬如 JobClient 可以存在多个节点组。 譬如：JobClient 节点组为 ‘QN_WEB’ 中的一个节点提交提交一个 只有节点组为’QN_TRADE’的 TaskTracker 才能执行的任务。
+* 3. JobClient和TaskTracker都可以存在多个节点组。譬如 JobClient 可以存在多个节点组。 譬如：JobClient 节点组为 ‘lts_WEB’ 中的一个节点提交提交一个 只有节点组为’lts_TRADE’的 TaskTracker 才能执行的任务。
 * 4. (每个集群中)JobTacker只有一个节点组。
 * 5. 多个JobClient节点组和多个TaskTracker节点组再加上一个JobTacker节点组, 组成一个大的集群。
 
@@ -57,7 +57,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     // 节点信息配置
     jobTracker.setZookeeperAddress("localhost:2181");
     // jobTracker.setListenPort(35001); // 默认 35001
-    // jobTracker.setClusterName("QN");
+    // jobTracker.setClusterName("lts");
 
     // mongo 配置
     Config config = new Config();
@@ -103,60 +103,13 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     </bean>
 ```
 
-
-## JobClient端
-```java
-    JobClient jobClient = new RetryJobClient();
-    // JobClient jobClient = new JobClient();
-    jobClient.setNodeGroup("TEST");
-    // jobClient.setClusterName("QN");
-    jobClient.setZookeeperAddress("localhost:2181");
-    jobClient.start();
-
-    // 提交任务
-    Job job = new Job();
-    job.setParam("shopId", "11111");
-    job.setTaskTrackerNodeGroup("TEST_TRADE");
-    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
-    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
-    Response response = jobClient.submitJob(job);
-```
-或者spring方式启动
-```xml
-   <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
-        <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
-        <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
-        <property name="nodeGroup" value="TEST"/> <!-- 节点组名称 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
-        <property name="jobFinishedHandler">
-            <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
-        </property>
-        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
-            <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
-            </array>
-        </property>
-    </bean>
-```
-```java
-    // 从Spring容器中取得JobClient Bean
-    JobClient jobClient = (JobClient) applicationContext.getBean("jobClient");
-    // 提交任务
-    Job job = new Job();
-    job.setParam("shopId", "11111");
-    job.setTaskTrackerNodeGroup("TEST_TRADE");
-    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
-    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
-    Response response = jobClient.submitJob(job);
-```
-
 ## TaskTracker端
 ```java
     TaskTracker taskTracker = new TaskTracker();
     taskTracker.setJobRunnerClass(TestJobRunner.class);
-    // jobClient.setClusterName("QN");
+    // jobClient.setClusterName("lts");
     taskTracker.setZookeeperAddress("localhost:2181");
-    taskTracker.setNodeGroup("TEST_TRADE");
+    taskTracker.setNodeGroup("test_trade_TaskTracker");
     taskTracker.setWorkThreads(20);
     taskTracker.start();
 
@@ -182,7 +135,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ```xml
     <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
-        <property name="nodeGroup" value="TEST_TRADE"/><!-- 所属节点组名称 -->
+        <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
         <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->
@@ -192,6 +145,52 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
             </array>
         </property>
     </bean>
+```
+
+## JobClient端
+```java
+    JobClient jobClient = new RetryJobClient();
+    // JobClient jobClient = new JobClient();
+    jobClient.setNodeGroup("test_JobClient");
+    // jobClient.setClusterName("lts");
+    jobClient.setZookeeperAddress("localhost:2181");
+    jobClient.start();
+
+    // 提交任务
+    Job job = new Job();
+    job.setParam("shopId", "11111");
+    job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
+    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
+    Response response = jobClient.submitJob(job);
+```
+或者spring方式启动
+```xml
+   <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
+        <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
+        <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
+        <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
+        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="jobFinishedHandler">
+            <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
+        </property>
+        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
+            <array>
+                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+            </array>
+        </property>
+    </bean>
+```
+```java
+    // 从Spring容器中取得JobClient Bean
+    JobClient jobClient = (JobClient) applicationContext.getBean("jobClient");
+    // 提交任务
+    Job job = new Job();
+    job.setParam("shopId", "11111");
+    job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
+    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
+    Response response = jobClient.submitJob(job);
 ```
 
 

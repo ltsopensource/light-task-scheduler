@@ -8,7 +8,7 @@
     <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
         <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
         <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
-        <property name="nodeGroup" value="TEST"/> <!-- 节点组名称 -->
+        <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
         <property name="jobFinishedHandler">
             <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
