@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
- * Bean 单利 context
+ *         Bean 单利 context
  */
 public class SingletonBeanContext {
 
@@ -17,15 +17,14 @@ public class SingletonBeanContext {
     // 用于存放bean的map
     private static final ConcurrentHashMap<Class, Object> beanMap = new ConcurrentHashMap<Class, Object>();
     // 同一个时间只能有一个线程在创建bean
-    private static Lock lock = new ReentrantLock();
+    private static Object lock = new Object();
 
     public static <T> T getBean(Class clazz) {
         Object bean = beanMap.get(clazz);
         if (bean == null) {
-            lock.lock();
-            try {
+            synchronized (lock) {
                 if (bean != null) {
-                    return (T)bean;
+                    return (T) bean;
                 }
                 try {
                     bean = clazz.newInstance();
@@ -35,8 +34,6 @@ public class SingletonBeanContext {
                 } catch (IllegalAccessException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
-            } finally {
-                lock.unlock();
             }
         }
         return (T) bean;
