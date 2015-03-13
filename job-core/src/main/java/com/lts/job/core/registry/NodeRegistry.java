@@ -1,9 +1,8 @@
 package com.lts.job.core.registry;
 
-import com.lts.job.core.cluster.NodeManager;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.cluster.PathUtils;
+import com.lts.job.core.cluster.PathParser;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.support.Application;
 import com.lts.job.core.util.CollectionUtils;
@@ -30,9 +29,13 @@ public class NodeRegistry implements Registry {
     private final ConcurrentHashMap<String/*path*/, List<String/*children*/>> NODE_CHILDREN_MAP = new ConcurrentHashMap<String, List<String>>();
     private ChildChangeListener listener;
     private List<NodeChangeListener> nodeChangeListeners;
+    private Application application;
+    private PathParser pathParser;
 
-    public NodeRegistry() {
-        listener = new ChildChangeListener();
+    public NodeRegistry(Application application) {
+        this.listener = new ChildChangeListener();
+        this.application = application;
+        this.pathParser = new PathParser(application);
     }
 
     /**
@@ -56,7 +59,7 @@ public class NodeRegistry implements Registry {
 
     @Override
     public void register(final Node node) {
-        zkClient = new ZkClientZookeeperClient(Application.Config.getZookeeperAddress());
+        zkClient = new ZkClientZookeeperClient(application.getConfig().getZookeeperAddress());
         zkClient.addStateListener(new StateListener() {
             @Override
             public void stateChanged(int state) {
@@ -84,7 +87,7 @@ public class NodeRegistry implements Registry {
         if (CollectionUtils.isNotEmpty(listenNodeTypes)) {
 
             for (NodeType nodeType : listenNodeTypes) {
-                String listenNodePath = PathUtils.getPath(nodeType);
+                String listenNodePath = pathParser.getPath(nodeType);
                 // 为自己关注的 节点 添加监听
                 zkClient.addChildListener(listenNodePath, listener);
 
@@ -93,9 +96,9 @@ public class NodeRegistry implements Registry {
                 if (CollectionUtils.isNotEmpty(children)) {
                     List<Node> listenedNodes = new ArrayList<Node>();
                     for (String child : children) {
-                        Node listenedNode = PathUtils.parse(listenNodePath + "/" + child);
+                        Node listenedNode = pathParser.parse(listenNodePath + "/" + child);
                         listenedNodes.add(listenedNode);
-                        NodeManager.addNode(listenedNode);
+                        application.getNodeManager().addNode(listenedNode);
                     }
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
@@ -114,9 +117,9 @@ public class NodeRegistry implements Registry {
         List<NodeType> listenNodeTypes = node.getListenNodeTypes();
         if (CollectionUtils.isNotEmpty(listenNodeTypes)) {
             for (NodeType nodeType : listenNodeTypes) {
-                zkClient.removeChildListener(PathUtils.getPath(nodeType), listener);
+                zkClient.removeChildListener(pathParser.getPath(nodeType), listener);
 
-                NodeManager.destroy();
+                application.getNodeManager().destroy();
             }
         }
     }
@@ -149,9 +152,9 @@ public class NodeRegistry implements Registry {
 
             if (CollectionUtils.isNotEmpty(addChildren)) {
                 for (String child : addChildren) {
-                    Node node = PathUtils.parse(path + "/" + child);
+                    Node node = pathParser.parse(path + "/" + child);
 
-                    NodeManager.addNode(node);
+                    application.getNodeManager().addNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
                             nodeChangeListener.addNode(node);
@@ -162,8 +165,8 @@ public class NodeRegistry implements Registry {
 
             if (CollectionUtils.isNotEmpty(decChildren)) {
                 for (String child : decChildren) {
-                    Node node = PathUtils.parse(path + "/" + child);
-                    NodeManager.removeNode(node);
+                    Node node = pathParser.parse(path + "/" + child);
+                    application.getNodeManager().removeNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
                             nodeChangeListener.removeNode(node);

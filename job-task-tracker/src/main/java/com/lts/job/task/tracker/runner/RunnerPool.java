@@ -19,17 +19,21 @@ import java.util.concurrent.*;
  */
 public class RunnerPool {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("RunnerPool");
+    private final Logger LOGGER = LoggerFactory.getLogger("RunnerPool");
 
     private ThreadPoolExecutor threadPoolExecutor = null;
     // 定时更新可用线程
     private ScheduledExecutorService REFRESH_EXECUTOR_SERVICE = null;
 
     private RunnerFactory runnerFactory;
+    private Application application;
+    private RunningJobManager runningJobManager;
 
-    public RunnerPool() {
+    public RunnerPool(final Application application) {
+        this.application = application;
+        this.runningJobManager = new RunningJobManager();
 
-        int maxSize = Application.Config.getWorkThreads();
+        int maxSize = application.getConfig().getWorkThreads();
         int minSize = 4 > maxSize ? maxSize : 4;
 
         threadPoolExecutor = new ThreadPoolExecutor(minSize, maxSize, 30, TimeUnit.SECONDS,
@@ -40,22 +44,22 @@ public class RunnerPool {
         REFRESH_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+                application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
             }
         }, 60, 30, TimeUnit.SECONDS);
 
-        runnerFactory = Application.getAttribute(Constants.RUNNER_FACTORY);
+        runnerFactory = application.getAttribute(Constants.RUNNER_FACTORY);
         if (runnerFactory == null) {
-            runnerFactory = new DefaultRunnerFactory();
+            runnerFactory = new DefaultRunnerFactory(application);
         }
     }
 
     public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
         try {
             threadPoolExecutor.execute(
-                    new JobRunnerDelegate(runnerFactory, job, callback));
+                    new JobRunnerDelegate(this, job, callback));
             // 更新应用可用线程数
-            Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+            application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("receive job success ! " + job);
             }
@@ -83,22 +87,26 @@ public class RunnerPool {
         return threadPoolExecutor.getMaximumPoolSize();
     }
 
+    public RunnerFactory getRunnerFactory() {
+        return runnerFactory;
+    }
+
     /**
      * 用来管理正在执行的任务
      */
-    public static class RunningJobManager {
+    public class RunningJobManager {
 
-        private static final Set<String/*jobId*/> RUNNING_JOB_ID_SET = new ConcurrentHashSet<String>();
+        private final Set<String/*jobId*/> RUNNING_JOB_ID_SET = new ConcurrentHashSet<String>();
 
-        public static void in(String jobId) {
+        public void in(String jobId) {
             RUNNING_JOB_ID_SET.add(jobId);
         }
 
-        public static void out(String jobId) {
+        public void out(String jobId) {
             RUNNING_JOB_ID_SET.remove(jobId);
         }
 
-        public static boolean running(String jobId) {
+        public boolean running(String jobId) {
             return RUNNING_JOB_ID_SET.contains(jobId);
         }
 
@@ -108,7 +116,7 @@ public class RunnerPool {
          * @param jobIds
          * @return
          */
-        public static List<String> getNotExists(List<String> jobIds) {
+        public List<String> getNotExists(List<String> jobIds) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("running jobs ：" + RUNNING_JOB_ID_SET);
                 LOGGER.debug("ask jobs:" + jobIds);
@@ -123,4 +131,7 @@ public class RunnerPool {
         }
     }
 
+    public RunningJobManager getRunningJobManager() {
+        return runningJobManager;
+    }
 }

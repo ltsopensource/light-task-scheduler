@@ -13,11 +13,16 @@ import org.slf4j.LoggerFactory;
 public class NodeFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeFactory.class);
-
-    private NodeFactory() {
+    
+    private Application application;
+    private PathParser pathParser;
+    
+    public NodeFactory(Application application) {
+        this.pathParser = new PathParser(application);
+        this.application = application;
     }
 
-    public static <T extends Node> T create(Class<T> clazz, JobNodeConfig config) {
+    public <T extends Node> T create(Class<T> clazz, JobNodeConfig config) {
         try {
             T node = clazz.newInstance();
             node.setIp(NetUtils.getLocalHost());
@@ -25,7 +30,7 @@ public class NodeFactory {
             node.setThreads(config.getWorkThreads());
             node.setPort(config.getListenPort());
             node.setIdentity(config.getIdentity());
-            node.setPath(PathUtils.getPath(node));
+            node.setPath(pathParser.getPath(node));
             return node;
         } catch (InstantiationException e ) {
             LOGGER.error(e.getMessage(), e);
@@ -35,16 +40,16 @@ public class NodeFactory {
         return null;
     }
 
-    public static <T extends Node> T create(Class<T> clazz) {
+    public <T extends Node> T create(Class<T> clazz) {
         try {
             T node = clazz.newInstance();
 
             node.setIp(NetUtils.getLocalHost());
-            node.setGroup(Application.Config.getNodeGroup());
-            node.setThreads(Application.Config.getWorkThreads());
-            node.setPort(Application.Config.getListenPort());
-            node.setIdentity(Application.Config.getIdentity());
-            node.setPath(PathUtils.getPath(node));
+            node.setGroup(application.getConfig().getNodeGroup());
+            node.setThreads(application.getConfig().getWorkThreads());
+            node.setPort(application.getConfig().getListenPort());
+            node.setIdentity(application.getConfig().getIdentity());
+            node.setPath(pathParser.getPath(node));
             return node;
         } catch (InstantiationException e) {
             LOGGER.error(e.getMessage(), e);

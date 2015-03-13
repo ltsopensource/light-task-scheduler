@@ -18,16 +18,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class NodeManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeManager.class);
-    private static final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
+    private final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
+    
+    private Application application;
 
-    public static void addNode(Node node) {
+    public NodeManager(Application application) {
+        this.application = application;
+    }
+
+    public void addNode(Node node) {
 
         // JobClient 和 TaskTracker 只对自己同一个组的节点关注和JobTracker节点关注
         // JobTracker 要对所有节点都要关注
         if (    (NodeType.JOB_TRACKER.equals(node.getNodeType())) ||
-                ((Application.Config.getNodeType().equals(node.getNodeType())
-                && Application.Config.getNodeGroup().equals(node.getGroup()))
-                || (NodeType.JOB_TRACKER.equals(Application.Config.getNodeType())))
+                ((application.getConfig().getNodeType().equals(node.getNodeType())
+                && application.getConfig().getNodeGroup().equals(node.getGroup()))
+                || (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())))
                 ) {
 
             List<Node> nodeList = NODES.get(node.getNodeType());
@@ -40,7 +46,7 @@ public class NodeManager {
         }
     }
 
-    public static List<Node> getNodeList(NodeType nodeType, final String nodeGroup) {
+    public List<Node> getNodeList(NodeType nodeType, final String nodeGroup) {
 
         List<Node> nodes = NODES.get(nodeType);
 
@@ -52,18 +58,18 @@ public class NodeManager {
         });
     }
 
-    public static List<Node> getNodeList(NodeType nodeType) {
+    public List<Node> getNodeList(NodeType nodeType) {
         return NODES.get(nodeType);
     }
 
-    public static void removeNode(Node node) {
+    public void removeNode(Node node) {
         List<Node> nodeList = NODES.get(node.getNodeType());
         if (nodeList.remove(node)) {
             LOGGER.info("删除节点{}", node);
         }
     }
 
-    public static void destroy() {
+    public void destroy() {
         NODES.clear();
     }
 }

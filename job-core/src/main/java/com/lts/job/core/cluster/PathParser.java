@@ -1,6 +1,7 @@
 package com.lts.job.core.cluster;
 
 
+
 import com.lts.job.core.support.Application;
 
 import java.util.regex.Matcher;
@@ -13,15 +14,20 @@ import java.util.regex.Pattern;
  * <p/>
  * 节点 zookeeper上路径解析工具
  */
-public class PathUtils {
+public class PathParser {
 
-    public static String getBasePath(){
-        // 集群名字
-        String clusterName =  Application.Config.getClusterName();
-        return "/LTS/" + clusterName + "/NODES";
+    private Application application;
+
+    public PathParser(Application application) {
+        this.application = application;
     }
 
-    public static Node parse(String fullPath) {
+    public String getBasePath(){
+        // 集群名字
+        return "/LTS/" + application.getConfig().getClusterName() + "/NODES";
+    }
+
+    public Node parse(String fullPath) {
         Node node = new Node();
 
         node.setPath(fullPath);
@@ -69,13 +75,13 @@ public class PathUtils {
         return node;
     }
 
-    public static NodeType parseNodeType(String path) {
+    public NodeType parseNodeType(String path) {
         String nodeType = getMatcher(getBasePath() + "/(.*)/", path);
         return NodeType.valueOf(nodeType);
     }
 
 
-    public static String getPath(Node node) {
+    public String getPath(Node node) {
         StringBuilder path = new StringBuilder();
         path.append(getBasePath())
                 .append("/")
@@ -116,11 +122,11 @@ public class PathUtils {
         return path.toString();
     }
 
-    public static String getPath(NodeType nodeType) {
+    public String getPath(NodeType nodeType) {
         return getBasePath() + "/" + nodeType;
     }
 
-    private static String getMatcher(String regex, String source) {
+    private String getMatcher(String regex, String source) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(source);
         while (matcher.find()) {

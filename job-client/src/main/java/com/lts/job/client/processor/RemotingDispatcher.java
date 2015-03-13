@@ -21,7 +21,7 @@ import static com.lts.job.core.protocol.JobProtos.RequestCode.valueOf;
  */
 public class RemotingDispatcher extends AbstractProcessor {
 
-    private static final Map<JobProtos.RequestCode, NettyRequestProcessor> processors = new HashMap<JobProtos.RequestCode, NettyRequestProcessor>();
+    private final Map<JobProtos.RequestCode, NettyRequestProcessor> processors = new HashMap<JobProtos.RequestCode, NettyRequestProcessor>();
 
     public RemotingDispatcher(RemotingClientDelegate remotingClient, JobFinishedHandler jobFinishedHandler) {
         super(remotingClient);

@@ -1,10 +1,13 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.support.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
@@ -22,14 +25,17 @@ import java.util.concurrent.CountDownLatch;
 public class ClientNotifier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientNotifier.class.getSimpleName());
-    private RemotingServerDelegate remotingServer;
     private ClientNotifyHandler clientNotifyHandler;
+    private JobClientManager jobClientManager;
+    private CommandWrapper commandWrapper;
+    private Application application;
 
-    public ClientNotifier(RemotingServerDelegate remotingServer, ClientNotifyHandler clientNotifyHandler) {
-        this.remotingServer = remotingServer;
+    public ClientNotifier(Application application, ClientNotifyHandler clientNotifyHandler) {
+        this.application = application;
         this.clientNotifyHandler = clientNotifyHandler;
+        this.jobClientManager = application.getAttribute(Constants.JOB_CLIENT_MANAGER);
+        this.commandWrapper = application.getCommandWrapper();
     }
-
     /**
      * 发送给客户端
      *
@@ -80,20 +86,20 @@ public class ClientNotifier {
      */
     private boolean send0(String nodeGroup, final List<JobResult> jobResults) {
         // 得到 可用的客户端节点
-        JobClientNode jobClientNode = JobClientManager.INSTANCE.getAvailableJobClient(nodeGroup);
+        JobClientNode jobClientNode = jobClientManager.getAvailableJobClient(nodeGroup);
 
         if (jobClientNode == null) {
             return false;
         }
 
-        JobFinishedRequest requestBody = new JobFinishedRequest();
+        JobFinishedRequest requestBody = commandWrapper.wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 
         final boolean[] result = new boolean[1];
         try {
             final CountDownLatch latch = new CountDownLatch(1);
-            remotingServer.invokeAsync(jobClientNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
+            getRemotingServer().invokeAsync(jobClientNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {
                     try {
@@ -122,6 +128,10 @@ public class ClientNotifier {
             LOGGER.error("通知客户端失败!", e);
         }
         return result[0];
+    }
+
+    private RemotingServerDelegate getRemotingServer(){
+        return (RemotingServerDelegate)application.getAttribute(Constants.REMOTING_SERVER);
     }
 
 }

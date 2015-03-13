@@ -10,6 +10,7 @@ import com.lts.job.client.domain.Response;
 import com.lts.job.client.domain.ResponseCode;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
@@ -40,6 +41,7 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
     public JobClient() {
         // 设置默认节点组
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_CLIENT_GROUP);
+        
     }
 
     /**
@@ -55,7 +57,7 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
         final Response response = new Response();
 
         try {
-            JobSubmitRequest jobSubmitRequest = new JobSubmitRequest();
+            JobSubmitRequest jobSubmitRequest = application.getCommandWrapper().wrapper(new JobSubmitRequest());
             jobSubmitRequest.setJobs(jobs);
 
             RemotingCommand requestCommand = RemotingCommand.createRequestCommand(JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);

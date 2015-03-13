@@ -6,10 +6,11 @@ import com.lts.job.core.support.Application;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.task.tracker.domain.TaskTrackerNode;
 import com.lts.job.task.tracker.processor.RemotingDispatcher;
+import com.lts.job.task.tracker.runner.RunnerPool;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
- * 任务执行节点
+ *         任务执行节点
  */
 public class TaskTracker extends AbstractClientNode<TaskTrackerNode> {
 
@@ -19,11 +20,17 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode> {
     }
 
     @Override
+    protected void nodeStart() {
+        application.setAttribute(Constants.TASK_TRACKER_RUNNER_POOL, new RunnerPool(application));
+        super.nodeStart();
+    }
+
+    @Override
     protected NettyRequestProcessor getDefaultProcessor() {
         return new RemotingDispatcher(remotingClient);
     }
 
-    public void setJobRunnerClass(Class clazz){
-        Application.setAttribute(Constants.JOB_RUNNING_CLASS, clazz);
+    public void setJobRunnerClass(Class clazz) {
+        application.setAttribute(Constants.JOB_RUNNING_CLASS, clazz);
     }
 }

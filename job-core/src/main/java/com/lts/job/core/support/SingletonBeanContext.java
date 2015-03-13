@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -28,7 +26,11 @@ public class SingletonBeanContext {
                 }
                 try {
                     bean = clazz.newInstance();
-                    beanMap.put(clazz, bean);
+                    if (bean instanceof Singleton) {
+                        beanMap.put(clazz, bean);
+                    } else {
+                        LOGGER.error("{} is not implements {}", clazz.getName(), Singleton.class.getName());
+                    }
                 } catch (InstantiationException e) {
                     LOGGER.error(e.getMessage(), e);
                 } catch (IllegalAccessException e) {

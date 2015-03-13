@@ -26,10 +26,12 @@ public class HeartBeater {
      */
     public static boolean beat(RemotingClientDelegate remotingClient, String addr) {
 
-        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), new HeartBeatRequest());
+        HeartBeatRequest commandBody = remotingClient.getApplication().getCommandWrapper().wrapper(new HeartBeatRequest());
+
+        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
         RemotingCommand response = null;
         try {
-            response = remotingClient.getNettyClient().invokeSync(addr, request, Application.Config.getInvokeTimeoutMillis());
+            response = remotingClient.getNettyClient().invokeSync(addr, request, remotingClient.getApplication().getConfig().getInvokeTimeoutMillis());
         } catch (Exception e) {
             if(LOGGER.isDebugEnabled()){
                 LOGGER.debug(e.getMessage(), e);

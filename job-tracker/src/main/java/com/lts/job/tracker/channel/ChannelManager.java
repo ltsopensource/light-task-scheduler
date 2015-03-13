@@ -18,16 +18,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class ChannelManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChannelManager.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(ChannelManager.class);
     // 客户端列表 (要保证同一个group的node要是无状态的)
-    private static final ConcurrentHashMap<String/*clientGroup*/, List<ChannelWrapper>> clientChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
+    private final ConcurrentHashMap<String/*clientGroup*/, List<ChannelWrapper>> clientChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 任务节点列表
-    private static final ConcurrentHashMap<String/*taskTrackerGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
+    private final ConcurrentHashMap<String/*taskTrackerGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 用来定时检查已经关闭的channel
-    private static final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
 
-    static {
-
+    public ChannelManager() {
         channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
@@ -44,15 +43,12 @@ public class ChannelManager {
         }, 10, 30, TimeUnit.SECONDS);
     }
 
-    private ChannelManager() {
-    }
-
     /**
      * 检查 关闭的channel
      *
      * @param channelMap
      */
-    private static void checkCloseChannel(ConcurrentHashMap<String, List<ChannelWrapper>> channelMap) {
+    private void checkCloseChannel(ConcurrentHashMap<String, List<ChannelWrapper>> channelMap) {
         for (Map.Entry<String, List<ChannelWrapper>> entry : channelMap.entrySet()) {
             List<ChannelWrapper> channels = entry.getValue();
             List<ChannelWrapper> removeList = new ArrayList<ChannelWrapper>();
@@ -66,7 +62,7 @@ public class ChannelManager {
         }
     }
 
-    public static List<ChannelWrapper> getChannels(String nodeGroup, NodeType nodeType) {
+    public List<ChannelWrapper> getChannels(String nodeGroup, NodeType nodeType) {
         if (nodeType == NodeType.CLIENT) {
             return clientChannelMap.get(nodeGroup);
         } else if (nodeType == NodeType.TASK_TRACKER) {
@@ -82,7 +78,7 @@ public class ChannelManager {
      * @param identity
      * @return
      */
-    public static ChannelWrapper getChannel(String nodeGroup, NodeType nodeType, String identity) {
+    public ChannelWrapper getChannel(String nodeGroup, NodeType nodeType, String identity) {
         List<ChannelWrapper> channelWrappers = getChannels(nodeGroup, nodeType);
         if (channelWrappers != null && channelWrappers.size() != 0) {
             for (ChannelWrapper channelWrapper : channelWrappers) {
@@ -99,7 +95,7 @@ public class ChannelManager {
      *
      * @param channel
      */
-    public static void offerChannel(ChannelWrapper channel) {
+    public void offerChannel(ChannelWrapper channel) {
         String nodeGroup = channel.getNodeGroup();
         NodeType nodeType = channel.getNodeType();
         List<ChannelWrapper> channels = getChannels(nodeGroup, nodeType);
@@ -120,7 +116,7 @@ public class ChannelManager {
         }
     }
 
-    public static void removeChannel(ChannelWrapper channel) {
+    public void removeChannel(ChannelWrapper channel) {
         String nodeGroup = channel.getNodeGroup();
         NodeType nodeType = channel.getNodeType();
         List<ChannelWrapper> channels = getChannels(nodeGroup, nodeType);

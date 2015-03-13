@@ -2,6 +2,8 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.constant.Constants;
+import com.lts.job.core.support.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
@@ -22,11 +24,11 @@ public class JobClientManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobClientManager.class);
 
-    public static final JobClientManager INSTANCE = new JobClientManager();
+    private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<JobClientNode>>();
 
-    private static final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<JobClientNode>>();
-
-    private JobClientManager() {
+    private ChannelManager channelManager;
+    public JobClientManager(ChannelManager channelManager) {
+        this.channelManager = channelManager;
     }
 
     /**
@@ -36,7 +38,7 @@ public class JobClientManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = ChannelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+        ChannelWrapper channel = channelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
 
         synchronized (NODE_MAP) {
@@ -94,7 +96,7 @@ public class JobClientManager {
             jobClientNode = list.get(index);
             // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
-                ChannelWrapper channel = ChannelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());
+                ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);

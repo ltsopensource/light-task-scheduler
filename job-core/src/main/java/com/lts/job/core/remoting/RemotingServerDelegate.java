@@ -18,9 +18,11 @@ import java.util.concurrent.ExecutorService;
 public class RemotingServerDelegate {
 
     private RemotingServer remotingServer;
+    private Application application;
 
-    public RemotingServerDelegate(RemotingServer remotingServer) {
+    public RemotingServerDelegate(RemotingServer remotingServer, Application application) {
         this.remotingServer = remotingServer;
+        this.application = application;
     }
 
     public void start() {
@@ -44,7 +46,7 @@ public class RemotingServerDelegate {
 
             request.checkCommandBody();
 
-            return remotingServer.invokeSync(channel, request, Application.Config.getInvokeTimeoutMillis());
+            return remotingServer.invokeSync(channel, request, application.getConfig().getInvokeTimeoutMillis());
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {
@@ -57,7 +59,7 @@ public class RemotingServerDelegate {
 
             request.checkCommandBody();
 
-            remotingServer.invokeAsync(channel, request, Application.Config.getInvokeTimeoutMillis(), invokeCallback);
+            remotingServer.invokeAsync(channel, request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {
@@ -70,7 +72,7 @@ public class RemotingServerDelegate {
 
             request.checkCommandBody();
 
-            remotingServer.invokeOneway(channel, request, Application.Config.getInvokeTimeoutMillis());
+            remotingServer.invokeOneway(channel, request, application.getConfig().getInvokeTimeoutMillis());
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {
@@ -83,4 +85,7 @@ public class RemotingServerDelegate {
         remotingServer.shutdown();
     }
 
+    public Application getApplication() {
+        return application;
+    }
 }

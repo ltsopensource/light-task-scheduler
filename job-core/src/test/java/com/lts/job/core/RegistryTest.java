@@ -19,16 +19,6 @@ public class RegistryTest {
     @Test
     public void test_registry() throws IOException {
 
-        String address = "localhost:2181";
-        NodeRegistry registry = new NodeRegistry();
-
-        List<NodeType> nodeTypeList = new ArrayList<NodeType>();
-        nodeTypeList.add(NodeType.JOB_TRACKER);
-
-        JobClientNode node = NodeFactory.create(JobClientNode.class, new JobNodeConfig());
-        registry.register(node);
-
-        System.in.read();
     }
 
     public class JobClientNode extends Node {

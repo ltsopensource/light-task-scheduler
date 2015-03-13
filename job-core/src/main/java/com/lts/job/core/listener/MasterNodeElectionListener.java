@@ -1,6 +1,5 @@
 package com.lts.job.core.listener;
 
-import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.support.Application;
 
@@ -13,17 +12,23 @@ import java.util.List;
  */
 public class MasterNodeElectionListener implements NodeChangeListener {
 
+    private Application application;
+
+    public MasterNodeElectionListener(Application application) {
+        this.application = application;
+    }
+
     @Override
     public void addNode(Node node) {
         if (isSameGroup(node)) {
-            MasterElector.addNode(node);
+            application.getMasterElector().addNode(node);
         }
     }
 
     @Override
     public void removeNode(Node node) {
         if (isSameGroup(node)) {
-            MasterElector.removeNode(node);
+            application.getMasterElector().removeNode(node);
         }
     }
 
@@ -37,7 +42,7 @@ public class MasterNodeElectionListener implements NodeChangeListener {
             }
         }
         if(groupNodes.size() > 0){
-            MasterElector.addNodes(groupNodes);
+            application.getMasterElector().addNodes(groupNodes);
         }
     }
 
@@ -47,7 +52,7 @@ public class MasterNodeElectionListener implements NodeChangeListener {
      * @return
      */
     private boolean isSameGroup(Node node){
-        return node.getNodeType().equals(Application.Config.getNodeType())
-                && node.getGroup().equals(Application.Config.getNodeGroup());
+        return node.getNodeType().equals(application.getConfig().getNodeType())
+                && node.getGroup().equals(application.getConfig().getNodeGroup());
     }
 }

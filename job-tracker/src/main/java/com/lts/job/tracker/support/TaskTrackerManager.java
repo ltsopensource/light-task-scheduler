@@ -3,6 +3,8 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.constant.Constants;
+import com.lts.job.core.support.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
@@ -15,16 +17,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.
- * Task Tracker 管理器 (对 TaskTracker 节点的记录 和 可用线程的记录)
+ *         Task Tracker 管理器 (对 TaskTracker 节点的记录 和 可用线程的记录)
  */
 public class TaskTrackerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerManager.class);
     // 单例
-    public static final TaskTrackerManager INSTANCE = new TaskTrackerManager();
-    private static final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<TaskTrackerNode>>();
+    private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<TaskTrackerNode>>();
+    private ChannelManager channelManager;
 
-    private TaskTrackerManager() {
+    public TaskTrackerManager(ChannelManager channelManager) {
+        this.channelManager = channelManager;
     }
 
     /**
@@ -34,7 +37,7 @@ public class TaskTrackerManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = ChannelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+        ChannelWrapper channel = channelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
 
         synchronized (NODE_MAP) {
@@ -81,7 +84,7 @@ public class TaskTrackerManager {
                 if (trackerNode.getIdentity().equals(identity) && trackerNode.getTimestamp() <= timestamp) {
                     trackerNode.setAvailableThread(availableThreads);
                     trackerNode.setTimestamp(timestamp);
-                    if(LOGGER.isDebugEnabled()){
+                    if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("更新节点线程数: {}", trackerNode);
                     }
                 }
@@ -114,7 +117,7 @@ public class TaskTrackerManager {
 
             if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
                 // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-                ChannelWrapper channel = ChannelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
+                ChannelWrapper channel = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     taskTrackerNode.setChannel(channel);

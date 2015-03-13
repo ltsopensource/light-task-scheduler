@@ -1,6 +1,7 @@
 package com.lts.job.tracker.processor;
 
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.protocol.command.AbstractCommandBody;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
@@ -24,11 +25,14 @@ import static com.lts.job.core.protocol.JobProtos.RequestCode.*;
  */
 public class RemotingDispatcher extends AbstractProcessor {
 
-    private static final Map<RequestCode, NettyRequestProcessor> processors = new HashMap<RequestCode, NettyRequestProcessor>();
+    private final Map<RequestCode, NettyRequestProcessor> processors = new HashMap<RequestCode, NettyRequestProcessor>();
+    private TaskTrackerManager taskTrackerManager;
+    private ChannelManager channelManager;
 
     public RemotingDispatcher(RemotingServerDelegate remotingServer) {
         super(remotingServer);
-
+        this.taskTrackerManager = remotingServer.getApplication().getAttribute(Constants.TASK_TRACKER_MANAGER);
+        this.channelManager = remotingServer.getApplication().getAttribute(Constants.CHANNEL_MANAGER);
         processors.put(SUBMIT_JOB, new JobSubmitProcessor(remotingServer));
         processors.put(HEART_BEAT, new HeartBeatProcessor(remotingServer));
         processors.put(JOB_FINISHED, new JobFinishedProcessor(remotingServer));
@@ -60,13 +64,13 @@ public class RemotingDispatcher extends AbstractProcessor {
         NodeType nodeType = NodeType.valueOf(commandBody.getNodeType());
 
         // 1. 将 channel 纳入管理中(不存在就加入)
-        ChannelManager.offerChannel(new ChannelWrapper(ctx.channel(), nodeType, nodeGroup, identity));
+        channelManager.offerChannel(new ChannelWrapper(ctx.channel(), nodeType, nodeGroup, identity));
 
         // 2. 更新 TaskTracker 节点信息(可用线程数)
         if (NodeType.TASK_TRACKER.equals(nodeType)) {
             // 更新 TaskTracker 节点信息(可用线程数)
             Integer availableThreads = commandBody.getAvailableThreads();
-            TaskTrackerManager.INSTANCE.updateTaskTrackerAvailableThreads(nodeGroup, identity, availableThreads, commandBody.getTimestamp());
+            taskTrackerManager.updateTaskTrackerAvailableThreads(nodeGroup, identity, availableThreads, commandBody.getTimestamp());
         }
     }
 

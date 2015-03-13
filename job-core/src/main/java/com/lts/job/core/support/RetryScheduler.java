@@ -33,17 +33,17 @@ public abstract class RetryScheduler<T> {
     // 批量发送的消息数
     private int batchSize = 5;
 
-    public RetryScheduler() {
+    public RetryScheduler(Application application) {
         try {
-            levelDBStore = new LevelDBStore(Application.Config.getFilePath());
-            dbLock = new FileAccessor(Application.Config.getFilePath() + "___db.lock");
+            levelDBStore = new LevelDBStore(application.getConfig().getFilePath());
+            dbLock = new FileAccessor(application.getConfig().getFilePath() + "___db.lock");
         } catch (FileException e) {
             throw new RuntimeException(e);
         }
     }
 
-    protected RetryScheduler(int batchSize) {
-        this();
+    protected RetryScheduler(Application application, int batchSize) {
+        this(application);
         this.batchSize = batchSize;
     }
 

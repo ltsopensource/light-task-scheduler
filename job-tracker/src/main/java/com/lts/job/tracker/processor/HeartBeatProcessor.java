@@ -23,11 +23,13 @@ public class HeartBeatProcessor extends AbstractProcessor {
     private final static Logger LOGGER = LoggerFactory.getLogger(HeartBeatProcessor.class);
 
     private final ExecutorService executor;
+    private JobController jobController;
 
     public HeartBeatProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
 
         executor = Executors.newCachedThreadPool();
+        jobController = new JobController(remotingServer.getApplication());
     }
 
     @Override
@@ -44,7 +46,7 @@ public class HeartBeatProcessor extends AbstractProcessor {
                 @Override
                 public void run() {
                     try {
-                        JobController.pushJob(remotingServer, ctx, request);
+                        jobController.pushJob(remotingServer, ctx, request);
                     } catch (Throwable t) {
                         LOGGER.error(t.getMessage(), t);
                     }

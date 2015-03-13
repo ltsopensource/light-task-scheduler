@@ -1,14 +1,16 @@
 package com.lts.job.task.tracker.processor;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
+import com.lts.job.core.support.Application;
 import com.lts.job.core.support.RetryScheduler;
-import com.lts.job.core.support.SingletonBeanContext;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
@@ -36,11 +38,17 @@ public class JobPushProcessor extends AbstractProcessor {
 
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
+    private Application application;
+    private RunnerPool runnerPool;
+    private CommandWrapper commandWrapper;
 
     protected JobPushProcessor(final RemotingClientDelegate remotingClient) {
         super(remotingClient);
 
-        retryScheduler = new RetryScheduler<JobResult>(3) {
+        this.application = remotingClient.getApplication();
+        this.commandWrapper = application.getCommandWrapper();
+        this.runnerPool = application.getAttribute(Constants.TASK_TRACKER_RUNNER_POOL);
+        retryScheduler = new RetryScheduler<JobResult>(application, 3) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -67,7 +75,6 @@ public class JobPushProcessor extends AbstractProcessor {
         final Job job = requestBody.getJob();
 
         try {
-            RunnerPool runnerPool = SingletonBeanContext.getBean(RunnerPool.class);
             runnerPool.execute(job, jobRunnerCallback);
         } catch (NoAvailableJobRunnerException e) {
             // 任务推送失败
@@ -90,7 +97,7 @@ public class JobPushProcessor extends AbstractProcessor {
             jobResult.setJob(response.getJob());
             jobResult.setSuccess(response.isSuccess());
             jobResult.setMsg(response.getMsg());
-            JobFinishedRequest requestBody = new JobFinishedRequest();
+            JobFinishedRequest requestBody = commandWrapper.wrapper(new JobFinishedRequest());
             requestBody.addJobResult(jobResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 
@@ -153,7 +160,7 @@ public class JobPushProcessor extends AbstractProcessor {
      */
     private boolean sendJobResults(List<JobResult> jobResults) {
         // 发送消息给 JobTracker
-        JobFinishedRequest requestBody = new JobFinishedRequest();
+        JobFinishedRequest requestBody = commandWrapper.wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         requestBody.setReSend(true);
 

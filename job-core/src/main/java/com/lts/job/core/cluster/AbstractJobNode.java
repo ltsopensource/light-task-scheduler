@@ -4,6 +4,7 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.listener.NodeChangeListener;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.registry.NodeRegistry;
 import com.lts.job.core.support.Application;
 import com.lts.job.core.listener.MasterNodeElectionListener;
@@ -23,8 +24,11 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
     protected NodeRegistry registry;
     protected T node;
     protected JobNodeConfig config;
+    protected Application application;
+    protected NodeFactory nodeFactory;
 
     public AbstractJobNode() {
+        application = new Application();
         config = new JobNodeConfig();
         config.setIdentity(StringUtils.generateUUID());
         config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
@@ -35,20 +39,24 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         config.setJobInfoSavePath(Constants.USER_HOME + "/.job");
         config.setClusterName(Constants.DEFAULT_CLUSTER_NAME);
         // 可用的线程数
-        Application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
+        application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
 
-        Application.Config = config;
+        application.setConfig(config);
+        application.setCommandWrapper(new CommandWrapper(application));
+        application.setNodeManager(new NodeManager(application));
+        nodeFactory = new NodeFactory(application);
+        application.setMasterElector(new MasterElector(application));
 
-        this.registry = new NodeRegistry();
+        this.registry = new NodeRegistry(application);
         // 用于master选举的监听器
-        addNodeChangeListener(new MasterNodeElectionListener());
+        addNodeChangeListener(new MasterNodeElectionListener(application));
     }
 
     final public void start() {
         try {
 
             Class<T> nodeClass = GenericsUtils.getSuperClassGenericType(this.getClass());
-            node = NodeFactory.create(nodeClass, config);
+            node = nodeFactory.create(nodeClass, config);
             config.setNodeType(node.getNodeType());
 
             LOGGER.info("当前节点配置:{}", config);
@@ -116,6 +124,6 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
      * @param masterNodeChangeListener
      */
     public void addMasterNodeChangeListener(MasterNodeChangeListener masterNodeChangeListener) {
-        MasterElector.addMasterNodeChangeListener(masterNodeChangeListener);
+        application.getMasterElector().addMasterNodeChangeListener(masterNodeChangeListener);
     }
 }

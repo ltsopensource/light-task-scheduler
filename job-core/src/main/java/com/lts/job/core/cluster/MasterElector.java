@@ -11,31 +11,36 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/23/14.
- * Master 选举
- * 选举思想:
- * 选出每种节点中得master, 通过每个节点的创建时间来决定 （创建时间最小的便是master, 即最早创建的是master）
- * 当master 挂掉之后, 要重新选举
+ *         Master 选举
+ *         选举思想:
+ *         选出每种节点中得master, 通过每个节点的创建时间来决定 （创建时间最小的便是master, 即最早创建的是master）
+ *         当master 挂掉之后, 要重新选举
  */
 public class MasterElector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterElector.class);
 
-    private static List<MasterNodeChangeListener> masterNodeChangeListenerList;
-    private static Node master;
+    private Application application;
+    private List<MasterNodeChangeListener> masterNodeChangeListenerList;
+    private Node master;
 
-    public static void addMasterNodeChangeListener(MasterNodeChangeListener masterNodeChangeListener) {
+    public MasterElector(Application application) {
+        this.application = application;
+    }
+
+    public void addMasterNodeChangeListener(MasterNodeChangeListener masterNodeChangeListener) {
         if (masterNodeChangeListenerList == null) {
             masterNodeChangeListenerList = new ArrayList<MasterNodeChangeListener>();
         }
         masterNodeChangeListenerList.add(masterNodeChangeListener);
     }
 
-    public static Node getMaster() {
+    public Node getMaster() {
         return master;
     }
 
 
-    public static void addNodes(List<Node> nodes) {
+    public void addNodes(List<Node> nodes) {
         Node newMaster = null;
         for (Node node : nodes) {
             if (newMaster == null) {
@@ -46,13 +51,13 @@ public class MasterElector {
                 }
             }
         }
-        if(master != newMaster){
+        if (master != newMaster) {
             master = newMaster;
             notifyListener();
         }
     }
 
-    public static void addNode(Node newNode) {
+    public void addNode(Node newNode) {
         if (master == null) {
             master = newNode;
             notifyListener();
@@ -64,12 +69,12 @@ public class MasterElector {
         }
     }
 
-    public static void removeNode(Node removedNode) {
+    public void removeNode(Node removedNode) {
 
         if (master != null) {
             if (master.getIdentity().equals(removedNode.getIdentity())) {
                 // 如果挂掉的是master, 需要重新选举
-                List<Node> nodes = NodeManager.getNodeList(Application.Config.getNodeType(), Application.Config.getNodeGroup());
+                List<Node> nodes = application.getNodeManager().getNodeList(application.getConfig().getNodeType(), application.getConfig().getNodeGroup());
                 if (CollectionUtils.isNotEmpty(nodes)) {
                     Node newMaster = null;
                     for (Node node : nodes) {
@@ -88,9 +93,9 @@ public class MasterElector {
         }
     }
 
-    private static void notifyListener() {
+    private void notifyListener() {
         boolean isMaster = false;
-        if (Application.Config.getIdentity().equals(master.getIdentity())) {
+        if (application.getConfig().getIdentity().equals(master.getIdentity())) {
             LOGGER.info("Master节点变化为当前节点:{}", master.getPath());
             isMaster = true;
         } else {

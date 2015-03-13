@@ -3,6 +3,7 @@ package com.lts.job.store.mongo;
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Key;
 import com.google.code.morphia.query.Query;
+import com.lts.job.core.support.Singleton;
 import com.mongodb.WriteResult;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -13,7 +14,7 @@ import java.util.Map;
  * @author Robert HG (254963746@qq.com) on 8/8/14.
  *         通用的mongo存储类
  */
-public abstract class AbstractMongoRepository<T> {
+public abstract class AbstractMongoRepository<T> implements Singleton {
 
     protected static Datastore ds;
 

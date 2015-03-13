@@ -1,7 +1,6 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.support.Application;
 import com.lts.job.remoting.netty.NettyRemotingServer;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.netty.NettyServerConfig;
@@ -22,7 +21,7 @@ public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode
         // config 配置
         config.setListenPort(getListenPort());
 
-        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(config));
+        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(config), application);
 
         remotingServer.start();
 
@@ -55,7 +54,7 @@ public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode
      * @return
      */
     protected Integer getListenPort() {
-        return Application.Config.getListenPort();
+        return application.getConfig().getListenPort();
     }
 
 }

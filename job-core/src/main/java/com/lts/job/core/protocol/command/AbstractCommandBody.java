@@ -43,13 +43,6 @@ public class AbstractCommandBody implements CommandBody {
     @Nullable
     private Map<String, Object> extParams;
 
-    public AbstractCommandBody() {
-        this.nodeGroup = Application.Config.getNodeGroup();
-        this.nodeType = Application.Config.getNodeType().name();
-        this.identity = Application.Config.getIdentity();
-        this.availableThreads = Application.getAttribute(Constants.KEY_AVAILABLE_THREADS);
-    }
-
     public Integer getAvailableThreads() {
         return availableThreads;
     }

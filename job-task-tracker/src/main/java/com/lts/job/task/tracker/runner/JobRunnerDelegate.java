@@ -16,12 +16,12 @@ import java.io.StringWriter;
 public class JobRunnerDelegate implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("JobRunner");
-    private RunnerFactory runnerFactory;
+    private RunnerPool runnerPool;
     private Job job;
     private RunnerCallback callback;
 
-    public JobRunnerDelegate(RunnerFactory runnerFactory, Job job, RunnerCallback callback) {
-        this.runnerFactory = runnerFactory;
+    public JobRunnerDelegate(RunnerPool runnerPool, Job job, RunnerCallback callback) {
+        this.runnerPool = runnerPool;
         this.job = job;
         this.callback = callback;
     }
@@ -31,12 +31,12 @@ public class JobRunnerDelegate implements Runnable {
 
         while (job != null) {
 
-            RunnerPool.RunningJobManager.in(job.getJobId());
+            runnerPool.getRunningJobManager().in(job.getJobId());
 
             Response response = new Response();
             response.setJob(job);
             try {
-                runnerFactory.newRunner().run(job);
+                runnerPool.getRunnerFactory().newRunner().run(job);
                 response.setSuccess(true);
                 LOGGER.info("执行任务成功 : {}", job);
             } catch (Throwable t) {
@@ -52,7 +52,7 @@ public class JobRunnerDelegate implements Runnable {
                     LOGGER.info("任务执行失败: {} {}", job, t.getMessage(), t);
                 }
             } finally {
-                RunnerPool.RunningJobManager.out(job.getJobId());
+                runnerPool.getRunningJobManager().out(job.getJobId());
             }
             job = callback.runComplete(response);
         }

@@ -29,7 +29,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ## 特性
 
 * 负载均衡:
-     * JobClient 和 TaskTracker会随机连接JobTracker节点组中的一个节点，实现JobTracker负载均衡。当连接上后，将一直保持连接这个节点,保持连接通道，知道这个节点不可用，减少每次都重新连接一个节点带来的性能开销。
+     * JobClient 和 TaskTracker会随机连接JobTracker节点组中的一个节点，实现JobTracker负载均衡。当连接上后，将一直保持连接这个节点,保持连接通道，直到这个节点不可用，减少每次都重新连接一个节点带来的性能开销。
      * JobTracker 分发任务时，是优先分配给最空闲的一个TaskTracker节点，实现TaskTracker节点的负载均衡。
 
 * 健壮性:

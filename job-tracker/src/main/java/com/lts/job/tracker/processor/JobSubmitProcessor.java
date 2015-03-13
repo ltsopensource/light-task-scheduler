@@ -2,6 +2,7 @@ package com.lts.job.tracker.processor;
 
 import com.lts.job.core.exception.JobReceiveException;
 import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
@@ -20,8 +21,11 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
+    private CommandWrapper commandWrapper;
+
     public JobSubmitProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
+        this.commandWrapper = remotingServer.getApplication().getCommandWrapper();
     }
 
     @Override
@@ -29,7 +33,7 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
         JobSubmitRequest jobSubmitRequest =  request.getBody();
 
-        JobSubmitResponse jobSubmitResponse = new JobSubmitResponse();
+        JobSubmitResponse jobSubmitResponse = commandWrapper.wrapper(new JobSubmitResponse());
         RemotingCommand response = null;
         try {
             JobReceiver.receive(jobSubmitRequest);

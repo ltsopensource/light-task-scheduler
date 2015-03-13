@@ -3,6 +3,7 @@ package com.lts.job.tracker.processor;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.domain.LogType;
+import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
@@ -35,11 +36,13 @@ public class JobFinishedProcessor extends AbstractProcessor {
     private ClientNotifier clientNotifier;
     private JobFeedbackQueueMongoRepository jobFeedbackQueueMongoRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
+    private CommandWrapper commandWrapper;
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
         this.jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
-        this.clientNotifier = new ClientNotifier(remotingServer, new ClientNotifyHandler() {
+        this.commandWrapper = remotingServer.getApplication().getCommandWrapper();
+        this.clientNotifier = new ClientNotifier(remotingServer.getApplication(), new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
                 finishedJob(jobResults);
@@ -127,10 +130,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
             // 查看有没有其他可以执行的任务
             JobPo jobPo = jobRepository.getJobPo(requestBody.getNodeGroup(), requestBody.getIdentity());
             if (jobPo != null) {
-                JobPushRequest jobPushRequest = new JobPushRequest();
+                JobPushRequest jobPushRequest = commandWrapper.wrapper(new JobPushRequest());
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
-                if(LOGGER.isDebugEnabled()){
+                if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("发送任务{}给 {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
                 }
                 // 返回 新的任务

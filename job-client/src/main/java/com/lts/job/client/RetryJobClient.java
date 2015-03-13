@@ -20,7 +20,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
     @Override
     protected void nodeStart() {
 
-        retryScheduler = new RetryScheduler<Job>(30) {
+        retryScheduler = new RetryScheduler<Job>(application, 30) {
             @Override
             protected boolean isRemotingEnable() {
                 return isServerEnable();

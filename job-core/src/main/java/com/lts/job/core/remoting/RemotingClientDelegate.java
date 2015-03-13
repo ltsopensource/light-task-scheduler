@@ -1,6 +1,5 @@
 package com.lts.job.core.remoting;
 
-import com.lts.job.core.cluster.NodeManager;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
@@ -31,12 +30,14 @@ public class RemotingClientDelegate {
     private NettyRemotingClient remotingClient;
     // 连接的jobTracker node
     private Node stickyJobTrackerNode;
+    private Application application;
 
     // JobTracker 是否可用
     private boolean serverEnable = false;
 
-    public RemotingClientDelegate(NettyRemotingClient remotingClient) {
+    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application) {
         this.remotingClient = remotingClient;
+        this.application = application;
     }
 
     public Node getStickyJobTrackerNode() throws JobTrackerNotFoundException {
@@ -53,7 +54,7 @@ public class RemotingClientDelegate {
             return;
         }
 
-        List<Node> jobTrackerNodes = NodeManager.getNodeList(NodeType.JOB_TRACKER);
+        List<Node> jobTrackerNodes = application.getNodeManager().getNodeList(NodeType.JOB_TRACKER);
         if (CollectionUtils.isEmpty(jobTrackerNodes)) {
             throw new JobTrackerNotFoundException("没有找到可用的JobTracker节点!");
         }
@@ -73,7 +74,7 @@ public class RemotingClientDelegate {
      */
     private Node getJobTackerNodeByRandom(List<Node> jobTrackerNodes) {
 
-        if(jobTrackerNodes.size() == 0){
+        if (jobTrackerNodes.size() == 0) {
             return null;
         }
 
@@ -86,7 +87,7 @@ public class RemotingClientDelegate {
 
         if (HeartBeater.beat(this, jobTackerNode.getAddress())) {
             return jobTackerNode;
-        }else{
+        } else {
             // 如果这个节点不可用，那么移除
             jobTrackerNodes.remove(index);
         }
@@ -112,7 +113,7 @@ public class RemotingClientDelegate {
 
             String addr = getStickyJobTrackerNode().getAddress();
 
-            RemotingCommand response = remotingClient.invokeSync(addr, request, Application.Config.getInvokeTimeoutMillis());
+            RemotingCommand response = remotingClient.invokeSync(addr, request, application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
             return response;
 
@@ -153,7 +154,7 @@ public class RemotingClientDelegate {
 
             String addr = getStickyJobTrackerNode().getAddress();
 
-            remotingClient.invokeAsync(addr, request, Application.Config.getInvokeTimeoutMillis(), invokeCallback);
+            remotingClient.invokeAsync(addr, request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
@@ -192,7 +193,7 @@ public class RemotingClientDelegate {
 
             String addr = getStickyJobTrackerNode().getAddress();
 
-            remotingClient.invokeOneway(addr, request, Application.Config.getInvokeTimeoutMillis());
+            remotingClient.invokeOneway(addr, request, application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
@@ -240,5 +241,9 @@ public class RemotingClientDelegate {
 
     public NettyRemotingClient getNettyClient() {
         return remotingClient;
+    }
+
+    public Application getApplication() {
+        return application;
     }
 }

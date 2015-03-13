@@ -1,8 +1,11 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.repository.JobFeedbackQueueMongoRepository;
 import com.lts.job.core.repository.po.JobFeedbackQueuePo;
+import com.lts.job.core.support.Application;
 import com.lts.job.core.support.SingletonBeanContext;
 import com.lts.job.core.util.CollectionUtils;
 import org.slf4j.Logger;
@@ -28,6 +31,7 @@ public class FeedbackJobSendChecker {
     private volatile boolean start = false;
     private ClientNotifier clientNotifier;
 
+
     /**
      * 是否已经启动
      *
@@ -37,13 +41,12 @@ public class FeedbackJobSendChecker {
         return start;
     }
 
-    public FeedbackJobSendChecker() {
-        jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
-        clientNotifier = new ClientNotifier(RemotingServerManager.getRemotingServer(), new ClientNotifyHandler() {
+    public FeedbackJobSendChecker(Application application) {
+        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
                 for (JobResult jobResult : jobResults) {
-                    jobFeedbackQueueMongoRepository.delJobFeedback(((JobFeedbackQueuePo) jobResult).getId());
+                    getJobFeedbackQueueMongoRepository().delJobFeedback(((JobFeedbackQueuePo) jobResult).getId());
                 }
             }
 
@@ -79,12 +82,19 @@ public class FeedbackJobSendChecker {
         }
     }
 
+    private JobFeedbackQueueMongoRepository getJobFeedbackQueueMongoRepository(){
+        if(jobFeedbackQueueMongoRepository == null){
+            jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
+        }
+        return jobFeedbackQueueMongoRepository;
+    }
+
     private class Runner implements Runnable {
         @Override
         public void run() {
             try {
 
-                long count = jobFeedbackQueueMongoRepository.count();
+                long count = getJobFeedbackQueueMongoRepository().count();
                 if (count == 0) {
                     return;
                 }
@@ -94,7 +104,7 @@ public class FeedbackJobSendChecker {
                 int offset = 0;
                 int limit = 5;
                 do {
-                    jobFeedbackQueuePos = jobFeedbackQueueMongoRepository.get(offset, limit);
+                    jobFeedbackQueuePos = getJobFeedbackQueueMongoRepository().get(offset, limit);
                     if (CollectionUtils.isEmpty(jobFeedbackQueuePos)) {
                         return;
                     }

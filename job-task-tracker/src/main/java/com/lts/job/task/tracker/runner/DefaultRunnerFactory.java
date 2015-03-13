@@ -13,8 +13,8 @@ public class DefaultRunnerFactory implements RunnerFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(RunnerFactory.class);
     private Class clazz;
 
-    public DefaultRunnerFactory() {
-        clazz = Application.getAttribute(Constants.JOB_RUNNING_CLASS);
+    public DefaultRunnerFactory(Application application) {
+        clazz = application.getAttribute(Constants.JOB_RUNNING_CLASS);
     }
 
     public JobRunner newRunner() {

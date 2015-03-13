@@ -6,6 +6,8 @@ import com.lts.job.core.support.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +32,7 @@ public class HeartBeatMonitor {
     public void start() {
         // 设置 JobClient 心跳10s一次，TaskTracker 5s一次
         int delay = 5;
-        if(NodeType.CLIENT.equals(Application.Config.getNodeType())){
+        if(NodeType.CLIENT.equals(remotingClient.getApplication().getConfig().getNodeType())){
             delay = 10;
         }
         HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
