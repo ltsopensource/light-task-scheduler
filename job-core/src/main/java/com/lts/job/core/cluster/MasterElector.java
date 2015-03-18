@@ -39,7 +39,6 @@ public class MasterElector {
         return master;
     }
 
-
     public void addNodes(List<Node> nodes) {
         Node newMaster = null;
         for (Node node : nodes) {
@@ -51,10 +50,7 @@ public class MasterElector {
                 }
             }
         }
-        if (master == null || !master.equals(newMaster)) {
-            master = newMaster;
-            notifyListener();
-        }
+        addNode(newMaster);
     }
 
     public void addNode(Node newNode) {
