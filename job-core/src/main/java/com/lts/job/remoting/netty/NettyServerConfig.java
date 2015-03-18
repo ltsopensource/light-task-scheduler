@@ -1,5 +1,7 @@
 package com.lts.job.remoting.netty;
 
+import com.lts.job.core.constant.Constants;
+
 /**
  * Netty服务端配置
  */
@@ -7,7 +9,7 @@ public class NettyServerConfig {
     private int listenPort = 8888;
     private int serverWorkerThreads = 32;
     private int serverCallbackExecutorThreads = 0;
-    private int serverSelectorThreads = 8;
+    private int serverSelectorThreads = Constants.AVAILABLE_PROCESSOR * 2;
     private int serverOnewaySemaphoreValue = 32;
     private int serverAsyncSemaphoreValue = 64;
     private int serverChannelMaxIdleTimeSeconds = 120;

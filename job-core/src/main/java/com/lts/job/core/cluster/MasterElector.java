@@ -51,7 +51,7 @@ public class MasterElector {
                 }
             }
         }
-        if (master != newMaster) {
+        if (master == null || !master.equals(newMaster)) {
             master = newMaster;
             notifyListener();
         }

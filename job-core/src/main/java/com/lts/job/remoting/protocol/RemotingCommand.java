@@ -39,7 +39,7 @@ public class RemotingCommand {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingCommand.class);
 
     private static final int RPC_TYPE = 0; // 0, REQUEST_COMMAND
-    private static final int RPC_ONEWAY = 1; // 0, RPC
+    private static final int RPC_ONEWAY = 1; // 1, RPC
     // 1, Oneway
     private static AtomicInteger RequestId = new AtomicInteger(0);
     /**
