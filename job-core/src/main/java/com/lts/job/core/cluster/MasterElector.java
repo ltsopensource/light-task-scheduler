@@ -22,7 +22,7 @@ public class MasterElector {
 
     private Application application;
     private List<MasterNodeChangeListener> masterNodeChangeListenerList;
-    private Node master;
+    private volatile Node master;
 
     public MasterElector(Application application) {
         this.application = application;

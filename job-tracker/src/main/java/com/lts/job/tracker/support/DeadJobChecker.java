@@ -57,8 +57,16 @@ public class DeadJobChecker {
         this.commandWrapper = application.getCommandWrapper();
     }
 
+    private volatile boolean start;
+    private ScheduledFuture<?> scheduledFuture;
+
     public void start() {
-        ScheduledFuture<?> scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
+        if (start) {
+            return;
+        }
+        start = true;
+
+        scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -158,7 +166,11 @@ public class DeadJobChecker {
     }
 
     public void stop() {
-        FIXED_EXECUTOR_SERVICE.shutdown();
+        if (start) {
+            start = false;
+            scheduledFuture.cancel(true);
+            FIXED_EXECUTOR_SERVICE.shutdown();
+        }
     }
 
 }
