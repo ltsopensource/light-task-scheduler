@@ -6,7 +6,7 @@ db.createCollection("JobPo");
 db.addUser("lts", "lts");
 db.auth("lts", "lts");
 db.JobPo.ensureIndex({"jobId":1},{unique:true});
-db.JobPo.ensureIndex({"nodeGroup":1, "taskId":1},{unique:true});
+db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "taskId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTracker":1});
 db.JobPo.ensureIndex({"priority":1, "triggerTime":1});
 db.JobPo.ensureIndex({"isRunning":1});
