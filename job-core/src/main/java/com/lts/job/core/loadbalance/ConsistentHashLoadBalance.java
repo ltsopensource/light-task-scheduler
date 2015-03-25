@@ -7,7 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 一致性hash算法
- * Created by hugui on 3/25/15.
+ * Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
 

@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 用来向JobTracker去取任务
- * Created by hugui on 3/25/15.
+ * Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class JobPullMachine {
 

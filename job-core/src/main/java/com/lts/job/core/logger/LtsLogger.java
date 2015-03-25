@@ -3,7 +3,7 @@ package com.lts.job.core.logger;
 import com.lts.job.core.repository.po.JobLogPo;
 
 /**
- * Created by hugui on 3/24/15.
+ * Robert HG (254963746@qq.com) on 3/24/15.
  */
 public interface LtsLogger {
 

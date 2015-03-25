@@ -3,7 +3,7 @@ package com.lts.job.core.loadbalance;
 import java.util.List;
 
 /**
- * Created by hugui on 3/25/15.
+ * Robert HG (254963746@qq.com) on 3/25/15.
  */
 public abstract class AbstractLoadBalance implements LoadBalance {
 

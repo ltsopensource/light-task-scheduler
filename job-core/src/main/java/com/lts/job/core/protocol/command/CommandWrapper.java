@@ -5,7 +5,7 @@ import com.lts.job.core.support.Application;
 
 /**
  * 用于设置CommandBody 的基础信息
- * Created by hugui on 3/13/15.
+ * Robert HG (254963746@qq.com) on 3/13/15.
  */
 public class CommandWrapper {
 
