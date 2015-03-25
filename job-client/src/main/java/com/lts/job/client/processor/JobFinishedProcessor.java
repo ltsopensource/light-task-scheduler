@@ -29,14 +29,15 @@ public class JobFinishedProcessor extends AbstractProcessor {
         if (this.jobFinishedHandler == null) {
             this.jobFinishedHandler = new JobFinishedHandler() {
                 private final Logger log = LoggerFactory.getLogger("JobFinishedHandler");
+
                 @Override
                 public void handle(List<JobResult> jobResults) {
                     // do nothing
-                    if(CollectionUtils.isNotEmpty(jobResults)){
+                    if (CollectionUtils.isNotEmpty(jobResults)) {
                         for (JobResult jobResult : jobResults) {
-                            if(jobResult.isSuccess()){
+                            if (jobResult.isSuccess()) {
                                 log.info("任务执行成功:" + jobResult);
-                            }else{
+                            } else {
                                 log.info("任务执行失败:" + jobResult);
                             }
                         }
@@ -52,7 +53,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         JobFinishedRequest requestBody = request.getBody();
         try {
             jobFinishedHandler.handle(requestBody.getJobResults());
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error(t.getMessage(), t);
         }
 

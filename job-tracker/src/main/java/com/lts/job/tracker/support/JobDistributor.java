@@ -4,76 +4,75 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.AbstractCommandBody;
 import com.lts.job.core.protocol.command.CommandWrapper;
+import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.support.Application;
 import com.lts.job.core.support.JobDomainConverter;
 import com.lts.job.core.support.SingletonBeanContext;
+import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
+import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 import com.lts.job.core.repository.JobMongoRepository;
 import com.lts.job.core.repository.po.JobPo;
-import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         任务分发管理
  */
-public class JobController {
+public class JobDistributor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(JobController.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(JobDistributor.class);
     private JobMongoRepository jobRepository;
     private TaskTrackerManager taskTrackerManager;
     private CommandWrapper commandWrapper;
 
-    public JobController(Application application) {
+    public JobDistributor(Application application) {
         this.jobRepository = SingletonBeanContext.getBean(JobMongoRepository.class);
         this.taskTrackerManager = application.getAttribute(Constants.TASK_TRACKER_MANAGER);
         this.commandWrapper = application.getCommandWrapper();
     }
-
 
     /**
      * 对 TaskTracker的每次请求进行处理
      * 分发任务等
      *
      * @param remotingServer
-     * @param ctx
      * @param request
      */
-    public void pushJob(RemotingServerDelegate remotingServer, ChannelHandlerContext ctx, RemotingCommand request) {
+    public void pushJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
 
-        AbstractCommandBody requestBody = request.getBody();
-        String nodeGroup = requestBody.getNodeGroup();
+        String nodeGroup = request.getNodeGroup();
+        String identity = request.getIdentity();
+        // 更新TaskTracker的可用线程数
+        taskTrackerManager.updateTaskTrackerAvailableThreads(nodeGroup, identity, request.getAvailableThreads(), request.getTimestamp());
 
-        // 推送失败的节点 要过滤掉
-        HashSet<TaskTrackerNode> failedNodes = new HashSet<TaskTrackerNode>();
+        TaskTrackerNode taskTrackerNode = taskTrackerManager.getTaskTrackerNode(nodeGroup, identity);
 
-        while (true) {
+        if (taskTrackerNode == null) {
+            return;
+        }
 
-            TaskTrackerNode taskTrackerNode = taskTrackerManager.getIdleTaskTrackerNode(nodeGroup, failedNodes);
+        int availableThreads = taskTrackerNode.getAvailableThread().get();
 
-            if (taskTrackerNode != null) {
-                // 推送任务
-                int code = pushJob(remotingServer, taskTrackerNode);
-
-                if (code == NO_JOB) {
-                    // 没有可以执行的任务, 直接停止
-                    break;
-                }
-                if (code == PUSH_FAILED) {
-                    failedNodes.add(taskTrackerNode);
-                }
-            } else {
+        while (availableThreads > 0) {
+            // 推送任务
+            int code = pushJob(remotingServer, taskTrackerNode);
+            if (code == NO_JOB) {
+                // 没有可以执行的任务, 直接停止
                 break;
             }
+            if (code == PUSH_FAILED) {
+                break;
+            }
+            availableThreads = taskTrackerNode.getAvailableThread().get();
         }
     }
 
@@ -110,14 +109,27 @@ public class JobController {
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
         // 是否分发推送任务成功
-        boolean pushSuccess = false;
+        final boolean[] pushSuccess = {false};
 
+        final CountDownLatch latch = new CountDownLatch(1);
         try {
-            RemotingCommand commandResponse = remotingServer.invokeSync(taskTrackerNode.getChannel().getChannel(), commandRequest);
-
-            if (commandResponse.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
-                pushSuccess = true;
-            }
+            remotingServer.invokeAsync(taskTrackerNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
+                @Override
+                public void operationComplete(ResponseFuture responseFuture) {
+                    try {
+                        RemotingCommand responseCommand = responseFuture.getResponseCommand();
+                        if (responseCommand == null) {
+                            LOGGER.warn("job push failed! response command is null!");
+                            return;
+                        }
+                        if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
+                            pushSuccess[0] = true;
+                        }
+                    }finally {
+                        latch.countDown();
+                    }
+                }
+            });
 
         } catch (RemotingSendException e) {
             LOGGER.error(e.getMessage(), e);
@@ -125,7 +137,13 @@ public class JobController {
             LOGGER.error(e.getMessage(), e);
         }
 
-        if (!pushSuccess) {
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (!pushSuccess[0]) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
             }

@@ -14,11 +14,11 @@ import java.util.regex.Pattern;
  * <p/>
  * 节点 zookeeper上路径解析工具
  */
-public class PathParser {
+public class ZkPathParser {
 
     private Application application;
 
-    public PathParser(Application application) {
+    public ZkPathParser(Application application) {
         this.application = application;
     }
 

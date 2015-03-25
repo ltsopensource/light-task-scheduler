@@ -3,13 +3,13 @@ package com.lts.job.example.support;
 import com.lts.job.client.JobClient;
 import com.lts.job.client.domain.Response;
 import com.lts.job.core.domain.Job;
+import com.lts.job.core.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.UUID;
 
 /**
  * Created by Robert HG (254963746@qq.com) on 3/6/15.
@@ -73,7 +73,7 @@ public class BaseJobClientTest {
 
     public void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException {
         Job job = new Job();
-        job.setTaskId(UUID.randomUUID().toString());
+        job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         job.setCronExpression(cronExpression);
@@ -83,7 +83,7 @@ public class BaseJobClientTest {
 
     public void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException {
         Job job = new Job();
-        job.setTaskId(UUID.randomUUID().toString());
+        job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         if (triggerTime != null && !"".equals(triggerTime.trim())) {

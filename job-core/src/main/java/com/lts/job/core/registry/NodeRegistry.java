@@ -2,7 +2,7 @@ package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.cluster.PathParser;
+import com.lts.job.core.cluster.ZkPathParser;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.support.Application;
 import com.lts.job.core.util.CollectionUtils;
@@ -30,12 +30,12 @@ public class NodeRegistry implements Registry {
     private ChildChangeListener listener;
     private List<NodeChangeListener> nodeChangeListeners;
     private Application application;
-    private PathParser pathParser;
+    private ZkPathParser zkPathParser;
 
     public NodeRegistry(Application application) {
         this.listener = new ChildChangeListener();
         this.application = application;
-        this.pathParser = new PathParser(application);
+        this.zkPathParser = application.getZkPathParser();
     }
 
     /**
@@ -87,7 +87,7 @@ public class NodeRegistry implements Registry {
         if (CollectionUtils.isNotEmpty(listenNodeTypes)) {
 
             for (NodeType nodeType : listenNodeTypes) {
-                String listenNodePath = pathParser.getPath(nodeType);
+                String listenNodePath = zkPathParser.getPath(nodeType);
                 // 为自己关注的 节点 添加监听
                 zkClient.addChildListener(listenNodePath, listener);
 
@@ -96,7 +96,7 @@ public class NodeRegistry implements Registry {
                 if (CollectionUtils.isNotEmpty(children)) {
                     List<Node> listenedNodes = new ArrayList<Node>();
                     for (String child : children) {
-                        Node listenedNode = pathParser.parse(listenNodePath + "/" + child);
+                        Node listenedNode = zkPathParser.parse(listenNodePath + "/" + child);
                         listenedNodes.add(listenedNode);
                         application.getNodeManager().addNode(listenedNode);
                     }
@@ -117,7 +117,7 @@ public class NodeRegistry implements Registry {
         List<NodeType> listenNodeTypes = node.getListenNodeTypes();
         if (CollectionUtils.isNotEmpty(listenNodeTypes)) {
             for (NodeType nodeType : listenNodeTypes) {
-                zkClient.removeChildListener(pathParser.getPath(nodeType), listener);
+                zkClient.removeChildListener(zkPathParser.getPath(nodeType), listener);
 
                 application.getNodeManager().destroy();
             }
@@ -152,7 +152,7 @@ public class NodeRegistry implements Registry {
 
             if (CollectionUtils.isNotEmpty(addChildren)) {
                 for (String child : addChildren) {
-                    Node node = pathParser.parse(path + "/" + child);
+                    Node node = zkPathParser.parse(path + "/" + child);
 
                     application.getNodeManager().addNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
@@ -165,7 +165,7 @@ public class NodeRegistry implements Registry {
 
             if (CollectionUtils.isNotEmpty(decChildren)) {
                 for (String child : decChildren) {
-                    Node node = pathParser.parse(path + "/" + child);
+                    Node node = zkPathParser.parse(path + "/" + child);
                     application.getNodeManager().removeNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {

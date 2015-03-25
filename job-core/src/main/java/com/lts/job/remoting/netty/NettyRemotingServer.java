@@ -109,8 +109,9 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                                 defaultEventExecutorGroup, //
                                 new NettyEncoder(), //
                                 new NettyDecoder(), //
-                                new IdleStateHandler(0, 0, nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),//
-                                new NettyConnetManageHandler(), //
+                                new IdleStateHandler(nettyServerConfig.getReaderIdleTimeSeconds(),
+                                        nettyServerConfig.getWriterIdleTimeSeconds(), nettyServerConfig.getServerChannelMaxIdleTimeSeconds()),//
+                                new NettyConnectManageHandler(), //
                                 new NettyServerHandler());
                     }
                 });
@@ -208,7 +209,6 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         }
     }
 
-
     @Override
     public ChannelEventListener getChannelEventListener() {
         return channelEventListener;
@@ -222,20 +222,13 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
 
     class NettyServerHandler extends SimpleChannelInboundHandler<RemotingCommand> {
 
-        // @Override
-        // protected void messageReceived(ChannelHandlerContext ctx,
-        // RemotingCommand msg) throws Exception {
-        // processMessageReceived(ctx, msg);
-        // }
-
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RemotingCommand msg) throws Exception {
             processMessageReceived(ctx, msg);
-
         }
     }
 
-    class NettyConnetManageHandler extends ChannelDuplexHandler {
+    class NettyConnectManageHandler extends ChannelDuplexHandler {
         @Override
         public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
             final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
@@ -251,7 +244,6 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             super.channelUnregistered(ctx);
         }
 
-
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
             final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
@@ -263,7 +255,6 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                         .toString(), ctx.channel()));
             }
         }
-
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -281,15 +272,19 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
             if (evt instanceof IdleStateEvent) {
-                IdleStateEvent evnet = (IdleStateEvent) evt;
-                if (evnet.state().equals(IdleState.ALL_IDLE)) {
-                    final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
-                    log.warn("NETTY SERVER PIPELINE: IDLE exception [{}]", remoteAddress);
+                IdleStateEvent event = (IdleStateEvent) evt;
+
+                final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
+
+                if (event.state().equals(IdleState.ALL_IDLE)) {
+                    log.warn("NETTY SERVER PIPELINE: IDLE [{}]", remoteAddress);
                     RemotingUtil.closeChannel(ctx.channel());
-                    if (NettyRemotingServer.this.channelEventListener != null) {
-                        NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.IDLE,
-                                remoteAddress.toString(), ctx.channel()));
-                    }
+                }
+
+                if (NettyRemotingServer.this.channelEventListener != null) {
+                    NettyEventType nettyEventType = NettyEventType.valueOf(event.state().name());
+                    NettyRemotingServer.this.putNettyEvent(new NettyEvent(nettyEventType,
+                            remoteAddress.toString(), ctx.channel()));
                 }
             }
 

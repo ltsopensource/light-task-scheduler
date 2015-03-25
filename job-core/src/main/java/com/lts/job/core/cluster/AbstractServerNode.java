@@ -15,13 +15,13 @@ public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode
 
     protected RemotingServerDelegate remotingServer;
 
-    protected void nodeStart() {
+    protected void innerStart() {
 
-        NettyServerConfig config = new NettyServerConfig();
+        NettyServerConfig nettyServerConfig = new NettyServerConfig();
         // config 配置
-        config.setListenPort(getListenPort());
+        nettyServerConfig.setListenPort(config.getListenPort());
 
-        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(config), application);
+        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(nettyServerConfig), application);
 
         remotingServer.start();
 
@@ -37,7 +37,7 @@ public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode
         config.setListenPort(listenPort);
     }
 
-    protected void nodeStop() {
+    protected void innerStop() {
         remotingServer.shutdown();
     }
 
@@ -47,14 +47,5 @@ public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode
      * @return
      */
     protected abstract NettyRequestProcessor getDefaultProcessor();
-
-    /**
-     * 得到监听接口
-     *
-     * @return
-     */
-    protected Integer getListenPort() {
-        return application.getConfig().getListenPort();
-    }
 
 }

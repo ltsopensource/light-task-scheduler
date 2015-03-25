@@ -1,6 +1,8 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.constant.Constants;
+import com.lts.job.core.loadbalance.ConsistentHashLoadBalance;
+import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.util.StringUtils;
@@ -17,15 +19,24 @@ import java.util.concurrent.Executors;
 public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode<T> {
 
     protected RemotingClientDelegate remotingClient;
+    private LoadBalance loadBalance;
     private HeartBeatMonitor heartBeatMonitor;
 
     public AbstractClientNode() {
-        this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
-        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient);
+
     }
 
-    protected void nodeStart() {
+    protected void innerStart() {
+
+        if (loadBalance == null) {
+            loadBalance = new ConsistentHashLoadBalance();
+        }
+        this.remotingClient = new RemotingClientDelegate(
+                new NettyRemotingClient(getNettyClientConfig()), application, loadBalance);
+        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient);
+
         remotingClient.start();
+        heartBeatMonitor.start();
 
         NettyRequestProcessor defaultProcessor = getDefaultProcessor();
         if (defaultProcessor != null) {
@@ -33,9 +44,6 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
             remotingClient.registerDefaultProcessor(defaultProcessor,
                     Executors.newCachedThreadPool());
         }
-
-        // 用于发送心跳检测
-        heartBeatMonitor.start();
     }
 
     /**
@@ -45,9 +53,9 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
      */
     protected abstract NettyRequestProcessor getDefaultProcessor();
 
-    protected void nodeStop() {
+    protected void innerStop() {
+        heartBeatMonitor.start();
         remotingClient.shutdown();
-        heartBeatMonitor.destroy();
     }
 
     public void setWorkThreads(int workThreads) {
@@ -82,6 +90,14 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
     protected NettyClientConfig getNettyClientConfig() {
         NettyClientConfig config = new NettyClientConfig();
         return config;
+    }
+
+    /**
+     * 设置连接JobTracker的负载均衡算法
+     * @param loadBalance
+     */
+    public void setLoadBalance(LoadBalance loadBalance) {
+        this.loadBalance = loadBalance;
     }
 
 }

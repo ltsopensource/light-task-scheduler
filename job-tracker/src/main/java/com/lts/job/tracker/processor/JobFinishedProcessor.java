@@ -1,14 +1,18 @@
 package com.lts.job.tracker.processor;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.domain.LogType;
+import com.lts.job.core.logger.LtsLogger;
+import com.lts.job.core.repository.po.JobLogPo;
 import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.repository.JobFeedbackQueueMongoRepository;
 import com.lts.job.core.repository.po.JobFeedbackQueuePo;
+import com.lts.job.core.support.Application;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.support.SingletonBeanContext;
 import com.lts.job.core.util.CollectionUtils;
@@ -16,7 +20,6 @@ import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.core.repository.po.JobPo;
-import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.core.support.JobDomainConverter;
 import com.lts.job.tracker.support.ClientNotifyHandler;
@@ -37,12 +40,16 @@ public class JobFinishedProcessor extends AbstractProcessor {
     private JobFeedbackQueueMongoRepository jobFeedbackQueueMongoRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
     private CommandWrapper commandWrapper;
+    private Application application;
+    private LtsLogger ltsLogger;
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
+        this.application = remotingServer.getApplication();
+        this.ltsLogger = application.getAttribute(Constants.JOB_LOGGER);
         this.jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
-        this.commandWrapper = remotingServer.getApplication().getCommandWrapper();
-        this.clientNotifier = new ClientNotifier(remotingServer.getApplication(), new ClientNotifyHandler() {
+        this.commandWrapper = application.getCommandWrapper();
+        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
                 finishedJob(jobResults);
@@ -82,14 +89,33 @@ public class JobFinishedProcessor extends AbstractProcessor {
         }
 
         if (requestBody.isReSend()) {
-            JobLogger.log(jobResults, LogType.RESEND);
+            log(jobResults, LogType.RESEND);
         } else {
-            JobLogger.log(jobResults, LogType.FINISHED);
+            log(jobResults, LogType.FINISHED);
         }
 
         LOGGER.info("执行任务完成: {}", jobResults);
 
         return finishJob(requestBody, jobResults);
+    }
+
+    /**
+     * 记录日志
+     * @param jobResults
+     * @param logType
+     */
+    private void log(List<JobResult> jobResults, LogType logType) {
+        try {
+            for (JobResult jobResult : jobResults) {
+                JobLogPo jobLogPo = JobDomainConverter.convertJobLogPo(jobResult.getJob());
+                jobLogPo.setMsg(jobResult.getMsg());
+                jobLogPo.setLogType(logType);
+                jobLogPo.setSuccess(jobResult.isSuccess());
+                ltsLogger.log(jobLogPo);
+            }
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
     }
 
     /**

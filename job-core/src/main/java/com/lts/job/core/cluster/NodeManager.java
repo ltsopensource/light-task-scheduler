@@ -19,7 +19,7 @@ public class NodeManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeManager.class);
     private final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
-    
+
     private Application application;
 
     public NodeManager(Application application) {
@@ -30,10 +30,10 @@ public class NodeManager {
 
         // JobClient 和 TaskTracker 只对自己同一个组的节点关注和JobTracker节点关注
         // JobTracker 要对所有节点都要关注
-        if (    (NodeType.JOB_TRACKER.equals(node.getNodeType())) ||
+        if ((NodeType.JOB_TRACKER.equals(node.getNodeType())) ||
                 ((application.getConfig().getNodeType().equals(node.getNodeType())
-                && application.getConfig().getNodeGroup().equals(node.getGroup()))
-                || (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())))
+                        && application.getConfig().getNodeGroup().equals(node.getGroup()))
+                        || (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())))
                 ) {
 
             List<Node> nodeList = NODES.get(node.getNodeType());
@@ -46,7 +46,7 @@ public class NodeManager {
         }
     }
 
-    public List<Node> getNodeList(NodeType nodeType, final String nodeGroup) {
+    public List<Node> getNodeList(final NodeType nodeType, final String nodeGroup) {
 
         List<Node> nodes = NODES.get(nodeType);
 
@@ -67,6 +67,21 @@ public class NodeManager {
         if (nodeList.remove(node)) {
             LOGGER.info("删除节点{}", node);
         }
+    }
+
+    /**
+     * 是否包含某个元素
+     * @param node
+     * @return
+     */
+    public boolean contains(Node node) {
+        List<Node> nodes = NODES.get(node.getNodeType());
+        for (Node inNode : nodes) {
+            if (inNode.getIdentity().equals(node.getIdentity())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void destroy() {

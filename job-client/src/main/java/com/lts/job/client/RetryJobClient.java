@@ -18,7 +18,7 @@ public class RetryJobClient extends JobClient<JobClientNode> {
     private RetryScheduler retryScheduler;
 
     @Override
-    protected void nodeStart() {
+    protected void innerStart() {
 
         retryScheduler = new RetryScheduler<Job>(application, 30) {
             @Override
@@ -31,13 +31,13 @@ public class RetryJobClient extends JobClient<JobClientNode> {
                 return superSubmitJob(jobs).isSuccess();
             }
         };
-        super.nodeStart();
+        super.innerStart();
         retryScheduler.start();
     }
 
     @Override
-    protected void nodeStop() {
-        super.nodeStop();
+    protected void innerStop() {
+        super.innerStop();
         retryScheduler.stop();
     }
 

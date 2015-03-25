@@ -4,22 +4,27 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.LogType;
+import com.lts.job.core.logger.LtsLogger;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.repository.po.JobLogPo;
 import com.lts.job.core.support.Application;
+import com.lts.job.core.support.JobDomainConverter;
 import com.lts.job.core.support.SingletonBeanContext;
 import com.lts.job.core.repository.JobMongoRepository;
 import com.lts.job.core.repository.po.JobPo;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.JSONUtils;
+import com.lts.job.remoting.InvokeCallback;
+import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.tracker.logger.JobLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +55,13 @@ public class DeadJobChecker {
     private Application application;
     private ChannelManager channelManager;
     private CommandWrapper commandWrapper;
+    private LtsLogger ltsLogger;
 
     public DeadJobChecker(Application application) {
         this.application = application;
         this.channelManager = application.getAttribute(Constants.CHANNEL_MANAGER);
         this.commandWrapper = application.getCommandWrapper();
+        this.ltsLogger = application.getAttribute(Constants.JOB_LOGGER);
     }
 
     private volatile boolean start;
@@ -109,19 +116,29 @@ public class DeadJobChecker {
                                     JobAskRequest requestBody = commandWrapper.wrapper(new JobAskRequest());
                                     requestBody.setJobIds(entry.getValue());
                                     RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
-                                    RemotingCommand response = remotingServer.invokeSync(channelWrapper.getChannel(), request);
-                                    if (response != null && RemotingProtos.ResponseCode.SUCCESS.code() == response.getCode()) {
-                                        JobAskResponse responseBody = response.getBody();
-                                        List<String> deadJobIds = responseBody.getJobIds();
-                                        if (deadJobIds != null) {
-                                            Thread.sleep(1000L);     // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
-                                            for (String deadJobId : deadJobIds) {
-                                                JobPo jobPo = new JobPo();
-                                                jobPo.setJobId(deadJobId);
-                                                fixedDeadJob(jobPo);
+                                    remotingServer.invokeAsync(channelWrapper.getChannel(), request, new InvokeCallback() {
+                                        @Override
+                                        public void operationComplete(ResponseFuture responseFuture) {
+                                            RemotingCommand response = responseFuture.getResponseCommand();
+                                            if (response != null && RemotingProtos.ResponseCode.SUCCESS.code() == response.getCode()) {
+                                                JobAskResponse responseBody = response.getBody();
+                                                List<String> deadJobIds = responseBody.getJobIds();
+                                                if (deadJobIds != null) {
+                                                    try {
+                                                        Thread.sleep(1000L);     // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
+                                                    } catch (InterruptedException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    for (String deadJobId : deadJobIds) {
+                                                        JobPo jobPo = new JobPo();
+                                                        jobPo.setJobId(deadJobId);
+                                                        fixedDeadJob(jobPo);
+                                                    }
+                                                }
                                             }
                                         }
-                                    }
+                                    });
+
                                 }
                             }
                         }
@@ -154,8 +171,14 @@ public class DeadJobChecker {
 
     private void fixedDeadJob(JobPo jobPo) {
         getJobRepository().setJobRunnable(jobPo);
-        JobLogger.log(jobPo, LogType.FIXED_DEAD);
-        LOGGER.info("修复死掉的任务成功! {}", jobPo);
+        try {
+            JobLogPo jobLogPo = JobDomainConverter.convertJobLogPo(jobPo);
+            jobLogPo.setLogType(LogType.FIXED_DEAD);
+            ltsLogger.log(jobLogPo);
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
+        LOGGER.info("修复死掉的任务成功! {}", JSONUtils.toJSONString(jobPo));
     }
 
     private JobMongoRepository getJobRepository() {

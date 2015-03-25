@@ -6,10 +6,10 @@ import com.lts.job.core.repository.po.JobFeedbackQueuePo;
 import com.lts.job.core.repository.po.JobLogPo;
 import com.lts.job.core.util.Md5Encrypt;
 import com.lts.job.core.repository.po.JobPo;
+import com.lts.job.core.util.StringUtils;
 
 import java.text.ParseException;
 import java.util.Date;
-import java.util.UUID;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -109,7 +109,7 @@ public class JobDomainConverter {
         jobFeedbackQueuePo.setSuccess(jobResult.isSuccess());
         jobFeedbackQueuePo.setMsg(jobResult.getMsg());
         jobFeedbackQueuePo.setTime(jobResult.getTime());
-        jobFeedbackQueuePo.setId(UUID.randomUUID().toString());
+        jobFeedbackQueuePo.setId(StringUtils.generateUUID());
         jobFeedbackQueuePo.setGmtCreated(System.currentTimeMillis());
         return jobFeedbackQueuePo;
     }

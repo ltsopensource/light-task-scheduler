@@ -1,10 +1,9 @@
 package com.lts.job.core.remoting;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.support.Application;
-import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.*;
 import com.lts.job.remoting.netty.NettyRemotingClient;
@@ -13,9 +12,8 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -28,74 +26,43 @@ public class RemotingClientDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingClientDelegate.class);
 
     private NettyRemotingClient remotingClient;
-    // 连接的jobTracker node
-    private Node stickyJobTrackerNode;
+    private LoadBalance loadBalance;
     private Application application;
 
     // JobTracker 是否可用
     private boolean serverEnable = false;
+    private List<Node> jobTrackers;
 
-    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application) {
+    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application, LoadBalance loadBalance) {
         this.remotingClient = remotingClient;
         this.application = application;
+        this.loadBalance = loadBalance;
+        this.jobTrackers = new CopyOnWriteArrayList<Node>();
     }
 
-    public Node getStickyJobTrackerNode() throws JobTrackerNotFoundException {
-
-        if (stickyJobTrackerNode == null) {
-            changeStickyJobTrackerNode();
+    public Node getJobTrackerNode() throws JobTrackerNotFoundException {
+        if (jobTrackers.size() == 0) {
+            throw new JobTrackerNotFoundException("no available jobTracker!");
         }
-
-        return stickyJobTrackerNode;
-    }
-
-    public synchronized void changeStickyJobTrackerNode() throws JobTrackerNotFoundException {
-        if (stickyJobTrackerNode != null && HeartBeater.beat(this, stickyJobTrackerNode.getAddress())) {
-            return;
-        }
-
-        List<Node> jobTrackerNodes = application.getNodeManager().getNodeList(NodeType.JOB_TRACKER);
-        if (CollectionUtils.isEmpty(jobTrackerNodes)) {
-            throw new JobTrackerNotFoundException("没有找到可用的JobTracker节点!");
-        }
-
-        Node node = getJobTackerNodeByRandom(new ArrayList<Node>(jobTrackerNodes));
-
-        if (node == null) {
-            throw new JobTrackerNotFoundException("没有找到可用的JobTracker节点!");
-        }
-        stickyJobTrackerNode = node;
-    }
-
-    /**
-     * 随机连接一个可用的JobTracker节点来实现负载均衡
-     *
-     * @return
-     */
-    private Node getJobTackerNodeByRandom(List<Node> jobTrackerNodes) {
-
-        if (jobTrackerNodes.size() == 0) {
-            return null;
-        }
-
-        int min = 1;
-        int max = jobTrackerNodes.size();
-        Random random = new Random();
-        int index = random.nextInt(max) % (max - min + 1) + min - 1;
-
-        Node jobTackerNode = jobTrackerNodes.get(index);
-
-        if (HeartBeater.beat(this, jobTackerNode.getAddress())) {
-            return jobTackerNode;
-        } else {
-            // 如果这个节点不可用，那么移除
-            jobTrackerNodes.remove(index);
-        }
-        return getJobTackerNodeByRandom(jobTrackerNodes);
+        return loadBalance.select(jobTrackers);
     }
 
     public void start() {
         remotingClient.start();
+    }
+
+    public boolean contains(Node jobTracker) {
+        return jobTrackers.contains(jobTracker);
+    }
+
+    public void addJobTracker(Node jobTracker) {
+        if (!contains(jobTracker)) {
+            jobTrackers.add(jobTracker);
+        }
+    }
+
+    public boolean removeJobTracker(Node jobTracker) {
+        return jobTrackers.remove(jobTracker);
     }
 
     /**
@@ -108,28 +75,24 @@ public class RemotingClientDelegate {
      */
     public RemotingCommand invokeSync(RemotingCommand request) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
 
+        Node jobTracker = null;
         try {
-            request.checkCommandBody();
-
-            String addr = getStickyJobTrackerNode().getAddress();
-
-            RemotingCommand response = remotingClient.invokeSync(addr, request, application.getConfig().getInvokeTimeoutMillis());
-            this.serverEnable = true;
-            return response;
-
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
+            jobTracker = getJobTrackerNode();
         } catch (JobTrackerNotFoundException e) {
             this.serverEnable = false;
             throw e;
-        } catch (Throwable e) {
-            try {
-                changeStickyJobTrackerNode();
-            } catch (JobTrackerNotFoundException e1) {
-                this.serverEnable = false;
-                throw e1;
-            }
+        }
 
+        try {
+            request.checkCommandBody();
+            RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis());
+            this.serverEnable = true;
+            return response;
+        } catch (RemotingCommandFieldCheckException e) {
+            throw e;
+        } catch (Exception e) {
+            // 将这个JobTracker移除
+            jobTrackers.remove(jobTracker);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e1) {
@@ -149,27 +112,26 @@ public class RemotingClientDelegate {
      * @throws JobTrackerNotFoundException
      */
     public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+
+        Node jobTracker = null;
+        try {
+            jobTracker = getJobTrackerNode();
+        } catch (JobTrackerNotFoundException e) {
+            this.serverEnable = false;
+            throw e;
+        }
+
         try {
             request.checkCommandBody();
 
-            String addr = getStickyJobTrackerNode().getAddress();
-
-            remotingClient.invokeAsync(addr, request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
+            remotingClient.invokeAsync(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
-        } catch (JobTrackerNotFoundException e) {
-            this.serverEnable = false;
-            throw e;
         } catch (Throwable e) {
-            try {
-                changeStickyJobTrackerNode();
-            } catch (JobTrackerNotFoundException e1) {
-                this.serverEnable = false;
-                throw e1;
-            }
-
+            // 将这个JobTracker移除
+            jobTrackers.remove(jobTracker);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e1) {
@@ -188,27 +150,24 @@ public class RemotingClientDelegate {
      * @throws JobTrackerNotFoundException
      */
     public void invokeOneway(RemotingCommand request) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+        Node jobTracker = null;
+        try {
+            jobTracker = getJobTrackerNode();
+        } catch (JobTrackerNotFoundException e) {
+            this.serverEnable = false;
+            throw e;
+        }
+
         try {
             request.checkCommandBody();
-
-            String addr = getStickyJobTrackerNode().getAddress();
-
-            remotingClient.invokeOneway(addr, request, application.getConfig().getInvokeTimeoutMillis());
+            remotingClient.invokeOneway(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
-        } catch (JobTrackerNotFoundException e) {
-            this.serverEnable = false;
-            throw e;
         } catch (Throwable e) {
-            try {
-                changeStickyJobTrackerNode();
-            } catch (JobTrackerNotFoundException e1) {
-                this.serverEnable = false;
-                throw e1;
-            }
-
+            // 将这个JobTracker移除
+            jobTrackers.remove(jobTracker);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException e1) {

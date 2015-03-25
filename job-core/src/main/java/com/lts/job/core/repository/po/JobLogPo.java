@@ -7,10 +7,11 @@ import com.lts.job.core.domain.LogType;
  * @author Robert HG (254963746@qq.com) on 8/20/14.
  * 任务执行 日志
  */
-public class JobLogPo extends Job {
+public class JobLogPo extends Job{
 
     // 日志记录时间
     private Long timestamp = System.currentTimeMillis();
+    // 日志类型
     private LogType logType;
     private boolean success;
     private String msg;

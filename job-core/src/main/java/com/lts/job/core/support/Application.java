@@ -2,6 +2,7 @@ package com.lts.job.core.support;
 
 import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.NodeManager;
+import com.lts.job.core.cluster.ZkPathParser;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.protocol.command.CommandWrapper;
 
@@ -28,10 +29,24 @@ public class Application {
         return (T) object;
     }
 
+    // 节点配置信息
     private JobNodeConfig Config;
+    // 节点管理
     private NodeManager nodeManager;
+    // master节点选举者
     private MasterElector masterElector;
+    // 节点通信CommandBody包装器
     private CommandWrapper commandWrapper;
+    // zk 节点路径解析器
+    private ZkPathParser zkPathParser;
+
+    public ZkPathParser getZkPathParser() {
+        return zkPathParser;
+    }
+
+    public void setZkPathParser(ZkPathParser zkPathParser) {
+        this.zkPathParser = zkPathParser;
+    }
 
     public CommandWrapper getCommandWrapper() {
         return commandWrapper;

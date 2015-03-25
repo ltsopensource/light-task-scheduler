@@ -14,6 +14,8 @@ public class NettyClientConfig {
     // channel超过1分钟不被访问 就关闭
     private long channelNotActiveInterval = 1000 * 60;
 
+    private int readerIdleTimeSeconds = 0;
+    private int writerIdleTimeSeconds = 0;
     private int clientChannelMaxIdleTimeSeconds = 120;
 
 
@@ -94,5 +96,21 @@ public class NettyClientConfig {
 
     public void setClientChannelMaxIdleTimeSeconds(int clientChannelMaxIdleTimeSeconds) {
         this.clientChannelMaxIdleTimeSeconds = clientChannelMaxIdleTimeSeconds;
+    }
+
+    public int getWriterIdleTimeSeconds() {
+        return writerIdleTimeSeconds;
+    }
+
+    public void setWriterIdleTimeSeconds(int writerIdleTimeSeconds) {
+        this.writerIdleTimeSeconds = writerIdleTimeSeconds;
+    }
+
+    public int getReaderIdleTimeSeconds() {
+        return readerIdleTimeSeconds;
+    }
+
+    public void setReaderIdleTimeSeconds(int readerIdleTimeSeconds) {
+        this.readerIdleTimeSeconds = readerIdleTimeSeconds;
     }
 }

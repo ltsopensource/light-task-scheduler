@@ -41,4 +41,6 @@ public interface Constants {
 
     public static final String CHANNEL_MANAGER = "ChannelManager";
 
+    public static final String JOB_LOGGER = "JobLogger";
+
 }

@@ -16,7 +16,7 @@ public class JobTrackerTest {
         final JobTracker jobTracker = new JobTracker();
         // 节点信息配置
         jobTracker.setZookeeperAddress("localhost:2181");
-//        jobTracker.setListenPort(35001); // 默认 35001
+        jobTracker.setListenPort(35002); // 默认 35001
 //        jobTracker.setClusterName("lts");
 
         // mongo 配置

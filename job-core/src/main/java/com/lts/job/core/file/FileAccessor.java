@@ -53,7 +53,7 @@ public class FileAccessor {
         return file.exists();
     }
 
-    public void createIfNotExist(){
+    public void createIfNotExist() {
         FileUtils.createFileIfNotExist(file.getAbsolutePath());
     }
 
@@ -243,8 +243,8 @@ public class FileAccessor {
                 }
                 // 获得到锁, 跳出
                 break;
-            } catch (Exception e) {
-                LOGGER.warn("can not get file lock! other jvm or thread hold the lock, and sleep 50 ms .", e);
+            } catch (IOException e) {
+                LOGGER.warn("can not get file lock! other jvm or thread hold the lock, and sleep 50 ms .");
                 try {
                     Thread.sleep(50L);
                 } catch (InterruptedException e1) {

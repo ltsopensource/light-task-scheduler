@@ -21,7 +21,7 @@ public class TestJobRunner implements JobRunner {
         System.out.println("我要执行"+ job);
 
         try {
-            Thread.sleep(2*1000L);
+            Thread.sleep(5*1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

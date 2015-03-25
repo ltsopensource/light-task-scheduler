@@ -1,7 +1,5 @@
 package com.lts.job.core.protocol.command;
 
-import com.lts.job.core.constant.Constants;
-import com.lts.job.core.support.Application;
 import com.lts.job.remoting.CommandBody;
 import com.lts.job.remoting.annotation.NotNull;
 import com.lts.job.remoting.annotation.Nullable;
@@ -34,22 +32,11 @@ public class AbstractCommandBody implements CommandBody {
     @NotNull
     private String identity;
 
-    // 可用的线程数 (对 TaskTracker才有作用)
-    private Integer availableThreads;
-
     private Long timestamp = System.currentTimeMillis();
 
     // 额外的参数
     @Nullable
     private Map<String, Object> extParams;
-
-    public Integer getAvailableThreads() {
-        return availableThreads;
-    }
-
-    public void setAvailableThreads(Integer availableThreads) {
-        this.availableThreads = availableThreads;
-    }
 
     public Long getTimestamp() {
         return timestamp;

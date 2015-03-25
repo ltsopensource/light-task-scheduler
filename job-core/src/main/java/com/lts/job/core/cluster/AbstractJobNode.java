@@ -25,10 +25,9 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
     protected T node;
     protected JobNodeConfig config;
     protected Application application;
-    protected NodeFactory nodeFactory;
 
     public AbstractJobNode() {
-        application = new Application();
+
         config = new JobNodeConfig();
         config.setIdentity(StringUtils.generateUUID());
         config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
@@ -39,13 +38,14 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         config.setJobInfoSavePath(Constants.USER_HOME + "/.job");
         config.setClusterName(Constants.DEFAULT_CLUSTER_NAME);
         // 可用的线程数
+        application = new Application();
         application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
 
         application.setConfig(config);
         application.setCommandWrapper(new CommandWrapper(application));
         application.setNodeManager(new NodeManager(application));
-        nodeFactory = new NodeFactory(application);
         application.setMasterElector(new MasterElector(application));
+        application.setZkPathParser(new ZkPathParser(application));
 
         this.registry = new NodeRegistry(application);
         // 用于master选举的监听器
@@ -54,14 +54,13 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
 
     final public void start() {
         try {
-
             Class<T> nodeClass = GenericsUtils.getSuperClassGenericType(this.getClass());
-            node = nodeFactory.create(nodeClass, config);
+            node = NodeFactory.create(application.getZkPathParser(), nodeClass, config);
             config.setNodeType(node.getNodeType());
 
             LOGGER.info("当前节点配置:{}", config);
 
-            nodeStart();
+            innerStart();
 
             registry.register(node);
             LOGGER.info("启动成功!");
@@ -74,16 +73,16 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
     final public void stop() {
         try {
             registry.unregister(node);
-            nodeStop();
+            innerStop();
             LOGGER.info("停止成功!");
         } catch (Throwable e) {
             LOGGER.error("停止失败!", e);
         }
     }
 
-    protected abstract void nodeStart();
+    protected abstract void innerStart();
 
-    protected abstract void nodeStop();
+    protected abstract void innerStop();
 
     /**
      * 设置zookeeper注册中心地址

@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.*;
@@ -72,7 +71,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         this.publicExecutor = Executors.newFixedThreadPool(publicThreadNums, new ThreadFactory() {
             private AtomicInteger threadIndex = new AtomicInteger(0);
 
-
             @Override
             public Thread newThread(Runnable r) {
                 return new Thread(r, "NettyClientPublicExecutor_" + this.threadIndex.incrementAndGet());
@@ -80,12 +78,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
         });
 
         this.eventLoopGroup = new NioEventLoopGroup(nettyClientConfig.getClientSelectorThreads());
-    }
-
-    private static int initValueIndex() {
-        Random r = new Random();
-
-        return Math.abs(r.nextInt() % 999) % 999;
     }
 
     @Override
@@ -111,8 +103,8 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                         defaultEventExecutorGroup, //
                         new NettyEncoder(), //
                         new NettyDecoder(), //
-                        new IdleStateHandler(0, 0, nettyClientConfig.getClientChannelMaxIdleTimeSeconds()),//
-                        new NettyConnetManageHandler(), //
+                        new IdleStateHandler(nettyClientConfig.getReaderIdleTimeSeconds(), nettyClientConfig.getWriterIdleTimeSeconds(), nettyClientConfig.getClientChannelMaxIdleTimeSeconds()),//
+                        new NettyConnectManageHandler(), //
                         new NettyClientHandler());
             }
         });
@@ -302,6 +294,7 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                     boolean removeItemFromTable = true;
                     ChannelWrapper prevCW = null;
                     String addrRemote = null;
+
                     for (String key : channelTables.keySet()) {
                         ChannelWrapper prev = this.channelTables.get(key);
                         if (prev.getChannel() != null) {
@@ -453,20 +446,13 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
 
     class NettyClientHandler extends SimpleChannelInboundHandler<RemotingCommand> {
 
-        // @Override
-        // protected void messageReceived(ChannelHandlerContext ctx,
-        // RemotingCommand msg) throws Exception {
-        // processMessageReceived(ctx, msg);
-        // }
-
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, RemotingCommand msg) throws Exception {
             processMessageReceived(ctx, msg);
-
         }
     }
 
-    class NettyConnetManageHandler extends ChannelDuplexHandler {
+    class NettyConnectManageHandler extends ChannelDuplexHandler {
         @Override
         public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress,
                             SocketAddress localAddress, ChannelPromise promise) throws Exception {
@@ -480,7 +466,6 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
                         .toString(), ctx.channel()));
             }
         }
-
 
         @Override
         public void disconnect(ChannelHandlerContext ctx, ChannelPromise promise) throws Exception {
@@ -522,19 +507,22 @@ public class NettyRemotingClient extends NettyRemotingAbstract implements Remoti
             }
         }
 
-
         @Override
         public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
             if (evt instanceof IdleStateEvent) {
-                IdleStateEvent evnet = (IdleStateEvent) evt;
-                if (evnet.state().equals(IdleState.ALL_IDLE)) {
-                    final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
-                    log.warn("NETTY CLIENT PIPELINE: IDLE exception [{}]", remoteAddress);
+                IdleStateEvent event = (IdleStateEvent) evt;
+
+                final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(ctx.channel());
+
+                if (event.state().equals(IdleState.ALL_IDLE)) {
+                    log.warn("NETTY CLIENT PIPELINE: IDLE [{}]", remoteAddress);
                     closeChannel(ctx.channel());
-                    if (NettyRemotingClient.this.channelEventListener != null) {
-                        NettyRemotingClient.this.putNettyEvent(new NettyEvent(NettyEventType.IDLE,
-                                remoteAddress.toString(), ctx.channel()));
-                    }
+                }
+
+                if (NettyRemotingClient.this.channelEventListener != null) {
+                    NettyEventType nettyEventType = NettyEventType.valueOf(event.state().name());
+                    NettyRemotingClient.this.putNettyEvent(new NettyEvent(nettyEventType,
+                            remoteAddress.toString(), ctx.channel()));
                 }
             }
 

@@ -3,8 +3,6 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.constant.Constants;
-import com.lts.job.core.support.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
@@ -12,7 +10,6 @@ import com.lts.job.tracker.domain.TaskTrackerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -67,6 +64,32 @@ public class TaskTrackerManager {
         }
     }
 
+    public TaskTrackerNode getTaskTrackerNode(String nodeGroup, String identity) {
+        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
+        if (taskTrackerNodes == null || taskTrackerNodes.size() == 0) {
+            return null;
+        }
+
+        for (TaskTrackerNode taskTrackerNode : taskTrackerNodes) {
+            if (taskTrackerNode.getIdentity().equals(identity)) {
+                if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
+                    // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
+                    ChannelWrapper channel = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
+                    if (channel != null) {
+                        // 更新channel
+                        taskTrackerNode.setChannel(channel);
+                        LOGGER.info("更新节点channel , taskTackerNode={}", taskTrackerNode);
+                        return taskTrackerNode;
+                    }
+                }else{
+                    // 只有当channel正常的时候才返回
+                    return taskTrackerNode;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * 更新节点的 可用线程数
      *
@@ -90,73 +113,5 @@ public class TaskTrackerManager {
                 }
             }
         }
-    }
-
-    /**
-     * 得到 可以执行任务的 TaskTracker节点(有空闲线程)
-     *
-     * @param nodeGroup
-     * @param excludeNodes 排除的节点
-     * @return
-     */
-    public TaskTrackerNode getIdleTaskTrackerNode(String nodeGroup, HashSet<TaskTrackerNode> excludeNodes) {
-
-        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
-        if (taskTrackerNodes == null || taskTrackerNodes.size() == 0) {
-            return null;
-        }
-
-        TaskTrackerNode idleTaskTrackerNode = null;
-        // 取最空闲的那个节点
-        for (TaskTrackerNode taskTrackerNode : taskTrackerNodes) {
-
-            // 如果是在排除列表中, 略过
-            if (excludeNodes.contains(taskTrackerNode)) {
-                continue;
-            }
-
-            if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
-                // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-                ChannelWrapper channel = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
-                if (channel != null) {
-                    // 更新channel
-                    taskTrackerNode.setChannel(channel);
-                    LOGGER.info("更新节点channel , taskTackerNode={}", taskTrackerNode);
-                } else {
-                    continue;
-                }
-            }
-            if ((idleTaskTrackerNode == null)
-                    || (idleTaskTrackerNode.getAvailableThread().get() < taskTrackerNode.getAvailableThread().get())) {
-                if (taskTrackerNode.getAvailableThread().get() > 0) {
-                    idleTaskTrackerNode = taskTrackerNode;
-                }
-            }
-        }
-
-        if (idleTaskTrackerNode == null) {
-            return null;
-        }
-
-        // 有剩余线程(用这种方式是为了防止其他线程在这个空隙取走了线程)
-        if (idleTaskTrackerNode.getAvailableThread().getAndDecrement() > 0) {
-            idleTaskTrackerNode.setTimestamp(System.currentTimeMillis());
-            return idleTaskTrackerNode;
-        }
-
-        // 没有剩余线程, 重新选取 (前面 dec 了 ， 现在 inc 回去)
-        idleTaskTrackerNode.getAvailableThread().incrementAndGet();
-
-        return getIdleTaskTrackerNode(nodeGroup, excludeNodes);
-    }
-
-    /**
-     * 得到 可以执行任务的 TaskTracker节点(有空闲线程)
-     *
-     * @param nodeGroup
-     * @return
-     */
-    public TaskTrackerNode getIdleTaskTrackerNode(String nodeGroup) {
-        return getIdleTaskTrackerNode(nodeGroup, new HashSet<TaskTrackerNode>(0));
     }
 }

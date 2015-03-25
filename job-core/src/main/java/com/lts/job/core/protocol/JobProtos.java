@@ -21,7 +21,10 @@ public class JobProtos {
         // 任务执行完成
         JOB_FINISHED(14),
         // 询问任务
-        JOB_ASK(15);
+        JOB_ASK(15),
+        // 请求推送任务
+        JOB_PULL(16),
+        ;
 
         private int code;
 
@@ -65,7 +68,10 @@ public class JobProtos {
         // 任务推送成功
         JOB_PUSH_SUCCESS(19),
         // 任务处理成功
-        JOB_NOTIFY_SUCCESS(20);
+        JOB_NOTIFY_SUCCESS(20),
+        // 任务推送
+        JOB_PULL_SUCCESS(21)
+        ;
 
 
         private int code;

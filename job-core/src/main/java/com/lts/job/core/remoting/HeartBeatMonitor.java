@@ -1,24 +1,28 @@
 package com.lts.job.core.remoting;
 
+import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.exception.JobTrackerNotFoundException;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.HeartBeatRequest;
+import com.lts.job.remoting.InvokeCallback;
+import com.lts.job.remoting.netty.ResponseFuture;
+import com.lts.job.remoting.protocol.RemotingCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.
- * 心跳监控。 如果心跳失败，连不上server，那么发现并连接新的server, 如果server集群中，没有可用的server, 那么报警
+ *         心跳监控。 如果心跳失败，连不上server，那么发现并连接新的server, 如果server集群中，没有可用的server, 那么报警
  */
 public class HeartBeatMonitor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("HeartBeat");
+    private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatMonitor.class.getSimpleName());
 
     // 用来定时发送心跳
     private final ScheduledExecutorService HEART_BEAT_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
@@ -30,46 +34,83 @@ public class HeartBeatMonitor {
     }
 
     public void start() {
-        // 设置 JobClient 心跳10s一次，TaskTracker 5s一次
-        int delay = 5;
-        if(NodeType.CLIENT.equals(remotingClient.getApplication().getConfig().getNodeType())){
-            delay = 10;
-        }
         HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
-                new HeartBeatRunner(), 5, delay, TimeUnit.SECONDS);
+                new HeartBeat(), 5, 30, TimeUnit.SECONDS);      // 30s 一次心跳
+
     }
 
-    public void destroy() {
+    public void stop() {
         HEART_BEAT_EXECUTOR_SERVICE.shutdown();
     }
 
-    private class HeartBeatRunner implements Runnable {
+    private class HeartBeat implements Runnable {
 
         @Override
         public void run() {
             try {
-                String addr = remotingClient.getStickyJobTrackerNode().getAddress();
-                if (!HeartBeater.beat(remotingClient, addr)) {
-                    remotingClient.changeStickyJobTrackerNode();
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
-                    LOGGER.warn("发送心跳给" + addr + "失败!");
-                    run();
-                } else {
-                    if(LOGGER.isDebugEnabled()){
-                        LOGGER.debug("发送心跳给" + addr + "成功!");
-                    }
-                    remotingClient.setServerEnable(true);
+                List<Node> jobTrackers = remotingClient.getApplication().getNodeManager().getNodeList(NodeType.JOB_TRACKER);
+                if (jobTrackers == null) {
+                    return;
                 }
-            } catch (JobTrackerNotFoundException e) {
-                remotingClient.setServerEnable(false);
+                for (Node jobTracker : jobTrackers) {
+                    // 每个JobTracker 都要发送心跳
+                    if (beat(remotingClient, jobTracker.getAddress())) {
+                        remotingClient.addJobTracker(jobTracker);
+                        remotingClient.setServerEnable(true);
+                    } else {
+                        remotingClient.removeJobTracker(jobTracker);
+                    }
+                }
             } catch (Throwable t) {
                 LOGGER.error(t.getMessage(), t);
             }
         }
 
+        /**
+         * 发送心跳
+         *
+         * @param remotingClient
+         * @param addr
+         */
+        private boolean beat(RemotingClientDelegate remotingClient, String addr) {
+
+            HeartBeatRequest commandBody = remotingClient.getApplication().getCommandWrapper().wrapper(new HeartBeatRequest());
+
+            RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
+            final boolean[] result = {false};
+            final CountDownLatch latch = new CountDownLatch(1);
+            try {
+                remotingClient.getNettyClient().invokeAsync(addr, request, remotingClient.getApplication().getConfig().getInvokeTimeoutMillis(), new InvokeCallback() {
+                    @Override
+                    public void operationComplete(ResponseFuture responseFuture) {
+                        try {
+                            RemotingCommand response = responseFuture.getResponseCommand();
+
+                            if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS == JobProtos.ResponseCode.valueOf(response.getCode())) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("heart beat success! ");
+                                }
+                                result[0] = true;
+                                return;
+                            }
+                            LOGGER.error("heart beat error !" + response);
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return result[0];
+        }
+
     }
+
+
 }

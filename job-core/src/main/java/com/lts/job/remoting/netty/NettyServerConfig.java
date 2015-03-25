@@ -12,6 +12,9 @@ public class NettyServerConfig {
     private int serverSelectorThreads = Constants.AVAILABLE_PROCESSOR * 2;
     private int serverOnewaySemaphoreValue = 32;
     private int serverAsyncSemaphoreValue = 64;
+
+    private int readerIdleTimeSeconds = 0;
+    private int writerIdleTimeSeconds = 0;
     private int serverChannelMaxIdleTimeSeconds = 120;
 
 
@@ -82,5 +85,21 @@ public class NettyServerConfig {
 
     public void setServerChannelMaxIdleTimeSeconds(int serverChannelMaxIdleTimeSeconds) {
         this.serverChannelMaxIdleTimeSeconds = serverChannelMaxIdleTimeSeconds;
+    }
+
+    public int getReaderIdleTimeSeconds() {
+        return readerIdleTimeSeconds;
+    }
+
+    public void setReaderIdleTimeSeconds(int readerIdleTimeSeconds) {
+        this.readerIdleTimeSeconds = readerIdleTimeSeconds;
+    }
+
+    public int getWriterIdleTimeSeconds() {
+        return writerIdleTimeSeconds;
+    }
+
+    public void setWriterIdleTimeSeconds(int writerIdleTimeSeconds) {
+        this.writerIdleTimeSeconds = writerIdleTimeSeconds;
     }
 }

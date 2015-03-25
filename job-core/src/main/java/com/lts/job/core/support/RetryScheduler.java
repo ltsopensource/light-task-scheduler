@@ -93,6 +93,7 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
+                            LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
                             levelDBStore.delete(keys);
                         } else {
                             break;

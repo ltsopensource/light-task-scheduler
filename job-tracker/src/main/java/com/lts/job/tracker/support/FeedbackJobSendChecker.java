@@ -1,8 +1,6 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.repository.JobFeedbackQueueMongoRepository;
 import com.lts.job.core.repository.po.JobFeedbackQueuePo;
 import com.lts.job.core.support.Application;
@@ -101,10 +99,9 @@ public class FeedbackJobSendChecker {
                 LOGGER.info("一共有{}个完成的任务要通知客户端.", count);
 
                 List<JobFeedbackQueuePo> jobFeedbackQueuePos;
-                int offset = 0;
                 int limit = 5;
                 do {
-                    jobFeedbackQueuePos = getJobFeedbackQueueMongoRepository().get(offset, limit);
+                    jobFeedbackQueuePos = getJobFeedbackQueueMongoRepository().get(0, limit);
                     if (CollectionUtils.isEmpty(jobFeedbackQueuePos)) {
                         return;
                     }
@@ -113,8 +110,6 @@ public class FeedbackJobSendChecker {
                         jobResults.add(jobFeedbackQueuePo);
                     }
                     clientNotifier.send(jobResults);
-
-                    offset += limit;
 
                 } while (jobFeedbackQueuePos != null && jobFeedbackQueuePos.size() > 0);
 

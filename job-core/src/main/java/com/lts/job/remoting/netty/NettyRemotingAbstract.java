@@ -15,6 +15,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.timeout.IdleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -382,8 +383,14 @@ public abstract class NettyRemotingAbstract {
                     NettyEvent event = this.eventQueue.poll(3000, TimeUnit.MILLISECONDS);
                     if (event != null) {
                         switch (event.getType()) {
-                            case IDLE:
-                                listener.onChannelIdle(event.getRemoteAddr(), event.getChannel());
+                            case ALL_IDLE:
+                                listener.onChannelIdle(IdleState.ALL_IDLE, event.getRemoteAddr(), event.getChannel());
+                                break;
+                            case WRITER_IDLE:
+                                listener.onChannelIdle(IdleState.WRITER_IDLE, event.getRemoteAddr(), event.getChannel());
+                                break;
+                            case READER_IDLE:
+                                listener.onChannelIdle(IdleState.READER_IDLE, event.getRemoteAddr(), event.getChannel());
                                 break;
                             case CLOSE:
                                 listener.onChannelClose(event.getRemoteAddr(), event.getChannel());
