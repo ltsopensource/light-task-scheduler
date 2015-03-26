@@ -18,14 +18,14 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/1/14.
- *         JobRemotingClient 包装了 NettyRemotingClient , 并持有 sticky 的 jobTracker 信息的引用,
- *         用来管理client连接的 jobTracker, 让 client 始终连接同一个, 除非当前连接的JobTracker 不可用了，才会切换到另外一个
+ *         JobRemotingClient 包装了 NettyRemotingClient , 每次请求，都会随机连上一台JobTracker
  */
 public class RemotingClientDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingClientDelegate.class);
 
     private NettyRemotingClient remotingClient;
+    // 连JobTracker的负载均衡算法
     private LoadBalance loadBalance;
     private Application application;
 

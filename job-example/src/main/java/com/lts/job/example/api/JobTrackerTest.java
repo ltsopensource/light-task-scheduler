@@ -4,7 +4,6 @@ import com.lts.job.example.support.MasterNodeChangeListenerImpl;
 import com.lts.job.store.Config;
 import com.lts.job.tracker.JobTracker;
 
-import java.io.IOException;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.

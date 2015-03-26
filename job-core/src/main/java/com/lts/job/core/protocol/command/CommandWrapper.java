@@ -1,6 +1,5 @@
 package com.lts.job.core.protocol.command;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.support.Application;
 
 /**

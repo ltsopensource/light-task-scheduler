@@ -2,8 +2,9 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.constant.Constants;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.loadbalance.ConsistentHashLoadBalance;
+import com.lts.job.core.loadbalance.LoadBalance;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
@@ -26,9 +26,12 @@ public class JobClientManager {
 
     private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<JobClientNode>>();
 
+    private LoadBalance loadBalance;
     private ChannelManager channelManager;
+
     public JobClientManager(ChannelManager channelManager) {
         this.channelManager = channelManager;
+        this.loadBalance = new ConsistentHashLoadBalance();
     }
 
     /**
@@ -81,41 +84,31 @@ public class JobClientManager {
 
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(nodeGroup);
 
-        if (jobClientNodes == null || jobClientNodes.size() == 0) {
+        if (CollectionUtils.isEmpty(jobClientNodes)) {
             return null;
         }
 
-        int size = jobClientNodes.size();
-        int index = getRandomIndex(size);
-
         List<JobClientNode> list = new ArrayList<JobClientNode>(jobClientNodes);
 
-        JobClientNode jobClientNode = null;
-        int retry = 0;
-        while (jobClientNode == null && retry < size) {
-            jobClientNode = list.get(index);
-            // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
+        while (list.size() > 0) {
+
+            JobClientNode jobClientNode = loadBalance.select(list);
+
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
                 ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);
-                } else {
-                    jobClientNode = null;
                 }
             }
-            index = (index + 1) % size;
-            retry++;
+
+            if (jobClientNode != null && jobClientNode.getChannel() != null && !jobClientNode.getChannel().isClosed()) {
+                return jobClientNode;
+            } else {
+                list.remove(jobClientNode);
+            }
         }
-
-        return jobClientNode;
-    }
-
-    private int getRandomIndex(int size) {
-        int min = 1;
-        int max = size;
-        ThreadLocalRandom random = ThreadLocalRandom.current();
-        return random.nextInt(max) % (max - min + 1) + min - 1;
+        return null;
     }
 
 }

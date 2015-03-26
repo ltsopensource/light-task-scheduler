@@ -36,13 +36,13 @@ public class CollectionUtils {
      * @param list2
      * @return
      */
-    public static List getLeftDiff(List list1, List list2) {
+    public  static <T> List<T> getLeftDiff(List<T> list1, List<T> list2) {
         if (isEmpty(list2)) {
             return list1;
         }
-        List list = new ArrayList();
+        List<T> list = new ArrayList<T>();
         if (isNotEmpty(list1)) {
-            for (Object o : list1) {
+            for (T o : list1) {
                 if (!list2.contains(o)) {
                     list.add(o);
                 }
