@@ -1,4 +1,4 @@
-package com.lts.job.queue.mongo.store.mongo;
+package com.lts.job.queue.mongo.store;
 
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Key;
@@ -17,8 +17,8 @@ public abstract class AbstractMongoRepository<T> {
 
     protected Datastore ds;
 
-    public AbstractMongoRepository(Datastore ds) {
-        this.ds = ds;
+    public AbstractMongoRepository(Config config) {
+        this.ds = DataStoreHolder.getDataStore(config);
     }
 
     private Class<T> clazz = GenericsUtils.getSuperClassGenericType(this.getClass());

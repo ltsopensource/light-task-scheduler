@@ -15,11 +15,24 @@
         <property name="password" value="lts"/>
         <property name="dbName" value="job"/>
     </bean>
+
+    <bean id="mongoJobQueue" class="com.lts.job.queue.mongo.MongoJobQueue">
+        <constructor-arg ref="mongoConfig"/>
+    </bean>
+    <bean id="mongoJobFeedbackQueue" class="com.lts.job.queue.mongo.MongoJobFeedbackQueue">
+        <constructor-arg ref="mongoConfig"/>
+    </bean>
+    <bean id="mongoJobLogger" class="com.lts.job.queue.mongo.MongoJobLogger">
+        <constructor-arg ref="mongoConfig"/>
+    </bean>
+
     <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
         <property name="zookeeperAddress" value="localhost:2181"/>
-        <property name="storeConfig" ref="mongoConfig"/>
+        <property name="jobQueue" ref="mongoJobQueue"/>
+        <property name="jobFeedbackQueue" ref="mongoJobFeedbackQueue"/>
+        <property name="jobLogger" ref="mongoJobLogger"/>
         <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
                 <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>

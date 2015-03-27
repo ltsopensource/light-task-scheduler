@@ -4,6 +4,9 @@ import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.tracker.JobTracker;
+import com.lts.job.tracker.logger.JobLogger;
+import com.lts.job.tracker.queue.JobFeedbackQueue;
+import com.lts.job.tracker.queue.JobQueue;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -33,6 +36,12 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
      * master节点变化监听器
      */
     private MasterNodeChangeListener[] masterNodeChangeListeners;
+
+    private JobLogger jobLogger;
+
+    private JobQueue jobQueue;
+
+    private JobFeedbackQueue jobFeedbackQueue;
 
     @Override
     public JobTracker getObject() throws Exception {
@@ -83,6 +92,9 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
                 jobTracker.addMasterNodeChangeListener(masterNodeChangeListener);
             }
         }
+        jobTracker.setJobLogger(jobLogger);
+        jobTracker.setJobQueue(jobQueue);
+        jobTracker.setJobFeedbackQueue(jobFeedbackQueue);
     }
 
     public void start() {
@@ -106,5 +118,17 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
 
     public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
         this.masterNodeChangeListeners = masterNodeChangeListeners;
+    }
+
+    public void setJobLogger(JobLogger jobLogger) {
+        this.jobLogger = jobLogger;
+    }
+
+    public void setJobQueue(JobQueue jobQueue) {
+        this.jobQueue = jobQueue;
+    }
+
+    public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
+        this.jobFeedbackQueue = jobFeedbackQueue;
     }
 }

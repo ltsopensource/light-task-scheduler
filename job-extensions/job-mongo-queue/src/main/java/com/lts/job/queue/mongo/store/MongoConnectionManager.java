@@ -1,10 +1,8 @@
-package com.lts.job.queue.mongo.store.mongo;
+package com.lts.job.queue.mongo.store;
 
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.Morphia;
 import com.mongodb.Mongo;
-import com.lts.job.queue.mongo.store.Config;
-import com.lts.job.queue.mongo.store.exception.DataStoreException;
 
 import java.util.concurrent.ConcurrentHashMap;
 

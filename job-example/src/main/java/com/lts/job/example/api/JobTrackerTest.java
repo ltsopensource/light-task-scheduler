@@ -1,12 +1,10 @@
 package com.lts.job.example.api;
 
-import com.google.code.morphia.Datastore;
 import com.lts.job.example.support.MasterNodeChangeListenerImpl;
 import com.lts.job.queue.mongo.MongoJobFeedbackQueue;
 import com.lts.job.queue.mongo.MongoJobLogger;
 import com.lts.job.queue.mongo.MongoJobQueue;
 import com.lts.job.queue.mongo.store.Config;
-import com.lts.job.queue.mongo.store.mongo.DataStoreHolder;
 import com.lts.job.tracker.JobTracker;
 
 /**
@@ -30,10 +28,9 @@ public class JobTrackerTest {
         config.setUsername("lts");
         config.setPassword("lts");
         config.setDbName("job");
-        Datastore datastore = DataStoreHolder.getDataStore(config);
-        jobTracker.setJobQueue(new MongoJobQueue(datastore));
-        jobTracker.setJobFeedbackQueue(new MongoJobFeedbackQueue(datastore));
-        jobTracker.setJobLogger(new MongoJobLogger(datastore));
+        jobTracker.setJobQueue(new MongoJobQueue(config));
+        jobTracker.setJobFeedbackQueue(new MongoJobFeedbackQueue(config));
+        jobTracker.setJobLogger(new MongoJobLogger(config));
 
         // 启动节点
         jobTracker.start();

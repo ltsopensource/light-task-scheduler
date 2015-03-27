@@ -1,4 +1,4 @@
-package com.lts.job.queue.mongo.store.mongo;
+package com.lts.job.queue.mongo.store;
 
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;

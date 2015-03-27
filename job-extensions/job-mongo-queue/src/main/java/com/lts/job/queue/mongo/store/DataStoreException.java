@@ -1,4 +1,4 @@
-package com.lts.job.queue.mongo.store.exception;
+package com.lts.job.queue.mongo.store;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.

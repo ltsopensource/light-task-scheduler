@@ -1,12 +1,12 @@
 package com.lts.job.queue.mongo;
 
-import com.google.code.morphia.Datastore;
 import com.google.code.morphia.query.Query;
 import com.google.code.morphia.query.UpdateOperations;
+import com.lts.job.queue.mongo.store.Config;
 import com.lts.job.tracker.queue.JobPo;
 import com.lts.job.tracker.queue.DuplicateJobException;
 import com.lts.job.tracker.queue.JobQueue;
-import com.lts.job.queue.mongo.store.mongo.AbstractMongoRepository;
+import com.lts.job.queue.mongo.store.AbstractMongoRepository;
 import com.mongodb.MongoException;
 
 import java.util.List;
@@ -17,8 +17,8 @@ import java.util.List;
  */
 public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements JobQueue {
 
-    public MongoJobQueue(Datastore ds) {
-        super(ds);
+    public MongoJobQueue(Config config) {
+        super(config);
     }
 
     @Override
