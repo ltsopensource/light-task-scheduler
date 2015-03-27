@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>light-task-schedule</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.3.2-SNAPSHOT</version>
     <modules>
         <module>job-core</module>
         <module>job-tracker</module>
@@ -69,6 +69,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
         </dependency>
     </dependencies>
     <build>

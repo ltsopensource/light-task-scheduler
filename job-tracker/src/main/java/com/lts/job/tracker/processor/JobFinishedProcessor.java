@@ -4,24 +4,24 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.domain.LogType;
-import com.lts.job.core.logger.LtsLogger;
-import com.lts.job.core.repository.po.JobLogPo;
-import com.lts.job.core.protocol.command.CommandWrapper;
+import com.lts.job.tracker.logger.JobLogger;
+import com.lts.job.tracker.logger.JobLogPo;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.repository.JobFeedbackQueueMongoRepository;
-import com.lts.job.core.repository.po.JobFeedbackQueuePo;
-import com.lts.job.core.support.Application;
+import com.lts.job.tracker.queue.JobFeedbackPo;
+import com.lts.job.core.Application;
 import com.lts.job.core.support.CronExpression;
-import com.lts.job.core.support.SingletonBeanContext;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.tracker.queue.JobFeedbackQueue;
+import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
-import com.lts.job.core.repository.po.JobPo;
+import com.lts.job.tracker.queue.JobPo;
 import com.lts.job.tracker.support.ClientNotifier;
-import com.lts.job.core.support.JobDomainConverter;
+import com.lts.job.tracker.support.JobDomainConverter;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -37,18 +37,20 @@ import java.util.*;
 public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
-    private JobFeedbackQueueMongoRepository jobFeedbackQueueMongoRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
-    private CommandWrapper commandWrapper;
+    private CommandBodyWrapper commandBodyWrapper;
     private Application application;
-    private LtsLogger ltsLogger;
+    private JobLogger jobLogger;
+    private JobQueue jobQueue;
+    private JobFeedbackQueue jobFeedbackQueue;
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
         this.application = remotingServer.getApplication();
-        this.ltsLogger = application.getAttribute(Constants.JOB_LOGGER);
-        this.jobFeedbackQueueMongoRepository = SingletonBeanContext.getBean(JobFeedbackQueueMongoRepository.class);
-        this.commandWrapper = application.getCommandWrapper();
+        this.jobLogger = application.getAttribute(Constants.JOB_LOGGER);
+        this.jobQueue = application.getAttribute(Constants.JOB_QUEUE);
+        this.jobFeedbackQueue = application.getAttribute(Constants.JOB_FEEDBACK_QUEUE);
+        this.commandBodyWrapper = application.getCommandBodyWrapper();
         this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
@@ -58,16 +60,16 @@ public class JobFinishedProcessor extends AbstractProcessor {
             @Override
             public void handleFailed(List<JobResult> jobResults) {
                 if (CollectionUtils.isNotEmpty(jobResults)) {
-                    List<JobFeedbackQueuePo> jobFeedbackQueuePos =
-                            new ArrayList<JobFeedbackQueuePo>(jobResults.size());
+                    List<JobFeedbackPo> jobFeedbackPos =
+                            new ArrayList<JobFeedbackPo>(jobResults.size());
 
                     for (JobResult jobResult : jobResults) {
-                        JobFeedbackQueuePo jobFeedbackQueuePo =
+                        JobFeedbackPo jobFeedbackPo =
                                 JobDomainConverter.convert(jobResult);
-                        jobFeedbackQueuePos.add(jobFeedbackQueuePo);
+                        jobFeedbackPos.add(jobFeedbackPo);
                     }
                     // 2. 失败的存储在反馈队列
-                    jobFeedbackQueueMongoRepository.save(jobFeedbackQueuePos);
+                    jobFeedbackQueue.add(jobFeedbackPos);
                     // 3. 完成任务 
                     finishedJob(jobResults);
                 }
@@ -101,6 +103,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     /**
      * 记录日志
+     *
      * @param jobResults
      * @param logType
      */
@@ -111,7 +114,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 jobLogPo.setMsg(jobResult.getMsg());
                 jobLogPo.setLogType(logType);
                 jobLogPo.setSuccess(jobResult.isSuccess());
-                ltsLogger.log(jobLogPo);
+                jobLogger.log(jobLogPo);
             }
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
@@ -154,9 +157,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 判断是否接受新任务
         if (requestBody.isReceiveNewJob()) {
             // 查看有没有其他可以执行的任务
-            JobPo jobPo = jobRepository.getJobPo(requestBody.getNodeGroup(), requestBody.getIdentity());
+            JobPo jobPo = jobQueue.take(requestBody.getNodeGroup(), requestBody.getIdentity());
             if (jobPo != null) {
-                JobPushRequest jobPushRequest = commandWrapper.wrapper(new JobPushRequest());
+                JobPushRequest jobPushRequest = commandBodyWrapper.wrapper(new JobPushRequest());
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
                 if (LOGGER.isDebugEnabled()) {
@@ -191,17 +194,17 @@ public class JobFinishedProcessor extends AbstractProcessor {
         for (JobResult jobResult : jobResults) {
             Job job = jobResult.getJob();
             if (!job.isSchedule()) {
-                jobRepository.delJob(jobResult.getJob().getJobId());
+                jobQueue.remove(job.getJobId());
             } else {
                 try {
                     CronExpression cronExpression = new CronExpression(job.getCronExpression());
                     Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
                     if (nextTriggerTime == null) {
                         // 执行完成了，要删除
-                        jobRepository.delJob(jobResult.getJob().getJobId());
+                        jobQueue.remove(job.getJobId());
                     } else {
                         // 表示下次还要执行
-                        jobRepository.updateTriggerTime(jobResult, nextTriggerTime);
+                        jobQueue.updateScheduleTriggerTime(job.getJobId(), nextTriggerTime.getTime());
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);

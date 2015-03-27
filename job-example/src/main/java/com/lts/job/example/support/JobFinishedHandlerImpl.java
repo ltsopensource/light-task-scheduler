@@ -3,6 +3,7 @@ package com.lts.job.example.support;
 import com.lts.job.client.support.JobFinishedHandler;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.JSONUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

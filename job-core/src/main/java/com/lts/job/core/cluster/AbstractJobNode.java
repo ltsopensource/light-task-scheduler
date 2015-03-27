@@ -4,9 +4,9 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.listener.NodeChangeListener;
-import com.lts.job.core.protocol.command.CommandWrapper;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.registry.NodeRegistry;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.core.listener.MasterNodeElectionListener;
 import com.lts.job.core.util.GenericsUtils;
 import com.lts.job.core.util.StringUtils;
@@ -42,7 +42,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
 
         application.setConfig(config);
-        application.setCommandWrapper(new CommandWrapper(application));
+        application.setCommandBodyWrapper(new CommandBodyWrapper(application));
         application.setNodeManager(new NodeManager(application));
         application.setMasterElector(new MasterElector(application));
         application.setZkPathParser(new ZkPathParser(application));

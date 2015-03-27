@@ -4,10 +4,10 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandWrapper;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
@@ -27,14 +27,14 @@ public class ClientNotifier {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientNotifier.class.getSimpleName());
     private ClientNotifyHandler clientNotifyHandler;
     private JobClientManager jobClientManager;
-    private CommandWrapper commandWrapper;
+    private CommandBodyWrapper commandBodyWrapper;
     private Application application;
 
     public ClientNotifier(Application application, ClientNotifyHandler clientNotifyHandler) {
         this.application = application;
         this.clientNotifyHandler = clientNotifyHandler;
         this.jobClientManager = application.getAttribute(Constants.JOB_CLIENT_MANAGER);
-        this.commandWrapper = application.getCommandWrapper();
+        this.commandBodyWrapper = application.getCommandBodyWrapper();
     }
     /**
      * 发送给客户端
@@ -47,7 +47,7 @@ public class ClientNotifier {
         if (jobResults.size() == 1) {
 
             JobResult jobResult = jobResults.get(0);
-            if (!send0(jobResult.getJob().getNodeGroup(), jobResults)) {
+            if (!send0(jobResult.getJob().getSubmitNodeGroup(), jobResults)) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
             }
@@ -59,10 +59,10 @@ public class ClientNotifier {
             Map<String/*nodeGroup*/, List<JobResult>> groupMap = new HashMap<String, List<JobResult>>();
 
             for (JobResult jobResult : jobResults) {
-                List<JobResult> jobResultList = groupMap.get(jobResult.getJob().getNodeGroup());
+                List<JobResult> jobResultList = groupMap.get(jobResult.getJob().getSubmitNodeGroup());
                 if (jobResultList == null) {
                     jobResultList = new ArrayList<JobResult>();
-                    groupMap.put(jobResult.getJob().getNodeGroup(), jobResultList);
+                    groupMap.put(jobResult.getJob().getSubmitNodeGroup(), jobResultList);
                 }
                 jobResultList.add(jobResult);
             }
@@ -92,7 +92,7 @@ public class ClientNotifier {
             return false;
         }
 
-        JobFinishedRequest requestBody = commandWrapper.wrapper(new JobFinishedRequest());
+        JobFinishedRequest requestBody = commandBodyWrapper.wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 

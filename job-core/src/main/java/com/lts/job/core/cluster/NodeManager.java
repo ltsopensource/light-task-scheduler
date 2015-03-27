@@ -1,7 +1,7 @@
 package com.lts.job.core.cluster;
 
 
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ListUtils;
 import org.slf4j.Logger;

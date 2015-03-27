@@ -1,7 +1,7 @@
 package com.lts.job.core.listener;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 
 import java.util.ArrayList;
 import java.util.List;

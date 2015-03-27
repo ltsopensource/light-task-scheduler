@@ -1,14 +1,12 @@
 package com.lts.job.tracker.support;
 
 import com.lts.job.core.util.StringUtils;
-import com.mongodb.MongoException;
+import com.lts.job.tracker.queue.DuplicateJobException;
+import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobReceiveException;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
-import com.lts.job.core.support.JobDomainConverter;
-import com.lts.job.core.support.SingletonBeanContext;
-import com.lts.job.core.repository.JobMongoRepository;
-import com.lts.job.core.repository.po.JobPo;
+import com.lts.job.tracker.queue.JobPo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +18,12 @@ import java.util.List;
  */
 public class JobReceiver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("JobReceiver");
-    private static JobMongoRepository jobRepository;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobReceiver.class.getSimpleName());
 
-    static {
-        jobRepository = SingletonBeanContext.getBean(JobMongoRepository.class);
+    private JobQueue jobQueue;
+
+    public JobReceiver(JobQueue jobQueue) {
+        this.jobQueue = jobQueue;
     }
 
     /**
@@ -33,7 +32,7 @@ public class JobReceiver {
      * @param request
      * @return
      */
-    public static void receive(JobSubmitRequest request) throws JobReceiveException {
+    public void receive(JobSubmitRequest request) throws JobReceiveException {
 
         List<Job> jobs = request.getJobs();
 
@@ -45,8 +44,8 @@ public class JobReceiver {
 
         for (Job job : jobs) {
             try {
-                persistenceJob(job, request);
-            } catch (Throwable t) {
+                addToQueue(job, request);
+            } catch (Exception t) {
                 if (exception == null) {
                     exception = new JobReceiveException(t);
                 }
@@ -59,23 +58,28 @@ public class JobReceiver {
         }
     }
 
-    private static JobPo persistenceJob(Job job, JobSubmitRequest request) {
+    private JobPo addToQueue(Job job, JobSubmitRequest request) {
 
         JobPo jobPo = null;
 
         try {
             jobPo = JobDomainConverter.convert(job);
-            if (StringUtils.isEmpty(jobPo.getNodeGroup())) {
-                jobPo.setNodeGroup(request.getNodeGroup());
+            if (jobPo == null) {
+                LOGGER.warn("提交的任务节点不能被执行。{}", job);
+                return null;
             }
-            jobRepository.save(jobPo);
+            if (StringUtils.isEmpty(jobPo.getSubmitNodeGroup())) {
+                jobPo.setSubmitNodeGroup(request.getNodeGroup());
+            }
+            jobQueue.add(jobPo);
+
             if (job.isSchedule()) {
                 LOGGER.info("接受定时任务成功! nodeGroup={}, CronExpression={}, {}",
                         request.getNodeGroup(), job.getCronExpression(), job);
             } else {
                 LOGGER.info("接受任务成功! nodeGroup={}, {}", request.getNodeGroup(), job);
             }
-        } catch (MongoException.DuplicateKey e) {
+        } catch (DuplicateJobException e) {
             // 已经存在 ignore
             LOGGER.info("任务已经存在! nodeGroup={}, {}", request.getNodeGroup(), job);
         }

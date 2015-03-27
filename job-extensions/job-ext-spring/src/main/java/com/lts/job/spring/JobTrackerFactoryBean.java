@@ -3,7 +3,6 @@ package com.lts.job.spring;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
-import com.lts.job.store.Config;
 import com.lts.job.tracker.JobTracker;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -34,10 +33,6 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
      * master节点变化监听器
      */
     private MasterNodeChangeListener[] masterNodeChangeListeners;
-    /**
-     * mongo数据库配置
-     */
-    private Config storeConfig;
 
     @Override
     public JobTracker getObject() throws Exception {
@@ -64,7 +59,6 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
 
     public void checkProperties() {
         Assert.hasText(zookeeperAddress, "zookeeperAddress必须设值!");
-        Assert.notNull(storeConfig, "storeConfig不能为空!");
         if (listenPort != null && listenPort <= 0) {
             listenPort = null;
         }
@@ -81,7 +75,6 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
             jobTracker.setClusterName(clusterName);
         }
         jobTracker.setZookeeperAddress(zookeeperAddress);
-        jobTracker.setStoreConfig(storeConfig);
         if (listenPort != null) {
             jobTracker.setListenPort(listenPort);
         }
@@ -113,9 +106,5 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
 
     public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
         this.masterNodeChangeListeners = masterNodeChangeListeners;
-    }
-
-    public void setStoreConfig(Config storeConfig) {
-        this.storeConfig = storeConfig;
     }
 }

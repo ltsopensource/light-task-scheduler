@@ -1,13 +1,15 @@
 package com.lts.job.tracker.processor;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.exception.JobReceiveException;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandWrapper;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
+import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.support.JobReceiver;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -21,11 +23,13 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
-    private CommandWrapper commandWrapper;
+    private CommandBodyWrapper commandBodyWrapper;
+    private JobReceiver jobReceiver;
 
     public JobSubmitProcessor(RemotingServerDelegate remotingServer) {
         super(remotingServer);
-        this.commandWrapper = remotingServer.getApplication().getCommandWrapper();
+        this.commandBodyWrapper = remotingServer.getApplication().getCommandBodyWrapper();
+        this.jobReceiver = new JobReceiver((JobQueue)remotingServer.getApplication().getAttribute(Constants.JOB_QUEUE));
     }
 
     @Override
@@ -33,10 +37,10 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
         JobSubmitRequest jobSubmitRequest =  request.getBody();
 
-        JobSubmitResponse jobSubmitResponse = commandWrapper.wrapper(new JobSubmitResponse());
+        JobSubmitResponse jobSubmitResponse = commandBodyWrapper.wrapper(new JobSubmitResponse());
         RemotingCommand response = null;
         try {
-            JobReceiver.receive(jobSubmitRequest);
+            jobReceiver.receive(jobSubmitRequest);
 
             response = RemotingCommand.createResponseCommand(
                     JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code(), "job submit success!", jobSubmitResponse);

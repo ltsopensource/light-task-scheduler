@@ -1,5 +1,6 @@
 package com.lts.job.core.support;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.domain.KVPair;
 import com.lts.job.core.file.FileAccessor;
 import com.lts.job.core.file.FileException;

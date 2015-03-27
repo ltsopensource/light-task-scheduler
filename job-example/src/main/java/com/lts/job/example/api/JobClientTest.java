@@ -2,14 +2,11 @@ package com.lts.job.example.api;
 
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
-import com.lts.job.client.domain.Response;
-import com.lts.job.core.domain.Job;
 import com.lts.job.example.support.BaseJobClientTest;
 import com.lts.job.example.support.JobFinishedHandlerImpl;
 import com.lts.job.example.support.MasterNodeChangeListenerImpl;
 
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.

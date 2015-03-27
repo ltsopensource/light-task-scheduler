@@ -1,6 +1,7 @@
 package com.lts.job.core.domain;
 
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.util.JSONUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/20/14.
@@ -105,15 +106,6 @@ public class JobNodeConfig {
 
     @Override
     public String toString() {
-        return "JobNodeConfig{" +
-                "nodeGroup='" + nodeGroup + '\'' +
-                ", identity='" + identity + '\'' +
-                ", workThreads=" + workThreads +
-                ", nodeType=" + nodeType +
-                ", zookeeperAddress='" + zookeeperAddress + '\'' +
-                ", invokeTimeoutMillis=" + invokeTimeoutMillis +
-                ", listenPort=" + listenPort +
-                ", jobInfoSavePath='" + jobInfoSavePath + '\'' +
-                '}';
+        return JSONUtils.toJSONString(this);
     }
 }

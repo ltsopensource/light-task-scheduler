@@ -1,5 +1,7 @@
 package com.lts.job.core.domain;
 
+import com.lts.job.core.util.JSONUtils;
+
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
  * 任务执行结果
@@ -49,11 +51,6 @@ public class JobResult {
 
     @Override
     public String toString() {
-        return "JobResult{" +
-                "job=" + job +
-                ", success=" + success +
-                ", msg='" + msg + '\'' +
-                ", time=" + time +
-                '}';
+        return JSONUtils.toJSONString(this);
     }
 }

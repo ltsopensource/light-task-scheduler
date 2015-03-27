@@ -1,7 +1,7 @@
 package com.lts.job.core.remoting;
 
 import com.lts.job.core.exception.RemotingSendException;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.RemotingServer;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;

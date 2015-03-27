@@ -2,7 +2,7 @@ package com.lts.job.core.cluster;
 
 
 
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

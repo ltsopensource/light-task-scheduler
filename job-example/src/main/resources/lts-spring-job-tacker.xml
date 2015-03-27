@@ -5,7 +5,7 @@
 		"
        default-lazy-init="false">
 
-    <bean id="mongoConfig" class="com.lts.job.store.Config">
+    <bean id="mongoConfig" class="com.lts.job.queue.mongo.store.Config">
         <property name="addresses">
             <array>
                 <value>localhost:27017</value>

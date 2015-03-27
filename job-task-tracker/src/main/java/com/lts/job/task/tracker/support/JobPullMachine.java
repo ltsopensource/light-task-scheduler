@@ -5,7 +5,7 @@ import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
@@ -56,7 +56,7 @@ public class JobPullMachine {
                         if (availableThreads == 0) {
                             return;
                         }
-                        JobPullRequest requestBody = application.getCommandWrapper().wrapper(new JobPullRequest());
+                        JobPullRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobPullRequest());
                         requestBody.setAvailableThreads(availableThreads);
                         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
 

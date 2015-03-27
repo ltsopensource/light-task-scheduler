@@ -1,7 +1,7 @@
 package com.lts.job.task.tracker.runner;
 
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,7 @@
 package com.lts.job.core.domain;
 
 
+import com.lts.job.core.util.JSONUtils;
 import com.lts.job.remoting.annotation.NotNull;
 
 import java.util.HashMap;
@@ -18,9 +19,9 @@ public class Job {
      * 优先级 (数值越大 优先级越低)
      */
     protected Integer priority = 0;
-    // 提交的节点
+    // 提交的节点 （可以手动指定）
     @NotNull
-    protected String nodeGroup;
+    protected String submitNodeGroup;
     // 执行的节点
     @NotNull
     protected String taskTrackerNodeGroup;
@@ -57,12 +58,12 @@ public class Job {
         this.taskId = taskId;
     }
 
-    public String getNodeGroup() {
-        return nodeGroup;
+    public String getSubmitNodeGroup() {
+        return submitNodeGroup;
     }
 
-    public void setNodeGroup(String nodeGroup) {
-        this.nodeGroup = nodeGroup;
+    public void setSubmitNodeGroup(String submitNodeGroup) {
+        this.submitNodeGroup = submitNodeGroup;
     }
 
     public String getTaskTrackerNodeGroup() {
@@ -133,16 +134,6 @@ public class Job {
 
     @Override
     public String toString() {
-        return "Job{" +
-                "jobId='" + jobId + '\'' +
-                ", taskId='" + taskId + '\'' +
-                ", priority=" + priority +
-                ", nodeGroup='" + nodeGroup + '\'' +
-                ", taskTrackerNodeGroup='" + taskTrackerNodeGroup + '\'' +
-                ", extParams=" + extParams +
-                ", needFeedback=" + needFeedback +
-                ", cronExpression='" + cronExpression + '\'' +
-                ", triggerTime=" + triggerTime +
-                '}';
+        return JSONUtils.toJSONString(this);
     }
 }

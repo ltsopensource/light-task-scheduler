@@ -2,7 +2,7 @@ package com.lts.job.task.tracker.runner;
 
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
-import com.lts.job.core.support.Application;
+import com.lts.job.core.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import org.slf4j.Logger;

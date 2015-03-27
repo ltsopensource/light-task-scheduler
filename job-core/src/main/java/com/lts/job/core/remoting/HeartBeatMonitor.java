@@ -74,7 +74,7 @@ public class HeartBeatMonitor {
          */
         private boolean beat(RemotingClientDelegate remotingClient, String addr) {
 
-            HeartBeatRequest commandBody = remotingClient.getApplication().getCommandWrapper().wrapper(new HeartBeatRequest());
+            HeartBeatRequest commandBody = remotingClient.getApplication().getCommandBodyWrapper().wrapper(new HeartBeatRequest());
 
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
             final boolean[] result = {false};

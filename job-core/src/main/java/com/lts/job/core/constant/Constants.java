@@ -43,4 +43,8 @@ public interface Constants {
 
     public static final String JOB_LOGGER = "JobLogger";
 
+    public static final String JOB_QUEUE = "JobQueue";
+
+    public static final String JOB_FEEDBACK_QUEUE = "JobFeedbackQueue";
+
 }

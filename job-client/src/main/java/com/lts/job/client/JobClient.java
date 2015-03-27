@@ -13,6 +13,7 @@ import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
+import com.lts.job.core.util.JSONUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
@@ -55,7 +56,7 @@ public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobCl
         final Response response = new Response();
 
         try {
-            JobSubmitRequest jobSubmitRequest = application.getCommandWrapper().wrapper(new JobSubmitRequest());
+            JobSubmitRequest jobSubmitRequest = application.getCommandBodyWrapper().wrapper(new JobSubmitRequest());
             jobSubmitRequest.setJobs(jobs);
 
             RemotingCommand requestCommand = RemotingCommand.createRequestCommand(JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);
