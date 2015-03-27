@@ -44,7 +44,7 @@ public class RemotingClientDelegate {
         if (jobTrackers.size() == 0) {
             throw new JobTrackerNotFoundException("no available jobTracker!");
         }
-        return loadBalance.select(jobTrackers);
+        return loadBalance.select(jobTrackers, application.getConfig().getIdentity());
     }
 
     public void start() {

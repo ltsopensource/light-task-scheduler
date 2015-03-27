@@ -1,8 +1,8 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.loadbalance.ConsistentHashLoadBalance;
 import com.lts.job.core.loadbalance.LoadBalance;
+import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.util.StringUtils;
@@ -22,14 +22,10 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
     private LoadBalance loadBalance;
     private HeartBeatMonitor heartBeatMonitor;
 
-    public AbstractClientNode() {
-
-    }
-
     protected void innerStart() {
 
         if (loadBalance == null) {
-            loadBalance = new ConsistentHashLoadBalance();
+            loadBalance = new RandomLoadBalance();
         }
         this.remotingClient = new RemotingClientDelegate(
                 new NettyRemotingClient(getNettyClientConfig()), application, loadBalance);
@@ -74,7 +70,7 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
         if (StringUtils.isNotEmpty(jobInfoSavePath)) {
-            config.setJobInfoSavePath(jobInfoSavePath + "/.job");
+            config.setJobInfoSavePath(jobInfoSavePath);
         }
     }
 

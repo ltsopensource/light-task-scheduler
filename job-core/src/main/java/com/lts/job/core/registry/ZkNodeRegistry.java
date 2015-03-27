@@ -2,7 +2,6 @@ package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.cluster.ZkPathParser;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.Application;
 import com.lts.job.core.util.CollectionUtils;
@@ -21,9 +20,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Robert HG (254963746@qq.com) on 6/22/14.
  * 节点注册器，并监听自己关注的节点
  */
-public class NodeRegistry implements Registry {
+public class ZkNodeRegistry implements Registry {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeRegistry.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZkNodeRegistry.class);
     private ZookeeperClient zkClient;
     // 用来记录父节点下的子节点的变化
     private final ConcurrentHashMap<String/*path*/, List<String/*children*/>> NODE_CHILDREN_MAP = new ConcurrentHashMap<String, List<String>>();
@@ -32,15 +31,15 @@ public class NodeRegistry implements Registry {
     private Application application;
     private ZkPathParser zkPathParser;
 
-    public NodeRegistry(Application application) {
+    public ZkNodeRegistry(Application application) {
         this.listener = new ChildChangeListener();
         this.application = application;
-        this.zkPathParser = application.getZkPathParser();
+        this.zkPathParser = new ZkPathParser(application);
+        application.setPathParser(this.zkPathParser);
     }
 
     /**
      * 添加节点变化监听器
-     *
      * @param nodeChangeListener
      */
     public void addNodeChangeListener(NodeChangeListener nodeChangeListener) {
@@ -48,13 +47,6 @@ public class NodeRegistry implements Registry {
             this.nodeChangeListeners = new ArrayList<NodeChangeListener>();
         }
         this.nodeChangeListeners.add(nodeChangeListener);
-    }
-
-    public void addNodeChangeListeners(List<NodeChangeListener> nodeChangeListeners) {
-        if (this.nodeChangeListeners == null) {
-            this.nodeChangeListeners = new ArrayList<NodeChangeListener>();
-        }
-        this.nodeChangeListeners.addAll(nodeChangeListeners);
     }
 
     @Override

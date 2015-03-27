@@ -5,7 +5,8 @@ import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
-import com.lts.job.core.registry.NodeRegistry;
+import com.lts.job.core.registry.Registry;
+import com.lts.job.core.registry.ZkNodeRegistry;
 import com.lts.job.core.Application;
 import com.lts.job.core.listener.MasterNodeElectionListener;
 import com.lts.job.core.util.GenericsUtils;
@@ -21,7 +22,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobNode.class);
 
-    protected NodeRegistry registry;
+    protected Registry registry;
     protected T node;
     protected JobNodeConfig config;
     protected Application application;
@@ -35,7 +36,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         config.setZookeeperAddress("localhost:2181");
         config.setInvokeTimeoutMillis(1000 * 6);
         config.setListenPort(0);
-        config.setJobInfoSavePath(Constants.USER_HOME + "/.job");
+        config.setJobInfoSavePath(Constants.USER_HOME);
         config.setClusterName(Constants.DEFAULT_CLUSTER_NAME);
         // 可用的线程数
         application = new Application();
@@ -45,9 +46,8 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
         application.setCommandBodyWrapper(new CommandBodyWrapper(application));
         application.setNodeManager(new NodeManager(application));
         application.setMasterElector(new MasterElector(application));
-        application.setZkPathParser(new ZkPathParser(application));
 
-        this.registry = new NodeRegistry(application);
+        this.registry = new ZkNodeRegistry(application);
         // 用于master选举的监听器
         addNodeChangeListener(new MasterNodeElectionListener(application));
     }
@@ -55,7 +55,7 @@ public abstract class AbstractJobNode<T extends Node> implements JobNode {
     final public void start() {
         try {
             Class<T> nodeClass = GenericsUtils.getSuperClassGenericType(this.getClass());
-            node = NodeFactory.create(application.getZkPathParser(), nodeClass, config);
+            node = NodeFactory.create(application.getPathParser(), nodeClass, config);
             config.setNodeType(node.getNodeType());
 
             LOGGER.info("当前节点配置:{}", config);

@@ -1,8 +1,10 @@
-package com.lts.job.core.cluster;
+package com.lts.job.core.registry;
 
 
 
 import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.core.cluster.NodeType;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,7 +16,7 @@ import java.util.regex.Pattern;
  * <p/>
  * 节点 zookeeper上路径解析工具
  */
-public class ZkPathParser {
+public class ZkPathParser implements PathParser{
 
     private Application application;
 
@@ -74,12 +76,6 @@ public class ZkPathParser {
 
         return node;
     }
-
-    public NodeType parseNodeType(String path) {
-        String nodeType = getMatcher(getBasePath() + "/(.*)/", path);
-        return NodeType.valueOf(nodeType);
-    }
-
 
     public String getPath(Node node) {
         StringBuilder path = new StringBuilder();

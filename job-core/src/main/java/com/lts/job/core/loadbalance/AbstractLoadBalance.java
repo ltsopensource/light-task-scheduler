@@ -8,7 +8,7 @@ import java.util.List;
 public abstract class AbstractLoadBalance implements LoadBalance {
 
     @Override
-    public <S> S select(List<S> shards) {
+    public <S> S select(List<S> shards, String seed) {
         if (shards == null || shards.size() == 0) {
             return null;
         }
@@ -17,9 +17,9 @@ public abstract class AbstractLoadBalance implements LoadBalance {
             return shards.get(0);
         }
 
-        return doSelect(shards);
+        return doSelect(shards, seed);
     }
 
-    protected abstract <S> S doSelect(List<S> shards);
+    protected abstract <S> S doSelect(List<S> shards, String seed);
 
 }

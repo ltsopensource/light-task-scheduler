@@ -7,6 +7,6 @@ import java.util.List;
  */
 public interface LoadBalance {
 
-    public <S> S select(List<S> shards);
+    public <S> S select(List<S> shards, String seed);
 
 }

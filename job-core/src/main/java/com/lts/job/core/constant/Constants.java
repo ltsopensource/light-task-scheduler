@@ -12,6 +12,8 @@ public interface Constants {
 
     public static final String USER_HOME = System.getProperty("user.home");
 
+    public static final String LTS_DIR = "/.lts";
+
     public static final int JOB_TRACKER_DEFAULT_LISTEN_PORT = 35001;
 
     // 默认集群名字

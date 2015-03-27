@@ -1,6 +1,7 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.registry.PathParser;
 import com.lts.job.core.util.NetUtils;
 
 /**
@@ -9,7 +10,7 @@ import com.lts.job.core.util.NetUtils;
  */
 public class NodeFactory {
 
-    public static <T extends Node> T create(ZkPathParser zkPathParser, Class<T> clazz, JobNodeConfig config) {
+    public static <T extends Node> T create(PathParser pathParser, Class<T> clazz, JobNodeConfig config) {
         try {
             T node = clazz.newInstance();
             node.setIp(NetUtils.getLocalHost());
@@ -17,7 +18,7 @@ public class NodeFactory {
             node.setThreads(config.getWorkThreads());
             node.setPort(config.getListenPort());
             node.setIdentity(config.getIdentity());
-            node.setPath(zkPathParser.getPath(node));
+            node.setPath(pathParser.getPath(node));
             return node;
         } catch (InstantiationException e) {
             throw new RuntimeException(e);

@@ -1,6 +1,7 @@
 package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
+import com.lts.job.core.listener.NodeChangeListener;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.
@@ -21,6 +22,12 @@ public interface Registry {
      * @param node
      */
     void unregister(Node node);
+
+    /**
+     * 添加节点变化监听器
+     * @param listener
+     */
+    void addNodeChangeListener(NodeChangeListener listener);
 
     void destroy();
 

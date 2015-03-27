@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RandomLoadBalance extends AbstractLoadBalance {
 
     @Override
-    protected <S> S doSelect(List<S> shards) {
+    protected <S> S doSelect(List<S> shards, String seed) {
         return shards.get(ThreadLocalRandom.current().nextInt(shards.size()));
     }
 }

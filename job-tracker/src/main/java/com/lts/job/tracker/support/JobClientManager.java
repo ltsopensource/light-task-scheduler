@@ -4,6 +4,7 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.loadbalance.ConsistentHashLoadBalance;
 import com.lts.job.core.loadbalance.LoadBalance;
+import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
@@ -31,7 +32,7 @@ public class JobClientManager {
 
     public JobClientManager(ChannelManager channelManager) {
         this.channelManager = channelManager;
-        this.loadBalance = new ConsistentHashLoadBalance();
+        this.loadBalance = new RandomLoadBalance();
     }
 
     /**
@@ -92,7 +93,7 @@ public class JobClientManager {
 
         while (list.size() > 0) {
 
-            JobClientNode jobClientNode = loadBalance.select(list);
+            JobClientNode jobClientNode = loadBalance.select(list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
                 ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());

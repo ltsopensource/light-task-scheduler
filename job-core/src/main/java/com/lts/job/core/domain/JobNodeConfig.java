@@ -97,7 +97,7 @@ public class JobNodeConfig {
     }
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
-        this.jobInfoSavePath = jobInfoSavePath;
+        this.jobInfoSavePath = jobInfoSavePath  + "/.lts";
     }
 
     public String getFilePath() {
