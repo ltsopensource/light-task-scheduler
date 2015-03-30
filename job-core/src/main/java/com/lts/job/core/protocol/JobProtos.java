@@ -24,6 +24,8 @@ public class JobProtos {
         JOB_ASK(15),
         // 请求推送任务
         JOB_PULL(16),
+        // TaskTracker的业务日志
+        BIZ_LOG_SEND(17),
         ;
 
         private int code;
@@ -70,7 +72,10 @@ public class JobProtos {
         // 任务处理成功
         JOB_NOTIFY_SUCCESS(20),
         // 任务推送
-        JOB_PULL_SUCCESS(21)
+        JOB_PULL_SUCCESS(21),
+        // 业务日志发送成功
+        BIZ_LOG_SEND_SUCCESS(22)
+
         ;
 
 

@@ -1,17 +1,17 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.core.constant.Constants;
+import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.domain.LogType;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.logger.JobLogPo;
+import com.lts.job.tracker.logger.domain.JobLogPo;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.tracker.queue.JobFeedbackPo;
-import com.lts.job.core.Application;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.tracker.queue.JobFeedbackQueue;
@@ -39,17 +39,15 @@ public class JobFinishedProcessor extends AbstractProcessor {
     private ClientNotifier clientNotifier;
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
     private CommandBodyWrapper commandBodyWrapper;
-    private Application application;
     private JobLogger jobLogger;
     private JobQueue jobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
 
-    public JobFinishedProcessor(RemotingServerDelegate remotingServer) {
-        super(remotingServer);
-        this.application = remotingServer.getApplication();
-        this.jobLogger = application.getAttribute(Constants.JOB_LOGGER);
-        this.jobQueue = application.getAttribute(Constants.JOB_QUEUE);
-        this.jobFeedbackQueue = application.getAttribute(Constants.JOB_FEEDBACK_QUEUE);
+    public JobFinishedProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
+        super(remotingServer, application);
+        this.jobLogger = application.getJobLogger();
+        this.jobQueue = application.getJobQueue();
+        this.jobFeedbackQueue = application.getJobFeedbackQueue();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
         this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
@@ -91,9 +89,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
         }
 
         if (requestBody.isReSend()) {
-            log(jobResults, LogType.RESEND);
+            log(requestBody.getIdentity(), jobResults, LogType.RESEND);
         } else {
-            log(jobResults, LogType.FINISHED);
+            log(requestBody.getIdentity(), jobResults, LogType.FINISHED);
         }
 
         LOGGER.info("执行任务完成: {}", jobResults);
@@ -107,13 +105,15 @@ public class JobFinishedProcessor extends AbstractProcessor {
      * @param jobResults
      * @param logType
      */
-    private void log(List<JobResult> jobResults, LogType logType) {
+    private void log(String taskTrackerIdentity, List<JobResult> jobResults, LogType logType) {
         try {
             for (JobResult jobResult : jobResults) {
-                JobLogPo jobLogPo = JobDomainConverter.convertJobLogPo(jobResult.getJob());
+                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobResult.getJob());
                 jobLogPo.setMsg(jobResult.getMsg());
                 jobLogPo.setLogType(logType);
                 jobLogPo.setSuccess(jobResult.isSuccess());
+                jobLogPo.setTaskTrackerIdentity(taskTrackerIdentity);
+                jobLogPo.setLevel(Level.INFO);
                 jobLogger.log(jobLogPo);
             }
         } catch (Throwable t) {

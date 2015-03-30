@@ -1,20 +1,19 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.core.constant.Constants;
-import com.lts.job.core.Application;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by Robert HG (254963746@qq.com) on 3/6/15.
+ * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class DefaultRunnerFactory implements RunnerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunnerFactory.class);
     private Class clazz;
 
-    public DefaultRunnerFactory(Application application) {
-        clazz = application.getAttribute(Constants.JOB_RUNNING_CLASS);
+    public DefaultRunnerFactory(TaskTrackerApplication application) {
+        clazz = application.getJobRunnerClass();
     }
 
     public JobRunner newRunner() {

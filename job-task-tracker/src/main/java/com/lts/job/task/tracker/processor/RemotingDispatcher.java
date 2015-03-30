@@ -6,6 +6,7 @@ import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
@@ -21,10 +22,10 @@ public class RemotingDispatcher extends AbstractProcessor {
 
     private final Map<JobProtos.RequestCode, NettyRequestProcessor> processors = new HashMap<JobProtos.RequestCode, NettyRequestProcessor>();
 
-    public RemotingDispatcher(RemotingClientDelegate remotingClient) {
-        super(remotingClient);
-        processors.put(PUSH_JOB, new JobPushProcessor(remotingClient));
-        processors.put(JOB_ASK, new JobAskProcessor(remotingClient));
+    public RemotingDispatcher(RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+        super(remotingClient, application);
+        processors.put(PUSH_JOB, new JobPushProcessor(remotingClient, application));
+        processors.put(JOB_ASK, new JobAskProcessor(remotingClient, application));
     }
 
     @Override

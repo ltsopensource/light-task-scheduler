@@ -201,8 +201,4 @@ public class RemotingClientDelegate {
     public NettyRemotingClient getNettyClient() {
         return remotingClient;
     }
-
-    public Application getApplication() {
-        return application;
-    }
 }

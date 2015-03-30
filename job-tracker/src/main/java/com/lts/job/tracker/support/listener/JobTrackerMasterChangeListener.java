@@ -1,9 +1,8 @@
 package com.lts.job.tracker.support.listener;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.listener.MasterNodeChangeListener;
-import com.lts.job.core.Application;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.checker.DeadJobChecker;
 import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
 
@@ -13,14 +12,14 @@ import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
  */
 public class JobTrackerMasterChangeListener implements MasterNodeChangeListener {
 
-    private Application application;
+    private JobTrackerApplication application;
     private DeadJobChecker deadJobChecker;
     private FeedbackJobSendChecker feedbackJobSendChecker;
 
-    public JobTrackerMasterChangeListener(Application application) {
+    public JobTrackerMasterChangeListener(JobTrackerApplication application) {
         this.application = application;
         this.deadJobChecker = new DeadJobChecker(application);
-        this.application.setAttribute(Constants.DEAD_JOB_CHECKER, deadJobChecker);
+        this.application.setDeadJobChecker(deadJobChecker);
         this.feedbackJobSendChecker = new FeedbackJobSendChecker(application);
     }
 

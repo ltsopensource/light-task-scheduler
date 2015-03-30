@@ -2,12 +2,10 @@ package com.lts.job.tracker.support.listener;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.listener.NodeChangeListener;
-import com.lts.job.core.Application;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobClientManager;
 import com.lts.job.tracker.support.TaskTrackerManager;
-import com.lts.job.tracker.support.checker.DeadJobChecker;
 
 import java.util.List;
 
@@ -17,12 +15,12 @@ import java.util.List;
  */
 public class JobNodeChangeListener implements NodeChangeListener {
 
-    private Application application;
+    private JobTrackerApplication application;
 
-    public JobNodeChangeListener(Application application) {
+    public JobNodeChangeListener(JobTrackerApplication application) {
         this.application = application;
-        this.jobClientManager = application.getAttribute(Constants.JOB_CLIENT_MANAGER);
-        this.taskTrackerManager = application.getAttribute(Constants.TASK_TRACKER_MANAGER);
+        this.jobClientManager = application.getJobClientManager();
+        this.taskTrackerManager = application.getTaskTrackerManager();
     }
 
     private TaskTrackerManager taskTrackerManager;
@@ -41,7 +39,7 @@ public class JobNodeChangeListener implements NodeChangeListener {
     public void removeNode(Node node) {
         if (node.getNodeType().equals(NodeType.TASK_TRACKER)) {
             taskTrackerManager.removeNode(node);
-            ((DeadJobChecker) application.getAttribute(Constants.DEAD_JOB_CHECKER)).fixedDeadLock(node);
+            application.getDeadJobChecker().fixedDeadLock(node);
         } else if (node.getNodeType().equals(NodeType.CLIENT)) {
             jobClientManager.removeNode(node);
         }

@@ -1,17 +1,16 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.JobClientNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
- * Created by Robert HG (254963746@qq.com) on 3/2/15.
+ * @author Robert HG (254963746@qq.com) on 3/2/15.
  */
 public class ClientNotifier {
 
@@ -28,21 +27,26 @@ public class ClientNotifier {
     private ClientNotifyHandler clientNotifyHandler;
     private JobClientManager jobClientManager;
     private CommandBodyWrapper commandBodyWrapper;
-    private Application application;
+    private JobTrackerApplication application;
 
-    public ClientNotifier(Application application, ClientNotifyHandler clientNotifyHandler) {
+    public ClientNotifier(JobTrackerApplication application, ClientNotifyHandler clientNotifyHandler) {
         this.application = application;
         this.clientNotifyHandler = clientNotifyHandler;
-        this.jobClientManager = application.getAttribute(Constants.JOB_CLIENT_MANAGER);
+        this.jobClientManager = application.getJobClientManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
     }
+
     /**
      * 发送给客户端
      *
      * @param jobResults
-     * @return
+     * @return 返回成功的个数
      */
-    public void send(List<JobResult> jobResults) {
+    public int send(List<JobResult> jobResults) {
+        if (jobResults == null || jobResults.size() == 0) {
+            return 0;
+        }
+
         // 单个 就不用 分组了
         if (jobResults.size() == 1) {
 
@@ -50,6 +54,7 @@ public class ClientNotifier {
             if (!send0(jobResult.getJob().getSubmitNodeGroup(), jobResults)) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
+                return 0;
             }
         } else if (jobResults.size() > 1) {
 
@@ -73,7 +78,9 @@ public class ClientNotifier {
                 }
             }
             clientNotifyHandler.handleFailed(failedJobResult);
+            return jobResults.size() - failedJobResult.size();
         }
+        return jobResults.size();
     }
 
     /**
@@ -108,7 +115,7 @@ public class ClientNotifier {
                         if (commandResponse != null && commandResponse.getCode() == JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code()) {
                             clientNotifyHandler.handleSuccess(jobResults);
                             result[0] = true;
-                        }else{
+                        } else {
                             result[0] = false;
                         }
                     } finally {
@@ -130,8 +137,8 @@ public class ClientNotifier {
         return result[0];
     }
 
-    private RemotingServerDelegate getRemotingServer(){
-        return (RemotingServerDelegate)application.getAttribute(Constants.REMOTING_SERVER);
+    private RemotingServerDelegate getRemotingServer() {
+        return application.getRemotingServer();
     }
 
 }

@@ -1,9 +1,8 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
-import com.lts.job.core.Application;
 import com.lts.job.core.util.ConcurrentHashSet;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +25,12 @@ public class RunnerPool {
     private ScheduledExecutorService REFRESH_EXECUTOR_SERVICE = null;
 
     private RunnerFactory runnerFactory;
-    private Application application;
+    private TaskTrackerApplication application;
     private RunningJobManager runningJobManager;
 
-    public RunnerPool(final Application application) {
+    public RunnerPool(final TaskTrackerApplication application) {
         this.application = application;
         this.runningJobManager = new RunningJobManager();
-
         int maxSize = application.getConfig().getWorkThreads();
         int minSize = 4 > maxSize ? maxSize : 4;
 
@@ -44,22 +42,23 @@ public class RunnerPool {
         REFRESH_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+                application.setAvailableThreads(getAvailablePoolSize());
             }
         }, 60, 30, TimeUnit.SECONDS);
 
-        runnerFactory = application.getAttribute(Constants.RUNNER_FACTORY);
+        runnerFactory = application.getRunnerFactory();
         if (runnerFactory == null) {
             runnerFactory = new DefaultRunnerFactory(application);
         }
+
     }
 
     public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
         try {
             threadPoolExecutor.execute(
-                    new JobRunnerDelegate(this, job, callback));
+                    new JobRunnerDelegate(application, job, callback));
             // 更新应用可用线程数
-            application.setAttribute(Constants.KEY_AVAILABLE_THREADS, getAvailablePoolSize());
+            application.setAvailableThreads(getAvailablePoolSize());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("receive job success ! " + job);
             }

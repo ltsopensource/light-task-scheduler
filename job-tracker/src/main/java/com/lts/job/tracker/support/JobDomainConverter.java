@@ -4,7 +4,7 @@ import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.tracker.queue.JobFeedbackPo;
-import com.lts.job.tracker.logger.JobLogPo;
+import com.lts.job.tracker.logger.domain.JobLogPo;
 import com.lts.job.core.util.Md5Encrypt;
 import com.lts.job.tracker.queue.JobPo;
 import com.lts.job.core.util.StringUtils;
@@ -75,7 +75,7 @@ public class JobDomainConverter {
         return job;
     }
 
-    public static JobLogPo convertJobLogPo(Job job) {
+    public static JobLogPo convertJobLog(Job job) {
         JobLogPo jobLogPo = new JobLogPo();
         jobLogPo.setPriority(job.getPriority());
         jobLogPo.setExtParams(job.getExtParams());
@@ -89,7 +89,7 @@ public class JobDomainConverter {
         return jobLogPo;
     }
 
-    public static JobLogPo convertJobLogPo(JobPo jobPo) {
+    public static JobLogPo convertJobLog(JobPo jobPo) {
         JobLogPo jobLogPo = new JobLogPo();
         jobLogPo.setPriority(jobPo.getPriority());
         jobLogPo.setExtParams(jobPo.getExtParams());
@@ -100,6 +100,7 @@ public class JobDomainConverter {
         jobLogPo.setJobId(jobPo.getJobId());
         jobLogPo.setCronExpression(jobPo.getCronExpression());
         jobLogPo.setTriggerTime(jobPo.getTriggerTime());
+        jobLogPo.setTaskTrackerIdentity(jobPo.getTaskTrackerIdentity());
         return jobLogPo;
     }
 

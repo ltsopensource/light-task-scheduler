@@ -1,5 +1,6 @@
-package com.lts.job.core.cluster;
+package com.lts.job.core.factory;
 
+import com.lts.job.core.cluster.Node;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.registry.PathParser;
 import com.lts.job.core.util.NetUtils;

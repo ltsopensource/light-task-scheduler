@@ -3,7 +3,7 @@ package com.lts.job.tracker.queue;
 import com.lts.job.core.domain.JobResult;
 
 /**
- * Created by Robert HG (254963746@qq.com) on 3/3/15.
+ * @author Robert HG (254963746@qq.com) on 3/3/15.
  */
 public class JobFeedbackPo extends JobResult{
 

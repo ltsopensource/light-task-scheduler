@@ -1,5 +1,6 @@
-package com.lts.job.tracker.logger;
+package com.lts.job.tracker.logger.domain;
 
+import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.LogType;
 
@@ -16,6 +17,26 @@ public class JobLogPo extends Job{
     private boolean success;
     private String msg;
     private String code;
+    private String taskTrackerIdentity;
+
+    // 日志记录级别
+    private Level level;
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public String getTaskTrackerIdentity() {
+        return taskTrackerIdentity;
+    }
+
+    public void setTaskTrackerIdentity(String taskTrackerIdentity) {
+        this.taskTrackerIdentity = taskTrackerIdentity;
+    }
 
     public LogType getLogType() {
         return logType;

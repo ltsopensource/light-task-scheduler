@@ -13,7 +13,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 /**
  * JobClient 的 FactoryBean
- * Created by Robert HG (254963746@qq.com) on 3/6/15.
+ * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, InitializingBean, DisposableBean {
 

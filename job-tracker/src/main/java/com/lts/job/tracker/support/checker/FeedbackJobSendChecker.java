@@ -1,10 +1,9 @@
 package com.lts.job.tracker.support.checker;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.queue.JobFeedbackQueue;
 import com.lts.job.tracker.queue.JobFeedbackPo;
-import com.lts.job.core.Application;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
@@ -40,9 +39,9 @@ public class FeedbackJobSendChecker {
         return start;
     }
 
-    public FeedbackJobSendChecker(Application application) {
+    public FeedbackJobSendChecker(JobTrackerApplication application) {
 
-        this.jobFeedbackQueue = application.getAttribute(Constants.JOB_FEEDBACK_QUEUE);
+        this.jobFeedbackQueue = application.getJobFeedbackQueue();
         clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
@@ -96,8 +95,9 @@ public class FeedbackJobSendChecker {
 
                 List<JobFeedbackPo> jobFeedbackPos;
                 int limit = 5;
+                int offset = 0;
                 do {
-                    jobFeedbackPos = jobFeedbackQueue.fetch(0, limit);
+                    jobFeedbackPos = jobFeedbackQueue.fetch(offset, limit);
                     if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                         return;
                     }
@@ -105,8 +105,10 @@ public class FeedbackJobSendChecker {
                     for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                         jobResults.add(jobFeedbackPo);
                     }
-                    clientNotifier.send(jobResults);
-
+                    // 返回发送成功的个数
+                    int sentSize = clientNotifier.send(jobResults);
+                    LOGGER.info("发送客户端: {}个成功, {}个失败.", sentSize, jobResults.size() - sentSize);
+                    offset += (jobResults.size() - sentSize);
                 } while (jobFeedbackPos != null && jobFeedbackPos.size() > 0);
 
             } catch (Throwable t) {

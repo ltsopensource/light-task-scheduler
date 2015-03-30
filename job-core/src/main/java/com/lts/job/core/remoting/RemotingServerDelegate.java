@@ -84,8 +84,4 @@ public class RemotingServerDelegate {
     public void shutdown() {
         remotingServer.shutdown();
     }
-
-    public Application getApplication() {
-        return application;
-    }
 }

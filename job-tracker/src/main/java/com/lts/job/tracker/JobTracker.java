@@ -3,6 +3,7 @@ package com.lts.job.tracker;
 import com.lts.job.core.cluster.*;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.util.Assert;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.logger.DefaultLogger;
 import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.tracker.queue.JobFeedbackQueue;
@@ -19,7 +20,7 @@ import com.lts.job.tracker.support.TaskTrackerManager;
 /**
  * @author Robert HG (254963746@qq.com) on 7/23/14.
  */
-public class JobTracker extends AbstractServerNode<JobTrackerNode> {
+public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
     public JobTracker() {
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
@@ -30,22 +31,22 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode> {
     protected void innerStart() {
         // channel 管理者
         ChannelManager channelManager = new ChannelManager();
-        application.setAttribute(Constants.CHANNEL_MANAGER, channelManager);
+        application.setChannelManager(channelManager);
         // JobClient 管理者
-        application.setAttribute(Constants.JOB_CLIENT_MANAGER, new JobClientManager(channelManager));
+        application.setJobClientManager(new JobClientManager(channelManager));
         // TaskTracker 管理者
-        application.setAttribute(Constants.TASK_TRACKER_MANAGER, new TaskTrackerManager(channelManager));
+        application.setTaskTrackerManager(new TaskTrackerManager(channelManager));
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
         // 设置默认 logger (如果没有设置的话)
-        JobLogger jobLogger = application.getAttribute(Constants.JOB_LOGGER);
+        JobLogger jobLogger = application.getJobLogger();
         if (jobLogger == null) {
-            application.setAttribute(Constants.JOB_LOGGER, new DefaultLogger());
+            application.setJobLogger(new DefaultLogger());
         }
-        JobQueue jobQueue = application.getAttribute(Constants.JOB_QUEUE);
+        JobQueue jobQueue = application.getJobQueue();
         Assert.notNull(jobQueue, "jobQueue can not be null");
 
-        JobFeedbackQueue jobFeedbackQueue = application.getAttribute(Constants.JOB_FEEDBACK_QUEUE);
+        JobFeedbackQueue jobFeedbackQueue = application.getJobFeedbackQueue();
         Assert.notNull(jobFeedbackQueue, "jobFeedbackQueue can not be null");
 
         // 添加master节点变化监听器
@@ -53,12 +54,12 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode> {
         // 启动节点
         super.innerStart();
         // 设置 remotingServer, 其他地方要用这个
-        application.setAttribute(Constants.REMOTING_SERVER, remotingServer);
+        application.setRemotingServer(remotingServer);
     }
 
     @Override
     protected NettyRequestProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(remotingServer);
+        return new RemotingDispatcher(remotingServer, application);
     }
 
     /**
@@ -67,14 +68,14 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode> {
      * @param logger
      */
     public void setJobLogger(JobLogger logger) {
-        application.setAttribute(Constants.JOB_LOGGER, logger);
+        application.setJobLogger(logger);
     }
 
     public void setJobQueue(JobQueue jobQueue) {
-        application.setAttribute(Constants.JOB_QUEUE, jobQueue);
+        application.setJobQueue(jobQueue);
     }
 
     public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
-        application.setAttribute(Constants.JOB_FEEDBACK_QUEUE, jobFeedbackQueue);
+        application.setJobFeedbackQueue(jobFeedbackQueue);
     }
 }

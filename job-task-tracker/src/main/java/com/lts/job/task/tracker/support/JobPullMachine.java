@@ -1,15 +1,14 @@
 package com.lts.job.task.tracker.support;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
-import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +28,11 @@ public class JobPullMachine {
     private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
 
     private RemotingClientDelegate remotingClient;
-    private Application application;
+    private TaskTrackerApplication application;
 
-    public JobPullMachine(RemotingClientDelegate remotingClient) {
-        this.remotingClient = remotingClient;
-        this.application = remotingClient.getApplication();
+    public JobPullMachine(TaskTrackerApplication application) {
+        this.remotingClient = application.getRemotingClient();
+        this.application = application;
     }
 
     public void start() {
@@ -52,7 +51,7 @@ public class JobPullMachine {
                      * 发送Job pull 请求
                      */
                     private void sendRequest() throws RemotingCommandFieldCheckException {
-                        int availableThreads = application.getAttribute(Constants.KEY_AVAILABLE_THREADS);
+                        int availableThreads = application.getAvailableThreads();
                         if (availableThreads == 0) {
                             return;
                         }

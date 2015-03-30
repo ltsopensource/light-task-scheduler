@@ -1,6 +1,5 @@
 package com.lts.job.task.tracker.processor;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
@@ -9,7 +8,6 @@ import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
-import com.lts.job.core.Application;
 import com.lts.job.core.support.RetryScheduler;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
@@ -17,10 +15,10 @@ import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.domain.Response;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.job.task.tracker.runner.RunnerCallback;
-import com.lts.job.task.tracker.runner.RunnerPool;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +36,11 @@ public class JobPushProcessor extends AbstractProcessor {
 
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
-    private Application application;
-    private RunnerPool runnerPool;
     private CommandBodyWrapper commandBodyWrapper;
 
-    protected JobPushProcessor(final RemotingClientDelegate remotingClient) {
-        super(remotingClient);
-
-        this.application = remotingClient.getApplication();
+    protected JobPushProcessor(final RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+        super(remotingClient, application);
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.runnerPool = application.getAttribute(Constants.TASK_TRACKER_RUNNER_POOL);
         retryScheduler = new RetryScheduler<JobResult>(application, 3) {
             @Override
             protected boolean isRemotingEnable() {
@@ -75,7 +68,7 @@ public class JobPushProcessor extends AbstractProcessor {
         final Job job = requestBody.getJob();
 
         try {
-            runnerPool.execute(job, jobRunnerCallback);
+            application.getRunnerPool().execute(job, jobRunnerCallback);
         } catch (NoAvailableJobRunnerException e) {
             // 任务推送失败
             return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(), "job push failure , no available job runner!");

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by Robert HG (254963746@qq.com) on 3/6/15.
+ * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class Assert {
 

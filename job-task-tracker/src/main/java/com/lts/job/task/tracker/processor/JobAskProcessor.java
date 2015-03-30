@@ -1,6 +1,5 @@
 package com.lts.job.task.tracker.processor;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
@@ -8,6 +7,7 @@ import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.runner.RunnerPool;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -21,10 +21,10 @@ public class JobAskProcessor extends AbstractProcessor {
     private RunnerPool runnerPool;
     private CommandBodyWrapper commandBodyWrapper;
 
-    protected JobAskProcessor(RemotingClientDelegate remotingClient) {
-        super(remotingClient);
-        this.runnerPool = remotingClient.getApplication().getAttribute(Constants.TASK_TRACKER_RUNNER_POOL);
-        this.commandBodyWrapper = remotingClient.getApplication().getCommandBodyWrapper();
+    protected JobAskProcessor(RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+        super(remotingClient, application);
+        this.runnerPool = application.getRunnerPool();
+        this.commandBodyWrapper = application.getCommandBodyWrapper();
     }
 
     @Override

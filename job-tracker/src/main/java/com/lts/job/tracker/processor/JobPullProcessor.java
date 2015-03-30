@@ -5,6 +5,7 @@ import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobDistributor;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -24,11 +25,11 @@ public class JobPullProcessor extends AbstractProcessor {
     private final ExecutorService executor;
     private JobDistributor jobDistributor;
 
-    public JobPullProcessor(RemotingServerDelegate remotingServer) {
-        super(remotingServer);
+    public JobPullProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
+        super(remotingServer, application);
 
         executor = Executors.newCachedThreadPool();
-        jobDistributor = new JobDistributor(remotingServer.getApplication());
+        jobDistributor = new JobDistributor(application);
     }
 
     @Override

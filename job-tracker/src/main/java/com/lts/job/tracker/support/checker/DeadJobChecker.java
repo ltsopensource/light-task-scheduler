@@ -2,16 +2,16 @@ package com.lts.job.tracker.support.checker;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.constant.Constants;
+import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.LogType;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.tracker.logger.JobLogPo;
-import com.lts.job.core.Application;
+import com.lts.job.tracker.logger.domain.JobLogPo;
 import com.lts.job.tracker.queue.JobPo;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
@@ -50,18 +50,18 @@ public class DeadJobChecker {
 
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
-    private Application application;
+    private JobTrackerApplication application;
     private ChannelManager channelManager;
     private CommandBodyWrapper commandBodyWrapper;
     private JobLogger jobLogger;
     private JobQueue jobQueue;
 
-    public DeadJobChecker(Application application) {
+    public DeadJobChecker(JobTrackerApplication application) {
         this.application = application;
-        this.channelManager = application.getAttribute(Constants.CHANNEL_MANAGER);
+        this.channelManager = application.getChannelManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobLogger = application.getAttribute(Constants.JOB_LOGGER);
-        this.jobQueue = application.getAttribute(Constants.JOB_QUEUE);
+        this.jobLogger = application.getJobLogger();
+        this.jobQueue = application.getJobQueue();
     }
 
     private volatile boolean start;
@@ -108,7 +108,7 @@ public class DeadJobChecker {
                         }
 
                         if (CollectionUtils.isNotEmpty(timeoutMap)) {
-                            RemotingServerDelegate remotingServer = application.getAttribute(Constants.REMOTING_SERVER);
+                            RemotingServerDelegate remotingServer = application.getRemotingServer();
                             for (Map.Entry<TaskTrackerNode, List<String>> entry : timeoutMap.entrySet()) {
                                 TaskTrackerNode taskTrackerNode = entry.getKey();
                                 ChannelWrapper channelWrapper = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
@@ -158,13 +158,18 @@ public class DeadJobChecker {
      */
     public void fixedDeadLock(Node node) {
         try {
-            List<JobPo> jobPos = jobQueue.getRunningJob(node.getIdentity());
-            if (CollectionUtils.isNotEmpty(jobPos)) {
-                for (JobPo jobPo : jobPos) {
-                    fixedDeadJob(jobPo);
+            // 1. 判断这个节点的channel是否存在
+            ChannelWrapper channelWrapper = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+            if(channelWrapper == null || channelWrapper.getChannel() == null
+            || channelWrapper.isClosed()){
+                List<JobPo> jobPos = jobQueue.getRunningJob(node.getIdentity());
+                if (CollectionUtils.isNotEmpty(jobPos)) {
+                    for (JobPo jobPo : jobPos) {
+                        fixedDeadJob(jobPo);
+                    }
                 }
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOGGER.error(t.getMessage(), t);
         }
     }
@@ -172,7 +177,8 @@ public class DeadJobChecker {
     private void fixedDeadJob(JobPo jobPo) {
         jobQueue.resume(jobPo);
         try {
-            JobLogPo jobLogPo = JobDomainConverter.convertJobLogPo(jobPo);
+            JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+            jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
             jobLogger.log(jobLogPo);
         } catch (Throwable t) {

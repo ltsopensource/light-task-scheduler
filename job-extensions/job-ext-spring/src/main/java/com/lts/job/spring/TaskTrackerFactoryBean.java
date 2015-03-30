@@ -17,7 +17,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * TaskTracker Spring Bean 工厂类
- * Created by Robert HG (254963746@qq.com) on 3/6/15.
+ * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, ApplicationContextAware, InitializingBean, DisposableBean {
 

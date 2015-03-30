@@ -1,5 +1,6 @@
 package com.lts.job.core.cluster;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.netty.NettyRemotingServer;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
@@ -11,7 +12,7 @@ import java.util.concurrent.Executors;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         抽象 netty 服务端
  */
-public abstract class AbstractServerNode<T extends Node> extends AbstractJobNode<T> {
+public abstract class AbstractServerNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
 
     protected RemotingServerDelegate remotingServer;
 

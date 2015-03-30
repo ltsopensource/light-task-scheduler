@@ -3,7 +3,7 @@ package com.lts.job.queue.mongo.store;
 import com.google.code.morphia.Datastore;
 
 /**
- * Created by Robert HG (254963746@qq.com) on 10/24/14.
+ * @author Robert HG (254963746@qq.com) on 10/24/14.
  */
 public class DataStoreHolder {
 

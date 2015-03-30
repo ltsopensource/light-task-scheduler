@@ -1,6 +1,5 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.protocol.JobProtos;
@@ -8,11 +7,11 @@ import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.Application;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.queue.JobPo;
@@ -32,9 +31,9 @@ public class JobDistributor {
     private TaskTrackerManager taskTrackerManager;
     private CommandBodyWrapper commandBodyWrapper;
 
-    public JobDistributor(Application application) {
-        this.jobQueue = application.getAttribute(Constants.JOB_QUEUE);
-        this.taskTrackerManager = application.getAttribute(Constants.TASK_TRACKER_MANAGER);
+    public JobDistributor(JobTrackerApplication application) {
+        this.jobQueue = application.getJobQueue();
+        this.taskTrackerManager = application.getTaskTrackerManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
     }
 

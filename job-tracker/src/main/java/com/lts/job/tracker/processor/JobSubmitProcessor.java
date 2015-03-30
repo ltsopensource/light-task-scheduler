@@ -1,6 +1,5 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.exception.JobReceiveException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
@@ -9,7 +8,7 @@ import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
-import com.lts.job.tracker.queue.JobQueue;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobReceiver;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -26,10 +25,10 @@ public class JobSubmitProcessor extends AbstractProcessor {
     private CommandBodyWrapper commandBodyWrapper;
     private JobReceiver jobReceiver;
 
-    public JobSubmitProcessor(RemotingServerDelegate remotingServer) {
-        super(remotingServer);
-        this.commandBodyWrapper = remotingServer.getApplication().getCommandBodyWrapper();
-        this.jobReceiver = new JobReceiver((JobQueue)remotingServer.getApplication().getAttribute(Constants.JOB_QUEUE));
+    public JobSubmitProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
+        super(remotingServer, application);
+        this.commandBodyWrapper = application.getCommandBodyWrapper();
+        this.jobReceiver = new JobReceiver(application.getJobQueue());
     }
 
     @Override

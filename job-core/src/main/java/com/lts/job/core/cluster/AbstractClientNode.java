@@ -1,6 +1,6 @@
 package com.lts.job.core.cluster;
 
-import com.lts.job.core.constant.Constants;
+import com.lts.job.core.Application;
 import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.remoting.HeartBeatMonitor;
@@ -16,20 +16,20 @@ import java.util.concurrent.Executors;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         抽象 netty 客户端
  */
-public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode<T> {
+public abstract class AbstractClientNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
 
     protected RemotingClientDelegate remotingClient;
-    private LoadBalance loadBalance;
+    private LoadBalance serverConnectLoadBalance;
     private HeartBeatMonitor heartBeatMonitor;
 
     protected void innerStart() {
 
-        if (loadBalance == null) {
-            loadBalance = new RandomLoadBalance();
+        if (serverConnectLoadBalance == null) {
+            serverConnectLoadBalance = new RandomLoadBalance();
         }
         this.remotingClient = new RemotingClientDelegate(
-                new NettyRemotingClient(getNettyClientConfig()), application, loadBalance);
-        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient);
+                new NettyRemotingClient(getNettyClientConfig()), application, serverConnectLoadBalance);
+        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
 
         remotingClient.start();
         heartBeatMonitor.start();
@@ -52,11 +52,6 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
     protected void innerStop() {
         heartBeatMonitor.start();
         remotingClient.shutdown();
-    }
-
-    public void setWorkThreads(int workThreads) {
-        config.setWorkThreads(workThreads);
-        application.setAttribute(Constants.KEY_AVAILABLE_THREADS, config.getWorkThreads());
     }
 
     /**
@@ -90,10 +85,11 @@ public abstract class AbstractClientNode<T extends Node> extends AbstractJobNode
 
     /**
      * 设置连接JobTracker的负载均衡算法
-     * @param loadBalance
+     *
+     * @param serverConnectLoadBalance
      */
-    public void setLoadBalance(LoadBalance loadBalance) {
-        this.loadBalance = loadBalance;
+    public void setServerConnectLoadBalance(LoadBalance serverConnectLoadBalance) {
+        this.serverConnectLoadBalance = serverConnectLoadBalance;
     }
 
 }

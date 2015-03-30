@@ -1,5 +1,6 @@
 package com.lts.job.core.remoting;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.protocol.JobProtos;
@@ -28,9 +29,11 @@ public class HeartBeatMonitor {
     private final ScheduledExecutorService HEART_BEAT_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
     private RemotingClientDelegate remotingClient;
+    private Application application;
 
-    public HeartBeatMonitor(RemotingClientDelegate remotingClient) {
+    public HeartBeatMonitor(RemotingClientDelegate remotingClient, Application application) {
         this.remotingClient = remotingClient;
+        this.application = application;
     }
 
     public void start() {
@@ -48,7 +51,7 @@ public class HeartBeatMonitor {
         @Override
         public void run() {
             try {
-                List<Node> jobTrackers = remotingClient.getApplication().getNodeManager().getNodeList(NodeType.JOB_TRACKER);
+                List<Node> jobTrackers = application.getNodeManager().getNodeList(NodeType.JOB_TRACKER);
                 if (jobTrackers == null) {
                     return;
                 }
@@ -74,13 +77,13 @@ public class HeartBeatMonitor {
          */
         private boolean beat(RemotingClientDelegate remotingClient, String addr) {
 
-            HeartBeatRequest commandBody = remotingClient.getApplication().getCommandBodyWrapper().wrapper(new HeartBeatRequest());
+            HeartBeatRequest commandBody = application.getCommandBodyWrapper().wrapper(new HeartBeatRequest());
 
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
             final boolean[] result = {false};
             final CountDownLatch latch = new CountDownLatch(1);
             try {
-                remotingClient.getNettyClient().invokeAsync(addr, request, remotingClient.getApplication().getConfig().getInvokeTimeoutMillis(), new InvokeCallback() {
+                remotingClient.getNettyClient().invokeAsync(addr, request, application.getConfig().getInvokeTimeoutMillis(), new InvokeCallback() {
                     @Override
                     public void operationComplete(ResponseFuture responseFuture) {
                         try {

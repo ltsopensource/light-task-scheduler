@@ -1,7 +1,9 @@
 package com.lts.job.client;
 
+import com.lts.job.client.domain.JobClientApplication;
 import com.lts.job.client.processor.RemotingDispatcher;
 import com.lts.job.client.support.JobFinishedHandler;
+import com.lts.job.core.Application;
 import com.lts.job.core.cluster.AbstractClientNode;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
@@ -13,7 +15,6 @@ import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
-import com.lts.job.core.util.JSONUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
@@ -30,7 +31,7 @@ import java.util.concurrent.CountDownLatch;
  * @author Robert HG (254963746@qq.com) on 7/25/14.
  *         任务客户端
  */
-public class JobClient<T extends JobClientNode> extends AbstractClientNode<JobClientNode> {
+public class JobClient<T extends JobClientNode, App extends Application> extends AbstractClientNode<JobClientNode, JobClientApplication> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("JobClient");
 
