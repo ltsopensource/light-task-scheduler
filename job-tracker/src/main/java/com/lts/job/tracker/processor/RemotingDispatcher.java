@@ -8,9 +8,9 @@ import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
-import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;

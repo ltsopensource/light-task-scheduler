@@ -2,8 +2,8 @@ package com.lts.job.task.tracker.runner;
 
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobInfoException;
-import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.domain.Response;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.logger.BizLoggerFactory;
 import com.lts.job.task.tracker.logger.BizLoggerImpl;
 import org.slf4j.Logger;

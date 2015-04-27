@@ -1,7 +1,7 @@
 package com.lts.job.core.cluster;
 
-import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.Application;
+import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

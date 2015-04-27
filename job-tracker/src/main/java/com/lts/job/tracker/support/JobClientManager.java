@@ -2,7 +2,6 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.loadbalance.ConsistentHashLoadBalance;
 import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.util.CollectionUtils;

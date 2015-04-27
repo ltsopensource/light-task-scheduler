@@ -1,9 +1,9 @@
 package com.lts.job.core.registry;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.listener.NodeChangeListener;
-import com.lts.job.core.Application;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.registry.zookeeper.ChildListener;
 import com.lts.job.registry.zookeeper.StateListener;

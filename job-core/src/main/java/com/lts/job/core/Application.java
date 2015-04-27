@@ -2,9 +2,9 @@ package com.lts.job.core;
 
 import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.NodeManager;
-import com.lts.job.core.registry.PathParser;
 import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
+import com.lts.job.core.registry.PathParser;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.

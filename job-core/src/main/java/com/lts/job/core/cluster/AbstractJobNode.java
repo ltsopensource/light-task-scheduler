@@ -1,14 +1,14 @@
 package com.lts.job.core.cluster;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.factory.NodeFactory;
 import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterNodeElectionListener;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.registry.Registry;
 import com.lts.job.core.registry.ZkNodeRegistry;
-import com.lts.job.core.Application;
-import com.lts.job.core.listener.MasterNodeElectionListener;
-import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.util.GenericsUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

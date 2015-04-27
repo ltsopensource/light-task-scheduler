@@ -6,6 +6,7 @@ import com.lts.job.queue.mongo.MongoJobLogger;
 import com.lts.job.queue.mongo.MongoJobQueue;
 import com.lts.job.queue.mongo.store.Config;
 import com.lts.job.tracker.JobTracker;
+import com.lts.job.tracker.support.policy.OldDataDeletePolicy;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
@@ -31,7 +32,7 @@ public class JobTrackerTest {
         jobTracker.setJobQueue(new MongoJobQueue(config));
         jobTracker.setJobFeedbackQueue(new MongoJobFeedbackQueue(config));
         jobTracker.setJobLogger(new MongoJobLogger(config));
-
+        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 启动节点
         jobTracker.start();
 

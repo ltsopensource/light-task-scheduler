@@ -1,12 +1,13 @@
 package com.lts.job.tracker.support.checker;
 
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.queue.JobFeedbackQueue;
-import com.lts.job.tracker.queue.JobFeedbackPo;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.tracker.domain.JobTrackerApplication;
+import com.lts.job.tracker.queue.JobFeedbackPo;
+import com.lts.job.tracker.queue.JobFeedbackQueue;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
+import com.lts.job.tracker.support.OldDataHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ public class FeedbackJobSendChecker {
     private volatile boolean start = false;
     private ClientNotifier clientNotifier;
     private JobFeedbackQueue jobFeedbackQueue;
+    private OldDataHandler oldDataHandler;
 
     /**
      * 是否已经启动
@@ -40,7 +42,6 @@ public class FeedbackJobSendChecker {
     }
 
     public FeedbackJobSendChecker(JobTrackerApplication application) {
-
         this.jobFeedbackQueue = application.getJobFeedbackQueue();
         clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
@@ -55,6 +56,7 @@ public class FeedbackJobSendChecker {
                 // do nothing
             }
         });
+        this.oldDataHandler = application.getOldDataHandler();
     }
 
     /**
@@ -86,7 +88,6 @@ public class FeedbackJobSendChecker {
         @Override
         public void run() {
             try {
-
                 long count = jobFeedbackQueue.count();
                 if (count == 0) {
                     return;
@@ -103,19 +104,22 @@ public class FeedbackJobSendChecker {
                     }
                     List<JobResult> jobResults = new ArrayList<JobResult>(jobFeedbackPos.size());
                     for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
-                        jobResults.add(jobFeedbackPo);
+                        // 判断是否是过时的数据，如果是，那么移除
+                        if (oldDataHandler == null ||
+                                (oldDataHandler != null && !oldDataHandler.handleJobFeedbackPo(jobFeedbackQueue, jobFeedbackPo, jobFeedbackPo))) {
+                            jobResults.add(jobFeedbackPo);
+                        }
                     }
                     // 返回发送成功的个数
                     int sentSize = clientNotifier.send(jobResults);
+
                     LOGGER.info("发送客户端: {}个成功, {}个失败.", sentSize, jobResults.size() - sentSize);
                     offset += (jobResults.size() - sentSize);
-                } while (jobFeedbackPos != null && jobFeedbackPos.size() > 0);
+                } while (jobFeedbackPos.size() > 0);
 
             } catch (Throwable t) {
                 LOGGER.error(t.getMessage(), t);
             }
         }
     }
-
-
 }

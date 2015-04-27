@@ -7,6 +7,7 @@ import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.tracker.queue.JobFeedbackQueue;
 import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.support.JobClientManager;
+import com.lts.job.tracker.support.OldDataHandler;
 import com.lts.job.tracker.support.TaskTrackerManager;
 import com.lts.job.tracker.support.checker.DeadJobChecker;
 
@@ -31,6 +32,8 @@ public class JobTrackerApplication extends Application {
     private JobFeedbackQueue jobFeedbackQueue;
     // 死任务检查器
     private DeadJobChecker deadJobChecker;
+    // 对老数据的处理(脏数据)
+    private OldDataHandler oldDataHandler;
 
     public JobFeedbackQueue getJobFeedbackQueue() {
         return jobFeedbackQueue;
@@ -94,5 +97,13 @@ public class JobTrackerApplication extends Application {
 
     public void setDeadJobChecker(DeadJobChecker deadJobChecker) {
         this.deadJobChecker = deadJobChecker;
+    }
+
+    public OldDataHandler getOldDataHandler() {
+        return oldDataHandler;
+    }
+
+    public void setOldDataHandler(OldDataHandler oldDataHandler) {
+        this.oldDataHandler = oldDataHandler;
     }
 }

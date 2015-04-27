@@ -4,31 +4,33 @@ import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.domain.LogType;
-import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.logger.domain.JobLogPo;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.tracker.queue.JobFeedbackPo;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.tracker.queue.JobFeedbackQueue;
-import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
+import com.lts.job.tracker.domain.JobTrackerApplication;
+import com.lts.job.tracker.logger.JobLogger;
+import com.lts.job.tracker.logger.domain.JobLogPo;
+import com.lts.job.tracker.queue.JobFeedbackPo;
+import com.lts.job.tracker.queue.JobFeedbackQueue;
 import com.lts.job.tracker.queue.JobPo;
+import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.support.ClientNotifier;
-import com.lts.job.tracker.support.JobDomainConverter;
 import com.lts.job.tracker.support.ClientNotifyHandler;
+import com.lts.job.tracker.support.JobDomainConverter;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
@@ -84,7 +86,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
         // 1. 检验参数
         if (CollectionUtils.isEmpty(jobResults)) {
-            RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(),
+            return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(),
                     "JobFinishedRequest.jobResults can not be empty!");
         }
 

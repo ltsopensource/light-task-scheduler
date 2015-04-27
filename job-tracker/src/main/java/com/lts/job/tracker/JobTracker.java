@@ -1,21 +1,22 @@
 package com.lts.job.tracker;
 
-import com.lts.job.core.cluster.*;
+import com.lts.job.core.cluster.AbstractServerNode;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.util.Assert;
-import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.logger.DefaultLogger;
-import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.queue.JobFeedbackQueue;
-import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.tracker.channel.ChannelManager;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.JobTrackerNode;
+import com.lts.job.tracker.logger.DefaultLogger;
+import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.tracker.processor.RemotingDispatcher;
+import com.lts.job.tracker.queue.JobFeedbackQueue;
+import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.support.JobClientManager;
+import com.lts.job.tracker.support.OldDataHandler;
+import com.lts.job.tracker.support.TaskTrackerManager;
 import com.lts.job.tracker.support.listener.JobNodeChangeListener;
 import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
-import com.lts.job.tracker.support.TaskTrackerManager;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/23/14.
@@ -77,5 +78,9 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
         application.setJobFeedbackQueue(jobFeedbackQueue);
+    }
+
+    public void setOldDataHandler(OldDataHandler oldDataHandler) {
+        application.setOldDataHandler(oldDataHandler);
     }
 }
