@@ -9,6 +9,8 @@ import com.lts.job.core.util.JSONUtils;
  */
 public class JobNodeConfig {
 
+    // 节点是否可用
+    private boolean available = true;
     // 应用节点组
     private String nodeGroup;
     // 唯一标识
@@ -97,11 +99,19 @@ public class JobNodeConfig {
     }
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
-        this.jobInfoSavePath = jobInfoSavePath  + "/.lts";
+        this.jobInfoSavePath = jobInfoSavePath + "/.lts";
     }
 
     public String getFilePath() {
         return jobInfoSavePath + "/" + nodeType + "/" + nodeGroup + "/";
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
+import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.remoting.netty.NettyClientConfig;
 import com.lts.job.remoting.netty.NettyRemotingClient;
@@ -38,7 +40,8 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
         if (defaultProcessor != null) {
 
             remotingClient.registerDefaultProcessor(defaultProcessor,
-                    Executors.newCachedThreadPool());
+                    Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2,
+                            new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
         }
     }
 

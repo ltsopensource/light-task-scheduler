@@ -59,6 +59,17 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     }
 
     @Override
+    protected void nodeEnable() {
+        // TODO
+
+    }
+
+    @Override
+    protected void nodeDisable() {
+        // TODO 节点被禁用
+    }
+
+    @Override
     protected NettyRequestProcessor getDefaultProcessor() {
         return new RemotingDispatcher(remotingServer, application);
     }

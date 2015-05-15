@@ -15,14 +15,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Robert HG (254963746@qq.com) on 6/22/14.
  *         节点管理 (主要用于管理自己关注的节点)
  */
-public class NodeManager {
+public class SubscribedNodeManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubscribedNodeManager.class);
     private final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
 
     private Application application;
 
-    public NodeManager(Application application) {
+    public SubscribedNodeManager(Application application) {
         this.application = application;
     }
 

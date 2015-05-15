@@ -77,6 +77,20 @@ public class RunnerPool {
         return threadPoolExecutor.getMaximumPoolSize() - threadPoolExecutor.getActiveCount();
     }
 
+    public void setMaximumPoolSize(int maximumPoolSize) {
+        if (maximumPoolSize == 0) {
+            throw new IllegalArgumentException("maximumPoolSize不能为0!");
+        }
+
+        int corePollSize = threadPoolExecutor.getCorePoolSize();
+        if (maximumPoolSize < corePollSize) {
+            threadPoolExecutor.setCorePoolSize(maximumPoolSize);
+        }
+        threadPoolExecutor.setMaximumPoolSize(maximumPoolSize);
+
+        LOGGER.info("maximumPoolSize更新为{}", maximumPoolSize);
+    }
+
     /**
      * 得到最大线程数
      *

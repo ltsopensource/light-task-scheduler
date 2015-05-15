@@ -1,8 +1,10 @@
 package com.lts.job.tracker.processor;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -28,7 +30,8 @@ public class JobPullProcessor extends AbstractProcessor {
     public JobPullProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
 
-        executor = Executors.newCachedThreadPool();
+        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2
+                , new NamedThreadFactory(JobPullProcessor.class.getSimpleName()));
         jobDistributor = new JobDistributor(application);
     }
 

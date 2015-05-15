@@ -15,7 +15,7 @@
         <module>job-client</module>
         <module>job-example</module>
         <module>job-extensions</module>
-        <!--<module>job-admin</module>-->
+        <module>job-admin</module>
     </modules>
 
     <dependencies>

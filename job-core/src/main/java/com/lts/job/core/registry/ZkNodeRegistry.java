@@ -90,7 +90,7 @@ public class ZkNodeRegistry implements Registry {
                     for (String child : children) {
                         Node listenedNode = zkPathParser.parse(listenNodePath + "/" + child);
                         listenedNodes.add(listenedNode);
-                        application.getNodeManager().addNode(listenedNode);
+                        application.getSubscribedNodeManager().addNode(listenedNode);
                     }
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
@@ -111,7 +111,7 @@ public class ZkNodeRegistry implements Registry {
             for (NodeType nodeType : listenNodeTypes) {
                 zkClient.removeChildListener(zkPathParser.getPath(nodeType), listener);
 
-                application.getNodeManager().destroy();
+                application.getSubscribedNodeManager().destroy();
             }
         }
     }
@@ -146,7 +146,7 @@ public class ZkNodeRegistry implements Registry {
                 for (String child : addChildren) {
                     Node node = zkPathParser.parse(path + "/" + child);
 
-                    application.getNodeManager().addNode(node);
+                    application.getSubscribedNodeManager().addNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
                             nodeChangeListener.addNode(node);
@@ -158,7 +158,7 @@ public class ZkNodeRegistry implements Registry {
             if (CollectionUtils.isNotEmpty(decChildren)) {
                 for (String child : decChildren) {
                     Node node = zkPathParser.parse(path + "/" + child);
-                    application.getNodeManager().removeNode(node);
+                    application.getSubscribedNodeManager().removeNode(node);
                     if (CollectionUtils.isNotEmpty(nodeChangeListeners)) {
                         for (NodeChangeListener nodeChangeListener : nodeChangeListeners) {
                             nodeChangeListener.removeNode(node);

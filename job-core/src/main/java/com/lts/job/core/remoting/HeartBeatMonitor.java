@@ -51,7 +51,7 @@ public class HeartBeatMonitor {
         @Override
         public void run() {
             try {
-                List<Node> jobTrackers = application.getNodeManager().getNodeList(NodeType.JOB_TRACKER);
+                List<Node> jobTrackers = application.getSubscribedNodeManager().getNodeList(NodeType.JOB_TRACKER);
                 if (jobTrackers == null) {
                     return;
                 }

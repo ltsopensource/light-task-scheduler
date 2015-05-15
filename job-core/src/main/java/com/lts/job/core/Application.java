@@ -1,8 +1,9 @@
 package com.lts.job.core;
 
 import com.lts.job.core.cluster.MasterElector;
-import com.lts.job.core.cluster.NodeManager;
+import com.lts.job.core.cluster.SubscribedNodeManager;
 import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.ec.EventCenter;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.registry.PathParser;
 
@@ -14,20 +15,22 @@ public abstract class Application {
 
     public Application() {
         this.commandBodyWrapper = new CommandBodyWrapper(this);
-        this.nodeManager = new NodeManager(this);
+        this.subscribedNodeManager = new SubscribedNodeManager(this);
         this.masterElector = new MasterElector(this);
     }
 
     // 节点配置信息
     private JobNodeConfig config;
     // 节点管理
-    private NodeManager nodeManager;
+    private SubscribedNodeManager subscribedNodeManager;
     // master节点选举者
     private MasterElector masterElector;
     // 节点通信CommandBody包装器
     private CommandBodyWrapper commandBodyWrapper;
     // 节点路径解析器
     private PathParser pathParser;
+    // 事件中心
+    private EventCenter eventCenter;
 
     public PathParser getPathParser() {
         return pathParser;
@@ -53,12 +56,12 @@ public abstract class Application {
         this.config = config;
     }
 
-    public NodeManager getNodeManager() {
-        return nodeManager;
+    public SubscribedNodeManager getSubscribedNodeManager() {
+        return subscribedNodeManager;
     }
 
-    public void setNodeManager(NodeManager nodeManager) {
-        this.nodeManager = nodeManager;
+    public void setSubscribedNodeManager(SubscribedNodeManager subscribedNodeManager) {
+        this.subscribedNodeManager = subscribedNodeManager;
     }
 
     public MasterElector getMasterElector() {
@@ -67,6 +70,14 @@ public abstract class Application {
 
     public void setMasterElector(MasterElector masterElector) {
         this.masterElector = masterElector;
+    }
+
+    public EventCenter getEventCenter() {
+        return eventCenter;
+    }
+
+    public void setEventCenter(EventCenter eventCenter) {
+        this.eventCenter = eventCenter;
     }
 
 }

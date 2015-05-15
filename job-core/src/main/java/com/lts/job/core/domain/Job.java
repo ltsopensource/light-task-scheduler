@@ -1,6 +1,7 @@
 package com.lts.job.core.domain;
 
 
+import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.util.JSONUtils;
 import com.lts.job.remoting.annotation.NotNull;
 
@@ -18,9 +19,8 @@ public class Job {
     /**
      * 优先级 (数值越大 优先级越低)
      */
-    protected Integer priority = 0;
+    protected Integer priority = 100;
     // 提交的节点 （可以手动指定）
-    @NotNull
     protected String submitNodeGroup;
     // 执行的节点
     @NotNull
@@ -135,5 +135,14 @@ public class Job {
     @Override
     public String toString() {
         return JSONUtils.toJSONString(this);
+    }
+
+    public void checkField() throws JobSubmitException {
+        if(taskId == null){
+            throw new JobSubmitException("taskId不能为空!");
+        }
+        if(taskTrackerNodeGroup == null){
+            throw new JobSubmitException("taskTrackerNodeGroup不能为空!");
+        }
     }
 }

@@ -1,12 +1,15 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
+import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.ec.*;
 import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.factory.NodeFactory;
 import com.lts.job.core.listener.MasterNodeChangeListener;
 import com.lts.job.core.listener.MasterNodeElectionListener;
 import com.lts.job.core.listener.NodeChangeListener;
+import com.lts.job.core.listener.SelfChangeListener;
 import com.lts.job.core.registry.Registry;
 import com.lts.job.core.registry.ZkNodeRegistry;
 import com.lts.job.core.util.GenericsUtils;
@@ -30,9 +33,13 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         application = getApplication();
         config = JobNodeConfigFactory.getDefaultConfig();
         application.setConfig(config);
+        // 事件中心
+        application.setEventCenter(new JvmEventCenter());
         this.registry = new ZkNodeRegistry(application);
         // 用于master选举的监听器
         addNodeChangeListener(new MasterNodeElectionListener(application));
+        // 监听自己节点变化（如，当前节点被禁用了）
+        addNodeChangeListener(new SelfChangeListener(application));
     }
 
     final public void start() {
@@ -41,6 +48,20 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
             config.setNodeType(node.getNodeType());
 
             LOGGER.info("当前节点配置:{}", config);
+
+            // 监听节点 启用/禁用消息
+            application.getEventCenter().subscribe(
+                    new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
+                    new EventSubscriber(node.getIdentity(), new Observer() {
+                        @Override
+                        public void onObserved(EventInfo eventInfo) {
+                            if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
+                                nodeDisable();
+                            } else {
+                                nodeEnable();
+                            }
+                        }
+                    }));
 
             innerStart();
 
@@ -68,6 +89,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     protected abstract void innerStart();
 
     protected abstract void innerStop();
+
+    protected abstract void nodeEnable();
+
+    protected abstract void nodeDisable();
 
     @SuppressWarnings("unchecked")
     private App getApplication() {
