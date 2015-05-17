@@ -1,13 +1,13 @@
 package com.lts.job.example.support;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
-public class MasterNodeChangeListenerImpl implements MasterNodeChangeListener {
+public class MasterChangeListenerImpl implements MasterChangeListener {
 
     /**
      * master 为 master节点

@@ -7,14 +7,11 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
- * 管理channel
+ *         管理channel
  */
 public class ChannelManager {
 
@@ -26,21 +23,35 @@ public class ChannelManager {
     // 用来定时检查已经关闭的channel
     private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
 
-    public ChannelManager() {
-        channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                checkCloseChannel(clientChannelMap);
-                if(LOGGER.isDebugEnabled()){
-                    LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
-                }
-                checkCloseChannel(taskTrackerChannelMap);
-                if(LOGGER.isDebugEnabled()){
-                    LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
-                }
+    private ScheduledFuture scheduledFuture;
 
-            }
-        }, 10, 30, TimeUnit.SECONDS);
+    public void start() {
+        try {
+            scheduledFuture = channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    checkCloseChannel(clientChannelMap);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
+                    }
+                    checkCloseChannel(taskTrackerChannelMap);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
+                    }
+
+                }
+            }, 10, 30, TimeUnit.SECONDS);
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
+    }
+
+    public void stop() {
+        try {
+            scheduledFuture.cancel(true);
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
     }
 
     /**
@@ -73,6 +84,7 @@ public class ChannelManager {
 
     /**
      * 根据 节点唯一编号得到 channel
+     *
      * @param nodeGroup
      * @param nodeType
      * @param identity

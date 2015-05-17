@@ -9,13 +9,13 @@
         <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
         <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
         <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="jobFinishedHandler">
             <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
         </property>
-        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
+        <property name="masterChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>

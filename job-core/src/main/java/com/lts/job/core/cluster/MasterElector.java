@@ -1,7 +1,7 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,22 +21,18 @@ public class MasterElector {
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterElector.class);
 
     private Application application;
-    private List<MasterNodeChangeListener> masterNodeChangeListenerList;
+    private List<MasterChangeListener> masterChangeListenerList;
     private volatile Node master;
 
     public MasterElector(Application application) {
         this.application = application;
     }
 
-    public void addMasterNodeChangeListener(MasterNodeChangeListener masterNodeChangeListener) {
-        if (masterNodeChangeListenerList == null) {
-            masterNodeChangeListenerList = new ArrayList<MasterNodeChangeListener>();
+    public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
+        if (masterChangeListenerList == null) {
+            masterChangeListenerList = new ArrayList<MasterChangeListener>();
         }
-        masterNodeChangeListenerList.add(masterNodeChangeListener);
-    }
-
-    public Node getMaster() {
-        return master;
+        masterChangeListenerList.add(masterChangeListener);
     }
 
     public void addNodes(List<Node> nodes) {
@@ -65,12 +61,18 @@ public class MasterElector {
         }
     }
 
-    public void removeNode(Node removedNode) {
-
+    public void removeNode(List<Node> removedNodes) {
         if (master != null) {
-            if (master.getIdentity().equals(removedNode.getIdentity())) {
+            boolean masterRemoved = false;
+            for (Node removedNode : removedNodes) {
+                if (master.getIdentity().equals(removedNode.getIdentity())) {
+                    masterRemoved = true;
+                }
+            }
+            if (masterRemoved) {
                 // 如果挂掉的是master, 需要重新选举
-                List<Node> nodes = application.getSubscribedNodeManager().getNodeList(application.getConfig().getNodeType(), application.getConfig().getNodeGroup());
+                List<Node> nodes = application.getSubscribedNodeManager().
+                        getNodeList(application.getConfig().getNodeType(), application.getConfig().getNodeGroup());
                 if (CollectionUtils.isNotEmpty(nodes)) {
                     Node newMaster = null;
                     for (Node node : nodes) {
@@ -92,19 +94,19 @@ public class MasterElector {
     private void notifyListener() {
         boolean isMaster = false;
         if (application.getConfig().getIdentity().equals(master.getIdentity())) {
-            LOGGER.info("Master节点变化为当前节点:{}", master.getPath());
+            LOGGER.info("Master节点变化为当前节点:{}", master);
             isMaster = true;
         } else {
-            LOGGER.info("Master节点为:{}", master.getPath());
+            LOGGER.info("Master节点为:{}", master);
             isMaster = false;
         }
 
-        if (masterNodeChangeListenerList != null) {
-            for (MasterNodeChangeListener masterNodeChangeListener : masterNodeChangeListenerList) {
+        if (masterChangeListenerList != null) {
+            for (MasterChangeListener masterChangeListener : masterChangeListenerList) {
                 try {
-                    masterNodeChangeListener.change(master, isMaster);
+                    masterChangeListener.change(master, isMaster);
                 } catch (Throwable t) {
-                    LOGGER.error("masterNodeChangeListener通知失败!", t);
+                    LOGGER.error("masterChangeListener通知失败!", t);
                 }
             }
         }

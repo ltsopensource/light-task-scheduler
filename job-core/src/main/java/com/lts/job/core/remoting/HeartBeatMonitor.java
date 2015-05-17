@@ -38,8 +38,7 @@ public class HeartBeatMonitor {
 
     public void start() {
         HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
-                new HeartBeat(), 5, 30, TimeUnit.SECONDS);      // 30s 一次心跳
-
+                new HeartBeat(), 3, 30, TimeUnit.SECONDS);      // 30s 一次心跳
     }
 
     public void stop() {

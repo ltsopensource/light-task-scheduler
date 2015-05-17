@@ -1,8 +1,8 @@
-package com.lts.job.registry.zookeeper.zkclient;
+package com.lts.job.zookeeper.zkclient;
 
-import com.lts.job.registry.zookeeper.ChildListener;
-import com.lts.job.registry.zookeeper.StateListener;
-import com.lts.job.registry.zookeeper.support.AbstractZookeeperClient;
+import com.lts.job.zookeeper.ChildListener;
+import com.lts.job.zookeeper.StateListener;
+import com.lts.job.zookeeper.support.AbstractZookeeperClient;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -27,6 +27,7 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
     public ZkClientZookeeperClient(String address) {
         zkClient = new ZkClient(address, connectionTimeout);
         zkClient.subscribeStateChanges(new IZkStateListener() {
+
             @Override
             public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
                 ZkClientZookeeperClient.this.state = state;
@@ -121,11 +122,12 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
     }
 
     @Override
-    public void delete(String path) {
+    public boolean delete(String path) {
         try {
-            zkClient.delete(path);
+            return zkClient.delete(path);
         } catch (ZkNoNodeException e) {
         }
+        return false;
     }
 
     @Override
@@ -140,6 +142,11 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
     @Override
     public <T> T getData(String path) {
         return zkClient.readData(path);
+    }
+
+    @Override
+    public void setData(String path, Object data) {
+        zkClient.writeData(path, data);
     }
 
     @Override

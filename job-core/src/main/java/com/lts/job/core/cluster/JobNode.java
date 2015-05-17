@@ -16,4 +16,8 @@ public interface JobNode {
      */
     public void stop();
 
+    /**
+     * destroy
+     */
+    public void destroy();
 }

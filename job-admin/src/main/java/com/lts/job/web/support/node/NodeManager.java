@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by hugui on 5/11/15.
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public interface NodeManager {
 

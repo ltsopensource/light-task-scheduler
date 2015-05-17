@@ -55,7 +55,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ```java
     final JobTracker jobTracker = new JobTracker();
     // 节点信息配置
-    jobTracker.setZookeeperAddress("localhost:2181");
+    jobTracker.setRegistryAddress("zookeeper://localhost:2181");
     // jobTracker.setListenPort(35001); // 默认 35001
     // jobTracker.setClusterName("lts");
 
@@ -93,11 +93,11 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>--> <!-- 集群名称 -->
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="storeConfig" ref="mongoConfig"/>
-        <property name="masterNodeChangeListeners">
+        <property name="masterChangeListeners">
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>
@@ -108,7 +108,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     TaskTracker taskTracker = new TaskTracker();
     taskTracker.setJobRunnerClass(TestJobRunner.class);
     // jobClient.setClusterName("lts");
-    taskTracker.setZookeeperAddress("localhost:2181");
+    taskTracker.setRegistryAddress("zookeeper://localhost:2181");
     taskTracker.setNodeGroup("test_trade_TaskTracker");
     taskTracker.setWorkThreads(20);
     taskTracker.start();
@@ -136,12 +136,12 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
         <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->
-        <property name="masterNodeChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
+        <property name="masterChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>
@@ -153,7 +153,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     // JobClient jobClient = new JobClient();
     jobClient.setNodeGroup("test_JobClient");
     // jobClient.setClusterName("lts");
-    jobClient.setZookeeperAddress("localhost:2181");
+    jobClient.setRegistryAddress("zookeeper://localhost:2181");
     jobClient.start();
 
     // 提交任务
@@ -170,13 +170,13 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
         <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
         <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
         <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="jobFinishedHandler">
             <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
         </property>
-        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
+        <property name="masterChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>

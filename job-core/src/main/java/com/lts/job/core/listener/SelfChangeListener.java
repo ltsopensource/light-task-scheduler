@@ -5,6 +5,7 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.ec.EventCenter;
 import com.lts.job.ec.EventInfo;
 
@@ -12,7 +13,8 @@ import java.util.List;
 
 /**
  * 用来监听自己的节点信息变化
- * Created by hugui on 5/11/15.
+ *
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class SelfChangeListener implements NodeChangeListener {
 
@@ -24,8 +26,8 @@ public class SelfChangeListener implements NodeChangeListener {
         this.eventCenter = application.getEventCenter();
     }
 
-    @Override
-    public void addNode(Node node) {
+
+    private void change(Node node) {
         if (node.getIdentity().equals(config.getIdentity())) {
             // 是当前节点, 看看节点配置是否发生变化
             // 1. 看 threads 有没有改变 , 目前只有 TASK_TRACKER 对 threads起作用
@@ -45,12 +47,17 @@ public class SelfChangeListener implements NodeChangeListener {
     }
 
     @Override
-    public void removeNode(Node node) {
-        // do nothing
+    public void addNodes(List<Node> nodes) {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return;
+        }
+        for (Node node : nodes) {
+            change(node);
+        }
     }
 
     @Override
-    public void addNodes(List<Node> nodes) {
-        // do nothing
+    public void removeNodes(List<Node> nodes) {
+
     }
 }

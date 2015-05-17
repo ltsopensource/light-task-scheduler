@@ -1,4 +1,4 @@
-package com.lts.job.registry.zookeeper;
+package com.lts.job.zookeeper;
 
 import java.util.List;
 

@@ -2,7 +2,7 @@ package com.lts.job.ec;
 
 /**
  * 事件订阅者
- * Created by hugui on 5/11/15.
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class EventSubscriber {
 

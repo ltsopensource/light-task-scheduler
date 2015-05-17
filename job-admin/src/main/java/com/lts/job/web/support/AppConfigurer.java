@@ -3,7 +3,7 @@ package com.lts.job.web.support;
 import java.util.*;
 
 /**
- * Created by hugui on 5/11/15.
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class AppConfigurer {
 

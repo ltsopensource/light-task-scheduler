@@ -1,7 +1,7 @@
 package com.lts.job.core.constant;
 
 /**
- * Created by hugui on 5/11/15.
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public interface EcTopic {
 

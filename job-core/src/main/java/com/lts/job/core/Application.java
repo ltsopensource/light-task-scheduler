@@ -3,21 +3,14 @@ package com.lts.job.core;
 import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.SubscribedNodeManager;
 import com.lts.job.core.domain.JobNodeConfig;
-import com.lts.job.ec.EventCenter;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
-import com.lts.job.core.registry.PathParser;
+import com.lts.job.ec.EventCenter;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
  *         用来存储 程序的数据
  */
 public abstract class Application {
-
-    public Application() {
-        this.commandBodyWrapper = new CommandBodyWrapper(this);
-        this.subscribedNodeManager = new SubscribedNodeManager(this);
-        this.masterElector = new MasterElector(this);
-    }
 
     // 节点配置信息
     private JobNodeConfig config;
@@ -27,18 +20,8 @@ public abstract class Application {
     private MasterElector masterElector;
     // 节点通信CommandBody包装器
     private CommandBodyWrapper commandBodyWrapper;
-    // 节点路径解析器
-    private PathParser pathParser;
     // 事件中心
     private EventCenter eventCenter;
-
-    public PathParser getPathParser() {
-        return pathParser;
-    }
-
-    public void setPathParser(PathParser pathParser) {
-        this.pathParser = pathParser;
-    }
 
     public CommandBodyWrapper getCommandBodyWrapper() {
         return commandBodyWrapper;

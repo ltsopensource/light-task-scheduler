@@ -29,13 +29,13 @@
     <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="jobQueue" ref="mongoJobQueue"/>
         <property name="jobFeedbackQueue" ref="mongoJobFeedbackQueue"/>
         <property name="jobLogger" ref="mongoJobLogger"/>
-        <property name="masterNodeChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
+        <property name="masterChangeListeners"><!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>

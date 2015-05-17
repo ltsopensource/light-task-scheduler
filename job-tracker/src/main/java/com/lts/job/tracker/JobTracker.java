@@ -26,10 +26,8 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     public JobTracker() {
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
         config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
-    }
-
-    @Override
-    protected void innerStart() {
+        // 添加节点变化监听器
+        addNodeChangeListener(new JobNodeChangeListener(application));
         // channel 管理者
         ChannelManager channelManager = new ChannelManager();
         application.setChannelManager(channelManager);
@@ -37,8 +35,13 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setJobClientManager(new JobClientManager(channelManager));
         // TaskTracker 管理者
         application.setTaskTrackerManager(new TaskTrackerManager(channelManager));
-        // 添加节点变化监听器
-        addNodeChangeListener(new JobNodeChangeListener(application));
+    }
+
+    @Override
+    protected void innerStart() {
+
+        application.getChannelManager().start();
+
         // 设置默认 logger (如果没有设置的话)
         JobLogger jobLogger = application.getJobLogger();
         if (jobLogger == null) {
@@ -51,11 +54,17 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         Assert.notNull(jobFeedbackQueue, "jobFeedbackQueue can not be null");
 
         // 添加master节点变化监听器
-        addMasterNodeChangeListener(new JobTrackerMasterChangeListener(application));
+        addMasterChangeListener(new JobTrackerMasterChangeListener(application));
         // 启动节点
         super.innerStart();
         // 设置 remotingServer, 其他地方要用这个
         application.setRemotingServer(remotingServer);
+    }
+
+    @Override
+    protected void innerStop() {
+        super.innerStop();
+        application.getChannelManager().start();
     }
 
     @Override

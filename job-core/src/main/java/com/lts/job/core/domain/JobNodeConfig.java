@@ -3,6 +3,9 @@ package com.lts.job.core.domain;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.util.JSONUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Robert HG (254963746@qq.com) on 8/20/14.
  *         任务节点配置
@@ -19,8 +22,8 @@ public class JobNodeConfig {
     private int workThreads;
     // 节点类型
     private NodeType nodeType;
-    // zookeeper 地址
-    private String zookeeperAddress;
+    // 注册中心 地址
+    private String registryAddress;
     // 远程连接超时时间
     private int invokeTimeoutMillis;
     // 监听端口
@@ -29,6 +32,8 @@ public class JobNodeConfig {
     private String jobInfoSavePath;
     // 集群名字
     private String clusterName;
+
+    private final Map<String, Object> parameters = new HashMap<String, Object>();
 
     public String getClusterName() {
         return clusterName;
@@ -70,12 +75,12 @@ public class JobNodeConfig {
         this.nodeType = nodeType;
     }
 
-    public String getZookeeperAddress() {
-        return zookeeperAddress;
+    public String getRegistryAddress() {
+        return registryAddress;
     }
 
-    public void setZookeeperAddress(String zookeeperAddress) {
-        this.zookeeperAddress = zookeeperAddress;
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 
     public int getInvokeTimeoutMillis() {
@@ -112,6 +117,22 @@ public class JobNodeConfig {
 
     public void setAvailable(boolean available) {
         this.available = available;
+    }
+
+    public void setParameter(String key, String value) {
+        parameters.put(key, value);
+    }
+
+    public <T> T getParameter(String key) {
+        return (T)parameters.get(key);
+    }
+
+    public <T> T getParameter(String key, T defaultValue) {
+        Object value = parameters.get(key);
+        if (value == null) {
+            return defaultValue;
+        }
+        return (T)value;
     }
 
     @Override

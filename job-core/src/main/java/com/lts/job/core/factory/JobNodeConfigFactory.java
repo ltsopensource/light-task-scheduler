@@ -14,7 +14,7 @@ public class JobNodeConfigFactory {
         config.setIdentity(StringUtils.generateUUID());
         config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
         config.setNodeGroup("lts");
-        config.setZookeeperAddress("localhost:2181");
+        config.setRegistryAddress("zookeeper://localhost:2181");
         config.setInvokeTimeoutMillis(1000 * 6);
         config.setListenPort(0);
         config.setJobInfoSavePath(Constants.USER_HOME);

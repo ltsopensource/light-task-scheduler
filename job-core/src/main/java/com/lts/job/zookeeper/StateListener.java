@@ -1,4 +1,4 @@
-package com.lts.job.registry.zookeeper;
+package com.lts.job.zookeeper;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.

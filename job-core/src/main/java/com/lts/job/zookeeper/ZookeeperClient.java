@@ -1,4 +1,4 @@
-package com.lts.job.registry.zookeeper;
+package com.lts.job.zookeeper;
 
 import java.util.List;
 
@@ -11,11 +11,13 @@ public interface ZookeeperClient {
 
     String create(String path, Object data, boolean ephemeral, boolean sequential);
 
-    void delete(String path);
+    boolean delete(String path);
 
     boolean exists(String path);
 
     <T> T getData(String path);
+
+    void setData(String path, Object data);
 
     List<String> getChildren(String path);
 

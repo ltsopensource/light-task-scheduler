@@ -34,7 +34,8 @@ public class TaskTrackerManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = channelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+        ChannelWrapper channel = channelManager.getChannel(node.getGroup(),
+                node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
 
         synchronized (NODE_MAP) {
@@ -44,7 +45,8 @@ public class TaskTrackerManager {
             }
         }
 
-        TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(), node.getThreads(), node.getIdentity(), channel);
+        TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(),
+                node.getThreads(), node.getIdentity(), channel);
         LOGGER.info("添加TaskTracker节点:{}", taskTrackerNode);
         taskTrackerNodes.add(taskTrackerNode);
     }
@@ -74,14 +76,15 @@ public class TaskTrackerManager {
             if (taskTrackerNode.getIdentity().equals(identity)) {
                 if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
                     // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-                    ChannelWrapper channel = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
+                    ChannelWrapper channel = channelManager.getChannel(
+                            taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
                     if (channel != null) {
                         // 更新channel
                         taskTrackerNode.setChannel(channel);
                         LOGGER.info("更新节点channel , taskTackerNode={}", taskTrackerNode);
                         return taskTrackerNode;
                     }
-                }else{
+                } else {
                     // 只有当channel正常的时候才返回
                     return taskTrackerNode;
                 }
@@ -98,13 +101,18 @@ public class TaskTrackerManager {
      * @param availableThreads
      * @param timestamp        时间戳, 只有当 时间戳大于上次更新的时间 才更新可用线程数
      */
-    public void updateTaskTrackerAvailableThreads(String nodeGroup, String identity, Integer availableThreads, Long timestamp) {
+    public void updateTaskTrackerAvailableThreads(
+            String nodeGroup,
+            String identity,
+            Integer availableThreads,
+            Long timestamp) {
 
         ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
 
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             for (TaskTrackerNode trackerNode : taskTrackerNodes) {
-                if (trackerNode.getIdentity().equals(identity) && trackerNode.getTimestamp() <= timestamp) {
+                if (trackerNode.getIdentity().equals(identity)
+                        && trackerNode.getTimestamp() <= timestamp) {
                     trackerNode.setAvailableThread(availableThreads);
                     trackerNode.setTimestamp(timestamp);
                     if (LOGGER.isDebugEnabled()) {

@@ -1,6 +1,6 @@
 package com.lts.job.spring;
 
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.tracker.JobTracker;
@@ -31,11 +31,11 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
     /**
      * zookeeper地址
      */
-    private String zookeeperAddress;
+    private String registryAddress;
     /**
      * master节点变化监听器
      */
-    private MasterNodeChangeListener[] masterNodeChangeListeners;
+    private MasterChangeListener[] masterChangeListeners;
 
     private JobLogger jobLogger;
 
@@ -67,7 +67,7 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
     }
 
     public void checkProperties() {
-        Assert.hasText(zookeeperAddress, "zookeeperAddress必须设值!");
+        Assert.hasText(registryAddress, "registryAddress必须设值!");
         if (listenPort != null && listenPort <= 0) {
             listenPort = null;
         }
@@ -83,13 +83,13 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
         if (StringUtils.hasText(clusterName)) {
             jobTracker.setClusterName(clusterName);
         }
-        jobTracker.setZookeeperAddress(zookeeperAddress);
+        jobTracker.setRegistryAddress(registryAddress);
         if (listenPort != null) {
             jobTracker.setListenPort(listenPort);
         }
-        if (masterNodeChangeListeners != null) {
-            for (MasterNodeChangeListener masterNodeChangeListener : masterNodeChangeListeners) {
-                jobTracker.addMasterNodeChangeListener(masterNodeChangeListener);
+        if (masterChangeListeners != null) {
+            for (MasterChangeListener masterChangeListener : masterChangeListeners) {
+                jobTracker.addMasterChangeListener(masterChangeListener);
             }
         }
         jobTracker.setJobLogger(jobLogger);
@@ -112,12 +112,12 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>, Initializ
         this.listenPort = listenPort;
     }
 
-    public void setZookeeperAddress(String zookeeperAddress) {
-        this.zookeeperAddress = zookeeperAddress;
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 
-    public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
-        this.masterNodeChangeListeners = masterNodeChangeListeners;
+    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+        this.masterChangeListeners = masterChangeListeners;
     }
 
     public void setJobLogger(JobLogger jobLogger) {

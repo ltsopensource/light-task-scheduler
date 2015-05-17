@@ -1,12 +1,14 @@
 package com.lts.job.remoting.netty;
 
+import com.lts.job.core.constant.Constants;
+
 /**
  * Netty客户端配置类
  */
 public class NettyClientConfig {
     // 处理Server Response/Request
     private int clientWorkerThreads = 4;
-    private int clientCallbackExecutorThreads = Runtime.getRuntime().availableProcessors();
+    private int clientCallbackExecutorThreads = Constants.AVAILABLE_PROCESSOR;
     private int clientSelectorThreads = 1;
     private int clientOnewaySemaphoreValue = 256;
     private int clientAsyncSemaphoreValue = 128;

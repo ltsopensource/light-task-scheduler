@@ -24,4 +24,28 @@ public interface Constants {
     // 默认TaskTracker节点组
     public static final String DEFAULT_NODE_TASK_TRACKER_GROUP = "taskTrackerGroup";
 
+    public static final String CHARSET = "utf-8";
+
+    public static final int DEFAULT_TIMEOUT = 1000;
+
+    public static final String TIMEOUT_KEY = "timeout";
+
+    public static final String SESSION_TIMEOUT_KEY = "session";
+
+    public static final int DEFAULT_SESSION_TIMEOUT = 60 * 1000;
+
+    public static final String REGISTER = "register";
+
+    public static final String UNREGISTER = "unregister";
+
+    /**
+     * 注册中心失败事件重试事件
+     */
+    public static final String REGISTRY_RETRY_PERIOD_KEY = "retry.period";
+
+    /**
+     * 重试周期
+     */
+    public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 5 * 1000;
+
 }

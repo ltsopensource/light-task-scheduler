@@ -2,10 +2,10 @@ package com.lts.job.web.support.node;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
-import com.lts.job.core.registry.ZkNodeUtils;
+import com.lts.job.core.registry.NodeRegistryUtils;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.registry.zookeeper.ZookeeperClient;
-import com.lts.job.registry.zookeeper.zkclient.ZkClientZookeeperClient;
+import com.lts.job.zookeeper.ZookeeperClient;
+import com.lts.job.zookeeper.zkclient.ZkClientZookeeperClient;
 import com.lts.job.web.support.AppConfigurer;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by hugui on 5/11/15.
+ * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class ZkNodeManager implements NodeManager {
 
@@ -26,7 +26,7 @@ public class ZkNodeManager implements NodeManager {
 
     @Override
     public Map<NodeType, List<Node>> getAllNodes(String clusterName) {
-        String basePath = ZkNodeUtils.getBasePath(clusterName);
+        String basePath = NodeRegistryUtils.getRootPath(clusterName);
         List<String> nodeTypes = zkClient.getChildren(basePath);
         Map<NodeType, List<Node>> nodeMap = new HashMap<NodeType, List<Node>>();
         if (CollectionUtils.isNotEmpty(nodeTypes)) {
@@ -35,7 +35,7 @@ public class ZkNodeManager implements NodeManager {
                 if (CollectionUtils.isEmpty(nodes)) {
                     List<Node> nodeList = new ArrayList<Node>(nodes.size());
                     for (String node : nodes) {
-                        nodeList.add(ZkNodeUtils.parse(clusterName, node));
+                        nodeList.add(NodeRegistryUtils.parse(clusterName, node));
                     }
                     nodeMap.put(NodeType.valueOf(nodeType), nodeList);
                 }
@@ -59,4 +59,8 @@ public class ZkNodeManager implements NodeManager {
 
     }
 
+    public static void main(String[] args) {
+
+
+    }
 }

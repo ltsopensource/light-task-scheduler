@@ -1,9 +1,9 @@
-package com.lts.job.registry.zookeeper.support;
+package com.lts.job.zookeeper.support;
 
 
-import com.lts.job.registry.zookeeper.ChildListener;
-import com.lts.job.registry.zookeeper.StateListener;
-import com.lts.job.registry.zookeeper.ZookeeperClient;
+import com.lts.job.zookeeper.ChildListener;
+import com.lts.job.zookeeper.StateListener;
+import com.lts.job.zookeeper.ZookeeperClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,12 +10,4 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>job-core</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.fusesource.leveldbjni</groupId>
-            <artifactId>leveldbjni-all</artifactId>
-            <version>1.8</version>
-        </dependency>
-    </dependencies>
 </project>

@@ -8,12 +8,12 @@
     <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
-        <property name="zookeeperAddress" value="localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://localhost:2181"/>
         <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
         <property name="workThreads" value="16"/>    <!-- 工作线程个数 -->
-        <property name="masterNodeChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
+        <property name="masterChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
             <array>
-                <bean class="com.lts.job.example.support.MasterNodeChangeListenerImpl"/>
+                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
             </array>
         </property>
     </bean>
