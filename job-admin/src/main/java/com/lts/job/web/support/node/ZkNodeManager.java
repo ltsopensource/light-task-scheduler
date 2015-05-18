@@ -35,7 +35,7 @@ public class ZkNodeManager implements NodeManager {
                 if (CollectionUtils.isEmpty(nodes)) {
                     List<Node> nodeList = new ArrayList<Node>(nodes.size());
                     for (String node : nodes) {
-                        nodeList.add(NodeRegistryUtils.parse(clusterName, node));
+                        nodeList.add(NodeRegistryUtils.parse(node));
                     }
                     nodeMap.put(NodeType.valueOf(nodeType), nodeList);
                 }

@@ -10,9 +10,9 @@ import com.lts.job.core.cluster.NodeType;
 public class JobClientNode extends Node {
 
     public JobClientNode() {
-        this.setNodeType(NodeType.CLIENT);
+        this.setNodeType(NodeType.JOB_CLIENT);
         this.addListenNodeType(NodeType.JOB_TRACKER);
-        this.addListenNodeType(NodeType.CLIENT);
+        this.addListenNodeType(NodeType.JOB_CLIENT);
     }
 
 }

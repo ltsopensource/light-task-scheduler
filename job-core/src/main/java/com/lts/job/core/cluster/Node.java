@@ -127,14 +127,14 @@ public class Node {
     @Override
     public String toString() {
         return "Node{" +
-                ", isAvailable=" + isAvailable +
+                "identity='" + identity + '\'' +
                 ", nodeType=" + nodeType +
                 ", ip='" + ip + '\'' +
                 ", port=" + port +
                 ", group='" + group + '\'' +
                 ", createTime=" + createTime +
                 ", threads=" + threads +
-                ", identity='" + identity + '\'' +
+                ", isAvailable=" + isAvailable +
                 ", listenNodeTypes=" + listenNodeTypes +
                 '}';
     }

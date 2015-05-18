@@ -99,7 +99,7 @@ public class JobClientManager {
             JobClientNode jobClientNode = loadBalance.select(application.getConfig(), list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
-                ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());
+                ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);

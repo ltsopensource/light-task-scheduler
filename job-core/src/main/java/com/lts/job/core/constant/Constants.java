@@ -51,4 +51,12 @@ public interface Constants {
     public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 5 * 1000;
 
     public static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
+
+    /**
+     * 注册中心自动重连时间
+     */
+    public static final String  REGISTRY_RECONNECT_PERIOD_KEY      = "reconnect.period";
+
+    public static final int     DEFAULT_REGISTRY_RECONNECT_PERIOD  = 3 * 1000;
+
 }

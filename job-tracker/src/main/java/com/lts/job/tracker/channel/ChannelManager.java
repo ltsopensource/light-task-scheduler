@@ -74,7 +74,7 @@ public class ChannelManager {
     }
 
     public List<ChannelWrapper> getChannels(String nodeGroup, NodeType nodeType) {
-        if (nodeType == NodeType.CLIENT) {
+        if (nodeType == NodeType.JOB_CLIENT) {
             return clientChannelMap.get(nodeGroup);
         } else if (nodeType == NodeType.TASK_TRACKER) {
             return taskTrackerChannelMap.get(nodeGroup);
@@ -113,7 +113,7 @@ public class ChannelManager {
         List<ChannelWrapper> channels = getChannels(nodeGroup, nodeType);
         if (channels == null) {
             channels = new ArrayList<ChannelWrapper>();
-            if (nodeType == NodeType.CLIENT) {
+            if (nodeType == NodeType.JOB_CLIENT) {
                 clientChannelMap.put(nodeGroup, channels);
             } else if (nodeType == NodeType.TASK_TRACKER) {
                 taskTrackerChannelMap.put(nodeGroup, channels);

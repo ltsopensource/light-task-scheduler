@@ -26,7 +26,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private ZookeeperClient zkClient;
     // 用来记录父节点下的子节点的变化
-    private final ConcurrentHashMap<String/*parentPath*/, List<String/*children*/>> childrenNodeMap;
+    private final ConcurrentHashMap<String/*parentPath*/, List<String/*children*/>> cachedChildrenNodeMap;
 
     private final ConcurrentMap<Node, ConcurrentMap<NotifyListener, ChildListener>> zkListeners;
 
@@ -35,10 +35,9 @@ public class ZookeeperRegistry extends FailbackRegistry {
     public ZookeeperRegistry(Application application) {
         super(application);
         this.clusterName = application.getConfig().getClusterName();
-        this.childrenNodeMap = new ConcurrentHashMap<String, List<String>>();
+        this.cachedChildrenNodeMap = new ConcurrentHashMap<String, List<String>>();
 
-        String address = application.getConfig().getRegistryAddress().replace("zookeeper://", "");
-        this.zkClient = new ZkClientZookeeperClient(address);
+        this.zkClient = new ZkClientZookeeperClient(application.getConfig().getRegistryAddress());
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
         zkClient.addStateListener(new StateListener() {
             @Override
@@ -81,18 +80,16 @@ public class ZookeeperRegistry extends FailbackRegistry {
             ChildListener zkListener = addZkListener(node, listener);
 
             // 为自己关注的 节点 添加监听
-            zkClient.addChildListener(listenNodePath, zkListener);
+            List<String> children = zkClient.addChildListener(listenNodePath, zkListener);
 
-            // 将自己关注的 节点类型加入到节点管理中去
-            List<String> children = zkClient.getChildren(listenNodePath);
             if (CollectionUtils.isNotEmpty(children)) {
                 List<Node> listenedNodes = new ArrayList<Node>();
                 for (String child : children) {
-                    Node listenedNode = NodeRegistryUtils.parse(clusterName, listenNodePath + "/" + child);
+                    Node listenedNode = NodeRegistryUtils.parse(listenNodePath + "/" + child);
                     listenedNodes.add(listenedNode);
                 }
                 notify(NotifyEvent.ADD, listenedNodes, listener);
-                childrenNodeMap.put(listenNodePath, children);
+                cachedChildrenNodeMap.put(listenNodePath, children);
             }
         }
     }
@@ -129,7 +126,8 @@ public class ZookeeperRegistry extends FailbackRegistry {
             listeners.putIfAbsent(listener, new ChildListener() {
 
                 public void childChanged(String parentPath, List<String> currentChilds) {
-                    List<String> oldChilds = childrenNodeMap.get(parentPath);
+
+                    List<String> oldChilds = cachedChildrenNodeMap.get(parentPath);
                     // 1. 找出增加的 节点
                     List<String> addChilds = CollectionUtils.getLeftDiff(currentChilds, oldChilds);
                     // 2. 找出减少的 节点
@@ -139,7 +137,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
                         List<Node> nodes = new ArrayList<Node>(addChilds.size());
                         for (String child : addChilds) {
-                            Node node = NodeRegistryUtils.parse(clusterName, parentPath + "/" + child);
+                            Node node = NodeRegistryUtils.parse(parentPath + "/" + child);
                             nodes.add(node);
                         }
                         ZookeeperRegistry.this.notify(NotifyEvent.ADD, nodes, listener);
@@ -148,12 +146,12 @@ public class ZookeeperRegistry extends FailbackRegistry {
                     if (CollectionUtils.isNotEmpty(decChilds)) {
                         List<Node> nodes = new ArrayList<Node>(addChilds.size());
                         for (String child : decChilds) {
-                            Node node = NodeRegistryUtils.parse(clusterName, parentPath + "/" + child);
+                            Node node = NodeRegistryUtils.parse(parentPath + "/" + child);
                             nodes.add(node);
                         }
                         ZookeeperRegistry.this.notify(NotifyEvent.REMOVE, nodes, listener);
                     }
-                    childrenNodeMap.put(parentPath, currentChilds);
+                    cachedChildrenNodeMap.put(parentPath, currentChilds);
                 }
             });
             zkListener = listeners.get(listener);

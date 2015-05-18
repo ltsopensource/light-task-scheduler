@@ -13,9 +13,10 @@ public class TaskTrackerTest {
     public static void main(String[] args) {
         final TaskTracker taskTracker = new TaskTracker();
         taskTracker.setJobRunnerClass(TestJobRunner.class);
-        taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+//        taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        taskTracker.setRegistryAddress("redis://127.0.0.1:6379");
         taskTracker.setNodeGroup("test_trade_TaskTracker");
-//        taskTracker.setClusterName("lts");
+        taskTracker.setClusterName("test_cluster");
         taskTracker.setWorkThreads(20);
 //        taskTracker.setJobInfoSavePath(Constants.USER_HOME);
         taskTracker.addMasterChangeListener(new MasterChangeListenerImpl());

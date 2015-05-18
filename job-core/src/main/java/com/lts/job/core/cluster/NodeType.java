@@ -10,5 +10,5 @@ public enum NodeType {
     // task tracker
     TASK_TRACKER,
     // client
-    CLIENT
+    JOB_CLIENT
 }

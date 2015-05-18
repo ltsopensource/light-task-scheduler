@@ -55,8 +55,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
             node = NodeFactory.create(getNodeClass(), config);
             config.setNodeType(node.getNodeType());
 
-            initRegistry();
-
             LOGGER.info("当前节点配置:{}", config);
 
             // 监听节点 启用/禁用消息
@@ -74,6 +72,8 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                     }));
 
             innerStart();
+
+            initRegistry();
 
             registry.register(node);
 
@@ -107,7 +107,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     private void initRegistry() {
         registry = RegistryFactory.getRegistry(application);
-        ((AbstractRegistry) registry).setNode(node);
+        if (registry instanceof AbstractRegistry) {
+            ((AbstractRegistry) registry).setNode(node);
+        }
         // 订阅的node管理
         SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
         application.setSubscribedNodeManager(subscribedNodeManager);

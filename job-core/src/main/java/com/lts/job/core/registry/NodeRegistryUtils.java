@@ -2,13 +2,16 @@ package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.util.NetUtils;
+import com.lts.job.core.util.StringUtils;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  *         <p/>
+ *         /LTS/{集群名字}/NODES/TASK_TRACKER/TASK_TRACKER:\\192.168.0.150:8888?group=TASK_TRACKER&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
+ *         /LTS/{集群名字}/NODES/JOB_CLIENT/JOB_CLIENT:\\192.168.0.150:8888?group=JOB_CLIENT&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
  *         /LTS/{集群名字}/NODES/JOB_TRACKER/JOB_TRACKER:\\192.168.0.150:8888?group=JOB_TRACKER&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
  *         <p/>
  */
@@ -22,13 +25,14 @@ public class NodeRegistryUtils {
         return NodeRegistryUtils.getRootPath(clusterName) + "/" + nodeType;
     }
 
-    public static Node parse(String clusterName, String fullPath) {
+    public static Node parse(String fullPath) {
         Node node = new Node();
-        String nodeType = getMatcher(getRootPath(clusterName) + "/(.*)/", fullPath);
-        node.setNodeType(NodeType.valueOf(nodeType));
+        String[] nodeDir = fullPath.split("/");
+        NodeType nodeType = NodeType.valueOf(nodeDir[4]);
+        node.setNodeType(nodeType);
+        String url = nodeDir[5];
 
-        String url = getMatcher(getRootPath(clusterName) + "/" + nodeType + "/" + nodeType + ":\\\\\\\\(.*)", fullPath);
-
+        url = url.substring(nodeType.name().length() + 3);
         String address = url.split("\\?")[0];
         String ip = address.split(":")[0];
 
@@ -56,11 +60,6 @@ public class NodeRegistryUtils {
                 node.setCreateTime(Long.valueOf(value));
             } else if ("isAvailable".equals(key)) {
                 node.setAvailable(Boolean.valueOf(value));
-            } else if ("listenNodeTypes".equals(key)) {
-                String[] nodeTypes = value.split(",");
-                for (String type : nodeTypes) {
-                    node.addListenNodeType(NodeType.valueOf(type));
-                }
             }
         }
         return node;
@@ -68,6 +67,7 @@ public class NodeRegistryUtils {
 
     public static String getFullPath(String clusterName, Node node) {
         StringBuilder path = new StringBuilder();
+
         path.append(getRootPath(clusterName))
                 .append("/")
                 .append(node.getNodeType())
@@ -95,22 +95,27 @@ public class NodeRegistryUtils {
                 .append("&isAvailable=")
                 .append(node.isAvailable());
 
-        if (node.getListenNodeTypes() != null && node.getListenNodeTypes().size() != 0) {
-            path.append("&listenNodeTypes=");
-            for (NodeType nodeType : node.getListenNodeTypes()) {
-                path.append(nodeType).append(",");
-            }
-            path.deleteCharAt(path.length() - 1);
-        }
         return path.toString();
     }
 
-    private static String getMatcher(String regex, String source) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(source);
-        while (matcher.find()) {
-            return matcher.group(1);//只取第一组
-        }
-        return "";
+    public static void main(String[] args) {
+        Node node = new Node();
+        node.setGroup("group1");
+        node.setIdentity(StringUtils.generateUUID());
+        node.setThreads(222);
+        node.setNodeType(NodeType.JOB_TRACKER);
+        node.setCreateTime(new Date().getTime());
+        node.setPort(2313);
+        node.setIp(NetUtils.getLocalHost());
+        String fullPath = NodeRegistryUtils.getFullPath("lts", node);
+        System.out.println(fullPath);
+
+        node = NodeRegistryUtils.parse(fullPath);
+        node.setNodeType(NodeType.JOB_CLIENT);
+        fullPath = NodeRegistryUtils.getFullPath("lts", node);
+        System.out.println(fullPath);
+
+        node = NodeRegistryUtils.parse(fullPath);
+        System.out.println(node);
     }
 }

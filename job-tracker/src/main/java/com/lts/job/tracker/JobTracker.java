@@ -24,8 +24,6 @@ import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
     public JobTracker() {
-
-        config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
         config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
@@ -112,4 +110,6 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     public void setOldDataHandler(OldDataHandler oldDataHandler) {
         application.setOldDataHandler(oldDataHandler);
     }
+
+
 }

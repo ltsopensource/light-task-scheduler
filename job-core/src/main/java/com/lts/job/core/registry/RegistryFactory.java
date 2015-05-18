@@ -16,8 +16,14 @@ public class RegistryFactory {
             throw new IllegalArgumentException("address is null！");
         }
         if (address.startsWith("zookeeper://")) {
+            application.getConfig().setRegistryAddress(
+                    address.replace("zookeeper://", "")
+            );
             return new ZookeeperRegistry(application);
         } else if (address.startsWith("redis://")) {
+            application.getConfig().setRegistryAddress(
+                    address.replace("redis://", "")
+            );
             return new RedisRegistry(application);
         }
         throw new IllegalArgumentException("illegal address protocol");
