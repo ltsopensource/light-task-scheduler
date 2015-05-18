@@ -1,7 +1,9 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.remoting.netty.NettyRemotingServer;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.netty.NettyServerConfig;
@@ -30,7 +32,7 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
         if (defaultProcessor != null) {
 
             remotingServer.registerDefaultProcessor(defaultProcessor,
-                    Executors.newCachedThreadPool());
+                    Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
         }
     }
 

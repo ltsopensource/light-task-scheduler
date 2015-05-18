@@ -5,7 +5,7 @@ import com.lts.job.tracker.queue.JobFeedbackQueue;
 import com.lts.job.tracker.support.OldDataHandler;
 
 /**
- * Created by hugui on 3/30/15.
+ * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
 public class OldDataDeletePolicy implements OldDataHandler {
 

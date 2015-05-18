@@ -14,7 +14,7 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 8/14/14.
  *         重试 客户端, 如果 没有可用的JobTracker, 那么存文件, 定时重试
  */
-public class RetryJobClient extends JobClient<JobClientNode, JobClientApplication>{
+public class RetryJobClient extends JobClient<JobClientNode, JobClientApplication> {
 
     private RetryScheduler retryScheduler;
 

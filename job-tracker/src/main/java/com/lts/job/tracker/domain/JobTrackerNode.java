@@ -11,7 +11,7 @@ public class JobTrackerNode extends Node {
 
     public JobTrackerNode() {
         this.setNodeType(NodeType.JOB_TRACKER);
-        this.addListenNodeType(NodeType.CLIENT);
+        this.addListenNodeType(NodeType.JOB_CLIENT);
         this.addListenNodeType(NodeType.TASK_TRACKER);
         this.addListenNodeType(NodeType.JOB_TRACKER);
     }

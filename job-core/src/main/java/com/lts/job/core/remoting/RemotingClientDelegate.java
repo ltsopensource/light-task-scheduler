@@ -3,6 +3,7 @@ package com.lts.job.core.remoting;
 import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
@@ -33,10 +34,10 @@ public class RemotingClientDelegate {
     private boolean serverEnable = false;
     private List<Node> jobTrackers;
 
-    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application, LoadBalance loadBalance) {
+    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application) {
         this.remotingClient = remotingClient;
         this.application = application;
-        this.loadBalance = loadBalance;
+        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
         this.jobTrackers = new CopyOnWriteArrayList<Node>();
     }
 
@@ -44,7 +45,7 @@ public class RemotingClientDelegate {
         if (jobTrackers.size() == 0) {
             throw new JobTrackerNotFoundException("no available jobTracker!");
         }
-        return loadBalance.select(jobTrackers, application.getConfig().getIdentity());
+        return loadBalance.select(application.getConfig(), jobTrackers, application.getConfig().getIdentity());
     }
 
     public void start() {

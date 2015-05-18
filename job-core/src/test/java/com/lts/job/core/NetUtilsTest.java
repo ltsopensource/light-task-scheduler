@@ -12,7 +12,7 @@ public class NetUtilsTest {
     public void test() {
         System.out.println(NetUtils.getAvailablePort());
 
-        System.out.println(NetUtils.getIpByHost("localhost"));
+        System.out.println(NetUtils.getIpByHost("127.0.0.1"));
 
         System.out.println(NetUtils.getLocalAddress());
 

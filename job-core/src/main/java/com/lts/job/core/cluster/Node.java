@@ -5,12 +5,10 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.
- * 节点
+ *         节点
  */
 public class Node {
 
-    // 节点路径(zookeeper 上的路径)
-    private String path;
     // 是否可用
     private boolean isAvailable = true;
 
@@ -26,14 +24,6 @@ public class Node {
 
     // 自己关注的节点类型
     private List<NodeType> listenNodeTypes;
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
 
     public boolean isAvailable() {
         return isAvailable;
@@ -117,18 +107,17 @@ public class Node {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Node)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Node node = (Node) o;
 
-        if (!identity.equals(node.identity)) return false;
+        return !(identity != null ? !identity.equals(node.identity) : node.identity != null);
 
-        return true;
     }
 
     @Override
     public int hashCode() {
-        return path != null ? path.hashCode() : 0;
+        return identity != null ? identity.hashCode() : 0;
     }
 
     public String getAddress() {
@@ -138,15 +127,14 @@ public class Node {
     @Override
     public String toString() {
         return "Node{" +
-                "path='" + path + '\'' +
-                ", isAvailable=" + isAvailable +
+                "identity='" + identity + '\'' +
                 ", nodeType=" + nodeType +
                 ", ip='" + ip + '\'' +
                 ", port=" + port +
                 ", group='" + group + '\'' +
                 ", createTime=" + createTime +
                 ", threads=" + threads +
-                ", identity='" + identity + '\'' +
+                ", isAvailable=" + isAvailable +
                 ", listenNodeTypes=" + listenNodeTypes +
                 '}';
     }

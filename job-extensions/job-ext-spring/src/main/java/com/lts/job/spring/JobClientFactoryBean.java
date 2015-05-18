@@ -3,7 +3,7 @@ package com.lts.job.spring;
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.support.JobFinishedHandler;
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import org.springframework.beans.factory.DisposableBean;
@@ -32,7 +32,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
     /**
      * zookeeper地址
      */
-    private String zookeeperAddress;
+    private String registryAddress;
     /**
      * 任务完成处理器
      */
@@ -44,7 +44,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
     /**
      * master节点变化监听器
      */
-    private MasterNodeChangeListener[] masterNodeChangeListeners;
+    private MasterChangeListener[] masterChangeListeners;
 
     public void setClientType(String type) {
         if (type == null) {
@@ -88,7 +88,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
             clientType = JobClientType.NORMAL;
         }
         Assert.hasText(nodeGroup, "nodeGroup必须设值!");
-        Assert.hasText(zookeeperAddress, "zookeeperAddress必须设值!");
+        Assert.hasText(registryAddress, "registryAddress必须设值!");
     }
 
     @Override
@@ -109,11 +109,11 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
         if (jobFinishedHandler != null) {
             jobClient.setJobFinishedHandler(jobFinishedHandler);
         }
-        jobClient.setZookeeperAddress(zookeeperAddress);
+        jobClient.setRegistryAddress(registryAddress);
 
-        if (masterNodeChangeListeners != null) {
-            for (MasterNodeChangeListener masterNodeChangeListener : masterNodeChangeListeners) {
-                jobClient.addMasterNodeChangeListener(masterNodeChangeListener);
+        if (masterChangeListeners != null) {
+            for (MasterChangeListener masterChangeListener : masterChangeListeners) {
+                jobClient.addMasterChangeListener(masterChangeListener);
             }
         }
     }
@@ -133,8 +133,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
         this.nodeGroup = nodeGroup;
     }
 
-    public void setZookeeperAddress(String zookeeperAddress) {
-        this.zookeeperAddress = zookeeperAddress;
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 
     public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
@@ -145,8 +145,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
         this.jobInfoSavePath = jobInfoSavePath;
     }
 
-    public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
-        this.masterNodeChangeListeners = masterNodeChangeListeners;
+    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+        this.masterChangeListeners = masterChangeListeners;
     }
 }
 

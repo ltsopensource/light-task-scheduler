@@ -15,8 +15,18 @@
         <module>job-client</module>
         <module>job-example</module>
         <module>job-extensions</module>
-        <!--<module>job-admin</module>-->
+        <module>job-admin</module>
     </modules>
+
+    <properties>
+        <jedis.version>2.1.0</jedis.version>
+        <fastjson.version>1.1.41</fastjson.version>
+        <leveldbjni.version>1.8</leveldbjni.version>
+        <curator.version>1.1.10</curator.version>
+        <zkclient.version>0.1</zkclient.version>
+        <zk.version>3.4.5</zk.version>
+        <javassist.version>3.19.0-GA</javassist.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -33,7 +43,7 @@
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
-            <version>3.4.5</version>
+            <version>${zk.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.jboss.netty</groupId>
@@ -48,12 +58,29 @@
         <dependency>
             <groupId>com.github.sgroschupf</groupId>
             <artifactId>zkclient</artifactId>
-            <version>0.1</version>
+            <version>${zkclient.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator.version}</version>
+            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>${jedis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.leveldbjni</groupId>
+            <artifactId>leveldbjni-all</artifactId>
+            <version>${leveldbjni.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.1.41</version>
+            <version>${fastjson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -65,6 +92,12 @@
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>

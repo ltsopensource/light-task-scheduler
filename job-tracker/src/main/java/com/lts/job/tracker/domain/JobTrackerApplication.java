@@ -66,7 +66,6 @@ public class JobTrackerApplication extends Application {
     public void setChannelManager(ChannelManager channelManager) {
         this.channelManager = channelManager;
     }
-
     public JobClientManager getJobClientManager() {
         return jobClientManager;
     }

@@ -3,7 +3,7 @@ package com.lts.job.tracker.logger.domain;
 import com.lts.job.core.constant.Level;
 
 /**
- * Created by hugui on 3/30/15.
+ * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
 public class BizLogPo {
 

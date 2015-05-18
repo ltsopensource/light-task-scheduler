@@ -1,7 +1,7 @@
 package com.lts.job.tracker.support.listener;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.checker.DeadJobChecker;
 import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
@@ -10,7 +10,7 @@ import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
  * @author Robert HG (254963746@qq.com) on 8/24/14.
  *         JobTracker master 节点变化之后
  */
-public class JobTrackerMasterChangeListener implements MasterNodeChangeListener {
+public class JobTrackerMasterChangeListener implements MasterChangeListener {
 
     private JobTrackerApplication application;
     private DeadJobChecker deadJobChecker;

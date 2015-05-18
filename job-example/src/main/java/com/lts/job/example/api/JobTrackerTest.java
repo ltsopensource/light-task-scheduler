@@ -1,6 +1,6 @@
 package com.lts.job.example.api;
 
-import com.lts.job.example.support.MasterNodeChangeListenerImpl;
+import com.lts.job.example.support.MasterChangeListenerImpl;
 import com.lts.job.queue.mongo.MongoJobFeedbackQueue;
 import com.lts.job.queue.mongo.MongoJobLogger;
 import com.lts.job.queue.mongo.MongoJobQueue;
@@ -17,15 +17,16 @@ public class JobTrackerTest {
 
         final JobTracker jobTracker = new JobTracker();
         // 节点信息配置
-        jobTracker.setZookeeperAddress("localhost:2181");
+//        jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
         jobTracker.setListenPort(35002); // 默认 35001
-//        jobTracker.setClusterName("lts");
+        jobTracker.setClusterName("test_cluster");
 
-        jobTracker.addMasterNodeChangeListener(new MasterNodeChangeListenerImpl());
+        jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
         // mongo 配置
         Config config = new Config();
-        config.setAddresses(new String[]{"localhost:27017"});
+        config.setAddresses(new String[]{"127.0.0.1:27017"});
         config.setUsername("lts");
         config.setPassword("lts");
         config.setDbName("job");

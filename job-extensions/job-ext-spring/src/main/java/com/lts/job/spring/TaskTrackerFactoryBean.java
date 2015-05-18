@@ -1,6 +1,6 @@
 package com.lts.job.spring;
 
-import com.lts.job.core.listener.MasterNodeChangeListener;
+import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.util.Assert;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.task.tracker.TaskTracker;
@@ -37,7 +37,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
     /**
      * zookeeper地址
      */
-    private String zookeeperAddress;
+    private String registryAddress;
     /**
      * 提交失败任务存储路径 , 默认用户木邻居
      */
@@ -53,7 +53,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
     /**
      * master节点变化监听器
      */
-    private MasterNodeChangeListener[] masterNodeChangeListeners;
+    private MasterChangeListener[] masterChangeListeners;
 
     @Override
     public TaskTracker getObject() throws Exception {
@@ -80,7 +80,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
 
     public void checkProperties() {
         Assert.hasText(nodeGroup, "nodeGroup必须设值!");
-        Assert.hasText(zookeeperAddress, "zookeeperAddress必须设值!");
+        Assert.hasText(registryAddress, "registryAddress必须设值!");
         Assert.isTrue(workThreads > 0, "workThreads必须大于0!");
         Assert.notNull(jobRunnerClass, "jobRunnerClass不能为空");
         Assert.isAssignable(JobRunner.class, jobRunnerClass,
@@ -100,14 +100,14 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         taskTracker.setJobInfoSavePath(jobInfoSavePath);
         taskTracker.setWorkThreads(workThreads);
         taskTracker.setNodeGroup(nodeGroup);
-        taskTracker.setZookeeperAddress(zookeeperAddress);
+        taskTracker.setRegistryAddress(registryAddress);
         taskTracker.setJobRunnerClass(jobRunnerClass);
 
         registerRunnerBeanDefinition();
 
-        if (masterNodeChangeListeners != null) {
-            for (MasterNodeChangeListener masterNodeChangeListener : masterNodeChangeListeners) {
-                taskTracker.addMasterNodeChangeListener(masterNodeChangeListener);
+        if (masterChangeListeners != null) {
+            for (MasterChangeListener masterChangeListener : masterChangeListeners) {
+                taskTracker.addMasterChangeListener(masterChangeListener);
             }
         }
     }
@@ -142,16 +142,16 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         this.nodeGroup = nodeGroup;
     }
 
-    public void setZookeeperAddress(String zookeeperAddress) {
-        this.zookeeperAddress = zookeeperAddress;
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 
     public void setJobInfoSavePath(String jobInfoSavePath) {
         this.jobInfoSavePath = jobInfoSavePath;
     }
 
-    public void setMasterNodeChangeListeners(MasterNodeChangeListener[] masterNodeChangeListeners) {
-        this.masterNodeChangeListeners = masterNodeChangeListeners;
+    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+        this.masterChangeListeners = masterChangeListeners;
     }
 
     public void setJobRunnerClass(Class jobRunnerClass) {

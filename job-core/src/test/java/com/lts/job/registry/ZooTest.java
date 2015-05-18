@@ -1,8 +1,8 @@
 package com.lts.job.registry;
 
-import com.lts.job.registry.zookeeper.ChildListener;
-import com.lts.job.registry.zookeeper.ZookeeperClient;
-import com.lts.job.registry.zookeeper.zkclient.ZkClientZookeeperClient;
+import com.lts.job.zookeeper.ChildListener;
+import com.lts.job.zookeeper.ZookeeperClient;
+import com.lts.job.zookeeper.zkclient.ZkClientZookeeperClient;
 import org.junit.Test;
 
 import java.io.IOException;

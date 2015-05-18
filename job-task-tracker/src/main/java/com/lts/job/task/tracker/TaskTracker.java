@@ -2,7 +2,11 @@ package com.lts.job.task.tracker;
 
 import com.lts.job.core.cluster.AbstractClientNode;
 import com.lts.job.core.constant.Constants;
+import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.constant.Level;
+import com.lts.job.ec.EventInfo;
+import com.lts.job.ec.EventSubscriber;
+import com.lts.job.ec.Observer;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.domain.TaskTrackerNode;
@@ -26,6 +30,18 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void innerStart() {
+        // 向事件中心注册事件
+        application.getEventCenter().subscribe(
+                EcTopic.WORK_THREAD_CHANGE,
+                new EventSubscriber(node.getIdentity(), new Observer() {
+            @Override
+            public void onObserved(EventInfo eventInfo) {
+                // 改变工作线程大小
+                int threads = config.getWorkThreads();
+                application.getRunnerPool().setMaximumPoolSize(threads);
+            }
+        }));
+        // 设置 线程池
         application.setRunnerPool(new RunnerPool(application));
         super.innerStart();
         application.setRemotingClient(remotingClient);
@@ -37,6 +53,16 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     protected void innerStop() {
         super.innerStop();
         jobPullMachine.stop();
+    }
+
+    @Override
+    protected void nodeEnable() {
+        // TODO
+    }
+
+    @Override
+    protected void nodeDisable() {
+        // TODO
     }
 
     @Override

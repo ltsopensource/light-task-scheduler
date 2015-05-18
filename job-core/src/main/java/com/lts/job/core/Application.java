@@ -1,10 +1,10 @@
 package com.lts.job.core;
 
 import com.lts.job.core.cluster.MasterElector;
-import com.lts.job.core.cluster.NodeManager;
-import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.cluster.SubscribedNodeManager;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
-import com.lts.job.core.registry.PathParser;
+import com.lts.job.ec.EventCenter;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
@@ -12,30 +12,16 @@ import com.lts.job.core.registry.PathParser;
  */
 public abstract class Application {
 
-    public Application() {
-        this.commandBodyWrapper = new CommandBodyWrapper(this);
-        this.nodeManager = new NodeManager(this);
-        this.masterElector = new MasterElector(this);
-    }
-
     // 节点配置信息
-    private JobNodeConfig config;
+    private Config config;
     // 节点管理
-    private NodeManager nodeManager;
+    private SubscribedNodeManager subscribedNodeManager;
     // master节点选举者
     private MasterElector masterElector;
     // 节点通信CommandBody包装器
     private CommandBodyWrapper commandBodyWrapper;
-    // 节点路径解析器
-    private PathParser pathParser;
-
-    public PathParser getPathParser() {
-        return pathParser;
-    }
-
-    public void setPathParser(PathParser pathParser) {
-        this.pathParser = pathParser;
-    }
+    // 事件中心
+    private EventCenter eventCenter;
 
     public CommandBodyWrapper getCommandBodyWrapper() {
         return commandBodyWrapper;
@@ -45,20 +31,20 @@ public abstract class Application {
         this.commandBodyWrapper = commandBodyWrapper;
     }
 
-    public JobNodeConfig getConfig() {
+    public Config getConfig() {
         return config;
     }
 
-    public void setConfig(JobNodeConfig config) {
+    public void setConfig(Config config) {
         this.config = config;
     }
 
-    public NodeManager getNodeManager() {
-        return nodeManager;
+    public SubscribedNodeManager getSubscribedNodeManager() {
+        return subscribedNodeManager;
     }
 
-    public void setNodeManager(NodeManager nodeManager) {
-        this.nodeManager = nodeManager;
+    public void setSubscribedNodeManager(SubscribedNodeManager subscribedNodeManager) {
+        this.subscribedNodeManager = subscribedNodeManager;
     }
 
     public MasterElector getMasterElector() {
@@ -67,6 +53,14 @@ public abstract class Application {
 
     public void setMasterElector(MasterElector masterElector) {
         this.masterElector = masterElector;
+    }
+
+    public EventCenter getEventCenter() {
+        return eventCenter;
+    }
+
+    public void setEventCenter(EventCenter eventCenter) {
+        this.eventCenter = eventCenter;
     }
 
 }

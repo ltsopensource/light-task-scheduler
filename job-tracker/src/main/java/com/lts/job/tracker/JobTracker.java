@@ -24,21 +24,23 @@ import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
     public JobTracker() {
-        config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
         config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
-    }
-
-    @Override
-    protected void innerStart() {
+        // 添加节点变化监听器
+        addNodeChangeListener(new JobNodeChangeListener(application));
         // channel 管理者
         ChannelManager channelManager = new ChannelManager();
         application.setChannelManager(channelManager);
         // JobClient 管理者
-        application.setJobClientManager(new JobClientManager(channelManager));
+        application.setJobClientManager(new JobClientManager(application));
         // TaskTracker 管理者
-        application.setTaskTrackerManager(new TaskTrackerManager(channelManager));
-        // 添加节点变化监听器
-        addNodeChangeListener(new JobNodeChangeListener(application));
+        application.setTaskTrackerManager(new TaskTrackerManager(application));
+    }
+
+    @Override
+    protected void innerStart() {
+
+        application.getChannelManager().start();
+
         // 设置默认 logger (如果没有设置的话)
         JobLogger jobLogger = application.getJobLogger();
         if (jobLogger == null) {
@@ -51,11 +53,28 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         Assert.notNull(jobFeedbackQueue, "jobFeedbackQueue can not be null");
 
         // 添加master节点变化监听器
-        addMasterNodeChangeListener(new JobTrackerMasterChangeListener(application));
+        addMasterChangeListener(new JobTrackerMasterChangeListener(application));
         // 启动节点
         super.innerStart();
         // 设置 remotingServer, 其他地方要用这个
         application.setRemotingServer(remotingServer);
+    }
+
+    @Override
+    protected void innerStop() {
+        super.innerStop();
+        application.getChannelManager().start();
+    }
+
+    @Override
+    protected void nodeEnable() {
+        // TODO
+
+    }
+
+    @Override
+    protected void nodeDisable() {
+        // TODO 节点被禁用
     }
 
     @Override
@@ -80,7 +99,17 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setJobFeedbackQueue(jobFeedbackQueue);
     }
 
+    /**
+     * 设置反馈数据给JobClient的负载均衡算法
+     * @param loadBalance
+     */
+    public void setLoadBalance(String loadBalance) {
+        config.setParameter("loadbalance", loadBalance);
+    }
+
     public void setOldDataHandler(OldDataHandler oldDataHandler) {
         application.setOldDataHandler(oldDataHandler);
     }
+
+
 }

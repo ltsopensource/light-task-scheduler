@@ -1,7 +1,7 @@
 package com.lts.job.core.factory;
 
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.StringUtils;
 
 /**
@@ -9,12 +9,12 @@ import com.lts.job.core.util.StringUtils;
  */
 public class JobNodeConfigFactory {
 
-    public static JobNodeConfig getDefaultConfig() {
-        JobNodeConfig config = new JobNodeConfig();
+    public static Config getDefaultConfig() {
+        Config config = new Config();
         config.setIdentity(StringUtils.generateUUID());
         config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
         config.setNodeGroup("lts");
-        config.setZookeeperAddress("localhost:2181");
+        config.setRegistryAddress("zookeeper://127.0.0.1:2181");
         config.setInvokeTimeoutMillis(1000 * 6);
         config.setListenPort(0);
         config.setJobInfoSavePath(Constants.USER_HOME);

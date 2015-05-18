@@ -10,11 +10,13 @@ import com.lts.job.core.Application;
 import com.lts.job.core.cluster.AbstractClientNode;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
+import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
@@ -44,6 +46,16 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_CLIENT_GROUP);
     }
 
+    @Override
+    protected void nodeEnable() {
+        // TODO
+    }
+
+    @Override
+    protected void nodeDisable() {
+        // TODO
+    }
+
     /**
      * @param job
      * @return
@@ -53,6 +65,17 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     }
 
     protected Response _submitJob(final List<Job> jobs) {
+        // 参数验证
+        if (CollectionUtils.isEmpty(jobs)) {
+            throw new JobSubmitException("提交任务不能为空!");
+        }
+        for (Job job : jobs) {
+            if (job == null) {
+                throw new JobSubmitException("提交任务不能为空!");
+            } else {
+                job.checkField();
+            }
+        }
 
         final Response response = new Response();
 

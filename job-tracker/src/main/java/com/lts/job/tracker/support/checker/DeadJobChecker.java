@@ -81,7 +81,7 @@ public class DeadJobChecker {
                     // 一般来说这个是没有多大的，我就不分页去查询了
                     List<JobPo> jobPos = jobQueue.getByLimitExecTime(MAX_DEAD_CHECK_TIME);
                     if (jobPos != null && jobPos.size() > 0) {
-                        List<Node> nodes = application.getNodeManager().getNodeList(NodeType.TASK_TRACKER);
+                        List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.TASK_TRACKER);
                         HashSet<String/*identity*/> identities = new HashSet<String>();
                         if (CollectionUtils.isNotEmpty(nodes)) {
                             for (Node node : nodes) {

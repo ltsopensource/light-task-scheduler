@@ -1,11 +1,10 @@
 package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.listener.NodeChangeListener;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.
- * 节点注册接口
+ *         节点注册接口
  */
 public interface Registry {
 
@@ -24,11 +23,22 @@ public interface Registry {
     void unregister(Node node);
 
     /**
-     * 添加节点变化监听器
+     * 监听节点
+     *
      * @param listener
      */
-    void addNodeChangeListener(NodeChangeListener listener);
+    void subscribe(Node node, NotifyListener listener);
 
+    /**
+     * 取消监听节点
+     *
+     * @param node
+     * @param listener
+     */
+    void unsubscribe(Node node, NotifyListener listener);
+
+    /**
+     * 销毁
+     */
     void destroy();
-
 }

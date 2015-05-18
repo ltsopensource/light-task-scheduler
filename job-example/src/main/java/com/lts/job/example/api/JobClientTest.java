@@ -4,7 +4,7 @@ import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.example.support.BaseJobClientTest;
 import com.lts.job.example.support.JobFinishedHandlerImpl;
-import com.lts.job.example.support.MasterNodeChangeListenerImpl;
+import com.lts.job.example.support.MasterChangeListenerImpl;
 
 import java.io.IOException;
 
@@ -18,12 +18,15 @@ public class JobClientTest extends BaseJobClientTest {
         JobClient jobClient = new RetryJobClient();
 //      final JobClient jobClient = new JobClient();
         jobClient.setNodeGroup("test_jobClient");
-//        jobClient.setClusterName("lts");
-        jobClient.setZookeeperAddress("localhost:2181");
+        jobClient.setClusterName("test_cluster");
+//        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
 //        jobClient.setJobInfoSavePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
-        jobClient.addMasterNodeChangeListener(new MasterNodeChangeListenerImpl());
+        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+        jobClient.setLoadBalance("consistenthash");
+        jobClient.setJobInfoSavePath("xx");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();
