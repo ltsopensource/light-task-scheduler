@@ -8,7 +8,7 @@
     <bean id="mongoConfig" class="com.lts.job.queue.mongo.store.Config">
         <property name="addresses">
             <array>
-                <value>localhost:27017</value>
+                <value>127.0.0.1:27017</value>
             </array>
         </property>
         <property name="username" value="lts"/>
@@ -29,7 +29,7 @@
     <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
-        <property name="registryAddress" value="zookeeper://localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="jobQueue" ref="mongoJobQueue"/>
         <property name="jobFeedbackQueue" ref="mongoJobFeedbackQueue"/>
         <property name="jobLogger" ref="mongoJobLogger"/>

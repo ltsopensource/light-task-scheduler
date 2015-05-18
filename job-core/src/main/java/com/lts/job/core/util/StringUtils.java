@@ -3,6 +3,9 @@ package com.lts.job.core.util;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  */
@@ -73,5 +76,44 @@ public class StringUtils {
     public static String format(String format, Object...args){
         FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
         return ft.getMessage();
+    }
+
+    /**
+     *
+     * @param e
+     * @return string
+     */
+    public static String toString(Throwable e) {
+        StringWriter w = new StringWriter();
+        PrintWriter p = new PrintWriter(w);
+        p.print(e.getClass().getName());
+        if (e.getMessage() != null) {
+            p.print(": " + e.getMessage());
+        }
+        p.println();
+        try {
+            e.printStackTrace(p);
+            return w.toString();
+        } finally {
+            p.close();
+        }
+    }
+
+    /**
+     *
+     * @param msg
+     * @param e
+     * @return string
+     */
+    public static String toString(String msg, Throwable e) {
+        StringWriter w = new StringWriter();
+        w.write(msg + "\n");
+        PrintWriter p = new PrintWriter(w);
+        try {
+            e.printStackTrace(p);
+            return w.toString();
+        } finally {
+            p.close();
+        }
     }
 }

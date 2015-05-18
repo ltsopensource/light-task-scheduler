@@ -42,7 +42,7 @@ class Thread_readFile extends Thread {
     public void run() {
         try {
             Long start = System.currentTimeMillis();
-            File file = new File("/Users/hugui/.dubbo/dubbo-registry-localhost.cache");
+            File file = new File("/Users/hugui/.dubbo/dubbo-registry-127.0.0.1.cache");
 
             //给该文件加锁
             RandomAccessFile fis = new RandomAccessFile(file, "rw");

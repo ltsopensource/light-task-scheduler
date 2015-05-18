@@ -2,7 +2,7 @@ package com.lts.job.core;
 
 import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.SubscribedNodeManager;
-import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.ec.EventCenter;
 
@@ -13,7 +13,7 @@ import com.lts.job.ec.EventCenter;
 public abstract class Application {
 
     // 节点配置信息
-    private JobNodeConfig config;
+    private Config config;
     // 节点管理
     private SubscribedNodeManager subscribedNodeManager;
     // master节点选举者
@@ -31,11 +31,11 @@ public abstract class Application {
         this.commandBodyWrapper = commandBodyWrapper;
     }
 
-    public JobNodeConfig getConfig() {
+    public Config getConfig() {
         return config;
     }
 
-    public void setConfig(JobNodeConfig config) {
+    public void setConfig(Config config) {
         this.config = config;
     }
 

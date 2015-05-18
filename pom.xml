@@ -25,6 +25,7 @@
         <curator.version>1.1.10</curator.version>
         <zkclient.version>0.1</zkclient.version>
         <zk.version>3.4.5</zk.version>
+        <javassist.version>3.19.0-GA</javassist.version>
     </properties>
 
     <dependencies>
@@ -64,7 +65,7 @@
             <groupId>com.netflix.curator</groupId>
             <artifactId>curator-framework</artifactId>
             <version>${curator.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -90,6 +91,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.6.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
         </dependency>
 
     </dependencies>

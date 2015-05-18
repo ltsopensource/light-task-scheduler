@@ -1,6 +1,8 @@
 package com.lts.job.core.constant;
 
 
+import java.util.regex.Pattern;
+
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  *         一些配置常量
@@ -48,4 +50,5 @@ public interface Constants {
      */
     public static final int DEFAULT_REGISTRY_RETRY_PERIOD = 5 * 1000;
 
+    public static final Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
 }

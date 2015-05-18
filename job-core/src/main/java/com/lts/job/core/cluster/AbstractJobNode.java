@@ -2,7 +2,6 @@ package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.constant.EcTopic;
-import com.lts.job.core.domain.JobNodeConfig;
 import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.factory.NodeFactory;
 import com.lts.job.core.listener.MasterChangeListener;
@@ -33,7 +32,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     protected Registry registry;
     protected T node;
-    protected JobNodeConfig config;
+    protected Config config;
     protected App application;
     private List<NodeChangeListener> nodeChangeListeners;
 
@@ -50,6 +49,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     final public void start() {
         try {
+            // 初始化配置
+            initConfig();
+
             node = NodeFactory.create(getNodeClass(), config);
             config.setNodeType(node.getNodeType());
 
@@ -145,6 +147,11 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 }
             }
         });
+    }
+
+    protected void initConfig() {
+        // do nothing 让子类去实现
+
     }
 
     protected abstract void innerStart();

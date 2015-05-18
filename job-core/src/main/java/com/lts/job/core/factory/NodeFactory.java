@@ -1,7 +1,7 @@
 package com.lts.job.core.factory;
 
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.NetUtils;
 
 /**
@@ -10,7 +10,7 @@ import com.lts.job.core.util.NetUtils;
  */
 public class NodeFactory {
 
-    public static <T extends Node> T create(Class<T> clazz, JobNodeConfig config) {
+    public static <T extends Node> T create(Class<T> clazz, Config config) {
         try {
             T node = clazz.newInstance();
             node.setIp(NetUtils.getLocalHost());

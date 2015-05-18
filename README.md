@@ -55,13 +55,13 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ```java
     final JobTracker jobTracker = new JobTracker();
     // 节点信息配置
-    jobTracker.setRegistryAddress("zookeeper://localhost:2181");
+    jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
     // jobTracker.setListenPort(35001); // 默认 35001
     // jobTracker.setClusterName("lts");
 
     // mongo 配置
     Config config = new Config();
-    config.setAddresses(new String[]{"localhost:27017"});
+    config.setAddresses(new String[]{"127.0.0.1:27017"});
     config.setUsername("lts");
     config.setPassword("lts");
     config.setDbName("job");
@@ -83,7 +83,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     <bean id="mongoConfig" class="com.lts.job.store.Config">
         <property name="addresses">
             <array>
-                <value>localhost:27017</value>
+                <value>127.0.0.1:27017</value>
             </array>
         </property>
         <property name="username" value="lts"/>
@@ -93,7 +93,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>--> <!-- 集群名称 -->
         <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
-        <property name="registryAddress" value="zookeeper://localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="storeConfig" ref="mongoConfig"/>
         <property name="masterChangeListeners">
             <array>
@@ -108,7 +108,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     TaskTracker taskTracker = new TaskTracker();
     taskTracker.setJobRunnerClass(TestJobRunner.class);
     // jobClient.setClusterName("lts");
-    taskTracker.setRegistryAddress("zookeeper://localhost:2181");
+    taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
     taskTracker.setNodeGroup("test_trade_TaskTracker");
     taskTracker.setWorkThreads(20);
     taskTracker.start();
@@ -136,7 +136,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
         <!--<property name="clusterName" value="lts"/>-->
         <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
-        <property name="registryAddress" value="zookeeper://localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
         <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->
         <property name="masterChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
@@ -153,7 +153,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     // JobClient jobClient = new JobClient();
     jobClient.setNodeGroup("test_JobClient");
     // jobClient.setClusterName("lts");
-    jobClient.setRegistryAddress("zookeeper://localhost:2181");
+    jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
     jobClient.start();
 
     // 提交任务
@@ -170,7 +170,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
         <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
         <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
         <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
-        <property name="registryAddress" value="zookeeper://localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="jobFinishedHandler">
             <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
         </property>

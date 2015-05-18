@@ -9,7 +9,7 @@
         <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
         <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
         <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
-        <property name="registryAddress" value="zookeeper://localhost:2181"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="jobFinishedHandler">
             <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
         </property>

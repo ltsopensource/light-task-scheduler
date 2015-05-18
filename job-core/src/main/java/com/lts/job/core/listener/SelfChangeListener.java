@@ -4,7 +4,7 @@ import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.EcTopic;
-import com.lts.job.core.domain.JobNodeConfig;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.ec.EventCenter;
 import com.lts.job.ec.EventInfo;
@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class SelfChangeListener implements NodeChangeListener {
 
-    private JobNodeConfig config;
+    private Config config;
     private EventCenter eventCenter;
 
     public SelfChangeListener(Application application) {
