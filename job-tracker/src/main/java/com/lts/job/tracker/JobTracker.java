@@ -24,6 +24,7 @@ import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
     public JobTracker() {
+
         config.setNodeGroup(Constants.DEFAULT_NODE_JOB_TRACKER_GROUP);
         config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
         // 添加节点变化监听器
@@ -32,9 +33,9 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         ChannelManager channelManager = new ChannelManager();
         application.setChannelManager(channelManager);
         // JobClient 管理者
-        application.setJobClientManager(new JobClientManager(channelManager));
+        application.setJobClientManager(new JobClientManager(application));
         // TaskTracker 管理者
-        application.setTaskTrackerManager(new TaskTrackerManager(channelManager));
+        application.setTaskTrackerManager(new TaskTrackerManager(application));
     }
 
     @Override
@@ -98,6 +99,14 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
         application.setJobFeedbackQueue(jobFeedbackQueue);
+    }
+
+    /**
+     * 设置反馈数据给JobClient的负载均衡算法
+     * @param loadBalance
+     */
+    public void setLoadBalance(String loadBalance) {
+        config.setParameter("loadbalance", loadBalance);
     }
 
     public void setOldDataHandler(OldDataHandler oldDataHandler) {

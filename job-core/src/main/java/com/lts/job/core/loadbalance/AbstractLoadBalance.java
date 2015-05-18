@@ -1,5 +1,7 @@
 package com.lts.job.core.loadbalance;
 
+import com.lts.job.core.cluster.Config;
+
 import java.util.List;
 
 /**
@@ -8,7 +10,7 @@ import java.util.List;
 public abstract class AbstractLoadBalance implements LoadBalance {
 
     @Override
-    public <S> S select(List<S> shards, String seed) {
+    public <S> S select(Config config, List<S> shards, String seed) {
         if (shards == null || shards.size() == 0) {
             return null;
         }

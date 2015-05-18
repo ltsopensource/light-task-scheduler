@@ -5,6 +5,7 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.HeartBeatRequest;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -50,22 +51,40 @@ public class HeartBeatMonitor {
         @Override
         public void run() {
             try {
-                List<Node> jobTrackers = application.getSubscribedNodeManager().getNodeList(NodeType.JOB_TRACKER);
-                if (jobTrackers == null) {
-                    return;
-                }
-                for (Node jobTracker : jobTrackers) {
-                    // 每个JobTracker 都要发送心跳
-                    if (beat(remotingClient, jobTracker.getAddress())) {
-                        remotingClient.addJobTracker(jobTracker);
-                        remotingClient.setServerEnable(true);
-                    } else {
-                        remotingClient.removeJobTracker(jobTracker);
+                boolean serverEnable = check();
+                if (!serverEnable) {
+                    // 没有jobTracker可用，加快心跳频率，改为3s一次
+                    while (!serverEnable) {
+                        try {
+                            Thread.sleep(3000L);    // sleep 3s
+                            serverEnable = check();
+                        } catch (Throwable t) {
+                            LOGGER.error(t.getMessage(), t);
+                        }
                     }
                 }
             } catch (Throwable t) {
                 LOGGER.error(t.getMessage(), t);
             }
+        }
+
+        private boolean check() {
+            List<Node> jobTrackers = application.getSubscribedNodeManager().getNodeList(NodeType.JOB_TRACKER);
+            if (CollectionUtils.isEmpty(jobTrackers)) {
+                return false;
+            }
+            boolean serverEnable = false;
+            for (Node jobTracker : jobTrackers) {
+                // 每个JobTracker 都要发送心跳
+                if (beat(remotingClient, jobTracker.getAddress())) {
+                    remotingClient.addJobTracker(jobTracker);
+                    remotingClient.setServerEnable(true);
+                    serverEnable = true;
+                } else {
+                    remotingClient.removeJobTracker(jobTracker);
+                }
+            }
+            return serverEnable;
         }
 
         /**

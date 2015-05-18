@@ -6,6 +6,7 @@ import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +23,11 @@ public class TaskTrackerManager {
     // 单例
     private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<TaskTrackerNode>>();
     private ChannelManager channelManager;
+    private JobTrackerApplication application;
 
-    public TaskTrackerManager(ChannelManager channelManager) {
-        this.channelManager = channelManager;
+    public TaskTrackerManager(JobTrackerApplication application) {
+        this.application = application;
+        this.channelManager = application.getChannelManager();
     }
 
     /**

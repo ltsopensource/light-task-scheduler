@@ -14,7 +14,7 @@ public class MainTest {
 //        TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getExtension("test2");
         TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();
         Config config = new Config();
-        config.setParameter("test.type", "test2");
+//        config.setParameter("test.type", "test2");
         testService.sayHello(config);
         Application application = new Application() {
         };

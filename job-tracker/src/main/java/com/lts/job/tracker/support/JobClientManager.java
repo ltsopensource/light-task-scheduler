@@ -2,6 +2,7 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.loadbalance.RandomLoadBalance;
 import com.lts.job.core.util.CollectionUtils;
@@ -9,6 +10,7 @@ import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobClientNode;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +30,12 @@ public class JobClientManager {
 
     private LoadBalance loadBalance;
     private ChannelManager channelManager;
+    private JobTrackerApplication application;
 
-    public JobClientManager(ChannelManager channelManager) {
-        this.channelManager = channelManager;
-        this.loadBalance = new RandomLoadBalance();
+    public JobClientManager(JobTrackerApplication application) {
+        this.application = application;
+        this.channelManager = application.getChannelManager();
+        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
     }
 
     /**
@@ -92,7 +96,7 @@ public class JobClientManager {
 
         while (list.size() > 0) {
 
-            JobClientNode jobClientNode = loadBalance.select(list, null);
+            JobClientNode jobClientNode = loadBalance.select(application.getConfig(), list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
                 ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.CLIENT, jobClientNode.getIdentity());

@@ -2,11 +2,9 @@ package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.loadbalance.LoadBalance;
-import com.lts.job.core.loadbalance.RandomLoadBalance;
+import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
-import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.remoting.netty.NettyClientConfig;
 import com.lts.job.remoting.netty.NettyRemotingClient;
@@ -21,16 +19,11 @@ import java.util.concurrent.Executors;
 public abstract class AbstractClientNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
 
     protected RemotingClientDelegate remotingClient;
-    private LoadBalance serverConnectLoadBalance;
     private HeartBeatMonitor heartBeatMonitor;
 
     protected void innerStart() {
 
-        if (serverConnectLoadBalance == null) {
-            serverConnectLoadBalance = new RandomLoadBalance();
-        }
-        this.remotingClient = new RemotingClientDelegate(
-                new NettyRemotingClient(getNettyClientConfig()), application, serverConnectLoadBalance);
+        this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
         this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
 
         remotingClient.start();
@@ -89,10 +82,10 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     /**
      * 设置连接JobTracker的负载均衡算法
      *
-     * @param serverConnectLoadBalance
+     * @param loadBalance 算法 random, consistenthash
      */
-    public void setServerConnectLoadBalance(LoadBalance serverConnectLoadBalance) {
-        this.serverConnectLoadBalance = serverConnectLoadBalance;
+    public void setLoadBalance(String loadBalance) {
+        config.setParameter("loadbalance", loadBalance);
     }
 
 }
