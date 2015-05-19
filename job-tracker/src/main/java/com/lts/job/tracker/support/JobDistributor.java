@@ -2,6 +2,7 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobPullRequest;
@@ -31,9 +32,10 @@ public class JobDistributor {
     private JobQueue jobQueue;
     private TaskTrackerManager taskTrackerManager;
     private CommandBodyWrapper commandBodyWrapper;
+    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
 
     public JobDistributor(JobTrackerApplication application) {
-        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
+        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
         this.taskTrackerManager = application.getTaskTrackerManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
     }

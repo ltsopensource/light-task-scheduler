@@ -1,6 +1,7 @@
 package com.lts.job.queue.mongo;
 
 import com.google.code.morphia.query.Query;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.mongo.AbstractMongoRepository;
 import com.lts.job.queue.JobFeedbackQueue;
@@ -16,6 +17,11 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
 public class MongoJobFeedbackQueue extends AbstractMongoRepository<JobFeedbackPo> implements JobFeedbackQueue {
+
+    public MongoJobFeedbackQueue(Config config) {
+        super(config);
+        doCreateTable();
+    }
 
     @Override
     public void add(List<JobFeedbackPo> jobFeedbackPo) {
@@ -40,7 +46,6 @@ public class MongoJobFeedbackQueue extends AbstractMongoRepository<JobFeedbackPo
         return query.asList();
     }
 
-    @Override
     protected void doCreateTable() {
         // 创建 JobFeedbackPo 索引
         Class<?> clazz = JobFeedbackPo.class;

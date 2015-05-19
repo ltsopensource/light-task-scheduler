@@ -7,6 +7,7 @@ import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.Level;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
@@ -57,13 +58,15 @@ public class DeadJobChecker {
     private CommandBodyWrapper commandBodyWrapper;
     private JobLogger jobLogger;
     private JobQueue jobQueue;
+    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
+    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
 
     public DeadJobChecker(JobTrackerApplication application) {
         this.application = application;
         this.channelManager = application.getChannelManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobLogger = JobLoggerFactory.getLogger(application.getConfig());
-        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
+        this.jobLogger = jobLoggerFactory.getJobLogger(application.getConfig());
+        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
     }
 
     private volatile boolean start;

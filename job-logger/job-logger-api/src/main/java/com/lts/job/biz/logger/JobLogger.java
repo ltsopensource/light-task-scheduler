@@ -12,11 +12,6 @@ import com.lts.job.core.extension.SPI;
  */
 @SPI("console")
 public interface JobLogger {
-    /**
-     * 初始化
-     * @param config
-     */
-    public void init(Config config);
 
     public void log(JobLogPo jobLogPo);
 

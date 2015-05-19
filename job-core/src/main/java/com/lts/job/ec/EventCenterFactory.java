@@ -1,4 +1,4 @@
-package com.lts.job.biz.logger;
+package com.lts.job.ec;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.extension.Adaptive;
@@ -7,10 +7,10 @@ import com.lts.job.core.extension.SPI;
 /**
  * @author Robert HG (254963746@qq.com) on 5/19/15.
  */
-@SPI("console")
-public interface JobLoggerFactory {
+@SPI("injvm")
+public interface EventCenterFactory {
 
-    @Adaptive("job.logger")
-    JobLogger getJobLogger(Config config);
+    @Adaptive("event.center")
+    EventCenter getEventCenter(Config config);
 
 }

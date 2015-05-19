@@ -1,6 +1,7 @@
 package com.lts.job.tracker.support.checker;
 
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.queue.JobFeedbackQueueFactory;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -32,6 +33,7 @@ public class FeedbackJobSendChecker {
     private ClientNotifier clientNotifier;
     private JobFeedbackQueue jobFeedbackQueue;
     private OldDataHandler oldDataHandler;
+    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
     /**
      * 是否已经启动
@@ -43,7 +45,7 @@ public class FeedbackJobSendChecker {
     }
 
     public FeedbackJobSendChecker(JobTrackerApplication application) {
-        this.jobFeedbackQueue = JobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
+        this.jobFeedbackQueue = jobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
         clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {

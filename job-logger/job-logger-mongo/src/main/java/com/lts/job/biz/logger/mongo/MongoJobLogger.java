@@ -12,9 +12,8 @@ import com.lts.job.mongo.AbstractMongoRepository;
  */
 public class MongoJobLogger extends AbstractMongoRepository<JobLogPo> implements JobLogger {
 
-    @Override
-    public void init(Config config) {
-        connect(config);
+    public MongoJobLogger(Config config) {
+        super(config);
     }
 
     @Override
@@ -33,8 +32,4 @@ public class MongoJobLogger extends AbstractMongoRepository<JobLogPo> implements
         ds.save(jobLogPo);
     }
 
-    @Override
-    protected void doCreateTable() {
-
-    }
 }
