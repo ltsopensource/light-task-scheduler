@@ -16,8 +16,8 @@ import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
 import com.lts.job.ec.JvmEventCenter;
 import com.lts.job.ec.Observer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,6 @@ import com.lts.job.core.extension.SPI;
 
 /**
  * Compiler. (SPI, Singleton, ThreadSafe)
- * @author william.liangf
  */
 @SPI("javassist")
 public interface Compiler {

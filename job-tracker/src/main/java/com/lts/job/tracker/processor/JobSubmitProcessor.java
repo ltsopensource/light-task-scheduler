@@ -12,8 +12,8 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobReceiver;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.

@@ -1,7 +1,7 @@
 package com.lts.job.remoting.common;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 
 /**

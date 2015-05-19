@@ -1,18 +1,3 @@
-/*
- * Copyright 1999-2012 Alibaba Group.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.lts.job.core.extension;
 
 import com.lts.job.core.cluster.Config;
@@ -20,8 +5,8 @@ import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.core.util.Holder;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.core.compiler.Compiler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -40,9 +25,6 @@ import java.util.regex.Pattern;
  * <li>缺省获得的的扩展点是一个Adaptive Instance。
  * </ul>
  *
- * @author william.liangf
- * @author ding.lid
- * @author Robert HG (254963746@qq.com)
  * @see <a href="http://java.sun.com/j2se/1.5.0/docs/guide/jar/jar.html#Service%20Provider">JDK5.0的自动发现机制实现</a>
  * @see SPI
  * @see Adaptive

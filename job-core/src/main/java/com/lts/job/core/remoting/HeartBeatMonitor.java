@@ -9,8 +9,8 @@ import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

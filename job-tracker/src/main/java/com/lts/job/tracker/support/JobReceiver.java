@@ -7,8 +7,8 @@ import com.lts.job.core.util.StringUtils;
 import com.lts.job.queue.DuplicateJobException;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.JobQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 

@@ -8,7 +8,7 @@ import com.lts.job.core.util.ConcurrentHashSet;
 import java.util.Set;
 
 /**
- * Created by hugui on 5/19/15.
+ * @author Robert HG (254963746@qq.com) on 5/19/15.
  */
 public class JobLoggerFactory {
 

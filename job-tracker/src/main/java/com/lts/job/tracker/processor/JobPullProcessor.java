@@ -10,8 +10,8 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobDistributor;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
