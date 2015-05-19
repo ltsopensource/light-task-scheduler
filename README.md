@@ -3,18 +3,18 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 
 ## 框架概况：
  LTS是一个轻量级分布式任务调度框架，参考hadoop的部分思想。有三种角色, JobClient, JobTracker, TaskTracker。各个节点都是无状态的，可以部署多个，来实现负载均衡，实现更大的负载量, 并且框架具有很好的容错能力。
- 采用Zookeeper暴露节点信息，master选举。Mongo存储任务队列和任务执行日志, netty做底层通信。
+ 采用多种注册中心（Zookeeper，redis等）进行节点信息暴露，master选举。Mongo存储任务队列和任务执行日志, netty做底层通信。
 * JobClient : 主要负责提交任务, 和 接收任务执行反馈结果。
 * JobTracker : 负责接收并分配任务，任务调度。
 * TaskTracker: 负责执行任务，执行完反馈给JobTracker。
 
-框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请联系QQ254963746, 或加入QQ群：109500214 一起探讨
+框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请加QQ群：109500214 一起完善，探讨
 
 ##架构图
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/data/%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
 ##节点组:
 * 1. 一个节点组等同于一个集群，同一个节点组中的各个节点是对等的，外界无论连接节点组中的任务一个节点都是可以的。
-* 2. 每个节点组中都有一个master节点，采用zookeeper进行master选举(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。
+* 2. 每个节点组中都有一个master节点(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。
 * 3. JobClient和TaskTracker都可以存在多个节点组。譬如 JobClient 可以存在多个节点组。 譬如：JobClient 节点组为 ‘lts_WEB’ 中的一个节点提交提交一个 只有节点组为’lts_TRADE’的 TaskTracker 才能执行的任务。
 * 4. (每个集群中)JobTacker只有一个节点组。
 * 5. 多个JobClient节点组和多个TaskTracker节点组再加上一个JobTacker节点组, 组成一个大的集群。
@@ -38,69 +38,42 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 
 * 伸缩性：
      * 因为各个节点都是无状态的，可以动态增加机器部署实例, 节点关注者会自动发现。
+* 扩展性:
+     * 采用和dubbo一样的SPI扩展方式，可以实现任务队列扩展，日志记录器扩展等
 
 ## 开发计划：
 * WEB后台管理
 * 框架优化
 
 ## 调用示例
-* 安装 zookeeper 和 mongo , 执行 data/mongo 目录下的 mongo.md 中的语句
+* 安装 zookeeper(或redis) 和 mongo (后提供其他任务队列实现方式)
 
 运行 job-example模块中的例子（包含API启动例子和Spring例子）
 分别执行 JobTrackerTest TaskTrackerTest JobClientTest
 
-这里给出的是java API(设置配置)方式启动, 也可以使用spring启动默认不启用spring，需引入job-ext-spring包
+这里给出的是java API(设置配置)方式启动, (spring启动和面添加)
 
 ## JobTracker 端
 ```java
     final JobTracker jobTracker = new JobTracker();
     // 节点信息配置
     jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
-    // jobTracker.setListenPort(35001); // 默认 35001
-    // jobTracker.setClusterName("lts");
-
+    // jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
+    jobTracker.setListenPort(35002); // 默认 35001
+    jobTracker.setClusterName("test_cluster");
+    jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
+    // 设置业务日志记录
+    //  jobTracker.addConfig("job.logger", "mongo");
+    // 任务队列用mongo
+    jobTracker.addConfig("job.queue", "mongo");
     // mongo 配置
-    Config config = new Config();
-    config.setAddresses(new String[]{"127.0.0.1:27017"});
-    config.setUsername("lts");
-    config.setPassword("lts");
-    config.setDbName("job");
-    jobTracker.setStoreConfig(config);
-
+    jobTracker.addConfig("mongo.addresses", "127.0.0.1:27017");     // 多个地址用逗号分割
+    jobTracker.addConfig("mongo.database", "job");
+    jobTracker.setOldDataHandler(new OldDataDeletePolicy());
+    // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
+    jobTracker.addConfig("zk.client", "zkclient");
     // 启动节点
     jobTracker.start();
-
-    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-        @Override
-        public void run() {
-            jobTracker.stop();
-        }
-    }));
-
-```
-或者Spring配置
-```xml
-    <bean id="mongoConfig" class="com.lts.job.store.Config">
-        <property name="addresses">
-            <array>
-                <value>127.0.0.1:27017</value>
-            </array>
-        </property>
-        <property name="username" value="lts"/>
-        <property name="password" value="lts"/>
-        <property name="dbName" value="job"/>
-    </bean>
-    <bean id="jobTracker" class="com.lts.job.spring.JobTrackerFactoryBean" init-method="start">
-        <!--<property name="clusterName" value="lts"/>--> <!-- 集群名称 -->
-        <!--<property name="listenPort" value="35001"/>--> <!-- 默认 35001 -->
-        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-        <property name="storeConfig" ref="mongoConfig"/>
-        <property name="masterChangeListeners">
-            <array>
-                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
-            </array>
-        </property>
-    </bean>
 ```
 
 ## TaskTracker端
@@ -109,83 +82,38 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     taskTracker.setJobRunnerClass(TestJobRunner.class);
     // jobClient.setClusterName("lts");
     taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+    // taskTracker.setRegistryAddress("redis://127.0.0.1:6379");
     taskTracker.setNodeGroup("test_trade_TaskTracker");
+    taskTracker.setClusterName("test_cluster");
     taskTracker.setWorkThreads(20);
     taskTracker.start();
-
     // 任务执行类
     public class TestJobRunner implements JobRunner {
-
         @Override
         public void run(Job job) throws Throwable {
-
             System.out.println("我要执行"+ job);
             System.out.println(job.getParam("shopId"));
-
             try {
                 Thread.sleep(5*1000L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
     }
-```
-或者Spring方式配置
-```xml
-    <bean id="taskTracker" class="com.lts.job.spring.TaskTrackerFactoryBean" init-method="start">
-        <!--<property name="clusterName" value="lts"/>-->
-        <property name="nodeGroup" value="test_trade_TaskTracker"/><!-- 所属节点组名称 -->
-        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-        <property name="jobRunnerClass" value="com.lts.job.example.support.TestJobRunner"/> <!-- 任务执行类 -->
-        <property name="workThreads" value="1"/>    <!-- 工作线程个数 -->
-        <property name="masterChangeListeners"> <!-- 所属节点组中master节点变化监听器，可以不用配置 -->
-            <array>
-                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
-            </array>
-        </property>
-    </bean>
 ```
 
 ## JobClient端
 ```java
     JobClient jobClient = new RetryJobClient();
-    // JobClient jobClient = new JobClient();
-    jobClient.setNodeGroup("test_JobClient");
-    // jobClient.setClusterName("lts");
+    // final JobClient jobClient = new JobClient();
+    jobClient.setNodeGroup("test_jobClient");
+    jobClient.setClusterName("test_cluster");
     jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-    jobClient.start();
-
+    // jobClient.setRegistryAddress("redis://127.0.0.1:6379");
+    jobClient.setJobInfoSavePath("xx");
     // 提交任务
     Job job = new Job();
-    job.setParam("shopId", "11111");
-    job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-    // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
-    // job.setTriggerTime(new Date().getTime()); // 支持指定时间执行
-    Response response = jobClient.submitJob(job);
-```
-或者spring方式启动
-```xml
-   <bean id="jobClient" class="com.lts.job.spring.JobClientFactoryBean" init-method="start">
-        <property name="clientType" value="retry"/> <!-- 取值: 为空（默认normal）, normal, retry  -->
-        <!--<property name="clusterName" value="lts"/>--> <!-- 默认 defaultCluster -->
-        <property name="nodeGroup" value="test_JobClient"/> <!-- 节点组名称 -->
-        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-        <property name="jobFinishedHandler">
-            <bean class="com.lts.job.example.support.JobFinishedHandlerImpl"/>  <!-- 任务完成处理器 -->
-        </property>
-        <property name="masterChangeListeners"><!-- 所属节点组中master节点变化监听器 -->
-            <array>
-                <bean class="com.lts.job.example.support.MasterChangeListenerImpl"/>
-            </array>
-        </property>
-    </bean>
-```
-```java
-    // 从Spring容器中取得JobClient Bean
-    JobClient jobClient = (JobClient) applicationContext.getBean("jobClient");
-    // 提交任务
-    Job job = new Job();
+    job.setTaskId("3213213123");
     job.setParam("shopId", "11111");
     job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
     // job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
