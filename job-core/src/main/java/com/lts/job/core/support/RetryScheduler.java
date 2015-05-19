@@ -6,8 +6,8 @@ import com.lts.job.core.file.FileAccessor;
 import com.lts.job.core.file.FileException;
 import com.lts.job.core.util.GenericsUtils;
 import com.lts.job.core.util.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;

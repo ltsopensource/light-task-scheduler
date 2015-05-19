@@ -20,8 +20,8 @@ import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.job.task.tracker.runner.RunnerCallback;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

@@ -26,8 +26,8 @@ import com.lts.job.tracker.domain.TaskTrackerNode;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.JobQueue;
 import com.lts.job.tracker.support.JobDomainConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Executors;

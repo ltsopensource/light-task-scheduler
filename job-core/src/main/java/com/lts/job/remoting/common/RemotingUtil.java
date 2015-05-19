@@ -3,8 +3,8 @@ package com.lts.job.remoting.common;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

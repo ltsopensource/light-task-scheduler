@@ -6,8 +6,8 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.nio.ByteBuffer;
 

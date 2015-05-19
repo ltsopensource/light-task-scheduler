@@ -24,8 +24,8 @@ import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import com.lts.job.tracker.support.JobDomainConverter;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.ArrayList;

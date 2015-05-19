@@ -5,8 +5,8 @@ import com.lts.job.core.Application;
 import com.lts.job.core.listener.NodeChangeListener;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ListUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

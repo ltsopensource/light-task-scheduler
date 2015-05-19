@@ -11,8 +11,8 @@ import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

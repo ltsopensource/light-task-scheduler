@@ -5,8 +5,8 @@ import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/27/15.

@@ -4,8 +4,8 @@ import com.lts.job.core.domain.Job;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

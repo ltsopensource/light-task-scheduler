@@ -7,8 +7,8 @@ import com.lts.job.remoting.annotation.NotNull;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.util.ReflectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
