@@ -55,8 +55,13 @@ public interface Constants {
     /**
      * 注册中心自动重连时间
      */
-    public static final String  REGISTRY_RECONNECT_PERIOD_KEY      = "reconnect.period";
+    public static final String REGISTRY_RECONNECT_PERIOD_KEY = "reconnect.period";
 
-    public static final int     DEFAULT_REGISTRY_RECONNECT_PERIOD  = 3 * 1000;
+    public static final int DEFAULT_REGISTRY_RECONNECT_PERIOD = 3 * 1000;
 
+    public static final String ZK_CLIENT_KEY = "zk.client";
+
+    public static final String JOB_LOGGER_KEY = "job.logger";
+
+    public static final String JOB_QUEUE_KEY = "job.queue";
 }

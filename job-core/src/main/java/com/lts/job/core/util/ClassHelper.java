@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 /**
- * Created by hugui on 5/18/15.
+ * @author Robert HG (254963746@qq.com) on 5/18/15.
  */
 public class ClassHelper {
 

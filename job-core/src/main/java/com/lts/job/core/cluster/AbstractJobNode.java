@@ -106,7 +106,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     private void initRegistry() {
-        registry = RegistryFactory.getRegistry(application);
+        registry = RegistryFactory.getRegistry(config);
         if (registry instanceof AbstractRegistry) {
             ((AbstractRegistry) registry).setNode(node);
         }

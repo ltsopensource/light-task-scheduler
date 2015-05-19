@@ -16,7 +16,7 @@
 package com.lts.job.core.extension;
 
 /**
- * Created by hugui on 5/18/15.
+ * @author Robert HG (254963746@qq.com) on 5/18/15.
  */
 @SPI
 public interface ExtensionFactory {

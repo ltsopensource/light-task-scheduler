@@ -1,7 +1,7 @@
 package com.lts.job.core.util;
 
 /**
- * Created by hugui on 5/18/15.
+ * @author Robert HG (254963746@qq.com) on 5/18/15.
  */
 public class Holder<T> {
 

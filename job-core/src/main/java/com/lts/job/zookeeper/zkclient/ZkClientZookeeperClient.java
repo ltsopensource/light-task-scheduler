@@ -1,5 +1,6 @@
 package com.lts.job.zookeeper.zkclient;
 
+import com.lts.job.core.cluster.Config;
 import com.lts.job.zookeeper.ChildListener;
 import com.lts.job.zookeeper.StateListener;
 import com.lts.job.zookeeper.support.AbstractZookeeperClient;
@@ -24,8 +25,8 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
     private volatile KeeperState state = KeeperState.SyncConnected;
 
-    public ZkClientZookeeperClient(String address) {
-        zkClient = new ZkClient(address, connectionTimeout);
+    public ZkClientZookeeperClient(Config config) {
+        zkClient = new ZkClient(config.getRegistryAddress(), connectionTimeout);
         zkClient.subscribeStateChanges(new IZkStateListener() {
 
             @Override

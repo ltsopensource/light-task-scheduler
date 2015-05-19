@@ -6,6 +6,7 @@ import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
- * 客户端提交任务的处理器
+ *         客户端提交任务的处理器
  */
 public class JobSubmitProcessor extends AbstractProcessor {
 
@@ -28,13 +29,13 @@ public class JobSubmitProcessor extends AbstractProcessor {
     public JobSubmitProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobReceiver = new JobReceiver(application.getJobQueue());
+        this.jobReceiver = new JobReceiver(JobQueueFactory.getJobQueue(application.getConfig()));
     }
 
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
 
-        JobSubmitRequest jobSubmitRequest =  request.getBody();
+        JobSubmitRequest jobSubmitRequest = request.getBody();
 
         JobSubmitResponse jobSubmitResponse = commandBodyWrapper.wrapper(new JobSubmitResponse());
         RemotingCommand response = null;

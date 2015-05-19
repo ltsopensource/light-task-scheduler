@@ -1,8 +1,12 @@
 package com.lts.job.web.support.node;
 
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.registry.NodeRegistryUtils;
+import com.lts.job.core.registry.Registry;
+import com.lts.job.core.registry.RegistryFactory;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.zookeeper.ZookeeperClient;
 import com.lts.job.zookeeper.zkclient.ZkClientZookeeperClient;
@@ -21,7 +25,11 @@ public class ZkNodeManager implements NodeManager {
     private ZookeeperClient zkClient;
 
     public ZkNodeManager() {
-        this.zkClient = new ZkClientZookeeperClient(AppConfigurer.getProperties("zookeeper.address"));
+        Config config = new Config();
+        config.setParameter(Constants.ZK_CLIENT_KEY, "");
+        config.setRegistryAddress(AppConfigurer.getProperties("registry.address"));
+//        Registry registry = RegistryFactory.getRegistry(config);
+//        this.zkClient = new ZkClientZookeeperClient();
     }
 
     @Override

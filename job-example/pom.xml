@@ -3,9 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>light-task-schedule</artifactId>
+        <artifactId>job-parent</artifactId>
         <groupId>com.lts</groupId>
-        <version>1.3.3-SNAPSHOT</version>
+        <version>1.4.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>job-example</artifactId>
@@ -26,20 +26,21 @@
             <artifactId>job-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>job-ext-spring</artifactId>
+            <artifactId>job-logger-mongo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>job-mongo-queue</artifactId>
+            <artifactId>job-logger-console</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.github.sgroschupf</groupId>
-            <artifactId>zkclient</artifactId>
-            <version>${zkclient.version}</version>
+            <groupId>com.lts</groupId>
+            <artifactId>job-queue-mongo</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

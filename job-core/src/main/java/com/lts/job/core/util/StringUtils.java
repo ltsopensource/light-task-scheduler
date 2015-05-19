@@ -116,4 +116,17 @@ public class StringUtils {
             p.close();
         }
     }
+
+    public static String concat(Object ... objects){
+        if(objects == null){
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Object object : objects) {
+            if(object != null){
+                sb.append(object.toString());
+            }
+        }
+        return sb.toString();
+    }
 }
