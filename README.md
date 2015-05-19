@@ -110,7 +110,6 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     jobClient.setClusterName("test_cluster");
     jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
     // jobClient.setRegistryAddress("redis://127.0.0.1:6379");
-    jobClient.setJobInfoSavePath("xx");
     // 提交任务
     Job job = new Job();
     job.setTaskId("3213213123");
