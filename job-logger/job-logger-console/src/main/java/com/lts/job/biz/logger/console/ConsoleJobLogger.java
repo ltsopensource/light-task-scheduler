@@ -3,22 +3,16 @@ package com.lts.job.biz.logger.console;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
-import com.lts.job.core.cluster.Config;
-import com.lts.job.core.util.JSONUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.util.JSONUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-public class ConsoleLogger implements JobLogger {
+public class ConsoleJobLogger implements JobLogger {
 
-    private Logger LOGGER;
-
-    @Override
-    public void init(Config config) {
-        LOGGER = LoggerFactory.getLogger(ConsoleLogger.class.getSimpleName());
-    }
+    private Logger LOGGER = LoggerFactory.getLogger(ConsoleJobLogger.class.getSimpleName());
 
     @Override
     public void log(JobLogPo jobLogPo) {

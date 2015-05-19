@@ -21,7 +21,7 @@ public class JobTrackerTest {
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
         // 设置业务日志记录
-//        jobTracker.addConfig("job.logger", "mongo");
+        jobTracker.addConfig("job.logger", "mongo");
         // 任务队列用mongo
         jobTracker.addConfig("job.queue", "mongo");
         // mongo 配置

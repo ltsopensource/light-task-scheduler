@@ -4,6 +4,8 @@ import com.lts.job.core.cluster.AbstractClientNode;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.constant.Level;
+import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.ec.EventCenterFactory;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
 import com.lts.job.ec.Observer;
@@ -22,6 +24,7 @@ import com.lts.job.task.tracker.support.JobPullMachine;
 public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerApplication> {
 
     private JobPullMachine jobPullMachine;
+    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
 
     public TaskTracker() {
         // 设置默认节点组
@@ -31,16 +34,16 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     @Override
     protected void innerStart() {
         // 向事件中心注册事件
-        application.getEventCenter().subscribe(
+        eventCenterFactory.getEventCenter(config).subscribe(
                 EcTopic.WORK_THREAD_CHANGE,
                 new EventSubscriber(node.getIdentity(), new Observer() {
-            @Override
-            public void onObserved(EventInfo eventInfo) {
-                // 改变工作线程大小
-                int threads = config.getWorkThreads();
-                application.getRunnerPool().setMaximumPoolSize(threads);
-            }
-        }));
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        // 改变工作线程大小
+                        int threads = config.getWorkThreads();
+                        application.getRunnerPool().setMaximumPoolSize(threads);
+                    }
+                }));
         // 设置 线程池
         application.setRunnerPool(new RunnerPool(application));
         super.innerStart();

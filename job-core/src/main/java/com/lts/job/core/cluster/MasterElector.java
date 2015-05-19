@@ -7,7 +7,9 @@ import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/23/14.
@@ -29,10 +31,16 @@ public class MasterElector {
     }
 
     public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
+        addMasterChangeListener(new CopyOnWriteArrayList<MasterChangeListener>(Arrays.asList(masterChangeListener)));
+    }
+
+    public void addMasterChangeListener(List<MasterChangeListener> masterChangeListeners) {
         if (masterChangeListenerList == null) {
-            masterChangeListenerList = new ArrayList<MasterChangeListener>();
+            masterChangeListenerList = new CopyOnWriteArrayList<MasterChangeListener>();
         }
-        masterChangeListenerList.add(masterChangeListener);
+        if (CollectionUtils.isNotEmpty(masterChangeListeners)) {
+            masterChangeListenerList.addAll(masterChangeListeners);
+        }
     }
 
     public void addNodes(List<Node> nodes) {

@@ -14,17 +14,12 @@ public abstract class AbstractMongoRepository<T> {
     protected Datastore ds;
     private Class<T> clazz = GenericsUtils.getSuperClassGenericType(this.getClass());
 
-    public void connect(Config config) {
+    public AbstractMongoRepository(Config config) {
         ds = DataStoreHolder.getDataStore(config);
-        doCreateTable();
     }
 
     public Query<T> createQuery() {
         return ds.createQuery(clazz);
     }
 
-    /**
-     * 创建表
-     */
-    protected abstract void doCreateTable();
 }

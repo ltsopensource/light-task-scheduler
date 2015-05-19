@@ -1,6 +1,7 @@
 package com.lts.job.tracker.processor;
 
 import com.lts.job.core.exception.JobReceiveException;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
@@ -25,11 +26,12 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
     private CommandBodyWrapper commandBodyWrapper;
     private JobReceiver jobReceiver;
+    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
 
     public JobSubmitProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobReceiver = new JobReceiver(JobQueueFactory.getJobQueue(application.getConfig()));
+        this.jobReceiver = new JobReceiver(jobQueueFactory.getJobQueue(application.getConfig()));
     }
 
     @Override

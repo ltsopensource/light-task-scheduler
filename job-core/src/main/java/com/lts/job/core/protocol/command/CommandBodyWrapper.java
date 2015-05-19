@@ -1,6 +1,6 @@
 package com.lts.job.core.protocol.command;
 
-import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Config;
 
 /**
  * 用于设置CommandBody 的基础信息
@@ -8,16 +8,16 @@ import com.lts.job.core.Application;
  */
 public class CommandBodyWrapper {
 
-    private Application application;
+    private Config config;
 
-    public CommandBodyWrapper(Application application) {
-        this.application = application;
+    public CommandBodyWrapper(Config config) {
+        this.config = config;
     }
 
     public <T extends AbstractCommandBody> T wrapper(T commandBody) {
-        commandBody.setNodeGroup(application.getConfig().getNodeGroup());
-        commandBody.setNodeType(application.getConfig().getNodeType().name());
-        commandBody.setIdentity(application.getConfig().getIdentity());
+        commandBody.setNodeGroup(config.getNodeGroup());
+        commandBody.setNodeType(config.getNodeType().name());
+        commandBody.setIdentity(config.getIdentity());
         return commandBody;
     }
 

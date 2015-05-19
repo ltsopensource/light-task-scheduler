@@ -2,6 +2,7 @@ package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.constant.EcTopic;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.factory.NodeFactory;
 import com.lts.job.core.listener.MasterChangeListener;
@@ -12,9 +13,10 @@ import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.registry.*;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.GenericsUtils;
+import com.lts.job.ec.EventCenterFactory;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
-import com.lts.job.ec.JvmEventCenter;
+import com.lts.job.ec.injvm.InjvmEventCenter;
 import com.lts.job.ec.Observer;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
@@ -35,41 +37,23 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     protected Config config;
     protected App application;
     private List<NodeChangeListener> nodeChangeListeners;
+    private List<MasterChangeListener> masterChangeListeners;
+    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
 
     public AbstractJobNode() {
         application = getApplication();
         config = JobNodeConfigFactory.getDefaultConfig();
         application.setConfig(config);
-        // 事件中心
-        application.setEventCenter(new JvmEventCenter());
-        application.setCommandBodyWrapper(new CommandBodyWrapper(application));
-        application.setMasterElector(new MasterElector(application));
         nodeChangeListeners = new ArrayList<NodeChangeListener>();
+        masterChangeListeners = new ArrayList<MasterChangeListener>();
     }
+
 
     final public void start() {
         try {
+
             // 初始化配置
             initConfig();
-
-            node = NodeFactory.create(getNodeClass(), config);
-            config.setNodeType(node.getNodeType());
-
-            LOGGER.info("当前节点配置:{}", config);
-
-            // 监听节点 启用/禁用消息
-            application.getEventCenter().subscribe(
-                    new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
-                    new EventSubscriber(node.getIdentity(), new Observer() {
-                        @Override
-                        public void onObserved(EventInfo eventInfo) {
-                            if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
-                                nodeDisable();
-                            } else {
-                                nodeEnable();
-                            }
-                        }
-                    }));
 
             innerStart();
 
@@ -117,7 +101,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         // 用于master选举的监听器
         nodeChangeListeners.add(new MasterElectionListener(application));
         // 监听自己节点变化（如，当前节点被禁用了）
-        nodeChangeListeners.add(new SelfChangeListener(application));
+        nodeChangeListeners.add(new SelfChangeListener(config));
 
         registry.subscribe(node, new NotifyListener() {
             private final Logger NOTIFY_LOGGER = LoggerFactory.getLogger(NotifyListener.class);
@@ -152,8 +136,28 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     protected void initConfig() {
-        // do nothing 让子类去实现
+        application.setCommandBodyWrapper(new CommandBodyWrapper(config));
+        application.setMasterElector(new MasterElector(application));
+        application.getMasterElector().addMasterChangeListener(masterChangeListeners);
 
+        node = NodeFactory.create(getNodeClass(), config);
+        config.setNodeType(node.getNodeType());
+
+        LOGGER.info("当前节点配置:{}", config);
+
+        // 监听节点 启用/禁用消息
+        eventCenterFactory.getEventCenter(config).subscribe(
+                new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
+                new EventSubscriber(node.getIdentity(), new Observer() {
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
+                            nodeDisable();
+                        } else {
+                            nodeEnable();
+                        }
+                    }
+                }));
     }
 
     protected abstract void innerStart();
@@ -228,7 +232,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
      * @param masterChangeListener
      */
     public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
-        application.getMasterElector().addMasterChangeListener(masterChangeListener);
+        if (masterChangeListener != null) {
+            masterChangeListeners.add(masterChangeListener);
+        }
     }
 
     /**

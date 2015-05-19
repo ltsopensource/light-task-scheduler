@@ -3,6 +3,7 @@ package com.lts.job.tracker.processor;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.biz.logger.domain.BizLogPo;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.BizLogSendRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
@@ -17,10 +18,11 @@ import io.netty.channel.ChannelHandlerContext;
 public class JobBizLogProcessor extends AbstractProcessor {
 
     private JobLogger jobLogger;
+    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
 
     public JobBizLogProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
-        this.jobLogger = JobLoggerFactory.getLogger(application.getConfig());
+        this.jobLogger = jobLoggerFactory.getJobLogger(application.getConfig());
     }
 
     @Override

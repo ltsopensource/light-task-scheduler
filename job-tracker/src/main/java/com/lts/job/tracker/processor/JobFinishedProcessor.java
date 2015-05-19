@@ -7,6 +7,7 @@ import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
@@ -44,12 +45,15 @@ public class JobFinishedProcessor extends AbstractProcessor {
     private JobLogger jobLogger;
     private JobQueue jobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
+    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
+    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
+    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
-        this.jobLogger = JobLoggerFactory.getLogger(application.getConfig());
-        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
-        this.jobFeedbackQueue = JobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
+        this.jobLogger = jobLoggerFactory.getJobLogger(application.getConfig());
+        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
+        this.jobFeedbackQueue = jobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
         this.commandBodyWrapper = application.getCommandBodyWrapper();
         this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override

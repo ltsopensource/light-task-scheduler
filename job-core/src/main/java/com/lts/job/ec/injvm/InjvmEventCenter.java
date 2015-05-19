@@ -1,10 +1,13 @@
-package com.lts.job.ec;
+package com.lts.job.ec.injvm;
 
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.core.util.JSONUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.ec.EventCenter;
+import com.lts.job.ec.EventInfo;
+import com.lts.job.ec.EventSubscriber;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +19,7 @@ import java.util.concurrent.Executors;
  * 在一个jvm中的pub sub 简易实现
  * @author Robert HG (254963746@qq.com) on 5/12/15.
  */
-public class JvmEventCenter implements EventCenter{
+public class InjvmEventCenter implements EventCenter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventCenter.class.getName());
 

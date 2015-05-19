@@ -2,6 +2,7 @@ package com.lts.job.queue.mongo;
 
 import com.google.code.morphia.query.Query;
 import com.google.code.morphia.query.UpdateOperations;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.mongo.AbstractMongoRepository;
 import com.lts.job.queue.DuplicateJobException;
@@ -20,7 +21,11 @@ import java.util.List;
  */
 public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements JobQueue {
 
-    @Override
+    public MongoJobQueue(Config config) {
+        super(config);
+        doCreateTable();
+    }
+
     protected void doCreateTable() {
         // 创建 JobPo 索引
         Class<?> clazz = JobPo.class;

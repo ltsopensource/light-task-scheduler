@@ -1,8 +1,7 @@
-package com.lts.job.core;
+package com.lts.job.core.util;
 
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.lts.job.core.util.ClassHelper;
 
 import java.net.URL;
 import java.security.CodeSource;

@@ -1,9 +1,6 @@
 package com.lts.job.queue;
 
 
-import com.lts.job.core.cluster.Config;
-import com.lts.job.core.extension.Adaptive;
-import com.lts.job.core.extension.SPI;
 import com.lts.job.queue.domain.JobFeedbackPo;
 
 import java.util.List;
@@ -13,15 +10,7 @@ import java.util.List;
  *
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-@SPI("mongo")
 public interface JobFeedbackQueue {
-
-    /**
-     * 连接
-     *
-     * @param config
-     */
-    void connect(Config config);
 
     /**
      * 添加反馈的任务结果
