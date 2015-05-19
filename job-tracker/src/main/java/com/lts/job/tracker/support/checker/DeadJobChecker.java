@@ -1,9 +1,12 @@
 package com.lts.job.tracker.support.checker;
 
+import com.lts.job.biz.logger.JobLogger;
+import com.lts.job.biz.logger.JobLoggerFactory;
+import com.lts.job.biz.logger.domain.JobLogPo;
+import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.Level;
-import com.lts.job.core.domain.LogType;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
@@ -11,6 +14,7 @@ import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
+import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -19,10 +23,8 @@ import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.logger.domain.JobLogPo;
-import com.lts.job.tracker.queue.JobPo;
-import com.lts.job.tracker.queue.JobQueue;
+import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.JobQueue;
 import com.lts.job.tracker.support.JobDomainConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +62,8 @@ public class DeadJobChecker {
         this.application = application;
         this.channelManager = application.getChannelManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobLogger = application.getJobLogger();
-        this.jobQueue = application.getJobQueue();
+        this.jobLogger = JobLoggerFactory.getLogger(application.getConfig());
+        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
     }
 
     private volatile boolean start;

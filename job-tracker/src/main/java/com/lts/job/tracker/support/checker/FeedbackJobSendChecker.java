@@ -2,9 +2,10 @@ package com.lts.job.tracker.support.checker;
 
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.queue.JobFeedbackQueueFactory;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.queue.JobFeedbackPo;
-import com.lts.job.tracker.queue.JobFeedbackQueue;
+import com.lts.job.queue.domain.JobFeedbackPo;
+import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import com.lts.job.tracker.support.OldDataHandler;
@@ -42,7 +43,7 @@ public class FeedbackJobSendChecker {
     }
 
     public FeedbackJobSendChecker(JobTrackerApplication application) {
-        this.jobFeedbackQueue = application.getJobFeedbackQueue();
+        this.jobFeedbackQueue = JobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
         clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {

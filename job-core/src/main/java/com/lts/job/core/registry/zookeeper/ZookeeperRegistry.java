@@ -1,8 +1,9 @@
 package com.lts.job.core.registry.zookeeper;
 
-import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.registry.FailbackRegistry;
 import com.lts.job.core.registry.NodeRegistryUtils;
 import com.lts.job.core.registry.NotifyEvent;
@@ -11,7 +12,7 @@ import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.zookeeper.ChildListener;
 import com.lts.job.zookeeper.StateListener;
 import com.lts.job.zookeeper.ZookeeperClient;
-import com.lts.job.zookeeper.zkclient.ZkClientZookeeperClient;
+import com.lts.job.zookeeper.ZookeeperTransporter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +33,12 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private String clusterName;
 
-    public ZookeeperRegistry(Application application) {
-        super(application);
-        this.clusterName = application.getConfig().getClusterName();
+    public ZookeeperRegistry(Config config) {
+        super(config);
+        this.clusterName = config.getClusterName();
         this.cachedChildrenNodeMap = new ConcurrentHashMap<String, List<String>>();
-
-        this.zkClient = new ZkClientZookeeperClient(application.getConfig().getRegistryAddress());
+        ZookeeperTransporter zookeeperTransporter = ExtensionLoader.getExtensionLoader(ZookeeperTransporter.class).getAdaptiveExtension();
+        this.zkClient = zookeeperTransporter.connect(config);
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
         zkClient.addStateListener(new StateListener() {
             @Override

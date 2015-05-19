@@ -1,6 +1,6 @@
 package com.lts.job.core.registry;
 
-import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.factory.NamedThreadFactory;
@@ -28,10 +28,10 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     private final ConcurrentMap<Node, Set<NotifyListener>> failedUnsubscribed = new ConcurrentHashMap<Node, Set<NotifyListener>>();
     private final ConcurrentMap<Node, Map<NotifyListener, NotifyPair<NotifyEvent, List<Node>>>> failedNotified = new ConcurrentHashMap<Node, Map<NotifyListener, NotifyPair<NotifyEvent, List<Node>>>>();
 
-    public FailbackRegistry(Application application) {
-        super(application);
+    public FailbackRegistry(Config config) {
+        super(config);
 
-        int retryPeriod = application.getConfig().getParameter(Constants.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
+        int retryPeriod = config.getParameter(Constants.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
 
         this.retryFuture = retryExecutor.scheduleWithFixedDelay(new Runnable() {
             public void run() {

@@ -1,10 +1,6 @@
 package com.lts.job.example.api;
 
 import com.lts.job.example.support.MasterChangeListenerImpl;
-import com.lts.job.queue.mongo.MongoJobFeedbackQueue;
-import com.lts.job.queue.mongo.MongoJobLogger;
-import com.lts.job.queue.mongo.MongoJobQueue;
-import com.lts.job.queue.mongo.store.Config;
 import com.lts.job.tracker.JobTracker;
 import com.lts.job.tracker.support.policy.OldDataDeletePolicy;
 
@@ -17,23 +13,24 @@ public class JobTrackerTest {
 
         final JobTracker jobTracker = new JobTracker();
         // 节点信息配置
-//        jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
+        jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+//        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
         jobTracker.setListenPort(35002); // 默认 35001
         jobTracker.setClusterName("test_cluster");
 
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
+        // 设置业务日志记录
+//        jobTracker.addConfig("job.logger", "mongo");
+        // 任务队列用mongo
+        jobTracker.addConfig("job.queue", "mongo");
         // mongo 配置
-        Config config = new Config();
-        config.setAddresses(new String[]{"127.0.0.1:27017"});
-        config.setUsername("lts");
-        config.setPassword("lts");
-        config.setDbName("job");
-        jobTracker.setJobQueue(new MongoJobQueue(config));
-        jobTracker.setJobFeedbackQueue(new MongoJobFeedbackQueue(config));
-        jobTracker.setJobLogger(new MongoJobLogger(config));
+        jobTracker.addConfig("mongo.addresses", "127.0.0.1:27017");     // 多个地址用逗号分割
+        jobTracker.addConfig("mongo.database", "job");
+
         jobTracker.setOldDataHandler(new OldDataDeletePolicy());
+        // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
+        jobTracker.addConfig("zk.client", "zkclient");
         // 启动节点
         jobTracker.start();
 

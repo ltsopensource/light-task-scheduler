@@ -8,7 +8,7 @@ db.auth("lts", "lts");
 db.JobPo.ensureIndex({"jobId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "taskId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTrackerIdentity":1});
-db.JobPo.ensureIndex({"priority":1, "triggerTime":1});
+db.JobPo.ensureIndex({"triggerTime":1, "priority":1, "gmtCreate": 1});
 db.JobPo.ensureIndex({"isRunning":1});
 db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "isRunning":1, "triggerTime":1});
 

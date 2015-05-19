@@ -5,17 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.lts</groupId>
-    <artifactId>light-task-schedule</artifactId>
+    <artifactId>job-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <modules>
         <module>job-core</module>
         <module>job-tracker</module>
         <module>job-task-tracker</module>
         <module>job-client</module>
         <module>job-example</module>
-        <module>job-extensions</module>
-        <module>job-admin</module>
+        <!--<module>job-extensions</module>-->
+        <!--<module>job-admin</module>-->
+        <module>job-queue</module>
+        <module>job-logger</module>
     </modules>
 
     <properties>
@@ -26,18 +28,23 @@
         <zkclient.version>0.1</zkclient.version>
         <zk.version>3.4.5</zk.version>
         <javassist.version>3.19.0-GA</javassist.version>
+        <log4j.verson>1.7.5</log4j.verson>
+        <mongo.driver.version>2.11.1</mongo.driver.version>
+        <morphia.version>0.104</morphia.version>
+        <junit.version>4.11</junit.version>
+        <netty.version>4.0.13.Final</netty.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.0.13.Final</version>
+            <version>${netty.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -59,13 +66,21 @@
             <groupId>com.github.sgroschupf</groupId>
             <artifactId>zkclient</artifactId>
             <version>${zkclient.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.netflix.curator</groupId>
             <artifactId>curator-framework</artifactId>
             <version>${curator.version}</version>
-            <!--<scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.morphia</groupId>
+            <artifactId>morphia</artifactId>
+            <version>${morphia.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo.driver.version}</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -85,19 +100,18 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
+            <version>${log4j.verson}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.1</version>
+            <version>${log4j.verson}</version>
         </dependency>
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>${javassist.version}</version>
         </dependency>
-
     </dependencies>
     <build>
         <plugins>

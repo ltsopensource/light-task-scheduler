@@ -1,25 +1,25 @@
 package com.lts.job.tracker.processor;
 
+import com.lts.job.biz.logger.JobLogger;
+import com.lts.job.biz.logger.JobLoggerFactory;
+import com.lts.job.biz.logger.domain.JobLogPo;
+import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.domain.LogType;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.queue.*;
+import com.lts.job.queue.domain.JobFeedbackPo;
+import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.logger.JobLogger;
-import com.lts.job.tracker.logger.domain.JobLogPo;
-import com.lts.job.tracker.queue.JobFeedbackPo;
-import com.lts.job.tracker.queue.JobFeedbackQueue;
-import com.lts.job.tracker.queue.JobPo;
-import com.lts.job.tracker.queue.JobQueue;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import com.lts.job.tracker.support.JobDomainConverter;
@@ -47,9 +47,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
-        this.jobLogger = application.getJobLogger();
-        this.jobQueue = application.getJobQueue();
-        this.jobFeedbackQueue = application.getJobFeedbackQueue();
+        this.jobLogger = JobLoggerFactory.getLogger(application.getConfig());
+        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
+        this.jobFeedbackQueue = JobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
         this.commandBodyWrapper = application.getCommandBodyWrapper();
         this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
             @Override

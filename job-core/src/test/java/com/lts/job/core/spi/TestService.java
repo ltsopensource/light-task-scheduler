@@ -5,7 +5,7 @@ import com.lts.job.core.extension.Adaptive;
 import com.lts.job.core.extension.SPI;
 
 /**
- * Created by hugui on 5/18/15.
+ * @author Robert HG (254963746@qq.com) on 5/18/15.
  */
 @SPI("test2")
 public interface TestService {

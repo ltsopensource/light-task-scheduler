@@ -1,6 +1,5 @@
 package com.lts.job.core.registry.redis;
 
-import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
@@ -41,11 +40,8 @@ public class RedisRegistry extends FailbackRegistry {
     private final int reconnectPeriod;
     private final ConcurrentMap<String, Notifier> notifiers = new ConcurrentHashMap<String, Notifier>();
 
-    private Config config;
-
-    public RedisRegistry(Application application) {
-        super(application);
-        this.config = application.getConfig();
+    public RedisRegistry(Config config) {
+        super(config);
         this.clusterName = config.getClusterName();
 
         GenericObjectPool.Config redisConfig = new GenericObjectPool.Config();

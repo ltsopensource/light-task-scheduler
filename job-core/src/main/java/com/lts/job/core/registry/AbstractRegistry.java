@@ -1,6 +1,7 @@
 package com.lts.job.core.registry;
 
 import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ConcurrentHashSet;
@@ -21,12 +22,11 @@ public abstract class AbstractRegistry implements Registry {
     private final Set<Node> registered = new ConcurrentHashSet<Node>();
     private final ConcurrentMap<Node, Set<NotifyListener>> subscribed = new ConcurrentHashMap<Node, Set<NotifyListener>>();
 
-    protected Application application;
+    protected Config config;
     private Node node;
 
-    public AbstractRegistry(Application application) {
-
-        this.application = application;
+    public AbstractRegistry(Config config) {
+        this.config = config;
     }
 
     @Override

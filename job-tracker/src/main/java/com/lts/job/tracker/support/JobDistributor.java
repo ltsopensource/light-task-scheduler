@@ -7,14 +7,15 @@ import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.tracker.queue.JobPo;
-import com.lts.job.tracker.queue.JobQueue;
+import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.JobQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class JobDistributor {
     private CommandBodyWrapper commandBodyWrapper;
 
     public JobDistributor(JobTrackerApplication application) {
-        this.jobQueue = application.getJobQueue();
+        this.jobQueue = JobQueueFactory.getJobQueue(application.getConfig());
         this.taskTrackerManager = application.getTaskTrackerManager();
         this.commandBodyWrapper = application.getCommandBodyWrapper();
     }

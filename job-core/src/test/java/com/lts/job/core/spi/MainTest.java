@@ -5,7 +5,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.extension.ExtensionLoader;
 
 /**
- * Created by hugui on 5/18/15.
+ * @author Robert HG (254963746@qq.com) on 5/18/15.
  */
 public class MainTest {
 
@@ -13,6 +13,9 @@ public class MainTest {
 
 //        TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getExtension("test2");
         TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();
+        TestService testService2 = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();
+        TestService testService3 = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();
+        TestService testService4 = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();
         Config config = new Config();
 //        config.setParameter("test.type", "test2");
         testService.sayHello(config);

@@ -1,30 +1,31 @@
 package com.lts.job.core.registry;
 
-import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Config;
 import com.lts.job.core.registry.redis.RedisRegistry;
 import com.lts.job.core.registry.zookeeper.ZookeeperRegistry;
 import com.lts.job.core.util.StringUtils;
 
 /**
- * Created by hugui on 5/17/15.
+ * @author Robert HG (254963746@qq.com) on 5/17/15.
  */
 public class RegistryFactory {
 
-    public static Registry getRegistry(Application application) {
-        String address = application.getConfig().getRegistryAddress();
+    public static Registry getRegistry(Config config) {
+        
+        String address = config.getRegistryAddress();
         if (StringUtils.isEmpty(address)) {
             throw new IllegalArgumentException("address is null！");
         }
         if (address.startsWith("zookeeper://")) {
-            application.getConfig().setRegistryAddress(
+            config.setRegistryAddress(
                     address.replace("zookeeper://", "")
             );
-            return new ZookeeperRegistry(application);
+            return new ZookeeperRegistry(config);
         } else if (address.startsWith("redis://")) {
-            application.getConfig().setRegistryAddress(
+            config.setRegistryAddress(
                     address.replace("redis://", "")
             );
-            return new RedisRegistry(application);
+            return new RedisRegistry(config);
         }
         throw new IllegalArgumentException("illegal address protocol");
     }
