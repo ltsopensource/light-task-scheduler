@@ -3,7 +3,7 @@ package com.lts.job.queue.mongo;
 import com.google.code.morphia.query.Query;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.mongo.AbstractMongoRepository;
+import com.lts.job.store.mongo.AbstractMongoRepository;
 import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.mongodb.DBCollection;

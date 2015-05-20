@@ -1,10 +1,10 @@
 package com.lts.job.ec.injvm;
 
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.util.ConcurrentHashSet;
-import com.lts.job.core.util.JSONUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.util.ConcurrentHashSet;
+import com.lts.job.core.util.JSONUtils;
 import com.lts.job.ec.EventCenter;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
@@ -17,16 +17,17 @@ import java.util.concurrent.Executors;
 
 /**
  * 在一个jvm中的pub sub 简易实现
+ *
  * @author Robert HG (254963746@qq.com) on 5/12/15.
  */
 public class InjvmEventCenter implements EventCenter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EventCenter.class.getName());
 
-    private Map<String, Set<EventSubscriber>> ecMap =
+    private final Map<String, Set<EventSubscriber>> ecMap =
             new ConcurrentHashMap<String, Set<EventSubscriber>>();
 
-    private ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2);
+    private final ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2);
 
     public void subscribe(String topic, EventSubscriber subscriber) {
         Set<EventSubscriber> subscribers = ecMap.get(topic);

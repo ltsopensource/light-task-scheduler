@@ -1,20 +1,17 @@
 package com.lts.job.tracker.processor;
 
 import com.lts.job.core.exception.JobReceiveException;
-import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.JobReceiver;
 import io.netty.channel.ChannelHandlerContext;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
@@ -24,14 +21,11 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
-    private CommandBodyWrapper commandBodyWrapper;
     private JobReceiver jobReceiver;
-    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
 
     public JobSubmitProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobReceiver = new JobReceiver(jobQueueFactory.getJobQueue(application.getConfig()));
+        this.jobReceiver = new JobReceiver(application);
     }
 
     @Override
@@ -39,7 +33,7 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
         JobSubmitRequest jobSubmitRequest = request.getBody();
 
-        JobSubmitResponse jobSubmitResponse = commandBodyWrapper.wrapper(new JobSubmitResponse());
+        JobSubmitResponse jobSubmitResponse = application.getCommandBodyWrapper().wrapper(new JobSubmitResponse());
         RemotingCommand response = null;
         try {
             jobReceiver.receive(jobSubmitRequest);

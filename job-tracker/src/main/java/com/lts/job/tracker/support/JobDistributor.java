@@ -2,23 +2,19 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
-import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.queue.JobQueueFactory;
+import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.queue.domain.JobPo;
-import com.lts.job.queue.JobQueue;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -29,15 +25,10 @@ import java.util.concurrent.CountDownLatch;
 public class JobDistributor {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JobDistributor.class);
-    private JobQueue jobQueue;
-    private TaskTrackerManager taskTrackerManager;
-    private CommandBodyWrapper commandBodyWrapper;
-    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
+    private JobTrackerApplication application;
 
     public JobDistributor(JobTrackerApplication application) {
-        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
-        this.taskTrackerManager = application.getTaskTrackerManager();
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
+        this.application = application;
     }
 
     /**
@@ -52,9 +43,9 @@ public class JobDistributor {
         String nodeGroup = request.getNodeGroup();
         String identity = request.getIdentity();
         // 更新TaskTracker的可用线程数
-        taskTrackerManager.updateTaskTrackerAvailableThreads(nodeGroup, identity, request.getAvailableThreads(), request.getTimestamp());
+        application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup, identity, request.getAvailableThreads(), request.getTimestamp());
 
-        TaskTrackerNode taskTrackerNode = taskTrackerManager.getTaskTrackerNode(nodeGroup, identity);
+        TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().getTaskTrackerNode(nodeGroup, identity);
 
         if (taskTrackerNode == null) {
             return;
@@ -97,13 +88,13 @@ public class JobDistributor {
         String identity = taskTrackerNode.getIdentity();
 
         // 从mongo 中取一个可运行的job
-        JobPo jobPo = jobQueue.take(nodeGroup, identity);
+        JobPo jobPo = application.getJobQueue().take(nodeGroup, identity);
 
         if (jobPo == null) {
             return NO_JOB;
         }
 
-        JobPushRequest body = commandBodyWrapper.wrapper(new JobPushRequest());
+        JobPushRequest body = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
         Job job = JobDomainConverter.convert(jobPo);
         body.setJob(job);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
@@ -147,7 +138,7 @@ public class JobDistributor {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
             }
-            jobQueue.resume(jobPo);
+            application.getJobQueue().resume(jobPo);
             return PUSH_FAILED;
         }
 

@@ -1,17 +1,14 @@
 package com.lts.job.tracker.support.checker;
 
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.queue.JobFeedbackQueueFactory;
-import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.queue.domain.JobFeedbackPo;
-import com.lts.job.queue.JobFeedbackQueue;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import com.lts.job.tracker.support.OldDataHandler;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +28,8 @@ public class FeedbackJobSendChecker {
     private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
     private volatile boolean start = false;
     private ClientNotifier clientNotifier;
-    private JobFeedbackQueue jobFeedbackQueue;
     private OldDataHandler oldDataHandler;
-    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
+    private JobTrackerApplication application;
 
     /**
      * 是否已经启动
@@ -44,18 +40,19 @@ public class FeedbackJobSendChecker {
         return start;
     }
 
-    public FeedbackJobSendChecker(JobTrackerApplication application) {
-        this.jobFeedbackQueue = jobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
-        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
+    public FeedbackJobSendChecker(final JobTrackerApplication application) {
+        this.application = application;
+
+        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<JobResultWrapper>() {
             @Override
-            public void handleSuccess(List<JobResult> jobResults) {
-                for (JobResult jobResult : jobResults) {
-                    jobFeedbackQueue.remove(((JobFeedbackPo) jobResult).getId());
+            public void handleSuccess(List<JobResultWrapper> jobResults) {
+                for (JobResultWrapper jobResult : jobResults) {
+                    application.getJobFeedbackQueue().remove(jobResult.getId());
                 }
             }
 
             @Override
-            public void handleFailed(List<JobResult> jobResults) {
+            public void handleFailed(List<JobResultWrapper> jobResults) {
                 // do nothing
             }
         });
@@ -69,7 +66,7 @@ public class FeedbackJobSendChecker {
         if (!start) {
             RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
             RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
-                    , 60, 30, TimeUnit.SECONDS);
+                    , 30, 30, TimeUnit.SECONDS);
             start = true;
             LOGGER.info("完成任务重发发送定时器启动成功!");
         }
@@ -91,7 +88,7 @@ public class FeedbackJobSendChecker {
         @Override
         public void run() {
             try {
-                long count = jobFeedbackQueue.count();
+                long count = application.getJobFeedbackQueue().count();
                 if (count == 0) {
                     return;
                 }
@@ -101,16 +98,16 @@ public class FeedbackJobSendChecker {
                 int limit = 5;
                 int offset = 0;
                 do {
-                    jobFeedbackPos = jobFeedbackQueue.fetch(offset, limit);
+                    jobFeedbackPos = application.getJobFeedbackQueue().fetch(offset, limit);
                     if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                         return;
                     }
-                    List<JobResult> jobResults = new ArrayList<JobResult>(jobFeedbackPos.size());
+                    List<JobResultWrapper> jobResults = new ArrayList<JobResultWrapper>(jobFeedbackPos.size());
                     for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                         // 判断是否是过时的数据，如果是，那么移除
                         if (oldDataHandler == null ||
-                                (oldDataHandler != null && !oldDataHandler.handleJobFeedbackPo(jobFeedbackQueue, jobFeedbackPo, jobFeedbackPo))) {
-                            jobResults.add(jobFeedbackPo);
+                                (oldDataHandler != null && !oldDataHandler.handleJobFeedbackPo(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
+                            jobResults.add(new JobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getJobResult()));
                         }
                     }
                     // 返回发送成功的个数
@@ -125,4 +122,23 @@ public class FeedbackJobSendChecker {
             }
         }
     }
+
+    private class JobResultWrapper extends JobResult {
+        private String id;
+
+        public String getId() {
+            return id;
+        }
+
+        public JobResultWrapper(String id, JobResult jobResult) {
+            this.id = id;
+            setJob(jobResult.getJob());
+            setMsg(jobResult.getMsg());
+            setSuccess(jobResult.isSuccess());
+            setTime(jobResult.getTime());
+        }
+    }
+
 }
+
+

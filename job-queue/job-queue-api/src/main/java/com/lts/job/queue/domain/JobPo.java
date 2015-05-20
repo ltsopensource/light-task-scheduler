@@ -23,11 +23,11 @@ public class JobPo {
      */
     private String taskId;
     // 创建时间
-    private Long gmtCreate = System.currentTimeMillis();
+    private Long gmtCreated = System.currentTimeMillis();
     // 修改时间
-    private Long gmtModify;
+    private Long gmtModified;
     /**
-     * 节点组
+     * 提交客户端的节点组
      */
     private String submitNodeGroup;
     /**
@@ -113,20 +113,20 @@ public class JobPo {
         this.taskId = taskId;
     }
 
-    public Long getGmtCreate() {
-        return gmtCreate;
+    public Long getGmtCreated() {
+        return gmtCreated;
     }
 
-    public void setGmtCreate(Long gmtCreate) {
-        this.gmtCreate = gmtCreate;
+    public void setGmtCreated(Long gmtCreated) {
+        this.gmtCreated = gmtCreated;
     }
 
-    public Long getGmtModify() {
-        return gmtModify;
+    public Long getGmtModified() {
+        return gmtModified;
     }
 
-    public void setGmtModify(Long gmtModify) {
-        this.gmtModify = gmtModify;
+    public void setGmtModified(Long gmtModified) {
+        this.gmtModified = gmtModified;
     }
 
     public Map<String, String> getExtParams() {
@@ -141,16 +141,16 @@ public class JobPo {
         return isRunning;
     }
 
-    public void setRunning(boolean isRunning) {
-        this.isRunning = isRunning;
-    }
-
     public String getTaskTrackerNodeGroup() {
         return taskTrackerNodeGroup;
     }
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
     }
 
     public boolean isNeedFeedback() {
@@ -167,10 +167,6 @@ public class JobPo {
 
     public void setSubmitNodeGroup(String submitNodeGroup) {
         this.submitNodeGroup = submitNodeGroup;
-    }
-
-    public void setIsRunning(boolean isRunning) {
-        this.isRunning = isRunning;
     }
 
     public String getTaskTrackerIdentity() {

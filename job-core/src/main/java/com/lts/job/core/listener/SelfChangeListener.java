@@ -1,13 +1,12 @@
 package com.lts.job.core.listener;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.EcTopic;
-import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.ec.EventCenter;
-import com.lts.job.ec.EventCenterFactory;
 import com.lts.job.ec.EventInfo;
 
 import java.util.List;
@@ -20,12 +19,11 @@ import java.util.List;
 public class SelfChangeListener implements NodeChangeListener {
 
     private Config config;
-    private EventCenter eventCenter;
-    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
+    private Application application;
 
-    public SelfChangeListener(Config config) {
-        this.config = config;
-        this.eventCenter = eventCenterFactory.getEventCenter(config);
+    public SelfChangeListener(Application application) {
+        this.config = application.getConfig();
+        this.application = application;
     }
 
 
@@ -36,14 +34,14 @@ public class SelfChangeListener implements NodeChangeListener {
             if (node.getNodeType().equals(NodeType.TASK_TRACKER)
                     && (node.getThreads() != config.getWorkThreads())) {
                 config.setWorkThreads(node.getThreads());
-                eventCenter.publishAsync(new EventInfo(EcTopic.WORK_THREAD_CHANGE));
+                application.getEventCenter().publishAsync(new EventInfo(EcTopic.WORK_THREAD_CHANGE));
             }
 
             // 2. 看 available 有没有改变
             if (node.isAvailable() != config.isAvailable()) {
                 String topic = node.isAvailable() ? EcTopic.NODE_ENABLE : EcTopic.NODE_DISABLE;
                 config.setAvailable(node.isAvailable());
-                eventCenter.publishAsync(new EventInfo(topic));
+                application.getEventCenter().publishAsync(new EventInfo(topic));
             }
         }
     }

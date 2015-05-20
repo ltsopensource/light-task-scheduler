@@ -15,10 +15,7 @@ import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -28,15 +25,11 @@ public class ClientNotifier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientNotifier.class.getSimpleName());
     private ClientNotifyHandler clientNotifyHandler;
-    private JobClientManager jobClientManager;
-    private CommandBodyWrapper commandBodyWrapper;
     private JobTrackerApplication application;
 
     public ClientNotifier(JobTrackerApplication application, ClientNotifyHandler clientNotifyHandler) {
         this.application = application;
         this.clientNotifyHandler = clientNotifyHandler;
-        this.jobClientManager = application.getJobClientManager();
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
     }
 
     /**
@@ -45,7 +38,7 @@ public class ClientNotifier {
      * @param jobResults
      * @return 返回成功的个数
      */
-    public int send(List<JobResult> jobResults) {
+    public <T extends JobResult> int send(List<T> jobResults) {
         if (jobResults == null || jobResults.size() == 0) {
             return 0;
         }
@@ -54,7 +47,7 @@ public class ClientNotifier {
         if (jobResults.size() == 1) {
 
             JobResult jobResult = jobResults.get(0);
-            if (!send0(jobResult.getJob().getSubmitNodeGroup(), jobResults)) {
+            if (!send0(jobResult.getJob().getSubmitNodeGroup(), Arrays.asList(jobResult))) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
                 return 0;
@@ -66,7 +59,7 @@ public class ClientNotifier {
             // 有多个要进行分组 (出现在 失败重发的时候)
             Map<String/*nodeGroup*/, List<JobResult>> groupMap = new HashMap<String, List<JobResult>>();
 
-            for (JobResult jobResult : jobResults) {
+            for (T jobResult : jobResults) {
                 List<JobResult> jobResultList = groupMap.get(jobResult.getJob().getSubmitNodeGroup());
                 if (jobResultList == null) {
                     jobResultList = new ArrayList<JobResult>();
@@ -96,13 +89,13 @@ public class ClientNotifier {
      */
     private boolean send0(String nodeGroup, final List<JobResult> jobResults) {
         // 得到 可用的客户端节点
-        JobClientNode jobClientNode = jobClientManager.getAvailableJobClient(nodeGroup);
+        JobClientNode jobClientNode = application.getJobClientManager().getAvailableJobClient(nodeGroup);
 
         if (jobClientNode == null) {
             return false;
         }
 
-        JobFinishedRequest requestBody = commandBodyWrapper.wrapper(new JobFinishedRequest());
+        JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 

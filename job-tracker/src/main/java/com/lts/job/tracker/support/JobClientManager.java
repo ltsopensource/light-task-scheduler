@@ -29,12 +29,10 @@ public class JobClientManager {
     private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<JobClientNode>>();
 
     private LoadBalance loadBalance;
-    private ChannelManager channelManager;
     private JobTrackerApplication application;
 
     public JobClientManager(JobTrackerApplication application) {
         this.application = application;
-        this.channelManager = application.getChannelManager();
         this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
     }
 
@@ -45,7 +43,7 @@ public class JobClientManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = channelManager.getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+        ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
 
         synchronized (NODE_MAP) {
@@ -99,7 +97,7 @@ public class JobClientManager {
             JobClientNode jobClientNode = loadBalance.select(application.getConfig(), list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
-                ChannelWrapper channel = channelManager.getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());
+                ChannelWrapper channel = application.getChannelManager().getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);

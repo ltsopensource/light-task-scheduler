@@ -1,5 +1,6 @@
 package com.lts.job.task.tracker.runner;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobInfoException;
 import com.lts.job.task.tracker.domain.Response;
@@ -20,15 +21,15 @@ public class JobRunnerDelegate implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("JobRunner");
     private Job job;
-    private RunnerPool runnerPool;
     private RunnerCallback callback;
     private BizLoggerImpl logger;
+    private TaskTrackerApplication application;
 
     public JobRunnerDelegate(TaskTrackerApplication application,
                              Job job, RunnerCallback callback) {
-        this.runnerPool = application.getRunnerPool();
         this.job = job;
         this.callback = callback;
+        this.application = application;
         this.logger = (BizLoggerImpl) BizLoggerFactory.getLogger(
                 application.getBizLogLevel(),
                 application.getRemotingClient(), application);
@@ -44,12 +45,12 @@ public class JobRunnerDelegate implements Runnable {
                 // 设置当前context中的jobId
                 logger.setJobId(job.getJobId());
 
-                runnerPool.getRunningJobManager().in(job.getJobId());
+                application.getRunnerPool().getRunningJobManager().in(job.getJobId());
 
                 Response response = new Response();
                 response.setJob(job);
                 try {
-                    runnerPool.getRunnerFactory().newRunner().run(job);
+                    application.getRunnerPool().getRunnerFactory().newRunner().run(job);
                     response.setSuccess(true);
                     LOGGER.info("执行任务成功 : {}", job);
                 } catch (Throwable t) {
@@ -65,7 +66,7 @@ public class JobRunnerDelegate implements Runnable {
                         LOGGER.info("任务执行失败: {} {}", job, t.getMessage(), t);
                     }
                 } finally {
-                    runnerPool.getRunningJobManager().out(job.getJobId());
+                    application.getRunnerPool().getRunningJobManager().out(job.getJobId());
                 }
                 job = callback.runComplete(response);
             }

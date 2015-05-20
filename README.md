@@ -46,7 +46,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 * 框架优化
 
 ## 调用示例
-* 安装 zookeeper(或redis) 和 mongo (后提供其他任务队列实现方式)
+* 安装 zookeeper(或redis) 和 mongo(或mysql) (后提供其他任务队列实现方式)
 
 运行 job-example模块中的例子（包含API启动例子和Spring例子）
 分别执行 JobTrackerTest TaskTrackerTest JobClientTest
@@ -64,11 +64,20 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
     // 设置业务日志记录
     //  jobTracker.addConfig("job.logger", "mongo");
-    // 任务队列用mongo
+    
+    // 1. 任务队列用mongo
     jobTracker.addConfig("job.queue", "mongo");
     // mongo 配置
     jobTracker.addConfig("mongo.addresses", "127.0.0.1:27017");     // 多个地址用逗号分割
     jobTracker.addConfig("mongo.database", "job");
+    
+    // 2. 任务队里用mysql
+    // jobTracker.addConfig("job.queue", "mysql");
+    // mysql 配置
+    // jobTracker.addConfig("jdbc.url", "jdbc:mysql://test.superboss.cc:3306/lts");
+    // jobTracker.addConfig("jdbc.username", "root");
+    // jobTracker.addConfig("jdbc.password", "root");
+    
     jobTracker.setOldDataHandler(new OldDataDeletePolicy());
     // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
     jobTracker.addConfig("zk.client", "zkclient");

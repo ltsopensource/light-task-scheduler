@@ -24,7 +24,6 @@ import com.lts.job.task.tracker.support.JobPullMachine;
 public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerApplication> {
 
     private JobPullMachine jobPullMachine;
-    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
 
     public TaskTracker() {
         // 设置默认节点组
@@ -34,7 +33,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     @Override
     protected void innerStart() {
         // 向事件中心注册事件
-        eventCenterFactory.getEventCenter(config).subscribe(
+        application.getEventCenter().subscribe(
                 EcTopic.WORK_THREAD_CHANGE,
                 new EventSubscriber(node.getIdentity(), new Observer() {
                     @Override

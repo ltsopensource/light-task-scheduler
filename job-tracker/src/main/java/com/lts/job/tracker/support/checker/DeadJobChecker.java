@@ -1,34 +1,27 @@
 package com.lts.job.tracker.support.checker;
 
-import com.lts.job.biz.logger.JobLogger;
-import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.biz.logger.domain.JobLogPo;
 import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.Level;
-import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
-import com.lts.job.queue.JobQueueFactory;
+import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
-import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.queue.domain.JobPo;
-import com.lts.job.queue.JobQueue;
 import com.lts.job.tracker.support.JobDomainConverter;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -54,19 +47,9 @@ public class DeadJobChecker {
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
     private JobTrackerApplication application;
-    private ChannelManager channelManager;
-    private CommandBodyWrapper commandBodyWrapper;
-    private JobLogger jobLogger;
-    private JobQueue jobQueue;
-    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
-    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
 
     public DeadJobChecker(JobTrackerApplication application) {
         this.application = application;
-        this.channelManager = application.getChannelManager();
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.jobLogger = jobLoggerFactory.getJobLogger(application.getConfig());
-        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
     }
 
     private volatile boolean start;
@@ -84,7 +67,7 @@ public class DeadJobChecker {
                 try {
                     // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
                     // 一般来说这个是没有多大的，我就不分页去查询了
-                    List<JobPo> jobPos = jobQueue.getByLimitExecTime(MAX_DEAD_CHECK_TIME);
+                    List<JobPo> jobPos = application.getJobQueue().getByLimitExecTime(MAX_DEAD_CHECK_TIME);
                     if (jobPos != null && jobPos.size() > 0) {
                         List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.TASK_TRACKER);
                         HashSet<String/*identity*/> identities = new HashSet<String>();
@@ -100,7 +83,7 @@ public class DeadJobChecker {
                                 fixedDeadJob(jobPo);
                             } else {
                                 // 如果节点存在，并且超时了, 那么去主动询问taskTracker 这个任务是否在执行中
-                                if (System.currentTimeMillis() - jobPo.getGmtModify() > MAX_TIME_OUT) {
+                                if (System.currentTimeMillis() - jobPo.getGmtModified() > MAX_TIME_OUT) {
                                     TaskTrackerNode taskTrackerNode = new TaskTrackerNode(jobPo.getTaskTrackerIdentity(), jobPo.getTaskTrackerNodeGroup());
                                     List<String> jobIds = timeoutMap.get(taskTrackerNode);
                                     if (jobIds == null) {
@@ -116,9 +99,9 @@ public class DeadJobChecker {
                             RemotingServerDelegate remotingServer = application.getRemotingServer();
                             for (Map.Entry<TaskTrackerNode, List<String>> entry : timeoutMap.entrySet()) {
                                 TaskTrackerNode taskTrackerNode = entry.getKey();
-                                ChannelWrapper channelWrapper = channelManager.getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
+                                ChannelWrapper channelWrapper = application.getChannelManager().getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
                                 if (channelWrapper != null && channelWrapper.getChannel() != null && channelWrapper.isOpen()) {
-                                    JobAskRequest requestBody = commandBodyWrapper.wrapper(new JobAskRequest());
+                                    JobAskRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobAskRequest());
                                     requestBody.setJobIds(entry.getValue());
                                     RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
                                     remotingServer.invokeAsync(channelWrapper.getChannel(), request, new InvokeCallback() {
@@ -153,7 +136,7 @@ public class DeadJobChecker {
                     LOGGER.error(t.getMessage(), t);
                 }
             }
-        }, 2 * 60, 3 * 60, TimeUnit.SECONDS);// 3分钟执行一次
+        }, 30, 3 * 60, TimeUnit.SECONDS);// 3分钟执行一次
     }
 
     /**
@@ -165,9 +148,9 @@ public class DeadJobChecker {
         try {
             // 1. 判断这个节点的channel是否存在
             ChannelWrapper channelWrapper = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
-            if(channelWrapper == null || channelWrapper.getChannel() == null
-            || channelWrapper.isClosed()){
-                List<JobPo> jobPos = jobQueue.getRunningJob(node.getIdentity());
+            if (channelWrapper == null || channelWrapper.getChannel() == null
+                    || channelWrapper.isClosed()) {
+                List<JobPo> jobPos = application.getJobQueue().getRunningJob(node.getIdentity());
                 if (CollectionUtils.isNotEmpty(jobPos)) {
                     for (JobPo jobPo : jobPos) {
                         fixedDeadJob(jobPo);
@@ -180,12 +163,12 @@ public class DeadJobChecker {
     }
 
     private void fixedDeadJob(JobPo jobPo) {
-        jobQueue.resume(jobPo);
+        application.getJobQueue().resume(jobPo);
         try {
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
-            jobLogger.log(jobLogPo);
+            application.getJobLogger().log(jobLogPo);
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }

@@ -4,6 +4,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.MasterElector;
 import com.lts.job.core.cluster.SubscribedNodeManager;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
+import com.lts.job.ec.EventCenter;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.
@@ -19,6 +20,16 @@ public abstract class Application {
     private MasterElector masterElector;
     // 节点通信CommandBody包装器
     private CommandBodyWrapper commandBodyWrapper;
+    // 事件中心
+    private EventCenter eventCenter;
+
+    public EventCenter getEventCenter() {
+        return eventCenter;
+    }
+
+    public void setEventCenter(EventCenter eventCenter) {
+        this.eventCenter = eventCenter;
+    }
 
     public CommandBodyWrapper getCommandBodyWrapper() {
         return commandBodyWrapper;

@@ -3,8 +3,9 @@ package com.lts.job.task.tracker.processor;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
@@ -20,8 +21,6 @@ import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.job.task.tracker.runner.RunnerCallback;
 import io.netty.channel.ChannelHandlerContext;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -36,11 +35,9 @@ public class JobPushProcessor extends AbstractProcessor {
 
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
-    private CommandBodyWrapper commandBodyWrapper;
 
     protected JobPushProcessor(final RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
         super(remotingClient, application);
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
         retryScheduler = new RetryScheduler<JobResult>(application, 3) {
             @Override
             protected boolean isRemotingEnable() {
@@ -90,7 +87,7 @@ public class JobPushProcessor extends AbstractProcessor {
             jobResult.setJob(response.getJob());
             jobResult.setSuccess(response.isSuccess());
             jobResult.setMsg(response.getMsg());
-            JobFinishedRequest requestBody = commandBodyWrapper.wrapper(new JobFinishedRequest());
+            JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
             requestBody.addJobResult(jobResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 
@@ -153,7 +150,7 @@ public class JobPushProcessor extends AbstractProcessor {
      */
     private boolean sendJobResults(List<JobResult> jobResults) {
         // 发送消息给 JobTracker
-        JobFinishedRequest requestBody = commandBodyWrapper.wrapper(new JobFinishedRequest());
+        JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         requestBody.setReSend(true);
 
