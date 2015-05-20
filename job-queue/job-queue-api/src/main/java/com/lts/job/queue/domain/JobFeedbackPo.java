@@ -1,15 +1,26 @@
 package com.lts.job.queue.domain;
 
+
 import com.lts.job.core.domain.JobResult;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/3/15.
  */
-public class JobFeedbackPo extends JobResult{
+public class JobFeedbackPo{
 
     private String id;
 
     private Long gmtCreated;
+
+    private JobResult jobResult;
+
+    public JobResult getJobResult() {
+        return jobResult;
+    }
+
+    public void setJobResult(JobResult jobResult) {
+        this.jobResult = jobResult;
+    }
 
     public Long getGmtCreated() {
         return gmtCreated;

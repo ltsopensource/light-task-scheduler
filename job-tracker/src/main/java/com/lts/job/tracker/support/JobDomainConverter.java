@@ -21,7 +21,7 @@ public class JobDomainConverter {
         JobPo jobPo = new JobPo();
         jobPo.setPriority(job.getPriority());
         jobPo.setTaskId(job.getTaskId());
-        jobPo.setGmtModify(System.currentTimeMillis());
+        jobPo.setGmtModified(System.currentTimeMillis());
         jobPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobPo.setExtParams(job.getExtParams());
@@ -106,10 +106,7 @@ public class JobDomainConverter {
 
     public static JobFeedbackPo convert(JobResult jobResult) {
         JobFeedbackPo jobFeedbackPo = new JobFeedbackPo();
-        jobFeedbackPo.setJob(jobResult.getJob());
-        jobFeedbackPo.setSuccess(jobResult.isSuccess());
-        jobFeedbackPo.setMsg(jobResult.getMsg());
-        jobFeedbackPo.setTime(jobResult.getTime());
+        jobFeedbackPo.setJobResult(jobResult);
         jobFeedbackPo.setId(StringUtils.generateUUID());
         jobFeedbackPo.setGmtCreated(System.currentTimeMillis());
         return jobFeedbackPo;
@@ -123,7 +120,7 @@ public class JobDomainConverter {
      */
     public static String generateJobId(JobPo jobPo) {
         StringBuilder sb = new StringBuilder();
-        sb.append(jobPo.getTaskId()).append(jobPo.getSubmitNodeGroup()).append(jobPo.getGmtCreate());
+        sb.append(jobPo.getTaskId()).append(jobPo.getSubmitNodeGroup()).append(jobPo.getGmtCreated());
         return Md5Encrypt.md5(sb.toString());
     }
 }

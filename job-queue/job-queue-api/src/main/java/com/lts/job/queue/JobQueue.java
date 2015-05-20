@@ -1,6 +1,7 @@
 package com.lts.job.queue;
 
 import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.exception.DuplicateJobException;
 
 import java.util.List;
 

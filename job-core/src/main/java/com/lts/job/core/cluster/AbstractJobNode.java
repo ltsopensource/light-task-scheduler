@@ -57,6 +57,8 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
             innerStart();
 
+            initEvent();
+
             initRegistry();
 
             registry.register(node);
@@ -67,6 +69,22 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
             LOGGER.error("启动失败!", e);
         }
     }
+
+    protected void initEvent(){
+        // 监听节点 启用/禁用消息
+        application.getEventCenter().subscribe(
+                new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
+                new EventSubscriber(node.getIdentity(), new Observer() {
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
+                            nodeDisable();
+                        } else {
+                            nodeEnable();
+                        }
+                    }
+                }));
+    };
 
     final public void stop() {
         try {
@@ -94,15 +112,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         if (registry instanceof AbstractRegistry) {
             ((AbstractRegistry) registry).setNode(node);
         }
-        // 订阅的node管理
-        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
-        application.setSubscribedNodeManager(subscribedNodeManager);
-        nodeChangeListeners.add(subscribedNodeManager);
-        // 用于master选举的监听器
-        nodeChangeListeners.add(new MasterElectionListener(application));
-        // 监听自己节点变化（如，当前节点被禁用了）
-        nodeChangeListeners.add(new SelfChangeListener(config));
-
         registry.subscribe(node, new NotifyListener() {
             private final Logger NOTIFY_LOGGER = LoggerFactory.getLogger(NotifyListener.class);
 
@@ -145,19 +154,16 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
         LOGGER.info("当前节点配置:{}", config);
 
-        // 监听节点 启用/禁用消息
-        eventCenterFactory.getEventCenter(config).subscribe(
-                new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
-                new EventSubscriber(node.getIdentity(), new Observer() {
-                    @Override
-                    public void onObserved(EventInfo eventInfo) {
-                        if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
-                            nodeDisable();
-                        } else {
-                            nodeEnable();
-                        }
-                    }
-                }));
+        application.setEventCenter(eventCenterFactory.getEventCenter(config));
+
+        // 订阅的node管理
+        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
+        application.setSubscribedNodeManager(subscribedNodeManager);
+        nodeChangeListeners.add(subscribedNodeManager);
+        // 用于master选举的监听器
+        nodeChangeListeners.add(new MasterElectionListener(application));
+        // 监听自己节点变化（如，当前节点被禁用了）
+        nodeChangeListeners.add(new SelfChangeListener(application));
     }
 
     protected abstract void innerStart();

@@ -1,20 +1,17 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.biz.logger.JobLogger;
-import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.biz.logger.domain.JobLogPo;
 import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.extension.ExtensionLoader;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.queue.*;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.exception.RemotingCommandException;
@@ -25,8 +22,6 @@ import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
 import com.lts.job.tracker.support.JobDomainConverter;
 import io.netty.channel.ChannelHandlerContext;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -41,21 +36,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
-    private CommandBodyWrapper commandBodyWrapper;
-    private JobLogger jobLogger;
-    private JobQueue jobQueue;
-    private JobFeedbackQueue jobFeedbackQueue;
-    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
-    JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
-    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
-    public JobFinishedProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
+    public JobFinishedProcessor(RemotingServerDelegate remotingServer, final JobTrackerApplication application) {
         super(remotingServer, application);
-        this.jobLogger = jobLoggerFactory.getJobLogger(application.getConfig());
-        this.jobQueue = jobQueueFactory.getJobQueue(application.getConfig());
-        this.jobFeedbackQueue = jobFeedbackQueueFactory.getJobFeedbackQueue(application.getConfig());
-        this.commandBodyWrapper = application.getCommandBodyWrapper();
-        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler() {
+        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<JobResult>() {
             @Override
             public void handleSuccess(List<JobResult> jobResults) {
                 finishedJob(jobResults);
@@ -73,7 +57,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         jobFeedbackPos.add(jobFeedbackPo);
                     }
                     // 2. 失败的存储在反馈队列
-                    jobFeedbackQueue.add(jobFeedbackPos);
+                    application.getJobFeedbackQueue().add(jobFeedbackPos);
                     // 3. 完成任务 
                     finishedJob(jobResults);
                 }
@@ -120,7 +104,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 jobLogPo.setSuccess(jobResult.isSuccess());
                 jobLogPo.setTaskTrackerIdentity(taskTrackerIdentity);
                 jobLogPo.setLevel(Level.INFO);
-                jobLogger.log(jobLogPo);
+                application.getJobLogger().log(jobLogPo);
             }
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
@@ -163,9 +147,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 判断是否接受新任务
         if (requestBody.isReceiveNewJob()) {
             // 查看有没有其他可以执行的任务
-            JobPo jobPo = jobQueue.take(requestBody.getNodeGroup(), requestBody.getIdentity());
+            JobPo jobPo = application.getJobQueue().take(requestBody.getNodeGroup(), requestBody.getIdentity());
             if (jobPo != null) {
-                JobPushRequest jobPushRequest = commandBodyWrapper.wrapper(new JobPushRequest());
+                JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
                 if (LOGGER.isDebugEnabled()) {
@@ -200,17 +184,17 @@ public class JobFinishedProcessor extends AbstractProcessor {
         for (JobResult jobResult : jobResults) {
             Job job = jobResult.getJob();
             if (!job.isSchedule()) {
-                jobQueue.remove(job.getJobId());
+                application.getJobQueue().remove(job.getJobId());
             } else {
                 try {
                     CronExpression cronExpression = new CronExpression(job.getCronExpression());
                     Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
                     if (nextTriggerTime == null) {
                         // 执行完成了，要删除
-                        jobQueue.remove(job.getJobId());
+                        application.getJobQueue().remove(job.getJobId());
                     } else {
                         // 表示下次还要执行
-                        jobQueue.updateScheduleTriggerTime(job.getJobId(), nextTriggerTime.getTime());
+                        application.getJobQueue().updateScheduleTriggerTime(job.getJobId(), nextTriggerTime.getTime());
                     }
                 } catch (ParseException e) {
                     throw new RuntimeException(e);

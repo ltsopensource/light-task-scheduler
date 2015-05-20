@@ -11,5 +11,19 @@
 
     <artifactId>job-queue-mysql</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>job-queue-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+    </dependencies>
 </project>

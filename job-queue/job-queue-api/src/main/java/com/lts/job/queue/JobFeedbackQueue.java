@@ -15,9 +15,9 @@ public interface JobFeedbackQueue {
     /**
      * 添加反馈的任务结果
      *
-     * @param jobFeedbackPo
+     * @param jobFeedbackPos
      */
-    public void add(List<JobFeedbackPo> jobFeedbackPo);
+    public void add(List<JobFeedbackPo> jobFeedbackPos);
 
     /**
      * 删除记录

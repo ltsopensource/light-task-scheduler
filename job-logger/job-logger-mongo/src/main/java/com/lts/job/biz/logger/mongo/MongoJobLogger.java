@@ -5,7 +5,7 @@ import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
 import com.lts.job.core.cluster.Config;
-import com.lts.job.mongo.AbstractMongoRepository;
+import com.lts.job.store.mongo.AbstractMongoRepository;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/27/15.

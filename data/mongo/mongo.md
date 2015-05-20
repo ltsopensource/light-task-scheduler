@@ -6,7 +6,7 @@ db.createCollection("JobPo");
 db.JobPo.ensureIndex({"jobId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "taskId":1},{unique:true});
 db.JobPo.ensureIndex({"taskTrackerIdentity":1});
-db.JobPo.ensureIndex({"triggerTime":1, "priority":1, "gmtCreate": 1});
+db.JobPo.ensureIndex({"triggerTime":1, "priority":1, "gmtCreated": 1});
 db.JobPo.ensureIndex({"isRunning":1});
 db.JobPo.ensureIndex({"taskTrackerNodeGroup":1, "isRunning":1, "triggerTime":1});
 
@@ -14,7 +14,7 @@ db.createCollection("JobLogPo");
 db.JobLogPo.ensureIndex({"jobId":1});
 db.JobLogPo.ensureIndex({"submitNodeGroup":1, "taskId":1});
 db.JobLogPo.ensureIndex({"taskTrackerIdentity":1});
-db.JobLogPo.ensureIndex({"gmtCreate":1});
+db.JobLogPo.ensureIndex({"gmtCreated":1});
 db.JobLogPo.ensureIndex({"priority":1});
 db.JobLogPo.ensureIndex({"logType":1});
 db.JobLogPo.ensureIndex({"timestamp":1});
@@ -22,4 +22,4 @@ db.JobLogPo.ensureIndex({"taskId":1});
 
 db.createCollection("JobFeedbackPo");
 db.JobFeedbackPo.ensureIndex({"id":1});
-db.JobFeedbackPo.ensureIndex({"gmtCreated":1});
+db.JobFeedbackPo.ensureIndex({"gmtCreatedd":1});

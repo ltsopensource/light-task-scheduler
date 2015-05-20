@@ -5,7 +5,6 @@ import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
-import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
@@ -27,11 +26,9 @@ public class JobPullMachine {
     // 定时检查TaskTracker是否有空闲的线程，如果有，那么向JobTracker发起任务pull请求
     private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
 
-    private RemotingClientDelegate remotingClient;
     private TaskTrackerApplication application;
 
     public JobPullMachine(TaskTrackerApplication application) {
-        this.remotingClient = application.getRemotingClient();
         this.application = application;
     }
 
@@ -60,7 +57,7 @@ public class JobPullMachine {
                         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
 
                         try {
-                            remotingClient.invokeAsync(request, new InvokeCallback() {
+                            application.getRemotingClient().invokeAsync(request, new InvokeCallback() {
                                 @Override
                                 public void operationComplete(ResponseFuture responseFuture) {
                                     RemotingCommand responseCommand = responseFuture.getResponseCommand();
@@ -81,7 +78,7 @@ public class JobPullMachine {
                             LOGGER.warn(e.getMessage());
                         }
                     }
-                }, 10, 10, TimeUnit.SECONDS);        // 10s 检查一次是否有空余线程
+                }, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
     }
 
     public void stop() {

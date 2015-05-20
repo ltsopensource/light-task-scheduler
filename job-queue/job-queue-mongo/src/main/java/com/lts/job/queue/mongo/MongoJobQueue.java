@@ -4,8 +4,8 @@ import com.google.code.morphia.query.Query;
 import com.google.code.morphia.query.UpdateOperations;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.mongo.AbstractMongoRepository;
-import com.lts.job.queue.DuplicateJobException;
+import com.lts.job.store.mongo.AbstractMongoRepository;
+import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.queue.JobQueue;
 import com.lts.job.queue.domain.JobPo;
 import com.mongodb.DBCollection;
@@ -35,7 +35,7 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
             ds.ensureIndex(clazz, "idx_jobId", "jobId", true, true);
             ds.ensureIndex(clazz, "idx_taskTrackerNodeGroup_taskId", "taskTrackerNodeGroup,taskId", true, true);
             ds.ensureIndex(clazz, "idx_taskTrackerIdentity", "taskTrackerIdentity", false, false);
-            ds.ensureIndex(clazz, "idx_triggerTime_priority,gmtCreate", "triggerTime,priority,gmtCreate", false, false);
+            ds.ensureIndex(clazz, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated", false, false);
             ds.ensureIndex(clazz, "idx_isRunning", "isRunning", false, false);
             ds.ensureIndex(clazz, "idx_taskTrackerNodeGroup_isRunning_triggerTime", "taskTrackerNodeGroup,isRunning,triggerTime", false, false);
         }
@@ -59,13 +59,13 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
         query.field("taskTrackerNodeGroup").equal(taskTrackerGroup)
                 .field("isRunning").equal(false)
                 .filter("triggerTime < ", System.currentTimeMillis())
-                .order(" triggerTime, priority , gmtCreate");
+                .order(" triggerTime, priority , gmtCreated");
 
         UpdateOperations<JobPo> operations =
                 ds.createUpdateOperations(JobPo.class)
                         .set("isRunning", true)
                         .set("taskTrackerIdentity", taskTrackerIdentity)
-                        .set("gmtModify", System.currentTimeMillis())
+                        .set("gmtModified", System.currentTimeMillis())
                         .set("prevExeTime", System.currentTimeMillis());
 
         return ds.findAndModify(query, operations, false);
@@ -79,7 +79,7 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
                 ds.createUpdateOperations(JobPo.class)
                         .set("isRunning", false)
                         .set("taskTrackerIdentity", "")
-                        .set("gmtModify", System.currentTimeMillis());
+                        .set("gmtModified", System.currentTimeMillis());
 
         ds.update(query, operations);
     }
@@ -94,7 +94,7 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
     public List<JobPo> getByLimitExecTime(long limitExecTime) {
         Query<JobPo> query = createQuery();
         query.field("isRunning").equal(true)
-                .filter("gmtModify < ", System.currentTimeMillis() - limitExecTime);
+                .filter("prevExeTime < ", System.currentTimeMillis() - limitExecTime);
         return query.asList();
     }
 
@@ -114,7 +114,7 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
         UpdateOperations<JobPo> operations = null;
         operations = ds.createUpdateOperations(JobPo.class)
                 .set("isRunning", false)
-                .set("gmtModify", System.currentTimeMillis())
+                .set("gmtModified", System.currentTimeMillis())
                 .set("triggerTime", triggerTime);
 
         ds.update(query, operations);

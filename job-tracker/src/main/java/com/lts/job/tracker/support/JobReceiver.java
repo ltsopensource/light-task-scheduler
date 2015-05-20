@@ -4,11 +4,12 @@ import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobReceiveException;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.util.StringUtils;
-import com.lts.job.queue.DuplicateJobException;
+import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.JobQueue;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.tracker.domain.JobTrackerApplication;
 
 import java.util.List;
 
@@ -20,10 +21,10 @@ public class JobReceiver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobReceiver.class.getSimpleName());
 
-    private JobQueue jobQueue;
+    JobTrackerApplication application;
 
-    public JobReceiver(JobQueue jobQueue) {
-        this.jobQueue = jobQueue;
+    public JobReceiver(JobTrackerApplication application) {
+        this.application = application;
     }
 
     /**
@@ -71,7 +72,7 @@ public class JobReceiver {
             if (StringUtils.isEmpty(jobPo.getSubmitNodeGroup())) {
                 jobPo.setSubmitNodeGroup(request.getNodeGroup());
             }
-            jobQueue.add(jobPo);
+            application.getJobQueue().add(jobPo);
 
             if (job.isSchedule()) {
                 LOGGER.info("接受定时任务成功! nodeGroup={}, CronExpression={}, {}",

@@ -1,8 +1,8 @@
 package com.lts.job.task.tracker.runner;
 
-import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
@@ -10,15 +10,15 @@ import com.lts.job.core.logger.LoggerFactory;
 public class DefaultRunnerFactory implements RunnerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RunnerFactory.class);
-    private Class clazz;
+    private TaskTrackerApplication application;
 
     public DefaultRunnerFactory(TaskTrackerApplication application) {
-        clazz = application.getJobRunnerClass();
+        this.application = application;
     }
 
     public JobRunner newRunner() {
         try {
-            return (JobRunner) clazz.newInstance();
+            return (JobRunner) application.getJobRunnerClass().newInstance();
         } catch (InstantiationException e) {
             LOGGER.error(e.getMessage(), e);
         } catch (IllegalAccessException e) {

@@ -1,4 +1,4 @@
-package com.lts.job.mongo;
+package com.lts.job.store.mongo;
 
 import com.google.code.morphia.Datastore;
 import com.google.code.morphia.query.Query;
@@ -15,7 +15,7 @@ public abstract class AbstractMongoRepository<T> {
     private Class<T> clazz = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     public AbstractMongoRepository(Config config) {
-        ds = DataStoreHolder.getDataStore(config);
+        ds = DataStoreProvider.getDataStore(config);
     }
 
     public Query<T> createQuery() {

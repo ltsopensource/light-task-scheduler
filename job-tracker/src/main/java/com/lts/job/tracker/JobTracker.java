@@ -1,7 +1,11 @@
 package com.lts.job.tracker;
 
+import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.core.cluster.AbstractServerNode;
 import com.lts.job.core.constant.Constants;
+import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.queue.JobFeedbackQueueFactory;
+import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -18,28 +22,36 @@ import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
  */
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
+    private JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
+    private JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
+    private JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
+
     public JobTracker() {
         config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
         // channel 管理者
-        ChannelManager channelManager = new ChannelManager();
-        application.setChannelManager(channelManager);
+        application.setChannelManager(new ChannelManager());
         // JobClient 管理者
         application.setJobClientManager(new JobClientManager(application));
         // TaskTracker 管理者
         application.setTaskTrackerManager(new TaskTrackerManager(application));
+
+        // 添加master节点变化监听器
+        addMasterChangeListener(new JobTrackerMasterChangeListener(application));
     }
 
     @Override
     protected void innerStart() {
 
-        application.getChannelManager().start();
+        application.setJobLogger(jobLoggerFactory.getJobLogger(config));
+        application.setJobQueue(jobQueueFactory.getJobQueue(config));
+        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getJobFeedbackQueue(config));
 
-        // 添加master节点变化监听器
-        addMasterChangeListener(new JobTrackerMasterChangeListener(application));
+        application.getChannelManager().start();
         // 启动节点
         super.innerStart();
+
         // 设置 remotingServer, 其他地方要用这个
         application.setRemotingServer(remotingServer);
     }
@@ -68,6 +80,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     /**
      * 设置反馈数据给JobClient的负载均衡算法
+     *
      * @param loadBalance
      */
     public void setLoadBalance(String loadBalance) {

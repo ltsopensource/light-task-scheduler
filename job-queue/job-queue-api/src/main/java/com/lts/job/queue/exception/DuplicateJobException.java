@@ -1,4 +1,4 @@
-package com.lts.job.queue;
+package com.lts.job.queue.exception;
 
 /**
  * 向任务队列中添加任务的时候，会出现任务重复的情况，就会抛出这个异常

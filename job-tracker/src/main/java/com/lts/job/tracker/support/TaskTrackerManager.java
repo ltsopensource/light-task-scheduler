@@ -3,13 +3,12 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.ConcurrentHashSet;
-import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,12 +21,10 @@ public class TaskTrackerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerManager.class);
     // 单例
     private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<TaskTrackerNode>>();
-    private ChannelManager channelManager;
     private JobTrackerApplication application;
 
     public TaskTrackerManager(JobTrackerApplication application) {
         this.application = application;
-        this.channelManager = application.getChannelManager();
     }
 
     /**
@@ -37,7 +34,7 @@ public class TaskTrackerManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = channelManager.getChannel(node.getGroup(),
+        ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(),
                 node.getNodeType(), node.getIdentity());
         ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
 
@@ -79,7 +76,7 @@ public class TaskTrackerManager {
             if (taskTrackerNode.getIdentity().equals(identity)) {
                 if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
                     // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-                    ChannelWrapper channel = channelManager.getChannel(
+                    ChannelWrapper channel = application.getChannelManager().getChannel(
                             taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
                     if (channel != null) {
                         // 更新channel
