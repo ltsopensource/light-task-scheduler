@@ -3,10 +3,10 @@ package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.listener.NodeChangeListener;
-import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.ListUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.ListUtils;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

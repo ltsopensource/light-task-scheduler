@@ -4,15 +4,13 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.loadbalance.LoadBalance;
-import com.lts.job.core.loadbalance.RandomLoadBalance;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ConcurrentHashSet;
-import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;

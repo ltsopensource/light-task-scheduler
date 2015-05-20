@@ -2,6 +2,8 @@ package com.lts.job.client.processor;
 
 import com.lts.job.client.support.JobFinishedHandler;
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
@@ -9,8 +11,6 @@ import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.List;
 

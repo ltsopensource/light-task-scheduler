@@ -1,7 +1,7 @@
 package com.lts.job.tracker.support;
 
-import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.JobFeedbackQueue;
+import com.lts.job.queue.domain.JobFeedbackPo;
 
 /**
  * 老数据处理handler（像那种JobClient）
