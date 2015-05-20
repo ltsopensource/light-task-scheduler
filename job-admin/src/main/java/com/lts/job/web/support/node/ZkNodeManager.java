@@ -5,12 +5,9 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.registry.NodeRegistryUtils;
-import com.lts.job.core.registry.Registry;
-import com.lts.job.core.registry.RegistryFactory;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.zookeeper.ZookeeperClient;
-import com.lts.job.zookeeper.zkclient.ZkClientZookeeperClient;
 import com.lts.job.web.support.AppConfigurer;
+import com.lts.job.zookeeper.ZookeeperClient;
 
 import java.util.ArrayList;
 import java.util.HashMap;

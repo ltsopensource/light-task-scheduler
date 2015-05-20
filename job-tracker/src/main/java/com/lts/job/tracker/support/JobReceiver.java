@@ -2,13 +2,12 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobReceiveException;
-import com.lts.job.core.protocol.command.JobSubmitRequest;
-import com.lts.job.core.util.StringUtils;
-import com.lts.job.queue.exception.DuplicateJobException;
-import com.lts.job.queue.domain.JobPo;
-import com.lts.job.queue.JobQueue;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.protocol.command.JobSubmitRequest;
+import com.lts.job.core.util.StringUtils;
+import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 
 import java.util.List;

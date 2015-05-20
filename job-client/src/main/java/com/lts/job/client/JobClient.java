@@ -12,6 +12,8 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
@@ -22,8 +24,6 @@ import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,7 +1,5 @@
 package com.lts.job.web.support;
 
-import java.util.*;
-
 /**
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */

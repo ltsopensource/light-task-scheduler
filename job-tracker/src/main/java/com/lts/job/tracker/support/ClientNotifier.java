@@ -2,8 +2,9 @@ package com.lts.job.tracker.support;
 
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.logger.Logger;
+import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
-import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.InvokeCallback;
@@ -12,8 +13,6 @@ import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.core.logger.Logger;
-import com.lts.job.core.logger.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;

@@ -1,12 +1,11 @@
 package com.lts.job.core.registry;
 
-import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.ConcurrentHashSet;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

@@ -2,7 +2,6 @@ package com.lts.job.biz.logger;
 
 import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
-import com.lts.job.core.cluster.Config;
 import com.lts.job.core.extension.SPI;
 
 /**
