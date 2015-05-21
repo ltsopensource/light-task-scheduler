@@ -1,0 +1,1 @@
+mysql=com.lts.job.biz.logger.mysql.MysqlJobLoggerFactory

@@ -15,6 +15,7 @@
         <module>job-logger-console</module>
         <module>job-logger-mongo</module>
         <module>job-logger-api</module>
+        <module>job-logger-mysql</module>
     </modules>
 
 </project>

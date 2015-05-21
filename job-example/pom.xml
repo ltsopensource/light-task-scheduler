@@ -39,6 +39,11 @@
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
+            <artifactId>job-logger-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
             <artifactId>job-queue-mongo</artifactId>
             <version>${project.version}</version>
         </dependency>
