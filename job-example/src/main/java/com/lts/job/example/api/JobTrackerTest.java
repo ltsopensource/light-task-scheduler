@@ -53,7 +53,7 @@ public class JobTrackerTest {
     }
 
     /**
-     * 使用mongo做任务队列
+     * 使用mysql做任务队列
      */
     public static void testMysqlQueue() {
         final JobTracker jobTracker = new JobTracker();
@@ -65,8 +65,8 @@ public class JobTrackerTest {
 
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
-        // 设置业务日志记录
-//        jobTracker.addConfig("job.logger", "mongo");
+        // 设置业务日志记录 mysql
+        jobTracker.addConfig("job.logger", "mysql");
         // 任务队列用mysql
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置

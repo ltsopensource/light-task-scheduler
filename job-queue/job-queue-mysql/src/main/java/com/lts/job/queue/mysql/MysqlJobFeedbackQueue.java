@@ -3,6 +3,7 @@ package com.lts.job.queue.mysql;
 import com.alibaba.fastjson.TypeReference;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.domain.JobResult;
+import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
 import com.lts.job.queue.JobFeedbackQueue;
@@ -34,13 +35,7 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         // 创建表
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_job_feedback_po.sql");
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            StringBuilder createTableSql = new StringBuilder();
-            String data = null;
-            while ((data = br.readLine()) != null) {
-                createTableSql.append(data);
-            }
-            getSqlTemplate().update(createTableSql.toString());
+            getSqlTemplate().update(FileUtils.read(is));
         } catch (SQLException e) {
             throw new RuntimeException("create table error!", e);
         } catch (IOException e) {

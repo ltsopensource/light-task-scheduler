@@ -1,9 +1,11 @@
 package com.lts.job.biz.logger.mongo;
 
 
+import com.lts.job.biz.logger.JobLogUtils;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
+import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.store.mongo.AbstractMongoRepository;
 
@@ -23,13 +25,7 @@ public class MongoJobLogger extends AbstractMongoRepository<JobLogPo> implements
 
     @Override
     public void log(BizLogPo bizLogPo) {
-        JobLogPo jobLogPo = new JobLogPo();
-        jobLogPo.setTimestamp(bizLogPo.getTimestamp());
-        jobLogPo.setTaskTrackerNodeGroup(bizLogPo.getTaskTrackerNodeGroup());
-        jobLogPo.setTaskTrackerIdentity(bizLogPo.getTaskTrackerIdentity());
-        jobLogPo.setJobId(bizLogPo.getJobId());
-        jobLogPo.setMsg(bizLogPo.getMsg());
-        ds.save(jobLogPo);
+        ds.save(JobLogUtils.bizConvert(bizLogPo));
     }
 
 }

@@ -34,7 +34,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        jobClient.setJobInfoSavePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-        jobClient.setLoadBalance("consistenthash");
+//        jobClient.setLoadBalance("consistenthash");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();

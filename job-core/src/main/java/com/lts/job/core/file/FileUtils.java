@@ -1,7 +1,6 @@
 package com.lts.job.core.file;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
@@ -32,5 +31,13 @@ public class FileUtils {
         return file;
     }
 
-
+    public static String read(InputStream is) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        StringBuilder createTableSql = new StringBuilder();
+        String data = null;
+        while ((data = br.readLine()) != null) {
+            createTableSql.append(data);
+        }
+        return createTableSql.toString();
+    }
 }
