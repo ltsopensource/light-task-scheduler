@@ -7,6 +7,7 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.util.Holder;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
@@ -98,7 +99,7 @@ public class ClientNotifier {
         requestBody.setJobResults(jobResults);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 
-        final boolean[] result = new boolean[1];
+        final Holder<Boolean> result = new Holder<Boolean>();
         try {
             final CountDownLatch latch = new CountDownLatch(1);
             getRemotingServer().invokeAsync(jobClientNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
@@ -109,9 +110,9 @@ public class ClientNotifier {
 
                         if (commandResponse != null && commandResponse.getCode() == JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code()) {
                             clientNotifyHandler.handleSuccess(jobResults);
-                            result[0] = true;
+                            result.set(true);
                         } else {
-                            result[0] = false;
+                            result.set(false);
                         }
                     } finally {
                         latch.countDown();
@@ -129,7 +130,7 @@ public class ClientNotifier {
         } catch (RemotingCommandFieldCheckException e) {
             LOGGER.error("通知客户端失败!", e);
         }
-        return result[0];
+        return result.get();
     }
 
     private RemotingServerDelegate getRemotingServer() {

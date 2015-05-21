@@ -3,7 +3,7 @@ package com.lts.job.core.exception;
 /**
  * @author Robert HG (254963746@qq.com) on 5/12/15.
  */
-public class JobSubmitException extends RuntimeException {
+public class JobSubmitException extends Exception {
 
     public JobSubmitException() {
         super();

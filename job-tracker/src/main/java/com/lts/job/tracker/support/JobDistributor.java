@@ -8,6 +8,7 @@ import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.util.Holder;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
@@ -100,7 +101,7 @@ public class JobDistributor {
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
         // 是否分发推送任务成功
-        final boolean[] pushSuccess = {false};
+        final Holder<Boolean> pushSuccess = new Holder<Boolean>(false);
 
         final CountDownLatch latch = new CountDownLatch(1);
         try {
@@ -114,7 +115,7 @@ public class JobDistributor {
                             return;
                         }
                         if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
-                            pushSuccess[0] = true;
+                            pushSuccess.set(true);
                         }
                     } finally {
                         latch.countDown();
@@ -134,7 +135,7 @@ public class JobDistributor {
             e.printStackTrace();
         }
 
-        if (!pushSuccess[0]) {
+        if (!pushSuccess.get()) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
             }

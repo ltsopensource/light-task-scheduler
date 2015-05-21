@@ -3,6 +3,7 @@ package com.lts.job.example.support;
 import com.lts.job.client.JobClient;
 import com.lts.job.client.domain.Response;
 import com.lts.job.core.domain.Job;
+import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.util.StringUtils;
 
 import java.io.BufferedReader;
@@ -71,7 +72,7 @@ public class BaseJobClientTest {
         System.exit(0);
     }
 
-    public void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException {
+    public void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException, JobSubmitException {
         Job job = new Job();
         job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");
@@ -81,7 +82,7 @@ public class BaseJobClientTest {
         System.out.println(response);
     }
 
-    public void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException {
+    public void submitWithTrigger(final JobClient jobClient, String triggerTime) throws ParseException, JobSubmitException {
         Job job = new Job();
         job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");

@@ -10,6 +10,7 @@ import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.support.RetryScheduler;
+import com.lts.job.core.util.Holder;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
@@ -156,7 +157,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
 
-        final boolean[] result = new boolean[1];
+        final Holder<Boolean> result = new Holder<Boolean>();
         try {
             final CountDownLatch latch = new CountDownLatch(1);
             remotingClient.invokeAsync(request, new InvokeCallback() {
@@ -165,10 +166,10 @@ public class JobPushProcessor extends AbstractProcessor {
                     try {
                         RemotingCommand commandResponse = responseFuture.getResponseCommand();
                         if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
-                            result[0] = true;
+                            result.set(true);
                         } else {
                             LOGGER.warn("send job failed, {}", commandResponse);
-                            result[0] = false;
+                            result.set(false);
                         }
                     } finally {
                         latch.countDown();
@@ -186,7 +187,7 @@ public class JobPushProcessor extends AbstractProcessor {
             LOGGER.error("任务完成通知失败, jobResults={}", jobResults, e);
         }
 
-        return result[0];
+        return result.get();
     }
 
 }

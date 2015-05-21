@@ -24,8 +24,8 @@ public class MongoFactoryBean {
         replSeeds(serverAddresses);
     }
 
-    public MongoFactoryBean(String serverAddresse) {
-        replSeeds(new String[]{serverAddresse});
+    public MongoFactoryBean(String serverAddress) {
+        replSeeds(new String[]{serverAddress});
     }
 
     public MongoFactoryBean(MongoClientOptions mongoClientOptions) {
