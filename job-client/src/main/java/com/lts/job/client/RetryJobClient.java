@@ -5,6 +5,7 @@ import com.lts.job.client.domain.JobClientNode;
 import com.lts.job.client.domain.Response;
 import com.lts.job.client.domain.ResponseCode;
 import com.lts.job.core.domain.Job;
+import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.support.RetryScheduler;
 
 import java.util.Arrays;
@@ -29,7 +30,12 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
 
             @Override
             protected boolean retry(List<Job> jobs) {
-                return superSubmitJob(jobs).isSuccess();
+                try {
+                    return superSubmitJob(jobs).isSuccess();
+                } catch (Throwable t) {
+                    LOGGER.error(t.getMessage(), t);
+                }
+                return false;
             }
         };
         super.innerStart();
@@ -43,12 +49,12 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
     }
 
     @Override
-    public Response submitJob(Job job) {
+    public Response submitJob(Job job) throws JobSubmitException {
         return submitJob(Arrays.asList(job));
     }
 
     @Override
-    public Response submitJob(List<Job> jobs) {
+    public Response submitJob(List<Job> jobs) throws JobSubmitException {
         Response response = superSubmitJob(jobs);
 
         if (!response.isSuccess()) {
@@ -67,7 +73,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
         return response;
     }
 
-    private Response superSubmitJob(List<Job> jobs) {
+    private Response superSubmitJob(List<Job> jobs) throws JobSubmitException {
         return super.submitJob(jobs);
     }
 }

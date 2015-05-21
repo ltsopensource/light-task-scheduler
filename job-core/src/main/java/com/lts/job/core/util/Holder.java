@@ -7,6 +7,13 @@ public class Holder<T> {
 
     private volatile T value;
 
+    public Holder(T value) {
+        this.value = value;
+    }
+
+    public Holder(){
+    }
+
     public void set(T value) {
         this.value = value;
     }
