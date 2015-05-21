@@ -39,7 +39,7 @@ public class HeartBeatMonitor {
 
     public void start() {
         HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
-                new HeartBeat(), 3, 30, TimeUnit.SECONDS);      // 30s 一次心跳
+                new HeartBeat(), 2, 30, TimeUnit.SECONDS);      // 30s 一次心跳
     }
 
     public void stop() {
@@ -53,10 +53,10 @@ public class HeartBeatMonitor {
             try {
                 boolean serverEnable = check();
                 if (!serverEnable) {
-                    // 没有jobTracker可用，加快心跳频率，改为3s一次
+                    // 没有jobTracker可用，加快心跳频率，改为2s一次
                     while (!serverEnable) {
                         try {
-                            Thread.sleep(3000L);    // sleep 3s
+                            Thread.sleep(2000L);    // sleep 2s
                             serverEnable = check();
                         } catch (Throwable t) {
                             LOGGER.error(t.getMessage(), t);

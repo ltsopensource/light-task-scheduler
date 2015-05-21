@@ -26,6 +26,11 @@ public class RegistryFactory {
                     address.replace("redis://", "")
             );
             return new RedisRegistry(config);
+        } else if(address.startsWith("multicast://")){
+//            config.setRegistryAddress(
+//                    address.replace("multicast://", "")
+//            );
+//            return new MulticastRegistry(config);
         }
         throw new IllegalArgumentException("illegal address protocol");
     }

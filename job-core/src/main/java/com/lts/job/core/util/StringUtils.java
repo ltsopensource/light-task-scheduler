@@ -5,14 +5,17 @@ import org.slf4j.helpers.MessageFormatter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.regex.Pattern;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  */
-public class StringUtils {
+public final class StringUtils {
 
     private StringUtils() {
     }
+
+    private static final Pattern INT_PATTERN = Pattern.compile("^\\d+$");
 
     public static boolean isEmpty(String s) {
         return s == null || s.trim().equals("");
@@ -73,13 +76,12 @@ public class StringUtils {
         return false;
     }
 
-    public static String format(String format, Object...args){
+    public static String format(String format, Object... args) {
         FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
         return ft.getMessage();
     }
 
     /**
-     *
      * @param e
      * @return string
      */
@@ -100,7 +102,6 @@ public class StringUtils {
     }
 
     /**
-     *
      * @param msg
      * @param e
      * @return string
@@ -117,16 +118,22 @@ public class StringUtils {
         }
     }
 
-    public static String concat(Object ... objects){
-        if(objects == null){
+    public static String concat(Object... objects) {
+        if (objects == null) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
         for (Object object : objects) {
-            if(object != null){
+            if (object != null) {
                 sb.append(object.toString());
             }
         }
         return sb.toString();
+    }
+
+    public static boolean isInteger(String str) {
+        if (str == null || str.length() == 0)
+            return false;
+        return INT_PATTERN.matcher(str).matches();
     }
 }

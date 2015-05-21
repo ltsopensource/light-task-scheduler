@@ -569,7 +569,7 @@ public class ExtensionLoader<T> {
                         break;
                     }
                 }
-                // 有类型为URL的参数
+                // 有类型为Config的参数
                 if (configTypeIndex != -1) {
                     // Null Point check
                     String s = String.format("\nif (arg%d == null) throw new IllegalArgumentException(\"config == null\");",
@@ -579,11 +579,11 @@ public class ExtensionLoader<T> {
                     s = String.format("\n%s config = arg%d;", Config.class.getName(), configTypeIndex);
                     code.append(s);
                 }
-                // 参数没有URL类型
+                // 参数没有Config类型
                 else {
                     String attribMethod = null;
 
-                    // 找到参数的URL属性
+                    // 找到参数的Config属性
                     LBL_PTS:
                     for (int i = 0; i < pts.length; ++i) {
                         Method[] ms = pts[i].getMethods();

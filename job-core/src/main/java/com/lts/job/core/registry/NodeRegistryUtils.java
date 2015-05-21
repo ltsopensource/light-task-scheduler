@@ -65,10 +65,10 @@ public class NodeRegistryUtils {
         return node;
     }
 
-    public static String getFullPath(String clusterName, Node node) {
+    public static String getFullPath(Node node) {
         StringBuilder path = new StringBuilder();
 
-        path.append(getRootPath(clusterName))
+        path.append(getRootPath(node.getClusterName()))
                 .append("/")
                 .append(node.getNodeType())
                 .append("/")
@@ -106,13 +106,14 @@ public class NodeRegistryUtils {
         node.setNodeType(NodeType.JOB_TRACKER);
         node.setCreateTime(new Date().getTime());
         node.setPort(2313);
+        node.setClusterName("lts");
         node.setIp(NetUtils.getLocalHost());
-        String fullPath = NodeRegistryUtils.getFullPath("lts", node);
+        String fullPath = NodeRegistryUtils.getFullPath(node);
         System.out.println(fullPath);
 
         node = NodeRegistryUtils.parse(fullPath);
         node.setNodeType(NodeType.JOB_CLIENT);
-        fullPath = NodeRegistryUtils.getFullPath("lts", node);
+        fullPath = NodeRegistryUtils.getFullPath(node);
         System.out.println(fullPath);
 
         node = NodeRegistryUtils.parse(fullPath);

@@ -18,6 +18,7 @@ public class NodeFactory {
             node.setThreads(config.getWorkThreads());
             node.setPort(config.getListenPort());
             node.setIdentity(config.getIdentity());
+            node.setClusterName(config.getClusterName());
             return node;
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
