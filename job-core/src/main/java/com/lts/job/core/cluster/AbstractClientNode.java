@@ -33,7 +33,7 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
         if (defaultProcessor != null) {
 
             remotingClient.registerDefaultProcessor(defaultProcessor,
-                    Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2,
+                    Executors.newFixedThreadPool(32 + Constants.AVAILABLE_PROCESSOR * 5,
                             new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
         }
     }
