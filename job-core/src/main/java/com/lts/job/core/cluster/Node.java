@@ -1,5 +1,7 @@
 package com.lts.job.core.cluster;
 
+import com.lts.job.core.registry.NodeRegistryUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +13,7 @@ public class Node {
 
     // 是否可用
     private boolean isAvailable = true;
-
+    private String clusterName;
     private NodeType nodeType;
     private String ip;
     private Integer port;
@@ -24,6 +26,8 @@ public class Node {
 
     // 自己关注的节点类型
     private List<NodeType> listenNodeTypes;
+
+    private String fullString;
 
     public boolean isAvailable() {
         return isAvailable;
@@ -104,6 +108,14 @@ public class Node {
         this.listenNodeTypes.add(nodeType);
     }
 
+    public String getClusterName() {
+        return clusterName;
+    }
+
+    public void setClusterName(String clusterName) {
+        this.clusterName = clusterName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -124,10 +136,18 @@ public class Node {
         return ip + ":" + port;
     }
 
+    public String toFullString() {
+        if (fullString == null) {
+            fullString = NodeRegistryUtils.getFullPath(this);
+        }
+        return fullString;
+    }
+
     @Override
     public String toString() {
         return "Node{" +
                 "identity='" + identity + '\'' +
+                ", clusterName='" + clusterName + '\'' +
                 ", nodeType=" + nodeType +
                 ", ip='" + ip + '\'' +
                 ", port=" + port +

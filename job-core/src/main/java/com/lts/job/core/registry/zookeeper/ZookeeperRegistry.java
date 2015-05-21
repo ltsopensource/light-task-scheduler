@@ -56,17 +56,15 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     @Override
     protected void doRegister(Node node) {
-        String fullPath = NodeRegistryUtils.getFullPath(clusterName, node);
-        if (zkClient.exists(fullPath)) {
+        if (zkClient.exists(node.toFullString())) {
             return;
         }
-        zkClient.create(fullPath, true, false);
+        zkClient.create(node.toFullString(), true, false);
     }
 
     @Override
     protected void doUnRegister(Node node) {
-        String fullPath = NodeRegistryUtils.getFullPath(clusterName, node);
-        zkClient.delete(fullPath);
+        zkClient.delete(node.toFullString());
     }
 
     @Override

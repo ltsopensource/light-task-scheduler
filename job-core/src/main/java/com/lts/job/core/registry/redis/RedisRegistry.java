@@ -83,9 +83,8 @@ public class RedisRegistry extends FailbackRegistry {
                 Jedis jedis = jedisPool.getResource();
                 try {
                     for (Node node : new HashSet<Node>(getRegistered())) {
-                        String fullPath = NodeRegistryUtils.getFullPath(clusterName, node);
                         String key = NodeRegistryUtils.getNodeTypePath(clusterName, node.getNodeType());
-                        if (jedis.hset(key, fullPath, String.valueOf(System.currentTimeMillis() + expirePeriod)) == 1) {
+                        if (jedis.hset(key, node.toFullString(), String.valueOf(System.currentTimeMillis() + expirePeriod)) == 1) {
                             jedis.publish(key, Constants.REGISTER);
                         }
                     }
@@ -105,7 +104,6 @@ public class RedisRegistry extends FailbackRegistry {
     @Override
     protected void doRegister(Node node) {
         String key = NodeRegistryUtils.getNodeTypePath(clusterName, node.getNodeType());
-        String value = NodeRegistryUtils.getFullPath(clusterName, node);
         String expire = String.valueOf(System.currentTimeMillis() + expirePeriod);
         boolean success = false;
         NodeRegistryException exception = null;
@@ -114,7 +112,7 @@ public class RedisRegistry extends FailbackRegistry {
             try {
                 Jedis jedis = jedisPool.getResource();
                 try {
-                    jedis.hset(key, value, expire);
+                    jedis.hset(key, node.toFullString(), expire);
                     jedis.publish(key, Constants.REGISTER);
                     success = true;
                     if (!replicate) {
@@ -139,7 +137,6 @@ public class RedisRegistry extends FailbackRegistry {
     @Override
     protected void doUnRegister(Node node) {
         String key = NodeRegistryUtils.getNodeTypePath(clusterName, node.getNodeType());
-        String value = NodeRegistryUtils.getFullPath(clusterName, node);
         boolean success = false;
         NodeRegistryException exception = null;
         for (Map.Entry<String, JedisPool> entry : jedisPools.entrySet()) {
@@ -147,7 +144,7 @@ public class RedisRegistry extends FailbackRegistry {
             try {
                 Jedis jedis = jedisPool.getResource();
                 try {
-                    jedis.hdel(key, value);
+                    jedis.hdel(key, node.toFullString());
                     jedis.publish(key, Constants.UNREGISTER);
                     success = true;
                     if (!replicate) {
@@ -345,12 +342,6 @@ public class RedisRegistry extends FailbackRegistry {
         private final Random random = new Random();
 
         private volatile int connectRandom;
-
-        private void resetSkip() {
-            connectSkip.set(0);
-            connectSkiped.set(0);
-            connectRandom = 0;
-        }
 
         private boolean isSkip() {
             int skip = connectSkip.get(); // 跳过次数增长

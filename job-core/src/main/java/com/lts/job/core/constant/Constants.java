@@ -40,6 +40,9 @@ public interface Constants {
 
     public static final String UNREGISTER = "unregister";
 
+    public static final String SUBSCRIBE = "subscribe";
+
+    public static final String UNSUBSCRIBE = "unsubscribe";
     /**
      * 注册中心失败事件重试事件
      */

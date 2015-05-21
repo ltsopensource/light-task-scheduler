@@ -146,6 +146,13 @@ public class Config {
         }
         return numbers;
     }
+    public boolean getParameter(String key, boolean defaultValue) {
+        String value = getParameter(key);
+        if (value == null || value.length() == 0) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value);
+    }
     public int getParameter(String key, int defaultValue) {
         Number n = getNumbers().get(key);
         if (n != null) {

@@ -23,7 +23,7 @@ public class JobTrackerTest {
     public static void testMongoQueue() {
         final JobTracker jobTracker = new JobTracker();
         // 节点信息配置
-        jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        jobTracker.setRegistryAddress("zookeeper://test.superboss.cc:2181");
 //        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
         jobTracker.setListenPort(35002); // 默认 35001
         jobTracker.setClusterName("test_cluster");
