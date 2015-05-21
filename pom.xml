@@ -39,6 +39,18 @@
         <druid.version>1.0.14</druid.version>
         <mysql.version>5.1.26</mysql.version>
     </properties>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <name>Local Nexus Repository</name>
+            <url>http://maven.superboss.cc:8081/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <name>Local Nexus Repository</name>
+            <url>http://maven.superboss.cc:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>

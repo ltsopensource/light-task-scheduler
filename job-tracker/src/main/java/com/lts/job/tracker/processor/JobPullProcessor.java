@@ -30,7 +30,7 @@ public class JobPullProcessor extends AbstractProcessor {
     public JobPullProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
 
-        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2
+        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5
                 , new NamedThreadFactory(JobPullProcessor.class.getSimpleName()));
         jobDistributor = new JobDistributor(application);
     }

@@ -84,10 +84,16 @@ public class FeedbackJobSendChecker {
         }
     }
 
+    private volatile boolean isRunning = false;
+
     private class Runner implements Runnable {
         @Override
         public void run() {
             try {
+                if (isRunning) {
+                    return;
+                }
+                isRunning = true;
                 long count = application.getJobFeedbackQueue().count();
                 if (count == 0) {
                     return;
@@ -119,6 +125,8 @@ public class FeedbackJobSendChecker {
 
             } catch (Throwable t) {
                 LOGGER.error(t.getMessage(), t);
+            } finally {
+                isRunning = false;
             }
         }
     }
