@@ -1,7 +1,9 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
@@ -18,6 +20,8 @@ import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -27,9 +31,25 @@ public class JobDistributor {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JobDistributor.class);
     private JobTrackerApplication application;
+    private final ExecutorService executor;
 
     public JobDistributor(JobTrackerApplication application) {
         this.application = application;
+        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5
+                , new NamedThreadFactory(JobDistributor.class.getSimpleName()));
+    }
+
+    public void distribute(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    _sendJob(remotingServer, request);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
+        });
     }
 
     /**
@@ -39,7 +59,7 @@ public class JobDistributor {
      * @param remotingServer
      * @param request
      */
-    public void pushJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
+    private void _sendJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
 
         String nodeGroup = request.getNodeGroup();
         String identity = request.getIdentity();
@@ -56,7 +76,7 @@ public class JobDistributor {
 
         while (availableThreads > 0) {
             // 推送任务
-            int code = pushJob(remotingServer, taskTrackerNode);
+            int code = sendJob(remotingServer, taskTrackerNode);
             if (code == NO_JOB) {
                 // 没有可以执行的任务, 直接停止
                 break;
@@ -83,7 +103,7 @@ public class JobDistributor {
      * @param taskTrackerNode
      * @return
      */
-    private int pushJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
+    private int sendJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
 
         String nodeGroup = taskTrackerNode.getNodeGroup();
         String identity = taskTrackerNode.getIdentity();

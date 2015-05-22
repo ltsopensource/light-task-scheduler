@@ -17,7 +17,7 @@ public class JobNodeConfigFactory {
         config.setRegistryAddress("zookeeper://127.0.0.1:2181");
         config.setInvokeTimeoutMillis(1000 * 6);
         config.setListenPort(0);
-        config.setJobInfoSavePath(Constants.USER_HOME);
+        config.setFailStorePath(Constants.USER_HOME);
         config.setClusterName(Constants.DEFAULT_CLUSTER_NAME);
         return config;
     }

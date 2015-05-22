@@ -31,9 +31,9 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
 
         NettyRequestProcessor defaultProcessor = getDefaultProcessor();
         if (defaultProcessor != null) {
-
+            int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingClient.registerDefaultProcessor(defaultProcessor,
-                    Executors.newFixedThreadPool(32 + Constants.AVAILABLE_PROCESSOR * 5,
+                    Executors.newFixedThreadPool(processorSize,
                             new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
         }
     }
@@ -59,9 +59,9 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
         config.setNodeGroup(nodeGroup);
     }
 
-    public void setJobInfoSavePath(String jobInfoSavePath) {
-        if (StringUtils.isNotEmpty(jobInfoSavePath)) {
-            config.setJobInfoSavePath(jobInfoSavePath);
+    public void setFailStorePath(String failStorePath) {
+        if (StringUtils.isNotEmpty(failStorePath)) {
+            config.setFailStorePath(failStorePath);
         }
     }
 

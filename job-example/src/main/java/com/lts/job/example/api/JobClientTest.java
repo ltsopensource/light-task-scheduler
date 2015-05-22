@@ -31,7 +31,7 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
 //        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
-//        jobClient.setJobInfoSavePath(Constants.USER_HOME);
+//        jobClient.setFailStorePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
 //        jobClient.setLoadBalance("consistenthash");
@@ -51,7 +51,7 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
 //        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
-//        jobClient.setJobInfoSavePath(Constants.USER_HOME);
+//        jobClient.setFailStorePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         jobClient.addConfig("job.submit.concurrency.size", "3");
