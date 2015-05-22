@@ -2,18 +2,20 @@ package com.lts.job.core.support;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.domain.KVPair;
-import com.lts.job.core.file.FileAccessor;
-import com.lts.job.core.file.FileException;
+import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.core.failstore.FailStore;
+import com.lts.job.core.failstore.FailStoreException;
+import com.lts.job.core.failstore.FailStoreFactory;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.GenericsUtils;
 import com.lts.job.core.util.JSONUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,24 +26,20 @@ public abstract class RetryScheduler<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RetryScheduler.class);
 
-    private Class<T> clazz = GenericsUtils.getSuperClassGenericType(this.getClass());
+    private Class<?> type = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
     private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
-    private LevelDBStore levelDBStore;
-    // 文件锁 (同一时间只能有一个线程在 检查提交失败的任务)
-    private com.lts.job.core.file.FileAccessor dbLock;
+    private ScheduledFuture<?> scheduledFuture;
+
+    private FailStore failStore;
 
     // 批量发送的消息数
     private int batchSize = 5;
 
     public RetryScheduler(Application application) {
-        try {
-            levelDBStore = new LevelDBStore(application.getConfig().getFilePath());
-            dbLock = new FileAccessor(application.getConfig().getFilePath() + "___db.lock");
-        } catch (FileException e) {
-            throw new RuntimeException(e);
-        }
+        FailStoreFactory failStoreFactory = ExtensionLoader.getExtensionLoader(FailStoreFactory.class).getAdaptiveExtension();
+        failStore = failStoreFactory.getFailStore(application.getConfig());
     }
 
     protected RetryScheduler(Application application, int batchSize) {
@@ -50,13 +48,10 @@ public abstract class RetryScheduler<T> {
     }
 
     public void start() {
-        if (levelDBStore != null) {
-
-            dbLock.createIfNotExist();
-
+        if (RETRY_EXECUTOR_SERVICE == null) {
             RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
             // 这个时间后面再去优化
-            RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 30, 30, TimeUnit.SECONDS);
+            scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 30, 30, TimeUnit.SECONDS);
         }
     }
 
@@ -64,8 +59,13 @@ public abstract class RetryScheduler<T> {
     private int maxSentSize = 20;
 
     public void stop() {
-        RETRY_EXECUTOR_SERVICE.shutdown();
-        RETRY_EXECUTOR_SERVICE = null;
+        try {
+            scheduledFuture.cancel(true);
+            RETRY_EXECUTOR_SERVICE.shutdown();
+            RETRY_EXECUTOR_SERVICE = null;
+        } catch (Throwable t) {
+            LOGGER.error(t.getMessage(), t);
+        }
     }
 
     /**
@@ -80,12 +80,11 @@ public abstract class RetryScheduler<T> {
                 if (!isRemotingEnable()) {
                     return;
                 }
-                dbLock.tryLock();
                 try {
-                    levelDBStore.open();
+                    failStore.open();
                     int sentSize = 0;
 
-                    List<KVPair<String, T>> kvPairs = levelDBStore.getList(batchSize, clazz);
+                    List<KVPair<String, T>> kvPairs = failStore.fetchTop(batchSize, type);
 
                     while (kvPairs != null && kvPairs.size() > 0) {
                         List<T> values = new ArrayList<T>(kvPairs.size());
@@ -96,7 +95,7 @@ public abstract class RetryScheduler<T> {
                         }
                         if (retry(values)) {
                             LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
-                            levelDBStore.delete(keys);
+                            failStore.delete(keys);
                         } else {
                             break;
                         }
@@ -105,15 +104,10 @@ public abstract class RetryScheduler<T> {
                             // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
                             break;
                         }
-                        kvPairs = levelDBStore.getList(batchSize, clazz);
+                        kvPairs = failStore.fetchTop(batchSize, type);
                     }
                 } finally {
-                    try {
-                        levelDBStore.close();
-                    } catch (IOException e) {
-                        LOGGER.error("close leveldb failed", e);
-                    }
-                    dbLock.unlock();
+                    failStore.close();
                 }
             } catch (Throwable e) {
                 LOGGER.error(e.getMessage(), e);
@@ -121,22 +115,16 @@ public abstract class RetryScheduler<T> {
         }
     }
 
-    public void inSchedule(String key, Object value) {
-        dbLock.tryLock();
+    public void inSchedule(String key, T value) {
         try {
             try {
-                levelDBStore.open();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                failStore.open();
+                failStore.put(key, value);
+            } finally {
+                failStore.close();
             }
-            levelDBStore.put(key, value);
-        } finally {
-            try {
-                levelDBStore.close();
-            } catch (IOException e) {
-                LOGGER.error("close leveldb failed", e);
-            }
-            dbLock.unlock();
+        } catch (FailStoreException e) {
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

@@ -31,7 +31,7 @@ public class Config {
     // 监听端口
     private int listenPort;
     // 任务信息存储路径(譬如TaskTracker反馈任务信息给JobTracker, JobTracker down掉了, 那么存储下来等待JobTracker可用时再发送)
-    private String jobInfoSavePath;
+    private String failStorePath;
     // 集群名字
     private String clusterName;
     // java编译器
@@ -105,16 +105,12 @@ public class Config {
         this.listenPort = listenPort;
     }
 
-    public String getJobInfoSavePath() {
-        return jobInfoSavePath;
+    public void setFailStorePath(String failStorePath) {
+        this.failStorePath = failStorePath;
     }
 
-    public void setJobInfoSavePath(String jobInfoSavePath) {
-        this.jobInfoSavePath = jobInfoSavePath + "/.lts";
-    }
-
-    public String getFilePath() {
-        return jobInfoSavePath + "/" + nodeType + "/" + nodeGroup + "/";
+    public String getFailStorePath() {
+        return failStorePath + "/.lts" + "/" + nodeType + "/" + nodeGroup + "/";
     }
 
     public boolean isAvailable() {
@@ -140,12 +136,14 @@ public class Config {
         }
         return value;
     }
+
     private Map<String, Number> getNumbers() {
         if (numbers == null) { // 允许并发重复创建
             numbers = new ConcurrentHashMap<String, Number>();
         }
         return numbers;
     }
+
     public boolean getParameter(String key, boolean defaultValue) {
         String value = getParameter(key);
         if (value == null || value.length() == 0) {
@@ -153,6 +151,7 @@ public class Config {
         }
         return Boolean.parseBoolean(value);
     }
+
     public int getParameter(String key, int defaultValue) {
         Number n = getNumbers().get(key);
         if (n != null) {
@@ -166,6 +165,7 @@ public class Config {
         getNumbers().put(key, i);
         return i;
     }
+
     public String[] getParameter(String key, String[] defaultValue) {
         String value = getParameter(key);
         if (value == null || value.length() == 0) {
@@ -173,6 +173,7 @@ public class Config {
         }
         return Constants.COMMA_SPLIT_PATTERN.split(value);
     }
+
     public double getParameter(String key, double defaultValue) {
         Number n = getNumbers().get(key);
         if (n != null) {
@@ -186,6 +187,7 @@ public class Config {
         getNumbers().put(key, d);
         return d;
     }
+
     public float getParameter(String key, float defaultValue) {
         Number n = getNumbers().get(key);
         if (n != null) {

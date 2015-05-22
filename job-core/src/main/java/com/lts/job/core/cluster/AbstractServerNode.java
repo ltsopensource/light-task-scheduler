@@ -30,8 +30,9 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
 
         NettyRequestProcessor defaultProcessor = getDefaultProcessor();
         if (defaultProcessor != null) {
+            int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingServer.registerDefaultProcessor(defaultProcessor,
-                    Executors.newFixedThreadPool(32 + Constants.AVAILABLE_PROCESSOR * 5, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
+                    Executors.newFixedThreadPool(processorSize, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
         }
     }
 

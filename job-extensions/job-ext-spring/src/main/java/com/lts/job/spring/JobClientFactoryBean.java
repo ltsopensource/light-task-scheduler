@@ -40,7 +40,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
     /**
      * 提交失败任务存储路径 , 默认用户木邻居
      */
-    private String jobInfoSavePath;
+    private String failStorePath;
     /**
      * master节点变化监听器
      */
@@ -104,7 +104,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
         if (StringUtils.hasText(clusterName)) {
             jobClient.setClusterName(clusterName);
         }
-        jobClient.setJobInfoSavePath(jobInfoSavePath);
+        jobClient.setFailStorePath(failStorePath);
         jobClient.setNodeGroup(nodeGroup);
         if (jobFinishedHandler != null) {
             jobClient.setJobFinishedHandler(jobFinishedHandler);
@@ -141,8 +141,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>, Initializin
         this.jobFinishedHandler = jobFinishedHandler;
     }
 
-    public void setJobInfoSavePath(String jobInfoSavePath) {
-        this.jobInfoSavePath = jobInfoSavePath;
+    public void setFailStorePath(String failStorePath) {
+        this.failStorePath = failStorePath;
     }
 
     public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {

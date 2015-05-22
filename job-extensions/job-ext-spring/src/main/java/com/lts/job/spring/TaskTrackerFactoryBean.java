@@ -41,7 +41,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
     /**
      * 提交失败任务存储路径 , 默认用户木邻居
      */
-    private String jobInfoSavePath;
+    private String failStorePath;
     /**
      * 工作线程个数
      */
@@ -97,7 +97,7 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         if (StringUtils.hasText(clusterName)) {
             taskTracker.setClusterName(clusterName);
         }
-        taskTracker.setJobInfoSavePath(jobInfoSavePath);
+        taskTracker.setFailStorePath(failStorePath);
         taskTracker.setWorkThreads(workThreads);
         taskTracker.setNodeGroup(nodeGroup);
         taskTracker.setRegistryAddress(registryAddress);
@@ -146,8 +146,8 @@ public class TaskTrackerFactoryBean implements FactoryBean<TaskTracker>, Applica
         this.registryAddress = registryAddress;
     }
 
-    public void setJobInfoSavePath(String jobInfoSavePath) {
-        this.jobInfoSavePath = jobInfoSavePath;
+    public void setFailStorePath(String failStorePath) {
+        this.failStorePath = failStorePath;
     }
 
     public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {

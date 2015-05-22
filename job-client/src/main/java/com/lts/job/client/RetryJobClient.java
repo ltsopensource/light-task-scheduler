@@ -64,6 +64,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
                 }
                 response.setSuccess(true);
                 response.setCode(ResponseCode.FAILED_AND_SAVE_FILE);
+                response.setMsg(response.getMsg() + ", but save local fail store and send later !");
             } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg(e.getMessage());

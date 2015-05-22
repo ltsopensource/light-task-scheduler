@@ -18,7 +18,7 @@ public class TaskTrackerTest {
         taskTracker.setNodeGroup("test_trade_TaskTracker");
         taskTracker.setClusterName("test_cluster");
         taskTracker.setWorkThreads(20);
-//        taskTracker.setJobInfoSavePath(Constants.USER_HOME);
+//        taskTracker.setFailStorePath(Constants.USER_HOME);
         taskTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 //        taskTracker.setBizLoggerLevel(Level.INFO);        // 业务日志级别
         taskTracker.start();
