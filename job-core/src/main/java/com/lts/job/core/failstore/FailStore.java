@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 /**
- * Created by hugui on 5/21/15.
+ * Robert HG (254963746@qq.com) on 5/21/15.
  */
 public interface FailStore {
 

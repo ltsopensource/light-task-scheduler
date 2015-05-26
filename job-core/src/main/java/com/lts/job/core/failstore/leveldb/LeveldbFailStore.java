@@ -20,11 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by hugui on 5/21/15.
+ * Only a single process (possibly multi-threaded) can access a particular database at a time
+ * Robert HG (254963746@qq.com) on 5/21/15.
  */
 public class LeveldbFailStore implements FailStore {
 
-    // 文件锁 (同一时间只能有一个线程在 检查提交失败的任务)
+    // 文件锁 (同一时间只能有一个线程访问leveldb文件)
     private FileAccessor dbLock;
     /**
      * 数据库目录
@@ -58,16 +59,24 @@ public class LeveldbFailStore implements FailStore {
 
     @Override
     public void put(String key, Object value) throws FailStoreException {
-        String valueString = JSONUtils.toJSONString(value);
-        db.put(key.getBytes(), valueString.getBytes());
+        try {
+            String valueString = JSONUtils.toJSONString(value);
+            db.put(key.getBytes("UTF-8"), valueString.getBytes("UTF-8"));
+        } catch (Exception e) {
+            throw new FailStoreException(e);
+        }
     }
 
     @Override
     public void delete(String key) throws FailStoreException {
-        if (key == null) {
-            return;
+        try {
+            if (key == null) {
+                return;
+            }
+            db.delete(key.getBytes("UTF-8"));
+        } catch (Exception e) {
+            throw new FailStoreException(e);
         }
-        db.delete(key.getBytes());
     }
 
     @Override
@@ -81,19 +90,23 @@ public class LeveldbFailStore implements FailStore {
     }
 
     @Override
-    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) {
-        List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
-        DBIterator iterator = db.iterator();
-        for (iterator.seekToLast(); iterator.hasPrev(); iterator.prev()) {
-            String key = new String(iterator.peekPrev().getKey());
-            T value = JSONUtils.parse(new String(iterator.peekPrev().getValue()), type);
-            KVPair<String, T> pair = new KVPair<String, T>(key, value);
-            list.add(pair);
-            if (list.size() >= size) {
-                break;
+    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+        try {
+            List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
+            DBIterator iterator = db.iterator();
+            for (iterator.seekToLast(); iterator.hasPrev(); iterator.prev()) {
+                String key = new String(iterator.peekPrev().getKey(), "UTF-8");
+                T value = JSONUtils.parse(new String(iterator.peekPrev().getValue(), "UTF-8"), type);
+                KVPair<String, T> pair = new KVPair<String, T>(key, value);
+                list.add(pair);
+                if (list.size() >= size) {
+                    break;
+                }
             }
+            return list;
+        } catch (Exception e) {
+            throw new FailStoreException(e);
         }
-        return list;
     }
 
     @Override

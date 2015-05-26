@@ -38,6 +38,7 @@
         <dbutils.version>1.6</dbutils.version>
         <druid.version>1.0.14</druid.version>
         <mysql.version>5.1.26</mysql.version>
+        <sleepycat.version>5.0.73</sleepycat.version>
     </properties>
 
     <dependencyManagement>
@@ -142,6 +143,11 @@
                 <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
                 <version>${javassist.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sleepycat</groupId>
+                <artifactId>je</artifactId>
+                <version>${sleepycat.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

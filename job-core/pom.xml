@@ -82,5 +82,9 @@
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sleepycat</groupId>
+            <artifactId>je</artifactId>
+        </dependency>
     </dependencies>
 </project>
