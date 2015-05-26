@@ -4,8 +4,8 @@ import com.lts.job.client.domain.JobClientApplication;
 import com.lts.job.client.domain.JobClientNode;
 import com.lts.job.client.domain.Response;
 import com.lts.job.client.domain.ResponseCode;
+import com.lts.job.client.support.JobSubmitProtectException;
 import com.lts.job.core.domain.Job;
-import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.support.RetryScheduler;
 
 import java.util.Arrays;
@@ -49,22 +49,30 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
     }
 
     @Override
-    public Response submitJob(Job job) throws JobSubmitException {
+    public Response submitJob(Job job) {
         return submitJob(Arrays.asList(job));
     }
 
     @Override
-    public Response submitJob(List<Job> jobs) throws JobSubmitException {
-        Response response = superSubmitJob(jobs);
-
+    public Response submitJob(List<Job> jobs) {
+        Response response;
+        try {
+            response = superSubmitJob(jobs);
+        } catch (JobSubmitProtectException e) {
+            response = new Response();
+            response.setSuccess(true);
+            response.setFailedJobs(jobs);
+            response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
+            response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
+        }
         if (!response.isSuccess()) {
             try {
                 for (Job job : response.getFailedJobs()) {
                     retryScheduler.inSchedule(job.getTaskId(), job);
                 }
                 response.setSuccess(true);
-                response.setCode(ResponseCode.FAILED_AND_SAVE_FILE);
-                response.setMsg(response.getMsg() + ", but save local fail store and send later !");
+                response.setCode(ResponseCode.SUBMIT_FAILED_AND_SAVE_FOR_LATER);
+                response.setMsg(response.getMsg() + ", save local fail store and send later !");
             } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg(e.getMessage());
@@ -74,7 +82,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
         return response;
     }
 
-    private Response superSubmitJob(List<Job> jobs) throws JobSubmitException {
+    private Response superSubmitJob(List<Job> jobs) {
         return super.submitJob(jobs);
     }
 }
