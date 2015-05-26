@@ -43,7 +43,6 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         }
     }
 
-
     @Override
     public void add(List<JobFeedbackPo> jobFeedbackPos) {
         if (CollectionUtils.isEmpty(jobFeedbackPos)) {

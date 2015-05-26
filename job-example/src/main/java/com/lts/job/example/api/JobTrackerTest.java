@@ -70,7 +70,7 @@ public class JobTrackerTest {
         // 任务队列用mysql
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置
-        jobTracker.addConfig("jdbc.url", "jdbc:mysql://test.superboss.cc:3306/lts");
+        jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
         jobTracker.addConfig("jdbc.username", "root");
         jobTracker.addConfig("jdbc.password", "root");
 

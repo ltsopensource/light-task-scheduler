@@ -1,7 +1,7 @@
 package com.lts.job.core.failstore;
 
 /**
- * Created by hugui on 5/21/15.
+ * Robert HG (254963746@qq.com) on 5/21/15.
  */
 public class FailStoreException extends Exception {
 
