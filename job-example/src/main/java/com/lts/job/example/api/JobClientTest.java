@@ -12,6 +12,9 @@ import com.lts.job.example.support.JobFinishedHandlerImpl;
 import com.lts.job.example.support.MasterChangeListenerImpl;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
@@ -19,8 +22,8 @@ import java.io.IOException;
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
-        console();
-//        testProtector();
+//        console();
+        testProtector();
     }
 
     public static void console() throws IOException {
@@ -35,7 +38,9 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
 //        jobClient.setLoadBalance("consistenthash");
-        jobClient.addConfig("job.fail.store", "berkeleydb");
+//        jobClient.addConfig("job.fail.store", "leveldb");
+//        jobClient.addConfig("job.fail.store", "berkeleydb");
+        jobClient.addConfig("job.fail.store", "rocksdb");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();
@@ -55,23 +60,40 @@ public class JobClientTest extends BaseJobClientTest {
 //        jobClient.setFailStorePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+//                jobClient.addConfig("job.fail.store", "leveldb");
+//        jobClient.addConfig("job.fail.store", "berkeleydb");
+//        jobClient.addConfig("job.fail.store", "rocksdb");
         jobClient.addConfig("job.submit.concurrency.size", "3");
         jobClient.start();
+
+        final AtomicLong num = new AtomicLong();
+        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
         for (int i = 0; i < 50; i++) {
 
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Job job = new Job();
-                    job.setTaskId(StringUtils.generateUUID());
-                    job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-                    job.setParam("shopId", "111");
-                    try {
-                        Response response = jobClient.submitJob(job);
-                        System.out.println(JSONObject.toJSONString(response));
-                    } catch (JobSubmitException e) {
-                        e.printStackTrace();
+                    while (true) {
+                        Job job = new Job();
+                        job.setTaskId(StringUtils.generateUUID());
+                        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+                        job.setParam("shopId", "111");
+                        try {
+                            Response response = jobClient.submitJob(job);
+                            System.out.print(" " + num.incrementAndGet());
+                            if(num.incrementAndGet() % 50 == 0){
+                                System.out.println("");
+                            }
+//                            System.out.println(JSONObject.toJSONString(response));
+                        } catch (JobSubmitException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            Thread.sleep(500L);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }).start();

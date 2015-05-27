@@ -45,7 +45,8 @@ public class RemotingClientDelegate {
         if (jobTrackers.size() == 0) {
             throw new JobTrackerNotFoundException("no available jobTracker!");
         }
-        return loadBalance.select(application.getConfig(), jobTrackers, application.getConfig().getIdentity());
+        return loadBalance.select(application.getConfig(), jobTrackers,
+                application.getConfig().getIdentity());
     }
 
     public void start() {
@@ -68,13 +69,9 @@ public class RemotingClientDelegate {
 
     /**
      * 同步调用
-     *
-     * @param request
-     * @return
-     * @throws RemotingCommandFieldCheckException
-     * @throws JobTrackerNotFoundException
      */
-    public RemotingCommand invokeSync(RemotingCommand request) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+    public RemotingCommand invokeSync(RemotingCommand request)
+            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
 
         Node jobTracker = null;
         try {
@@ -86,7 +83,8 @@ public class RemotingClientDelegate {
 
         try {
             request.checkCommandBody();
-            RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis());
+            RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(),
+                    request, application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
             return response;
         } catch (RemotingCommandFieldCheckException e) {
@@ -106,13 +104,9 @@ public class RemotingClientDelegate {
 
     /**
      * 异步调用
-     *
-     * @param request
-     * @param invokeCallback
-     * @throws RemotingCommandFieldCheckException
-     * @throws JobTrackerNotFoundException
      */
-    public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+    public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback)
+            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
 
         Node jobTracker = null;
         try {
@@ -125,7 +119,8 @@ public class RemotingClientDelegate {
         try {
             request.checkCommandBody();
 
-            remotingClient.invokeAsync(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
+            remotingClient.invokeAsync(jobTracker.getAddress(), request,
+                    application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
@@ -145,12 +140,9 @@ public class RemotingClientDelegate {
 
     /**
      * 单向调用
-     *
-     * @param request
-     * @throws RemotingCommandFieldCheckException
-     * @throws JobTrackerNotFoundException
      */
-    public void invokeOneway(RemotingCommand request) throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+    public void invokeOneway(RemotingCommand request)
+            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
         Node jobTracker = null;
         try {
             jobTracker = getJobTrackerNode();
@@ -161,7 +153,8 @@ public class RemotingClientDelegate {
 
         try {
             request.checkCommandBody();
-            remotingClient.invokeOneway(jobTracker.getAddress(), request, application.getConfig().getInvokeTimeoutMillis());
+            remotingClient.invokeOneway(jobTracker.getAddress(), request,
+                    application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
 
         } catch (RemotingCommandFieldCheckException e) {
@@ -179,7 +172,8 @@ public class RemotingClientDelegate {
         }
     }
 
-    public void registerProcessor(int requestCode, NettyRequestProcessor processor, ExecutorService executor) {
+    public void registerProcessor(int requestCode, NettyRequestProcessor processor,
+                                  ExecutorService executor) {
         remotingClient.registerProcessor(requestCode, processor, executor);
     }
 
