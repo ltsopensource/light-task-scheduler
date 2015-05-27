@@ -59,7 +59,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        jobClient.setFailStorePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-//                jobClient.addConfig("job.fail.store", "leveldb");
+//                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
 //        jobClient.addConfig("job.fail.store", "berkeleydb");
 //        jobClient.addConfig("job.fail.store", "rocksdb");
         jobClient.addConfig("job.submit.concurrency.size", "3");
