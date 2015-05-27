@@ -27,6 +27,7 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
     }
 
     protected void doCreateTable() {
+        // 1. 待执行的任务队列
         // 创建 JobPo 索引
         Class<?> clazz = JobPo.class;
         DBCollection dbCollection = ds.getCollection(clazz);
@@ -39,6 +40,11 @@ public class MongoJobQueue extends AbstractMongoRepository<JobPo> implements Job
             ds.ensureIndex(clazz, "idx_isRunning", "isRunning", false, false);
             ds.ensureIndex(clazz, "idx_taskTrackerNodeGroup_isRunning_triggerTime", "taskTrackerNodeGroup,isRunning,triggerTime", false, false);
         }
+
+        // 2. 正在执行的任务队列
+
+        // 3. cronExpression的队列
+
     }
 
     @Override

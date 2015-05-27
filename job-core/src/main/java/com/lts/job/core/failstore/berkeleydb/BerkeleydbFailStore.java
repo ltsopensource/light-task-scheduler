@@ -4,6 +4,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.domain.KVPair;
 import com.lts.job.core.failstore.FailStore;
 import com.lts.job.core.failstore.FailStoreException;
+import com.lts.job.core.file.FileLock;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
@@ -26,10 +27,13 @@ public class BerkeleydbFailStore implements FailStore {
     private Database db;
     private EnvironmentConfig envConfig;
     private File envHome;
+    private FileLock lock;
+    DatabaseConfig dbConfig;
 
     public BerkeleydbFailStore(Config config) {
         try {
-            envHome = FileUtils.createDirIfNotExist(config.getFailStorePath());
+            String failStorePath = config.getFailStorePath() + "berkeleydb/";
+            envHome = FileUtils.createDirIfNotExist(failStorePath);
             envConfig = new EnvironmentConfig();
             // 如果不存在则创建一个
             envConfig.setAllowCreate(true);
@@ -39,6 +43,14 @@ public class BerkeleydbFailStore implements FailStore {
             envConfig.setTransactional(true);
             // Configures the durability associated with transactions.
             envConfig.setDurability(Durability.COMMIT_SYNC);
+
+            dbConfig = new DatabaseConfig();
+            dbConfig.setAllowCreate(true);
+            dbConfig.setSortedDuplicates(false);
+            dbConfig.setTransactional(true);
+
+            lock = new FileLock(failStorePath + "___db.lock");
+
         } catch (DatabaseException e) {
             throw new RuntimeException(e);
         }
@@ -46,14 +58,11 @@ public class BerkeleydbFailStore implements FailStore {
 
     @Override
     public void open() throws FailStoreException {
-        environment = new Environment(envHome, envConfig);
-        DatabaseConfig dbConfig = new DatabaseConfig();
-        dbConfig.setAllowCreate(true);
-        dbConfig.setSortedDuplicates(false);
-        dbConfig.setTransactional(true);
         try {
+            lock.tryLock();
+            environment = new Environment(envHome, envConfig);
             db = environment.openDatabase(null, "lts", dbConfig);
-        } catch (DatabaseException e) {
+        } catch (Exception e) {
             throw new FailStoreException(e);
         }
     }
@@ -119,7 +128,6 @@ public class BerkeleydbFailStore implements FailStore {
                 try {
                     cursor.close();
                 } catch (DatabaseException e) {
-                    // do nothing
                     LOGGER.warn("close cursor failed! ", e);
                 }
             }
@@ -128,23 +136,32 @@ public class BerkeleydbFailStore implements FailStore {
 
     @Override
     public void close() throws FailStoreException {
-        // do nothing
         try {
             if (db != null) {
                 db.close();
             }
-            if (environment != null) {
+            if (environment != null && environment.isValid()) {
                 environment.cleanLog();
                 environment.close();
             }
         } catch (Exception e) {
             throw new FailStoreException(e);
+        } finally {
+            lock.release();
         }
     }
 
     @Override
     public void destroy() throws FailStoreException {
-        environment.removeDatabase(null, db.getDatabaseName());
-        environment.close();
+        try {
+            if (environment != null) {
+                environment.removeDatabase(null, db.getDatabaseName());
+                environment.close();
+            }
+        } catch (Exception e) {
+            throw new FailStoreException(e);
+        } finally {
+            lock.delete();
+        }
     }
 }

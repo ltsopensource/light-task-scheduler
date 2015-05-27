@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
- * 对 remotingServer 的包装
+ *         对 remotingServer 的包装
  */
 public class RemotingServerDelegate {
 
@@ -33,7 +33,8 @@ public class RemotingServerDelegate {
         }
     }
 
-    public void registerProcessor(int requestCode, NettyRequestProcessor processor, ExecutorService executor) {
+    public void registerProcessor(int requestCode, NettyRequestProcessor processor,
+                                  ExecutorService executor) {
         remotingServer.registerProcessor(requestCode, processor, executor);
     }
 
@@ -41,12 +42,14 @@ public class RemotingServerDelegate {
         remotingServer.registerDefaultProcessor(processor, executor);
     }
 
-    public RemotingCommand invokeSync(Channel channel, RemotingCommand request) throws RemotingSendException, RemotingCommandFieldCheckException {
+    public RemotingCommand invokeSync(Channel channel, RemotingCommand request)
+            throws RemotingSendException, RemotingCommandFieldCheckException {
         try {
 
             request.checkCommandBody();
 
-            return remotingServer.invokeSync(channel, request, application.getConfig().getInvokeTimeoutMillis());
+            return remotingServer.invokeSync(channel, request,
+                    application.getConfig().getInvokeTimeoutMillis());
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {
@@ -54,12 +57,14 @@ public class RemotingServerDelegate {
         }
     }
 
-    public void invokeAsync(Channel channel, RemotingCommand request, InvokeCallback invokeCallback) throws RemotingCommandFieldCheckException, RemotingSendException {
+    public void invokeAsync(Channel channel, RemotingCommand request, InvokeCallback invokeCallback)
+            throws RemotingCommandFieldCheckException, RemotingSendException {
         try {
 
             request.checkCommandBody();
 
-            remotingServer.invokeAsync(channel, request, application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
+            remotingServer.invokeAsync(channel, request,
+                    application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {
@@ -67,12 +72,14 @@ public class RemotingServerDelegate {
         }
     }
 
-    public void invokeOneway(Channel channel, RemotingCommand request) throws RemotingCommandFieldCheckException, RemotingSendException {
+    public void invokeOneway(Channel channel, RemotingCommand request)
+            throws RemotingCommandFieldCheckException, RemotingSendException {
         try {
 
             request.checkCommandBody();
 
-            remotingServer.invokeOneway(channel, request, application.getConfig().getInvokeTimeoutMillis());
+            remotingServer.invokeOneway(channel, request,
+                    application.getConfig().getInvokeTimeoutMillis());
         } catch (RemotingCommandFieldCheckException e) {
             throw e;
         } catch (Throwable t) {

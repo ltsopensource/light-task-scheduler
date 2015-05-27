@@ -4,8 +4,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.domain.KVPair;
 import com.lts.job.core.failstore.FailStore;
 import com.lts.job.core.failstore.FailStoreException;
-import com.lts.job.core.file.FileAccessor;
-import com.lts.job.core.file.FileException;
+import com.lts.job.core.file.FileLock;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.util.JSONUtils;
 import org.fusesource.leveldbjni.JniDBFactory;
@@ -26,7 +25,7 @@ import java.util.List;
 public class LeveldbFailStore implements FailStore {
 
     // 文件锁 (同一时间只能有一个线程访问leveldb文件)
-    private FileAccessor dbLock;
+    private FileLock lock;
     /**
      * 数据库目录
      */
@@ -37,20 +36,16 @@ public class LeveldbFailStore implements FailStore {
     private Options options;
 
     public LeveldbFailStore(Config config) {
-        dbPath = FileUtils.createDirIfNotExist(config.getFailStorePath());
+        String failStorePath = config.getFailStorePath() + "leveldb/";
+        dbPath = FileUtils.createDirIfNotExist(failStorePath);
         options = new Options();
-        try {
-            dbLock = new FileAccessor(config.getFailStorePath() + "___db.lock");
-            dbLock.createIfNotExist();
-        } catch (FileException e) {
-            throw new RuntimeException(e);
-        }
+        lock = new FileLock(failStorePath + "___db.lock");
     }
 
     @Override
     public void open() throws FailStoreException {
-        dbLock.tryLock();
         try {
+            lock.tryLock();
             db = JniDBFactory.factory.open(dbPath, options);
         } catch (IOException e) {
             throw new FailStoreException(e);
@@ -112,19 +107,23 @@ public class LeveldbFailStore implements FailStore {
     @Override
     public void close() throws FailStoreException {
         try {
-            db.close();
-            dbLock.unlock();
+            if (db != null) {
+                db.close();
+            }
         } catch (IOException e) {
             throw new FailStoreException(e);
+        } finally {
+            lock.release();
         }
     }
 
     public void destroy() throws FailStoreException {
         try {
             JniDBFactory.factory.destroy(dbPath, options);
-            dbLock.delete();
         } catch (IOException e) {
             throw new FailStoreException(e);
+        } finally {
+            lock.delete();
         }
     }
 }
