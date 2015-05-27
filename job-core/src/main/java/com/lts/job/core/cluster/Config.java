@@ -137,6 +137,10 @@ public class Config {
         return value;
     }
 
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
+
     private Map<String, Number> getNumbers() {
         if (numbers == null) { // 允许并发重复创建
             numbers = new ConcurrentHashMap<String, Number>();

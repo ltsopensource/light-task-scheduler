@@ -1,6 +1,5 @@
 package com.lts.job.example.api;
 
-import com.alibaba.fastjson.JSONObject;
 import com.lts.job.client.JobClient;
 import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.domain.Response;
@@ -22,8 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
-//        console();
-        testProtector();
+        console();
+//        testProtector();
     }
 
     public static void console() throws IOException {
@@ -39,8 +38,8 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
 //        jobClient.setLoadBalance("consistenthash");
 //        jobClient.addConfig("job.fail.store", "leveldb");
-//        jobClient.addConfig("job.fail.store", "berkeleydb");
-        jobClient.addConfig("job.fail.store", "rocksdb");
+        jobClient.addConfig("job.fail.store", "berkeleydb");
+//        jobClient.addConfig("job.fail.store", "rocksdb");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();

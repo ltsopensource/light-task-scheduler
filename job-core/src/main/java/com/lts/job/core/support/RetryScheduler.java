@@ -8,6 +8,7 @@ import com.lts.job.core.failstore.FailStoreException;
 import com.lts.job.core.failstore.FailStoreFactory;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.GenericsUtils;
 import com.lts.job.core.util.JSONUtils;
 
@@ -51,12 +52,9 @@ public abstract class RetryScheduler<T> {
         if (RETRY_EXECUTOR_SERVICE == null) {
             RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
             // 这个时间后面再去优化
-            scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 30, 30, TimeUnit.SECONDS);
+            scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 10, 30, TimeUnit.SECONDS);
         }
     }
-
-    // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-    private int maxSentSize = 20;
 
     public void stop() {
         try {
@@ -73,6 +71,9 @@ public abstract class RetryScheduler<T> {
      */
     private class CheckRunner implements Runnable {
 
+        // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
+        private int maxSentSize = 100;
+
         @Override
         public void run() {
             try {
@@ -80,39 +81,50 @@ public abstract class RetryScheduler<T> {
                 if (!isRemotingEnable()) {
                     return;
                 }
-                try {
+
+                int sentSize = 0;
+
+                List<KVPair<String, T>> kvPairs = null;
+                do {
                     failStore.open();
-                    int sentSize = 0;
 
-                    List<KVPair<String, T>> kvPairs = failStore.fetchTop(batchSize, type);
+                    kvPairs = failStore.fetchTop(batchSize, type);
 
-                    while (kvPairs != null && kvPairs.size() > 0) {
-                        List<T> values = new ArrayList<T>(kvPairs.size());
-                        List<String> keys = new ArrayList<String>(kvPairs.size());
-                        for (KVPair<String, T> kvPair : kvPairs) {
-                            keys.add(kvPair.getKey());
-                            values.add(kvPair.getValue());
-                        }
-                        if (retry(values)) {
-                            LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
-                            failStore.delete(keys);
-                        } else {
-                            break;
-                        }
-                        sentSize += kvPairs.size();
-                        if (sentSize >= maxSentSize) {
-                            // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-                            break;
-                        }
-                        kvPairs = failStore.fetchTop(batchSize, type);
+                    if (CollectionUtils.isEmpty(kvPairs)) {
+                        break;
                     }
-                } finally {
+
+                    List<T> values = new ArrayList<T>(kvPairs.size());
+                    List<String> keys = new ArrayList<String>(kvPairs.size());
+                    for (KVPair<String, T> kvPair : kvPairs) {
+                        keys.add(kvPair.getKey());
+                        values.add(kvPair.getValue());
+                    }
+                    if (retry(values)) {
+                        LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
+                        failStore.delete(keys);
+                    } else {
+                        break;
+                    }
+                    sentSize += kvPairs.size();
+                    if (sentSize >= maxSentSize) {
+                        // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
+                        try {
+                            Thread.sleep(1000L);
+                        } catch (InterruptedException e1) {
+                            LOGGER.warn(e1.getMessage(), e1);
+                        }
+                    }
+
                     failStore.close();
-                }
+
+                } while (CollectionUtils.isNotEmpty(kvPairs));
+
             } catch (Throwable e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }
+
     }
 
     public void inSchedule(String key, T value) {
