@@ -95,6 +95,10 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     taskTracker.setNodeGroup("test_trade_TaskTracker");
     taskTracker.setClusterName("test_cluster");
     taskTracker.setWorkThreads(20);
+    // taskTracker.addConfig("job.fail.store", "leveldb");     // 默认
+    // taskTracker.addConfig("job.fail.store", "berkeleydb");
+    // taskTracker.addConfig("job.fail.store", "rocksdb");
+    // taskTracker.setLoadBalance("consistenthash");
     taskTracker.start();
     // 任务执行类
     public class TestJobRunner implements JobRunner {
@@ -119,6 +123,12 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     jobClient.setClusterName("test_cluster");
     jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
     // jobClient.setRegistryAddress("redis://127.0.0.1:6379");
+    // jobClient.addConfig("job.fail.store", "leveldb");     // 默认
+    // jobClient.addConfig("job.fail.store", "berkeleydb");
+    // jobClient.addConfig("job.fail.store", "rocksdb");
+    // jobClient.setLoadBalance("consistenthash");
+    jobClient.start();
+    
     // 提交任务
     Job job = new Job();
     job.setTaskId("3213213123");
