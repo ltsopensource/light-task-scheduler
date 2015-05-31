@@ -10,7 +10,10 @@ import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
@@ -21,8 +24,6 @@ public class RunnerPool {
     private final Logger LOGGER = LoggerFactory.getLogger("RunnerPool");
 
     private ThreadPoolExecutor threadPoolExecutor = null;
-    // 定时更新可用线程
-    private ScheduledExecutorService REFRESH_EXECUTOR_SERVICE = null;
 
     private RunnerFactory runnerFactory;
     private TaskTrackerApplication application;
@@ -38,14 +39,6 @@ public class RunnerPool {
                 new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
                 new ThreadPoolExecutor.AbortPolicy());      // A handler for rejected tasks that throws a
 
-        REFRESH_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
-        REFRESH_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                application.setAvailableThreads(getAvailablePoolSize());
-            }
-        }, 60, 30, TimeUnit.SECONDS);
-
         runnerFactory = application.getRunnerFactory();
         if (runnerFactory == null) {
             runnerFactory = new DefaultRunnerFactory(application);
@@ -57,8 +50,6 @@ public class RunnerPool {
         try {
             threadPoolExecutor.execute(
                     new JobRunnerDelegate(application, job, callback));
-            // 更新应用可用线程数
-            application.setAvailableThreads(getAvailablePoolSize());
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("receive job success ! " + job);
             }

@@ -4,16 +4,18 @@ import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.core.cluster.AbstractServerNode;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.extension.ExtensionLoader;
+import com.lts.job.queue.CronJobQueueFactory;
+import com.lts.job.queue.ExecutableJobQueueFactory;
+import com.lts.job.queue.ExecutingJobQueueFactory;
 import com.lts.job.queue.JobFeedbackQueueFactory;
-import com.lts.job.queue.JobQueueFactory;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.JobTrackerNode;
 import com.lts.job.tracker.processor.RemotingDispatcher;
-import com.lts.job.tracker.support.JobClientManager;
+import com.lts.job.tracker.support.cluster.JobClientManager;
 import com.lts.job.tracker.support.OldDataHandler;
-import com.lts.job.tracker.support.TaskTrackerManager;
+import com.lts.job.tracker.support.cluster.TaskTrackerManager;
 import com.lts.job.tracker.support.listener.JobNodeChangeListener;
 import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
 
@@ -23,7 +25,11 @@ import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
 
     private JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
-    private JobQueueFactory jobQueueFactory = ExtensionLoader.getExtensionLoader(JobQueueFactory.class).getAdaptiveExtension();
+
+    private CronJobQueueFactory cronJobQueueFactory = ExtensionLoader.getExtensionLoader(CronJobQueueFactory.class).getAdaptiveExtension();
+    private ExecutableJobQueueFactory executableJobQueueFactory = ExtensionLoader.getExtensionLoader(ExecutableJobQueueFactory.class).getAdaptiveExtension();
+    private ExecutingJobQueueFactory executingJobQueueFactory = ExtensionLoader.getExtensionLoader(ExecutingJobQueueFactory.class).getAdaptiveExtension();
+
     private JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
     public JobTracker() {
@@ -45,8 +51,11 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     protected void innerStart() {
 
         application.setJobLogger(jobLoggerFactory.getJobLogger(config));
-        application.setJobQueue(jobQueueFactory.getJobQueue(config));
-        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getJobFeedbackQueue(config));
+
+        application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
+        application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
+        application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
+        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
 
         application.getChannelManager().start();
         // 启动节点

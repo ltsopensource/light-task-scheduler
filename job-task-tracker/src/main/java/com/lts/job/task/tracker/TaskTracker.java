@@ -76,7 +76,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     public void setWorkThreads(int workThreads) {
         config.setWorkThreads(workThreads);
-        application.setAvailableThreads(config.getWorkThreads());
     }
 
     /**

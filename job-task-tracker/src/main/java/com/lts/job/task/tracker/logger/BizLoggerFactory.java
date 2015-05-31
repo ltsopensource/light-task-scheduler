@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BizLoggerFactory {
 
-    private static ConcurrentHashMap<String, BizLogger> map = new ConcurrentHashMap<String, BizLogger>();
+    private static final ConcurrentHashMap<String, BizLogger> BIZ_LOGGER_CONCURRENT_HASH_MAP = new ConcurrentHashMap<String, BizLogger>();
 
     /**
      * 保证一个TaskTracker只能有一个Logger, 因为一个jvm可以有多个TaskTracker
@@ -21,17 +21,17 @@ public class BizLoggerFactory {
      */
     public static BizLogger getLogger(Level level, RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
         String key = application.getConfig().getIdentity();
-        BizLogger logger = map.get(key);
+        BizLogger logger = BIZ_LOGGER_CONCURRENT_HASH_MAP.get(key);
         if (logger == null) {
-            synchronized (map) {
-                logger = map.get(key);
+            synchronized (BIZ_LOGGER_CONCURRENT_HASH_MAP) {
+                logger = BIZ_LOGGER_CONCURRENT_HASH_MAP.get(key);
                 if (logger != null) {
                     return logger;
                 }
                 logger = new BizLoggerImpl(
                         level,
                         remotingClient, application);
-                map.put(key, logger);
+                BIZ_LOGGER_CONCURRENT_HASH_MAP.put(key, logger);
             }
         }
         return logger;

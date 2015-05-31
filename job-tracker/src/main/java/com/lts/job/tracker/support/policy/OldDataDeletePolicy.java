@@ -18,11 +18,11 @@ public class OldDataDeletePolicy implements OldDataHandler {
         this.expired = expired;
     }
 
-    public boolean handleJobFeedbackPo(JobFeedbackQueue jobFeedbackQueue, JobFeedbackPo jobFeedbackPo, JobFeedbackPo po) {
+    public boolean handle(JobFeedbackQueue jobFeedbackQueue, JobFeedbackPo jobFeedbackPo, JobFeedbackPo po) {
 
         if (System.currentTimeMillis() - jobFeedbackPo.getGmtCreated() > expired) {
             // delete
-            jobFeedbackQueue.remove(po.getId());
+            jobFeedbackQueue.remove(po.getJobResult().getJob().getTaskTrackerNodeGroup(), po.getId());
             return true;
         }
 

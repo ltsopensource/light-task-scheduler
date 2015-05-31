@@ -1,15 +1,17 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.exception.RequestTimeoutException;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.Holder;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobClientNode;
@@ -17,6 +19,7 @@ import com.lts.job.tracker.domain.JobTrackerApplication;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/2/15.
@@ -39,7 +42,7 @@ public class ClientNotifier {
      * @return 返回成功的个数
      */
     public <T extends JobResult> int send(List<T> jobResults) {
-        if (jobResults == null || jobResults.size() == 0) {
+        if (CollectionUtils.isEmpty(jobResults)) {
             return 0;
         }
 
@@ -121,14 +124,13 @@ public class ClientNotifier {
             });
 
             try {
-                latch.await();
+                latch.await(Constants.LATCH_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                throw new RequestTimeoutException(e);
             }
+
         } catch (RemotingSendException e) {
-            LOGGER.error("通知客户端失败!", e);
-        } catch (RemotingCommandFieldCheckException e) {
-            LOGGER.error("通知客户端失败!", e);
+            LOGGER.error("notify client failed!", e);
         }
         return result.get();
     }

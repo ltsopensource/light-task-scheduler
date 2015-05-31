@@ -1,0 +1,1 @@
+mongo=com.lts.job.queue.mongo.MongoCronJobQueueFactory

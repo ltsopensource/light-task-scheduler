@@ -48,7 +48,7 @@ public class JobPullMachine {
                      * 发送Job pull 请求
                      */
                     private void sendRequest() throws RemotingCommandFieldCheckException {
-                        int availableThreads = application.getAvailableThreads();
+                        int availableThreads = application.getRunnerPool().getAvailablePoolSize();
                         if (availableThreads == 0) {
                             return;
                         }
@@ -57,25 +57,20 @@ public class JobPullMachine {
                         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
 
                         try {
-                            application.getRemotingClient().invokeAsync(request, new InvokeCallback() {
-                                @Override
-                                public void operationComplete(ResponseFuture responseFuture) {
-                                    RemotingCommand responseCommand = responseFuture.getResponseCommand();
-                                    if (responseCommand == null) {
-                                        LOGGER.warn("job pull request failed! response command is null!");
-                                        return;
-                                    }
-                                    if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
-                                        if (LOGGER.isDebugEnabled()) {
-                                            LOGGER.debug("job pull request success!");
-                                        }
-                                        return;
-                                    }
-                                    LOGGER.warn("job pull request failed! response command is null!");
+                            RemotingCommand responseCommand = application.getRemotingClient().invokeSync(request);
+                            if (responseCommand == null) {
+                                LOGGER.warn("job pull request failed! response command is null!");
+                                return;
+                            }
+                            if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("job pull request success!");
                                 }
-                            });
+                                return;
+                            }
+                            LOGGER.warn("job pull request failed! response command is null!");
                         } catch (JobTrackerNotFoundException e) {
-                            LOGGER.warn(e.getMessage());
+                            LOGGER.warn("no job tracker available!");
                         }
                     }
                 }, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程

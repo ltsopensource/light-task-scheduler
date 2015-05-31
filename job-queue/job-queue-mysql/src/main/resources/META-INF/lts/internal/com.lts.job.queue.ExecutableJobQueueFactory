@@ -1,0 +1,1 @@
+mysql=com.lts.job.queue.mysql.MysqlExecutableJobQueueFactory

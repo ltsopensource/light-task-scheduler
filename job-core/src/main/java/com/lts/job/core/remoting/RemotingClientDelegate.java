@@ -8,7 +8,6 @@ import com.lts.job.core.loadbalance.LoadBalance;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRemotingClient;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -71,7 +70,7 @@ public class RemotingClientDelegate {
      * 同步调用
      */
     public RemotingCommand invokeSync(RemotingCommand request)
-            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+            throws JobTrackerNotFoundException {
 
         Node jobTracker = null;
         try {
@@ -82,13 +81,10 @@ public class RemotingClientDelegate {
         }
 
         try {
-            request.checkCommandBody();
             RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(),
                     request, application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
             return response;
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Exception e) {
             // 将这个JobTracker移除
             jobTrackers.remove(jobTracker);
@@ -106,7 +102,7 @@ public class RemotingClientDelegate {
      * 异步调用
      */
     public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback)
-            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+            throws JobTrackerNotFoundException {
 
         Node jobTracker = null;
         try {
@@ -117,14 +113,10 @@ public class RemotingClientDelegate {
         }
 
         try {
-            request.checkCommandBody();
-
             remotingClient.invokeAsync(jobTracker.getAddress(), request,
                     application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
             this.serverEnable = true;
 
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Throwable e) {
             // 将这个JobTracker移除
             jobTrackers.remove(jobTracker);
@@ -142,7 +134,7 @@ public class RemotingClientDelegate {
      * 单向调用
      */
     public void invokeOneway(RemotingCommand request)
-            throws RemotingCommandFieldCheckException, JobTrackerNotFoundException {
+            throws JobTrackerNotFoundException {
         Node jobTracker = null;
         try {
             jobTracker = getJobTrackerNode();
@@ -152,13 +144,10 @@ public class RemotingClientDelegate {
         }
 
         try {
-            request.checkCommandBody();
             remotingClient.invokeOneway(jobTracker.getAddress(), request,
                     application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
 
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Throwable e) {
             // 将这个JobTracker移除
             jobTrackers.remove(jobTracker);

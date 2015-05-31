@@ -18,7 +18,7 @@ import java.io.StringWriter;
  */
 public class JobRunnerDelegate implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("JobRunner");
+    private static final Logger LOGGER = LoggerFactory.getLogger("LTSJobRunner");
     private Job job;
     private RunnerCallback callback;
     private BizLoggerImpl logger;
@@ -38,7 +38,7 @@ public class JobRunnerDelegate implements Runnable {
     public void run() {
 
         try {
-            LtsLogger.setLogger(logger);
+            LtsLoggerFactory.setLogger(logger);
 
             while (job != null) {
                 // 设置当前context中的jobId
@@ -51,18 +51,18 @@ public class JobRunnerDelegate implements Runnable {
                 try {
                     application.getRunnerPool().getRunnerFactory().newRunner().run(job);
                     response.setSuccess(true);
-                    LOGGER.info("执行任务成功 : {}", job);
+                    LOGGER.info("Job exec success : {}", job);
                 } catch (Throwable t) {
                     response.setSuccess(false);
 
                     if (t instanceof JobInfoException) {
-                        LOGGER.warn("任务执行失败: {} {}", job, t.getMessage());
+                        LOGGER.warn("Job exec failed : {} {}", job, t.getMessage());
                         response.setMsg(t.getMessage());
                     } else {
                         StringWriter sw = new StringWriter();
                         t.printStackTrace(new PrintWriter(sw));
                         response.setMsg(sw.toString());
-                        LOGGER.info("任务执行失败: {} {}", job, t.getMessage(), t);
+                        LOGGER.info("Job exec error : {} {}", job, t.getMessage(), t);
                     }
                 } finally {
                     application.getRunnerPool().getRunningJobManager().out(job.getJobId());
@@ -70,7 +70,7 @@ public class JobRunnerDelegate implements Runnable {
                 job = callback.runComplete(response);
             }
         } finally {
-            LtsLogger.remove();
+            LtsLoggerFactory.remove();
         }
     }
 

@@ -5,7 +5,7 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 /**
- * Created by hugui on 5/27/15.
+ * Robert HG (254963746@qq.com) on 5/27/15.
  */
 public class FileLockTest {
 

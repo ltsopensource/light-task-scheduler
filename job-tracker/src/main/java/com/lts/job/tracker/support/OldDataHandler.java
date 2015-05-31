@@ -10,6 +10,6 @@ import com.lts.job.queue.domain.JobFeedbackPo;
  */
 public interface OldDataHandler {
 
-    boolean handleJobFeedbackPo(JobFeedbackQueue jobFeedbackQueue, JobFeedbackPo jobFeedbackPo, JobFeedbackPo po);
+    boolean handle(JobFeedbackQueue jobFeedbackQueue, JobFeedbackPo jobFeedbackPo, JobFeedbackPo po);
 
 }

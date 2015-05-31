@@ -12,6 +12,7 @@ import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JSONUtils;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.InvokeCallback;
@@ -35,9 +36,9 @@ import java.util.concurrent.TimeUnit;
  *         1. 分发出去的，并且执行节点不存在的任务
  *         2. 分发出去，执行节点还在, 但是没有在执行的任务
  */
-public class DeadJobChecker {
+public class ExecutingDeadJobChecker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeadJobChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutingDeadJobChecker.class);
 
     // 5 分钟没有收到反馈信息 (并且该节点不存在了)，表示这个任务已经死掉了
     private static final long MAX_DEAD_CHECK_TIME = 5 * 60 * 1000;
@@ -48,7 +49,7 @@ public class DeadJobChecker {
 
     private JobTrackerApplication application;
 
-    public DeadJobChecker(JobTrackerApplication application) {
+    public ExecutingDeadJobChecker(JobTrackerApplication application) {
         this.application = application;
     }
 
@@ -67,7 +68,8 @@ public class DeadJobChecker {
                 try {
                     // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
                     // 一般来说这个是没有多大的，我就不分页去查询了
-                    List<JobPo> jobPos = application.getJobQueue().getByLimitExecTime(MAX_DEAD_CHECK_TIME);
+                    List<JobPo> jobPos = application.getExecutingJobQueue().getDeadJobs(
+                            DateUtils.currentTimeMillis() - MAX_DEAD_CHECK_TIME);
                     if (jobPos != null && jobPos.size() > 0) {
                         List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.TASK_TRACKER);
                         HashSet<String/*identity*/> identities = new HashSet<String>();
@@ -144,13 +146,13 @@ public class DeadJobChecker {
      *
      * @param node
      */
-    public void fixedDeadLock(Node node) {
+    public void fixedDeadNodeJob(Node node) {
         try {
             // 1. 判断这个节点的channel是否存在
             ChannelWrapper channelWrapper = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
             if (channelWrapper == null || channelWrapper.getChannel() == null
                     || channelWrapper.isClosed()) {
-                List<JobPo> jobPos = application.getJobQueue().getRunningJob(node.getIdentity());
+                List<JobPo> jobPos = application.getExecutingJobQueue().getJobs(node.getIdentity());
                 if (CollectionUtils.isNotEmpty(jobPos)) {
                     for (JobPo jobPo : jobPos) {
                         fixedDeadJob(jobPo);
@@ -163,7 +165,10 @@ public class DeadJobChecker {
     }
 
     private void fixedDeadJob(JobPo jobPo) {
-        application.getJobQueue().resume(jobPo);
+        // 1. add to executable queue
+        application.getExecutableJobQueue().add(jobPo);
+        // 2. remove from executing queue
+        application.getExecutingJobQueue().remove(jobPo.getJobId());
         try {
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setLevel(Level.WARN);
@@ -172,7 +177,7 @@ public class DeadJobChecker {
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }
-        LOGGER.info("修复死掉的任务成功! {}", JSONUtils.toJSONString(jobPo));
+        LOGGER.info("fix dead job ! {}", JSONUtils.toJSONString(jobPo));
     }
 
     public void stop() {

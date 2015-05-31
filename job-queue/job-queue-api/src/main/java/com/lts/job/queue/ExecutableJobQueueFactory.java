@@ -5,11 +5,12 @@ import com.lts.job.core.extension.Adaptive;
 import com.lts.job.core.extension.SPI;
 
 /**
- * @author Robert HG (254963746@qq.com) on 5/19/15.
+ * @author Robert HG (254963746@qq.com) on 5/30/15.
  */
 @SPI("mongo")
-public interface JobQueueFactory {
+public interface ExecutableJobQueueFactory {
 
     @Adaptive("job.queue")
-    JobQueue getJobQueue(Config config);
+    ExecutableJobQueue getQueue(Config config);
+
 }

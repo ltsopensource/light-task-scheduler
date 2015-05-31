@@ -28,7 +28,7 @@ public class BerkeleydbFailStore implements FailStore {
     private EnvironmentConfig envConfig;
     private File envHome;
     private FileLock lock;
-    DatabaseConfig dbConfig;
+    private DatabaseConfig dbConfig;
 
     public BerkeleydbFailStore(Config config) {
         try {

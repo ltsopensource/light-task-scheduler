@@ -4,7 +4,6 @@ import com.lts.job.core.Application;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.RemotingServer;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import io.netty.channel.Channel;
@@ -43,45 +42,33 @@ public class RemotingServerDelegate {
     }
 
     public RemotingCommand invokeSync(Channel channel, RemotingCommand request)
-            throws RemotingSendException, RemotingCommandFieldCheckException {
+            throws RemotingSendException {
         try {
-
-            request.checkCommandBody();
 
             return remotingServer.invokeSync(channel, request,
                     application.getConfig().getInvokeTimeoutMillis());
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
     }
 
     public void invokeAsync(Channel channel, RemotingCommand request, InvokeCallback invokeCallback)
-            throws RemotingCommandFieldCheckException, RemotingSendException {
+            throws RemotingSendException {
         try {
-
-            request.checkCommandBody();
 
             remotingServer.invokeAsync(channel, request,
                     application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
     }
 
     public void invokeOneway(Channel channel, RemotingCommand request)
-            throws RemotingCommandFieldCheckException, RemotingSendException {
+            throws RemotingSendException {
         try {
-
-            request.checkCommandBody();
 
             remotingServer.invokeOneway(channel, request,
                     application.getConfig().getInvokeTimeoutMillis());
-        } catch (RemotingCommandFieldCheckException e) {
-            throw e;
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }

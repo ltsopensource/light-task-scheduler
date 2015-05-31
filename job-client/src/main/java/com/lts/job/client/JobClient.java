@@ -8,6 +8,7 @@ import com.lts.job.client.processor.RemotingDispatcher;
 import com.lts.job.client.support.JobFinishedHandler;
 import com.lts.job.client.support.JobSubmitExecutor;
 import com.lts.job.client.support.JobSubmitProtector;
+import com.lts.job.client.support.SubmitCallback;
 import com.lts.job.core.Application;
 import com.lts.job.core.cluster.AbstractClientNode;
 import com.lts.job.core.constant.Constants;
@@ -21,8 +22,8 @@ import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.CommonUtils;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -30,6 +31,7 @@ import com.lts.job.remoting.protocol.RemotingCommand;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.
@@ -76,23 +78,29 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         return protector.execute(jobs, new JobSubmitExecutor<Response>() {
             @Override
             public Response execute(List<Job> jobs) throws JobSubmitException {
-                return _submitJob(jobs);
+                return submitJob(jobs, SubmitType.ASYNC);
             }
         });
     }
 
-    private Response _submitJob(final List<Job> jobs) throws JobSubmitException {
+    private void checkFields(List<Job> jobs) {
         // 参数验证
         if (CollectionUtils.isEmpty(jobs)) {
-            throw new JobSubmitException("提交任务不能为空!");
+            throw new JobSubmitException("job can not be null!");
         }
         for (Job job : jobs) {
             if (job == null) {
-                throw new JobSubmitException("提交任务不能为空!");
+                throw new JobSubmitException("job can not be null!");
             } else {
                 job.checkField();
             }
         }
+    }
+
+    protected Response submitJob(final List<Job> jobs, SubmitType type) throws JobSubmitException {
+        // 检查参数
+        checkFields(jobs);
+
         final Response response = new Response();
         try {
             JobSubmitRequest jobSubmitRequest = application.getCommandBodyWrapper().wrapper(new JobSubmitRequest());
@@ -100,58 +108,73 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
             RemotingCommand requestCommand = RemotingCommand.createRequestCommand(JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);
 
-            final CountDownLatch latch = new CountDownLatch(1);
-            remotingClient.invokeAsync(requestCommand, new InvokeCallback() {
+            SubmitCallback submitCallback = new SubmitCallback() {
                 @Override
-                public void operationComplete(ResponseFuture responseFuture) {
-                    try {
-                        RemotingCommand responseCommand = responseFuture.getResponseCommand();
-
-                        if (responseCommand == null) {
-                            response.setFailedJobs(jobs);
-                            response.setSuccess(false);
-                            LOGGER.warn("提交任务失败: {}, {}",
-                                    jobs, "JobTracker中断了");
-                            return;
-                        }
-
-                        if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                            LOGGER.info("提交任务成功: {}", jobs);
-                            response.setSuccess(true);
-                            return;
-                        }
-                        // 失败的job
-                        JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
-                        response.setFailedJobs(jobSubmitResponse.getFailedJobs());
+                public void call(RemotingCommand responseCommand) {
+                    if (responseCommand == null) {
+                        response.setFailedJobs(jobs);
                         response.setSuccess(false);
-                        response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
-                        LOGGER.warn("提交任务失败: {}, {}, {}",
-                                jobs,
-                                responseCommand.getRemark(),
-                                jobSubmitResponse.getMsg());
-                    } finally {
-                        latch.countDown();
+                        LOGGER.warn("submit job failed: {}, {}",
+                                jobs, "JobTracker is broken");
+                        return;
                     }
+
+                    if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
+                        LOGGER.info("submit job success: {}", jobs);
+                        response.setSuccess(true);
+                        return;
+                    }
+                    // 失败的job
+                    JobSubmitResponse jobSubmitResponse = responseCommand.getBody();
+                    response.setFailedJobs(jobSubmitResponse.getFailedJobs());
+                    response.setSuccess(false);
+                    response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
+                    LOGGER.warn("submit job failed: {}, {}, {}",
+                            jobs,
+                            responseCommand.getRemark(),
+                            jobSubmitResponse.getMsg());
                 }
-            });
+            };
 
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException("提交任务失败", e);
+            if (SubmitType.ASYNC.equals(type)) {
+                asyncSubmit(requestCommand, submitCallback);
+            } else {
+                syncSubmit(requestCommand, submitCallback);
             }
-
-        } catch (RemotingCommandFieldCheckException e) {
-            response.setSuccess(false);
-            response.setCode(ResponseCode.REQUEST_FILED_CHECK_ERROR);
-            response.setMsg("the request body's field check error : " + e.getMessage());
         } catch (JobTrackerNotFoundException e) {
             response.setSuccess(false);
             response.setCode(ResponseCode.JOB_TRACKER_NOT_FOUND);
             response.setMsg("can not found JobTracker node!");
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setCode(ResponseCode.SYSTEM_ERROR);
+            response.setMsg(CommonUtils.exceptionSimpleDesc(e));
         }
 
         return response;
+    }
+
+    private void asyncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback) throws JobTrackerNotFoundException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        remotingClient.invokeAsync(requestCommand, new InvokeCallback() {
+            @Override
+            public void operationComplete(ResponseFuture responseFuture) {
+                try {
+                    submitCallback.call(responseFuture.getResponseCommand());
+                } finally {
+                    latch.countDown();
+                }
+            }
+        });
+        try {
+            latch.await(Constants.LATCH_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            throw new JobSubmitException("submit job failed, async request timeout!", e);
+        }
+    }
+
+    private void syncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback) throws JobTrackerNotFoundException {
+        submitCallback.call(remotingClient.invokeSync(requestCommand));
     }
 
     /**
@@ -191,5 +214,10 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
      */
     public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
         this.jobFinishedHandler = jobFinishedHandler;
+    }
+
+    enum SubmitType {
+        SYNC,   // 同步
+        ASYNC   // 异步
     }
 }

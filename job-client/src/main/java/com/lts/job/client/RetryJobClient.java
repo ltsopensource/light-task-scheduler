@@ -7,6 +7,8 @@ import com.lts.job.client.domain.ResponseCode;
 import com.lts.job.client.support.JobSubmitProtectException;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.support.RetryScheduler;
+import com.lts.job.core.util.JSONUtils;
+import sun.security.util.Resources_es;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,8 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
             @Override
             protected boolean retry(List<Job> jobs) {
                 try {
-                    return superSubmitJob(jobs).isSuccess();
+                    // 重试必须走同步，不然会造成文件锁，死锁
+                    return superSubmitJob(jobs, SubmitType.SYNC).isSuccess();
                 } catch (Throwable t) {
                     LOGGER.error(t.getMessage(), t);
                 }
@@ -64,6 +67,8 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
             response.setFailedJobs(jobs);
             response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
             response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
+            LOGGER.warn(JSONUtils.toJSONString(response));
+            return response;
         }
         if (!response.isSuccess()) {
             try {
@@ -73,6 +78,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
                 response.setSuccess(true);
                 response.setCode(ResponseCode.SUBMIT_FAILED_AND_SAVE_FOR_LATER);
                 response.setMsg(response.getMsg() + ", save local fail store and send later !");
+                LOGGER.warn(JSONUtils.toJSONString(response));
             } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg(e.getMessage());
@@ -84,5 +90,9 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
 
     private Response superSubmitJob(List<Job> jobs) {
         return super.submitJob(jobs);
+    }
+
+    private Response superSubmitJob(List<Job> jobs, SubmitType type) {
+        return super.submitJob(jobs, type);
     }
 }

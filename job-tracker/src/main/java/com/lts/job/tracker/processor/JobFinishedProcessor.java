@@ -10,20 +10,20 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
+import com.lts.job.tracker.support.CronExpressionUtils;
 import com.lts.job.tracker.support.JobDomainConverter;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -84,7 +84,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             log(requestBody.getIdentity(), jobResults, LogType.FINISHED);
         }
 
-        LOGGER.info("执行任务完成: {}", jobResults);
+        LOGGER.info("job exe finished : {}", jobResults);
 
         return finishJob(requestBody, jobResults);
     }
@@ -147,13 +147,13 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 判断是否接受新任务
         if (requestBody.isReceiveNewJob()) {
             // 查看有没有其他可以执行的任务
-            JobPo jobPo = application.getJobQueue().take(requestBody.getNodeGroup(), requestBody.getIdentity());
+            JobPo jobPo = application.getExecutableJobQueue().take(requestBody.getNodeGroup(), requestBody.getIdentity());
             if (jobPo != null) {
                 JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
                 Job job = JobDomainConverter.convert(jobPo);
                 jobPushRequest.setJob(job);
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("发送任务{}给 {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
+                    LOGGER.debug("send job {} to {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
                 }
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
@@ -183,21 +183,28 @@ public class JobFinishedProcessor extends AbstractProcessor {
         }
         for (JobResult jobResult : jobResults) {
             Job job = jobResult.getJob();
-            if (!job.isSchedule()) {
-                application.getJobQueue().remove(job.getJobId());
-            } else {
-                try {
-                    CronExpression cronExpression = new CronExpression(job.getCronExpression());
-                    Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
-                    if (nextTriggerTime == null) {
-                        // 执行完成了，要删除
-                        application.getJobQueue().remove(job.getJobId());
-                    } else {
-                        // 表示下次还要执行
-                        application.getJobQueue().updateScheduleTriggerTime(job.getJobId(), nextTriggerTime.getTime());
+            // 移除
+            application.getExecutingJobQueue().remove(job.getJobId());
+
+            if (job.isSchedule()) {
+
+                JobPo cronJobPo = application.getCronJobQueue().finish(job.getJobId());
+                if (cronJobPo == null) {
+                    // 可能任务队列中改条记录被删除了
+                    return;
+                }
+                Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
+                if (nextTriggerTime == null) {
+                    application.getCronJobQueue().remove(job.getJobId());
+                } else {
+                    // 表示下次还要执行
+                    try {
+                        cronJobPo.setTriggerTime(nextTriggerTime.getTime());
+                        cronJobPo.setGmtModified(System.currentTimeMillis());
+                        application.getExecutableJobQueue().add(cronJobPo);
+                    } catch (DuplicateJobException e) {
+                        LOGGER.warn("this cron job is duplicate !", e);
                     }
-                } catch (ParseException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }

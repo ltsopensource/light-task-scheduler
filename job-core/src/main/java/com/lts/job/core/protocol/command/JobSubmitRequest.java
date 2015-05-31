@@ -1,9 +1,7 @@
 package com.lts.job.core.protocol.command;
 
 import com.lts.job.core.domain.Job;
-import com.lts.job.core.support.CronExpression;
 import com.lts.job.remoting.annotation.NotNull;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 
 import java.util.List;
 
@@ -24,16 +22,4 @@ public class JobSubmitRequest extends AbstractCommandBody {
         this.jobs = jobs;
     }
 
-    @Override
-    public void checkFields() throws RemotingCommandFieldCheckException {
-        super.checkFields();
-
-        for (Job job : jobs) {
-            if (job.isSchedule()) {
-                if (!CronExpression.isValidExpression(job.getCronExpression())) {
-                    throw new RemotingCommandFieldCheckException("cronExpression表达式错误, " + job);
-                }
-            }
-        }
-    }
 }

@@ -187,7 +187,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
 
     protected void retry() {
         if (!failedRegistered.isEmpty()) {
-            Set<Node> failed = new HashSet<Node>();
+            Set<Node> failed = new HashSet<Node>(failedRegistered);
             if (failed.size() > 0) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Retry register {}", failed);
@@ -202,7 +202,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
         }
         if (!failedUnRegistered.isEmpty()) {
-            Set<Node> failed = new HashSet<Node>();
+            Set<Node> failed = new HashSet<Node>(failedUnRegistered);
             if (failed.size() > 0) {
                 if (LOGGER.isInfoEnabled()) {
                     LOGGER.info("Retry unregister {}", failed);

@@ -4,7 +4,7 @@ package com.lts.job.queue.exception;
  * 向任务队列中添加任务的时候，会出现任务重复的情况，就会抛出这个异常
  * @author Robert HG (254963746@qq.com) on 3/26/15.
  */
-public class DuplicateJobException extends Exception {
+public class DuplicateJobException extends RuntimeException {
 
     public DuplicateJobException() {
         super();

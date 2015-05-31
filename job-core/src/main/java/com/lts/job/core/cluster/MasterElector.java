@@ -101,10 +101,10 @@ public class MasterElector {
     private void notifyListener() {
         boolean isMaster = false;
         if (application.getConfig().getIdentity().equals(master.getIdentity())) {
-            LOGGER.info("Master节点变化为当前节点:{}", master);
+            LOGGER.info("Current node become the master node:{}", master);
             isMaster = true;
         } else {
-            LOGGER.info("Master节点为:{}", master);
+            LOGGER.info("Master node is :{}", master);
             isMaster = false;
         }
 
@@ -113,7 +113,7 @@ public class MasterElector {
                 try {
                     masterChangeListener.change(master, isMaster);
                 } catch (Throwable t) {
-                    LOGGER.error("masterChangeListener通知失败!", t);
+                    LOGGER.error("MasterChangeListener notify error!", t);
                 }
             }
         }

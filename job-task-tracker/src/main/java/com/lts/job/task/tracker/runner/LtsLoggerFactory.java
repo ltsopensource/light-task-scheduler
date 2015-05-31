@@ -6,19 +6,19 @@ import com.lts.job.task.tracker.logger.BizLogger;
  * 这个日志器将日志发送给LTS平台
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-public final class LtsLogger {
+public final class LtsLoggerFactory {
 
-    private static ThreadLocal<BizLogger> threadLocal = new ThreadLocal<BizLogger>();
+    private static final ThreadLocal<BizLogger> THREAD_LOCAL = new ThreadLocal<BizLogger>();
 
     public static BizLogger getBizLogger() {
-        return threadLocal.get();
+        return THREAD_LOCAL.get();
     }
 
     protected static void setLogger(BizLogger logger){
-        threadLocal.set(logger);
+        THREAD_LOCAL.set(logger);
     }
 
     protected static void remove(){
-        threadLocal.remove();
+        THREAD_LOCAL.remove();
     }
 }

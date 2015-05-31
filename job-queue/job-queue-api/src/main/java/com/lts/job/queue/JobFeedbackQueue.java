@@ -13,33 +13,30 @@ import java.util.List;
 public interface JobFeedbackQueue {
 
     /**
-     * 添加反馈的任务结果
+     * 创建一个队列
+     */
+    boolean createQueue(String jobClientNodeGroup);
+
+    /**
+     * 入队列
      *
      * @param jobFeedbackPos
      */
-    public void add(List<JobFeedbackPo> jobFeedbackPos);
+    public boolean add(List<JobFeedbackPo> jobFeedbackPos);
 
     /**
-     * 删除记录
-     *
-     * @param id
+     * 出队列
      */
-    public void remove(String id);
+    public boolean remove(String jobClientNodeGroup, String id);
 
     /**
-     * 反馈队列中有多少个
-     *
-     * @return
+     * 队列的大小
      */
-    public long count();
+    public long getCount(String jobClientNodeGroup);
 
     /**
-     * 分页查询
-     *
-     * @param offset
-     * @param limit
-     * @return
+     * 取top几个
      */
-    public List<JobFeedbackPo> fetch(int offset, int limit);
+    public List<JobFeedbackPo> fetchTop(String jobClientNodeGroup, int top);
 
 }

@@ -5,6 +5,7 @@ import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.queue.domain.JobFeedbackPo;
+import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.support.ClientNotifier;
 import com.lts.job.tracker.support.ClientNotifyHandler;
@@ -12,6 +13,7 @@ import com.lts.job.tracker.support.OldDataHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +49,8 @@ public class FeedbackJobSendChecker {
             @Override
             public void handleSuccess(List<JobResultWrapper> jobResults) {
                 for (JobResultWrapper jobResult : jobResults) {
-                    application.getJobFeedbackQueue().remove(jobResult.getId());
+                    String submitNodeGroup = jobResult.getJob().getSubmitNodeGroup();
+                    application.getJobFeedbackQueue().remove(submitNodeGroup, jobResult.getId());
                 }
             }
 
@@ -68,7 +71,7 @@ public class FeedbackJobSendChecker {
             RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
                     , 30, 30, TimeUnit.SECONDS);
             start = true;
-            LOGGER.info("完成任务重发发送定时器启动成功!");
+            LOGGER.info("feedback job checker started!");
         }
     }
 
@@ -80,7 +83,7 @@ public class FeedbackJobSendChecker {
             RETRY_EXECUTOR_SERVICE.shutdown();
             RETRY_EXECUTOR_SERVICE = null;
             start = false;
-            LOGGER.info("完成任务重发发送定时器关闭成功!");
+            LOGGER.info("feedback job checker stopped!");
         }
     }
 
@@ -94,40 +97,59 @@ public class FeedbackJobSendChecker {
                     return;
                 }
                 isRunning = true;
-                long count = application.getJobFeedbackQueue().count();
-                if (count == 0) {
+
+                Set<String> taskTrackerNodeGroups = application.getJobClientManager().getNodeGroups();
+                if (CollectionUtils.isEmpty(taskTrackerNodeGroups)) {
                     return;
                 }
-                LOGGER.info("一共有{}个完成的任务要通知客户端.", count);
 
-                List<JobFeedbackPo> jobFeedbackPos;
-                int limit = 5;
-                int offset = 0;
-                do {
-                    jobFeedbackPos = application.getJobFeedbackQueue().fetch(offset, limit);
-                    if (CollectionUtils.isEmpty(jobFeedbackPos)) {
-                        return;
-                    }
-                    List<JobResultWrapper> jobResults = new ArrayList<JobResultWrapper>(jobFeedbackPos.size());
-                    for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
-                        // 判断是否是过时的数据，如果是，那么移除
-                        if (oldDataHandler == null ||
-                                (oldDataHandler != null && !oldDataHandler.handleJobFeedbackPo(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
-                            jobResults.add(new JobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getJobResult()));
-                        }
-                    }
-                    // 返回发送成功的个数
-                    int sentSize = clientNotifier.send(jobResults);
-
-                    LOGGER.info("发送客户端: {}个成功, {}个失败.", sentSize, jobResults.size() - sentSize);
-                    offset += (jobResults.size() - sentSize);
-                } while (jobFeedbackPos.size() > 0);
+                for (String taskTrackerNodeGroup : taskTrackerNodeGroups) {
+                    check(taskTrackerNodeGroup);
+                }
 
             } catch (Throwable t) {
                 LOGGER.error(t.getMessage(), t);
             } finally {
                 isRunning = false;
             }
+        }
+
+        private void check(String jobClientNodeGroup) {
+
+            // check that node group job client
+            JobClientNode jobClientNode = application.getJobClientManager().getAvailableJobClient(jobClientNodeGroup);
+            if (jobClientNode == null) {
+                return;
+            }
+
+            long count = application.getJobFeedbackQueue().getCount(jobClientNodeGroup);
+            if (count == 0) {
+                return;
+            }
+
+            LOGGER.info("{} job need to feedback.", count);
+            // 检测是否有可用的客户端
+
+            List<JobFeedbackPo> jobFeedbackPos;
+            int limit = 5;
+            do {
+                jobFeedbackPos = application.getJobFeedbackQueue().fetchTop(jobClientNodeGroup, limit);
+                if (CollectionUtils.isEmpty(jobFeedbackPos)) {
+                    return;
+                }
+                List<JobResultWrapper> jobResults = new ArrayList<JobResultWrapper>(jobFeedbackPos.size());
+                for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
+                    // 判断是否是过时的数据，如果是，那么移除
+                    if (oldDataHandler == null ||
+                            (oldDataHandler != null && !oldDataHandler.handle(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
+                        jobResults.add(new JobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getJobResult()));
+                    }
+                }
+                // 返回发送成功的个数
+                int sentSize = clientNotifier.send(jobResults);
+
+                LOGGER.info("send to client: {} success, {} failed.", sentSize, jobResults.size() - sentSize);
+            } while (jobFeedbackPos.size() > 0);
         }
     }
 

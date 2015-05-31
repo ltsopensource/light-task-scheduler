@@ -73,4 +73,6 @@ public interface Constants {
 
     public static final String PROCESSOR_THREAD = "job.processor.thread";
     public static final int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;
+
+    public static final int LATCH_TIMEOUT_MILLIS = 10 * 60 * 1000;      // 10分钟
 }

@@ -1,6 +1,5 @@
 package com.lts.job.remoting;
 
-
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 
 /**

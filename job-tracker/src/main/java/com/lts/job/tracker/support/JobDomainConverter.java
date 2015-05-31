@@ -3,19 +3,18 @@ package com.lts.job.tracker.support;
 import com.lts.job.biz.logger.domain.JobLogPo;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
-import com.lts.job.core.support.CronExpression;
-import com.lts.job.core.util.Md5Encrypt;
+import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.domain.JobPo;
-
-import java.text.ParseException;
-import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  */
 public class JobDomainConverter {
+
+    private JobDomainConverter() {
+    }
 
     public static JobPo convert(Job job) {
         JobPo jobPo = new JobPo();
@@ -26,27 +25,11 @@ public class JobDomainConverter {
         jobPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobPo.setExtParams(job.getExtParams());
         jobPo.setNeedFeedback(job.isNeedFeedback());
-        String jobId = generateJobId(jobPo);
-        jobPo.setJobId(jobId);
-
         jobPo.setCronExpression(job.getCronExpression());
 
-        if (jobPo.isSchedule()) {
-            try {
-                CronExpression cronExpression = new CronExpression(job.getCronExpression());
-                Date nextTriggerTime = cronExpression.getTimeAfter(new Date());
-                if (nextTriggerTime != null) {
-                    jobPo.setTriggerTime(nextTriggerTime.getTime());
-                } else {
-                    // 如果没有下一次执行时间，那么直接忽略掉
-                    return null;
-                }
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
+        if (!jobPo.isSchedule()) {
             if (job.getTriggerTime() == null) {
-                jobPo.setTriggerTime(System.currentTimeMillis());
+                jobPo.setTriggerTime(DateUtils.currentTimeMillis());
             } else {
                 jobPo.setTriggerTime(job.getTriggerTime());
             }
@@ -112,15 +95,4 @@ public class JobDomainConverter {
         return jobFeedbackPo;
     }
 
-    /**
-     * 生成jobID 保证唯一
-     *
-     * @param jobPo
-     * @return
-     */
-    public static String generateJobId(JobPo jobPo) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(jobPo.getTaskId()).append(jobPo.getSubmitNodeGroup()).append(jobPo.getGmtCreated());
-        return Md5Encrypt.md5(sb.toString());
-    }
 }
