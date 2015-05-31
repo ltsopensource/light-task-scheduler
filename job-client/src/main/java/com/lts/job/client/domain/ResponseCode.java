@@ -20,4 +20,5 @@ public class ResponseCode {
     // 提交太块
     public static final String SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER = "14";
 
+    public static final String SYSTEM_ERROR = "15";
 }

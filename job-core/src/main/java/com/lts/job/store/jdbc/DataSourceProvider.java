@@ -18,7 +18,7 @@ public class DataSourceProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceProvider.class);
     // 同一配置, 始终保持同一个连接
-    private static final ConcurrentHashMap<String, DataSource> DATA_STORE_MAP = new ConcurrentHashMap<String, DataSource>();
+    private static final ConcurrentHashMap<String, DataSource> DATA_SOURCE_MAP = new ConcurrentHashMap<String, DataSource>();
 
     private static final Object lock = new Object();
 
@@ -30,17 +30,17 @@ public class DataSourceProvider {
 
         String cachedKey = StringUtils.concat(url, username, password);
 
-        DataSource dataSource = DATA_STORE_MAP.get(cachedKey);
+        DataSource dataSource = DATA_SOURCE_MAP.get(cachedKey);
         if (dataSource == null) {
             try {
                 synchronized (lock) {
-                    dataSource = DATA_STORE_MAP.get(cachedKey);
+                    dataSource = DATA_SOURCE_MAP.get(cachedKey);
                     if (dataSource != null) {
                         return dataSource;
                     }
                     dataSource = createDruidDataSource(config);
 
-                    DATA_STORE_MAP.put(cachedKey, dataSource);
+                    DATA_SOURCE_MAP.put(cachedKey, dataSource);
                 }
             } catch (Exception e) {
                 throw new IllegalStateException(

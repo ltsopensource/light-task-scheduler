@@ -3,37 +3,49 @@ package com.lts.job.tracker.domain;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.core.Application;
 import com.lts.job.core.remoting.RemotingServerDelegate;
+import com.lts.job.queue.CronJobQueue;
+import com.lts.job.queue.ExecutableJobQueue;
+import com.lts.job.queue.ExecutingJobQueue;
 import com.lts.job.queue.JobFeedbackQueue;
-import com.lts.job.queue.JobQueue;
 import com.lts.job.tracker.channel.ChannelManager;
-import com.lts.job.tracker.support.JobClientManager;
+import com.lts.job.tracker.id.IdGenerator;
+import com.lts.job.tracker.support.cluster.JobClientManager;
 import com.lts.job.tracker.support.OldDataHandler;
-import com.lts.job.tracker.support.TaskTrackerManager;
-import com.lts.job.tracker.support.checker.DeadJobChecker;
+import com.lts.job.tracker.support.cluster.TaskTrackerManager;
+import com.lts.job.tracker.support.checker.ExecutingDeadJobChecker;
 
 /**
  * JobTracker Application
+ *
  * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
 public class JobTrackerApplication extends Application {
 
     private RemotingServerDelegate remotingServer;
-    // channel 管理器
+    // channel manager
     private ChannelManager channelManager;
-    // JobClient 节点管理器
+    // JobClient manager for job tracker
     private JobClientManager jobClientManager;
-    // TaskTracker 节点管理器
+    // TaskTracker manager for job tracker
     private TaskTrackerManager taskTrackerManager;
-    // 死任务检查器
-    private DeadJobChecker deadJobChecker;
-    // 对老数据的处理(脏数据)
+    // dead job checker
+    private ExecutingDeadJobChecker executingDeadJobChecker;
+    // old data handler, dirty data
     private OldDataHandler oldDataHandler;
-    // 业务日志记录
+    // biz logger
     private JobLogger jobLogger;
-    // 任务队列
-    private JobQueue jobQueue;
-    // 反馈任务队列
+
+    // executable job queue（waiting for exec）
+    private ExecutableJobQueue executableJobQueue;
+    // executing job queue
+    private ExecutingJobQueue executingJobQueue;
+
+    // Cron Job queue
+    private CronJobQueue cronJobQueue;
+    // feedback queue
     private JobFeedbackQueue jobFeedbackQueue;
+    // job id generator
+    private IdGenerator idGenerator;
 
     public JobLogger getJobLogger() {
         return jobLogger;
@@ -41,14 +53,6 @@ public class JobTrackerApplication extends Application {
 
     public void setJobLogger(JobLogger jobLogger) {
         this.jobLogger = jobLogger;
-    }
-
-    public JobQueue getJobQueue() {
-        return jobQueue;
-    }
-
-    public void setJobQueue(JobQueue jobQueue) {
-        this.jobQueue = jobQueue;
     }
 
     public JobFeedbackQueue getJobFeedbackQueue() {
@@ -74,6 +78,7 @@ public class JobTrackerApplication extends Application {
     public void setChannelManager(ChannelManager channelManager) {
         this.channelManager = channelManager;
     }
+
     public JobClientManager getJobClientManager() {
         return jobClientManager;
     }
@@ -90,12 +95,12 @@ public class JobTrackerApplication extends Application {
         this.taskTrackerManager = taskTrackerManager;
     }
 
-    public DeadJobChecker getDeadJobChecker() {
-        return deadJobChecker;
+    public ExecutingDeadJobChecker getExecutingDeadJobChecker() {
+        return executingDeadJobChecker;
     }
 
-    public void setDeadJobChecker(DeadJobChecker deadJobChecker) {
-        this.deadJobChecker = deadJobChecker;
+    public void setExecutingDeadJobChecker(ExecutingDeadJobChecker executingDeadJobChecker) {
+        this.executingDeadJobChecker = executingDeadJobChecker;
     }
 
     public OldDataHandler getOldDataHandler() {
@@ -104,5 +109,37 @@ public class JobTrackerApplication extends Application {
 
     public void setOldDataHandler(OldDataHandler oldDataHandler) {
         this.oldDataHandler = oldDataHandler;
+    }
+
+    public CronJobQueue getCronJobQueue() {
+        return cronJobQueue;
+    }
+
+    public void setCronJobQueue(CronJobQueue cronJobQueue) {
+        this.cronJobQueue = cronJobQueue;
+    }
+
+    public IdGenerator getIdGenerator() {
+        return idGenerator;
+    }
+
+    public void setIdGenerator(IdGenerator idGenerator) {
+        this.idGenerator = idGenerator;
+    }
+
+    public ExecutableJobQueue getExecutableJobQueue() {
+        return executableJobQueue;
+    }
+
+    public void setExecutableJobQueue(ExecutableJobQueue executableJobQueue) {
+        this.executableJobQueue = executableJobQueue;
+    }
+
+    public ExecutingJobQueue getExecutingJobQueue() {
+        return executingJobQueue;
+    }
+
+    public void setExecutingJobQueue(ExecutingJobQueue executingJobQueue) {
+        this.executingJobQueue = executingJobQueue;
     }
 }

@@ -1,7 +1,6 @@
 package com.lts.job.task.tracker.domain;
 
 import com.lts.job.core.Application;
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.constant.Level;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.task.tracker.runner.RunnerFactory;
@@ -27,10 +26,6 @@ public class TaskTrackerApplication extends Application{
      * 执行任务的class
      */
     private Class jobRunnerClass;
-    /**
-     * 可用线程个数
-     */
-    private Integer availableThreads = Constants.AVAILABLE_PROCESSOR;
 
     public RunnerPool getRunnerPool() {
         return runnerPool;
@@ -54,14 +49,6 @@ public class TaskTrackerApplication extends Application{
 
     public void setJobRunnerClass(Class jobRunnerClass) {
         this.jobRunnerClass = jobRunnerClass;
-    }
-
-    public Integer getAvailableThreads() {
-        return availableThreads;
-    }
-
-    public void setAvailableThreads(Integer availableThreads) {
-        this.availableThreads = availableThreads;
     }
 
     public RunnerFactory getRunnerFactory() {

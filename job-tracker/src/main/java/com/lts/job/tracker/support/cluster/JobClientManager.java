@@ -1,4 +1,4 @@
-package com.lts.job.tracker.support;
+package com.lts.job.tracker.support.cluster;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
@@ -14,6 +14,7 @@ import com.lts.job.tracker.domain.JobTrackerApplication;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -35,6 +36,15 @@ public class JobClientManager {
     }
 
     /**
+     * get all connected node group
+     *
+     * @return
+     */
+    public Set<String> getNodeGroups() {
+        return NODE_MAP.keySet();
+    }
+
+    /**
      * 添加节点
      *
      * @param node
@@ -52,9 +62,11 @@ public class JobClientManager {
         }
 
         JobClientNode jobClientNode = new JobClientNode(node.getGroup(), node.getIdentity(), channel);
-        LOGGER.info("添加JobClient节点:{}", jobClientNode);
+        LOGGER.info("add JobClient node:{}", jobClientNode);
         jobClientNodes.add(jobClientNode);
 
+        // create feedback queue
+        application.getJobFeedbackQueue().createQueue(node.getGroup());
     }
 
     /**
@@ -67,7 +79,7 @@ public class JobClientManager {
         if (jobClientNodes != null && jobClientNodes.size() != 0) {
             for (JobClientNode jobClientNode : jobClientNodes) {
                 if (node.getIdentity().equals(jobClientNode.getIdentity())) {
-                    LOGGER.info("删除JobClient节点:{}", jobClientNode);
+                    LOGGER.info("remove JobClient node:{}", jobClientNode);
                     jobClientNodes.remove(jobClientNode);
                 }
             }

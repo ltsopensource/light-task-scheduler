@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `lts_job_po` (
+CREATE TABLE IF NOT EXISTS `{tableName}` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID与业务无关的',
   `job_id` varchar(64) DEFAULT NULL COMMENT '记录ID,程序生成的',
   `priority` int(11) DEFAULT NULL COMMENT '优先级(数值越大，优先级越低)',
@@ -18,7 +18,5 @@ CREATE TABLE IF NOT EXISTS `lts_job_po` (
   UNIQUE KEY `idx_job_id` (`job_id`),
   UNIQUE KEY `idx_taskTrackerNodeGroup_taskId` (`task_tracker_node_group`,`task_id`),
   KEY `idx_taskTrackerIdentity` (`task_tracker_identity`),
-  KEY `idx_triggerTime_priority_gmtCreated` (`trigger_time`,`priority`,`gmt_created`),
-  KEY `idx_isRunning` (`is_running`),
-  KEY `idx_taskTrackerNodeGroup_isRunning_triggerTime` (`task_tracker_node_group`,`is_running`,`trigger_time`)
+  KEY `idx_gmtCreated` (`gmt_created`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

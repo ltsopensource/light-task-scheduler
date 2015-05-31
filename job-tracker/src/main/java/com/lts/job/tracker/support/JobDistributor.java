@@ -3,6 +3,7 @@ package com.lts.job.tracker.support;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
+import com.lts.job.core.exception.RequestTimeoutException;
 import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
@@ -13,7 +14,6 @@ import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.util.Holder;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -22,6 +22,7 @@ import com.lts.job.tracker.domain.TaskTrackerNode;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -109,7 +110,7 @@ public class JobDistributor {
         String identity = taskTrackerNode.getIdentity();
 
         // 从mongo 中取一个可运行的job
-        JobPo jobPo = application.getJobQueue().take(nodeGroup, identity);
+        JobPo jobPo = application.getExecutableJobQueue().take(nodeGroup, identity);
 
         if (jobPo == null) {
             return NO_JOB;
@@ -131,7 +132,7 @@ public class JobDistributor {
                     try {
                         RemotingCommand responseCommand = responseFuture.getResponseCommand();
                         if (responseCommand == null) {
-                            LOGGER.warn("job push failed! response command is null!");
+                            LOGGER.warn("Job push failed! response command is null!");
                             return;
                         }
                         if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
@@ -145,23 +146,23 @@ public class JobDistributor {
 
         } catch (RemotingSendException e) {
             LOGGER.error(e.getMessage(), e);
-        } catch (RemotingCommandFieldCheckException e) {
-            LOGGER.error(e.getMessage(), e);
         }
 
         try {
-            latch.await();
+            latch.await(Constants.LATCH_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            throw new RequestTimeoutException(e);
         }
 
         if (!pushSuccess.get()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("nodeGroup=" + nodeGroup + ", identity=" + identity + ", 任务没有推送成功, job=" + job);
+                LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + job);
             }
-            application.getJobQueue().resume(jobPo);
+            application.getExecutableJobQueue().resume(jobPo);
             return PUSH_FAILED;
         }
+        application.getExecutingJobQueue().add(jobPo);
+        application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
 
         return PUSH_SUCCESS;
     }

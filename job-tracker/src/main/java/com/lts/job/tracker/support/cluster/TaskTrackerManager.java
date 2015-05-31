@@ -1,4 +1,4 @@
-package com.lts.job.tracker.support;
+package com.lts.job.tracker.support.cluster;
 
 
 import com.lts.job.core.cluster.Node;
@@ -10,6 +10,7 @@ import com.lts.job.tracker.channel.ChannelWrapper;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.TaskTrackerNode;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -25,6 +26,15 @@ public class TaskTrackerManager {
 
     public TaskTrackerManager(JobTrackerApplication application) {
         this.application = application;
+    }
+
+    /**
+     * get all connected node group
+     *
+     * @return
+     */
+    public Set<String> getNodeGroups() {
+        return NODE_MAP.keySet();
     }
 
     /**
@@ -47,8 +57,11 @@ public class TaskTrackerManager {
 
         TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getGroup(),
                 node.getThreads(), node.getIdentity(), channel);
-        LOGGER.info("添加TaskTracker节点:{}", taskTrackerNode);
+        LOGGER.info("Add TaskTracker node:{}", taskTrackerNode);
         taskTrackerNodes.add(taskTrackerNode);
+
+        // create executable queue
+        application.getExecutableJobQueue().createQueue(node.getGroup());
     }
 
     /**
@@ -61,7 +74,7 @@ public class TaskTrackerManager {
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getIdentity());
             taskTrackerNode.setNodeGroup(node.getGroup());
-            LOGGER.info("删除TaskTracker节点:{}", taskTrackerNode);
+            LOGGER.info("Remove TaskTracker node:{}", taskTrackerNode);
             taskTrackerNodes.remove(taskTrackerNode);
         }
     }
@@ -81,7 +94,7 @@ public class TaskTrackerManager {
                     if (channel != null) {
                         // 更新channel
                         taskTrackerNode.setChannel(channel);
-                        LOGGER.info("更新节点channel , taskTackerNode={}", taskTrackerNode);
+                        LOGGER.info("update node channel , taskTackerNode={}", taskTrackerNode);
                         return taskTrackerNode;
                     }
                 } else {

@@ -5,14 +5,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.remoting.CommandBody;
-import com.lts.job.remoting.annotation.NotNull;
 import com.lts.job.remoting.exception.RemotingCommandException;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
-import com.lts.job.remoting.util.ReflectionUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -125,37 +119,37 @@ public class RemotingCommand {
         return (T) body;
     }
 
-    /**
-     * 检查commandBody
-     *
-     * @return
-     */
-    public boolean checkCommandBody() throws RemotingCommandFieldCheckException {
-        if (body != null) {
-            body.checkFields();
-
-            try {
-                Field[] fields = ReflectionUtils.findFields(body.getClass());
-                for (Field field : fields) {
-                    if (!Modifier.isStatic(field.getModifiers())) {
-
-                        Annotation annotation = field.getAnnotation(NotNull.class);
-
-                        field.setAccessible(true);
-                        Object value = field.get(body);
-
-                        if (annotation != null && value == null) {
-                            throw new RemotingCommandFieldCheckException("the field <" + field.getName() + "> is null");
-                        }
-                    }
-                }
-            } catch (IllegalAccessException e) {
-                throw new RemotingCommandFieldCheckException("check field error !", e);
-            }
-        }
-
-        return true;
-    }
+//    /**
+//     * 检查commandBody
+//     *
+//     * @return
+//     */
+//    public boolean checkCommandBody() throws RemotingCommandFieldCheckException {
+//        if (body != null) {
+//            body.checkFields();
+//
+//            try {
+//                Field[] fields = ReflectionUtils.findFields(body.getClass());
+//                for (Field field : fields) {
+//                    if (!Modifier.isStatic(field.getModifiers())) {
+//
+//                        Annotation annotation = field.getAnnotation(NotNull.class);
+//
+//                        field.setAccessible(true);
+//                        Object value = field.get(body);
+//
+//                        if (annotation != null && value == null) {
+//                            throw new RemotingCommandFieldCheckException("the field <" + field.getName() + "> is null");
+//                        }
+//                    }
+//                }
+//            } catch (IllegalAccessException e) {
+//                throw new RemotingCommandFieldCheckException("check field error !", e);
+//            }
+//        }
+//
+//        return true;
+//    }
 
     public ByteBuffer encode() throws RemotingCommandException {
 

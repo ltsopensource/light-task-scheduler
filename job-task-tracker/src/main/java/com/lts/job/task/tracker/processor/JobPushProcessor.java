@@ -1,8 +1,10 @@
 package com.lts.job.task.tracker.processor;
 
+import com.lts.job.core.constant.Constants;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
+import com.lts.job.core.exception.RequestTimeoutException;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
@@ -10,10 +12,8 @@ import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.core.support.RetryScheduler;
-import com.lts.job.core.util.Holder;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.exception.RemotingCommandException;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.remoting.protocol.RemotingProtos;
@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
@@ -47,7 +48,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
             @Override
             protected boolean retry(List<JobResult> jobResults) {
-                return sendJobResults(jobResults);
+                return retrySendJobResults(jobResults);
             }
         };
 
@@ -129,14 +130,19 @@ public class JobPushProcessor extends AbstractProcessor {
                 });
 
                 try {
-                    latch.await();
+                    latch.await(Constants.LATCH_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    throw new RequestTimeoutException(e);
                 }
-            } catch (RemotingCommandFieldCheckException e) {
-                LOGGER.error("任务完成通知反馈失败, {}, {}", response.getJob(), e.getMessage(), e);
             } catch (JobTrackerNotFoundException e) {
-                LOGGER.error("任务完成通知反馈失败, {},{}", response.getJob(), e.getMessage(), e);
+                try {
+                    LOGGER.warn("no job tracker available! , save local files .");
+                    retryScheduler.inSchedule(
+                            jobResult.getJob().getJobId().concat("_") + System.currentTimeMillis(),
+                            jobResult);
+                } catch (Exception e1) {
+                    LOGGER.error("save files failed, {}", jobResult.getJob(), e1);
+                }
             }
 
             return returnResponse.getJob();
@@ -149,45 +155,28 @@ public class JobPushProcessor extends AbstractProcessor {
      * @param jobResults
      * @return
      */
-    private boolean sendJobResults(List<JobResult> jobResults) {
+    private boolean retrySendJobResults(List<JobResult> jobResults) {
         // 发送消息给 JobTracker
         JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         requestBody.setReSend(true);
 
-        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
+        int requestCode = JobProtos.RequestCode.JOB_FINISHED.code();
+        RemotingCommand request = RemotingCommand.createRequestCommand(requestCode, requestBody);
 
-        final Holder<Boolean> result = new Holder<Boolean>();
         try {
-            final CountDownLatch latch = new CountDownLatch(1);
-            remotingClient.invokeAsync(request, new InvokeCallback() {
-                @Override
-                public void operationComplete(ResponseFuture responseFuture) {
-                    try {
-                        RemotingCommand commandResponse = responseFuture.getResponseCommand();
-                        if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
-                            result.set(true);
-                        } else {
-                            LOGGER.warn("send job failed, {}", commandResponse);
-                            result.set(false);
-                        }
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            });
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            // 这里一定要用同步，不然异步会发生文件锁，死锁
+            RemotingCommand commandResponse = remotingClient.invokeSync(request);
+            if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
+                return true;
+            } else {
+                LOGGER.warn("send job failed, {}", commandResponse);
+                return false;
             }
-        } catch (RemotingCommandFieldCheckException e) {
-            LOGGER.error("任务完成通知失败, jobResults={}", jobResults, e);
         } catch (JobTrackerNotFoundException e) {
-            LOGGER.error("任务完成通知失败, jobResults={}", jobResults, e);
+            LOGGER.error("retry send job result failed! jobResults={}", jobResults, e);
         }
-
-        return result.get();
+        return false;
     }
 
 }

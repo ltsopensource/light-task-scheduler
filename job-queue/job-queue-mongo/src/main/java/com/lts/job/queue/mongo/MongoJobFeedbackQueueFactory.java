@@ -9,10 +9,9 @@ import com.lts.job.queue.JobFeedbackQueueFactory;
  *
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-public class MongoJobFeedbackQueueFactory implements JobFeedbackQueueFactory{
-
+public class MongoJobFeedbackQueueFactory implements JobFeedbackQueueFactory {
     @Override
-    public JobFeedbackQueue getJobFeedbackQueue(Config config) {
+    public JobFeedbackQueue getQueue(Config config) {
         return new MongoJobFeedbackQueue(config);
     }
 }

@@ -6,16 +6,14 @@ import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.util.JobQueueUtils;
 import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.exception.JobQueueException;
 import com.lts.job.store.jdbc.JdbcRepository;
 import org.apache.commons.dbutils.ResultSetHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,69 +26,78 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
 
     public MysqlJobFeedbackQueue(Config config) {
         super(config);
-        doCreateTable();
-    }
-
-    private void doCreateTable() {
-        // 创建表
-        try {
-            InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_job_feedback_po.sql");
-            getSqlTemplate().update(FileUtils.read(is));
-        } catch (SQLException e) {
-            throw new RuntimeException("create table error!", e);
-        } catch (IOException e) {
-            throw new RuntimeException("create table error!", e);
-        }
     }
 
     @Override
-    public void add(List<JobFeedbackPo> jobFeedbackPos) {
-        if (CollectionUtils.isEmpty(jobFeedbackPos)) {
-            return;
+    public boolean createQueue(String taskTrackerNodeGroup) {
+        // create table
+        try {
+            InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_job_feedback_queue.sql");
+            String sql = FileUtils.read(is);
+            getSqlTemplate().update(getRealSql(sql, taskTrackerNodeGroup));
+        } catch (Exception e) {
+            throw new JobQueueException("create table error!", e);
         }
-        String sql = "INSERT INTO `lts_job_feedback_po` (" +
+        return false;
+    }
+
+    private String getTableName(String taskTrackerNodeGroup) {
+        return JobQueueUtils.getFeedbackQueueName(taskTrackerNodeGroup);
+    }
+
+    private String getRealSql(String sql, String taskTrackerNodeGroup) {
+        return sql.replace("{tableName}", getTableName(taskTrackerNodeGroup));
+    }
+
+    @Override
+    public boolean add(List<JobFeedbackPo> jobFeedbackPos) {
+        if (CollectionUtils.isEmpty(jobFeedbackPos)) {
+            return true;
+        }
+        // insert ignore duplicate record
+        String sql = "INSERT IGNORE INTO `{tableName}` (" +
                 " `gmt_created`, `job_result`)" +
                 " VALUES (?,?)";
-        Object[][] params = new Object[jobFeedbackPos.size()][2];
-        int index = 0;
+        Object[] params = new Object[2];
         for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
-            params[index][0] = jobFeedbackPo.getGmtCreated();
-            params[index][1] = JSONUtils.toJSONString(jobFeedbackPo.getJobResult());
-            index++;
+            params[0] = jobFeedbackPo.getGmtCreated();
+            params[1] = JSONUtils.toJSONString(jobFeedbackPo.getJobResult());
+            try {
+                String taskTrackerNodeGroup = jobFeedbackPo.getJobResult().getJob().getTaskTrackerNodeGroup();
+                getSqlTemplate().update(getRealSql(sql, taskTrackerNodeGroup), params);
+            } catch (SQLException e) {
+                throw new JobQueueException(e);
+            }
         }
+        return true;
+    }
+
+    @Override
+    public boolean remove(String taskTrackerNodeGroup, String jobId) {
+        String deleteSql = "DELETE FROM `{tableName}` WHERE id = ? ";
         try {
-            getSqlTemplate().batchUpdate(sql, params);
+            getSqlTemplate().update(getRealSql(deleteSql, taskTrackerNodeGroup), jobId);
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+        return true;
+    }
+
+    @Override
+    public long getCount(String taskTrackerNodeGroup) {
+        String sql = "SELECT COUNT(1) FROM `{tableName}`";
+        try {
+            return getSqlTemplate().queryForValue(getRealSql(sql, taskTrackerNodeGroup));
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
     }
 
     @Override
-    public void remove(String id) {
-        String deleteSql = "DELETE FROM `lts_job_feedback_po` WHERE id = ? ";
+    public List<JobFeedbackPo> fetchTop(String taskTrackerNodeGroup, int top) {
+        String selectSql = "SELECT * FROM `{tableName}` ORDER BY gmt_created ASC LIMIT 0, ?";
         try {
-            getSqlTemplate().update(deleteSql, id);
-        } catch (SQLException e) {
-            throw new JobQueueException(e);
-        }
-    }
-
-    @Override
-    public long count() {
-        String sql = "SELECT COUNT(1) FROM `lts_job_feedback_po`";
-        try {
-            return getSqlTemplate().queryForValue(sql);
-        } catch (SQLException e) {
-            throw new JobQueueException(e);
-        }
-    }
-
-    @Override
-    public List<JobFeedbackPo> fetch(int offset, int limit) {
-        String selectSql = "SELECT * FROM `lts_job_feedback_po` ORDER BY gmt_created ASC LIMIT ?, ?";
-        try {
-            Object[] params = new Object[]{offset, limit};
-            return getSqlTemplate().query(selectSql, jobFeedbackPoListResultSetHandler, params);
+            return getSqlTemplate().query(getRealSql(selectSql, taskTrackerNodeGroup), jobFeedbackPoListResultSetHandler, top);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
@@ -111,4 +118,5 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
             return jobFeedbackPos;
         }
     };
+
 }

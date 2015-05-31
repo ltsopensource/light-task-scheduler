@@ -86,38 +86,39 @@ public abstract class RetryScheduler<T> {
 
                 List<KVPair<String, T>> kvPairs = null;
                 do {
-                    failStore.open();
+                    try {
+                        failStore.open();
 
-                    kvPairs = failStore.fetchTop(batchSize, type);
+                        kvPairs = failStore.fetchTop(batchSize, type);
 
-                    if (CollectionUtils.isEmpty(kvPairs)) {
-                        break;
-                    }
-
-                    List<T> values = new ArrayList<T>(kvPairs.size());
-                    List<String> keys = new ArrayList<String>(kvPairs.size());
-                    for (KVPair<String, T> kvPair : kvPairs) {
-                        keys.add(kvPair.getKey());
-                        values.add(kvPair.getValue());
-                    }
-                    if (retry(values)) {
-                        LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
-                        failStore.delete(keys);
-                    } else {
-                        break;
-                    }
-                    sentSize += kvPairs.size();
-                    if (sentSize >= maxSentSize) {
-                        // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-                        try {
-                            Thread.sleep(1000L);
-                        } catch (InterruptedException e1) {
-                            LOGGER.warn(e1.getMessage(), e1);
+                        if (CollectionUtils.isEmpty(kvPairs)) {
+                            break;
                         }
+
+                        List<T> values = new ArrayList<T>(kvPairs.size());
+                        List<String> keys = new ArrayList<String>(kvPairs.size());
+                        for (KVPair<String, T> kvPair : kvPairs) {
+                            keys.add(kvPair.getKey());
+                            values.add(kvPair.getValue());
+                        }
+                        if (retry(values)) {
+                            LOGGER.info("本地任务发送成功, {}", JSONUtils.toJSONString(values));
+                            failStore.delete(keys);
+                        } else {
+                            break;
+                        }
+                        sentSize += kvPairs.size();
+                        if (sentSize >= maxSentSize) {
+                            // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
+                            try {
+                                Thread.sleep(1000L);
+                            } catch (InterruptedException e1) {
+                                LOGGER.warn(e1.getMessage(), e1);
+                            }
+                        }
+                    }finally {
+                        failStore.close();
                     }
-
-                    failStore.close();
-
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
             } catch (Throwable e) {

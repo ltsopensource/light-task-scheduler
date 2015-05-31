@@ -11,5 +11,5 @@ import com.lts.job.core.extension.SPI;
 public interface JobFeedbackQueueFactory {
 
     @Adaptive("job.queue")
-    JobFeedbackQueue getJobFeedbackQueue(Config config);
+    JobFeedbackQueue getQueue(Config config);
 }

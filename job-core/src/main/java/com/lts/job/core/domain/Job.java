@@ -2,7 +2,9 @@ package com.lts.job.core.domain;
 
 
 import com.lts.job.core.exception.JobSubmitException;
+import com.lts.job.core.support.CronExpression;
 import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.util.StringUtils;
 import com.lts.job.remoting.annotation.NotNull;
 
 import java.util.HashMap;
@@ -120,7 +122,7 @@ public class Job {
         this.cronExpression = cronExpression;
     }
 
-    public boolean isSchedule(){
+    public boolean isSchedule() {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
     }
 
@@ -138,11 +140,14 @@ public class Job {
     }
 
     public void checkField() throws JobSubmitException {
-        if(taskId == null){
-            throw new JobSubmitException("taskId不能为空!");
+        if (taskId == null) {
+            throw new JobSubmitException("taskId can not be null! job is " + toString());
         }
-        if(taskTrackerNodeGroup == null){
-            throw new JobSubmitException("taskTrackerNodeGroup不能为空!");
+        if (taskTrackerNodeGroup == null) {
+            throw new JobSubmitException("taskTrackerNodeGroup can not be null! job is " + toString());
+        }
+        if (StringUtils.isNotEmpty(cronExpression) && !CronExpression.isValidExpression(cronExpression)) {
+            throw new JobSubmitException("cronExpression invalid! job is " + toString());
         }
     }
 }

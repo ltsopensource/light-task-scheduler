@@ -23,7 +23,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     private JobFinishedHandler jobFinishedHandler;
 
-    public JobFinishedProcessor(RemotingClientDelegate remotingClient, JobFinishedHandler jobFinishedHandler) {
+    public JobFinishedProcessor(RemotingClientDelegate remotingClient,
+                                JobFinishedHandler jobFinishedHandler) {
         super(remotingClient);
         this.jobFinishedHandler = jobFinishedHandler;
         if (this.jobFinishedHandler == null) {
@@ -36,9 +37,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     if (CollectionUtils.isNotEmpty(jobResults)) {
                         for (JobResult jobResult : jobResults) {
                             if (jobResult.isSuccess()) {
-                                log.info("任务执行成功:" + jobResult);
+                                log.info("Job exec successful:" + jobResult);
                             } else {
-                                log.info("任务执行失败:" + jobResult);
+                                log.info("Job exec failed:" + jobResult);
                             }
                         }
                     }
@@ -48,7 +49,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request)
+            throws RemotingCommandException {
 
         JobFinishedRequest requestBody = request.getBody();
         try {
@@ -57,6 +59,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
             LOGGER.error(t.getMessage(), t);
         }
 
-        return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code(), "接受成功");
+        return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code(), "received successful");
     }
 }

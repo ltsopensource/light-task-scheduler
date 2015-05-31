@@ -79,12 +79,9 @@ public class BizLoggerImpl implements BizLogger {
                     }
                 }
             });
-        } catch (RemotingCommandFieldCheckException e) {
-            e.printStackTrace();
         } catch (JobTrackerNotFoundException e) {
             e.printStackTrace();
         }
-
 
     }
 

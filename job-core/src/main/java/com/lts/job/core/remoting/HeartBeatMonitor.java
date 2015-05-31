@@ -8,6 +8,7 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.HeartBeatRequest;
 import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.util.Holder;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -98,37 +99,19 @@ public class HeartBeatMonitor {
             HeartBeatRequest commandBody = application.getCommandBodyWrapper().wrapper(new HeartBeatRequest());
 
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
-            final boolean[] result = {false};
-            final CountDownLatch latch = new CountDownLatch(1);
             try {
-                remotingClient.getNettyClient().invokeAsync(addr, request, application.getConfig().getInvokeTimeoutMillis(), new InvokeCallback() {
-                    @Override
-                    public void operationComplete(ResponseFuture responseFuture) {
-                        try {
-                            RemotingCommand response = responseFuture.getResponseCommand();
-
-                            if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS == JobProtos.ResponseCode.valueOf(response.getCode())) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("heart beat success! ");
-                                }
-                                result[0] = true;
-                                return;
-                            }
-                            LOGGER.error("heart beat error !" + response);
-                        } finally {
-                            latch.countDown();
-                        }
+                RemotingCommand response = remotingClient.getNettyClient().invokeSync(addr, request, 10000);
+                if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS == JobProtos.ResponseCode.valueOf(response.getCode())) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("heart beat success! ");
                     }
-                });
+                    return true;
+                }
+                LOGGER.error("heart beat error !" + response);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
-            try {
-                latch.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return result[0];
+            return false;
         }
 
     }

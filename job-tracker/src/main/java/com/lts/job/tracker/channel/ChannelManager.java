@@ -19,7 +19,7 @@ public class ChannelManager {
     // 客户端列表 (要保证同一个group的node要是无状态的)
     private final ConcurrentHashMap<String/*clientGroup*/, List<ChannelWrapper>> clientChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 任务节点列表
-    private final ConcurrentHashMap<String/*taskTrackerGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
+    private final ConcurrentHashMap<String/*taskTrackerNodeGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 用来定时检查已经关闭的channel
     private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
 

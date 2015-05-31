@@ -3,7 +3,7 @@ package com.lts.job.tracker.support.listener;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.support.checker.DeadJobChecker;
+import com.lts.job.tracker.support.checker.ExecutingDeadJobChecker;
 import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
 
 /**
@@ -13,13 +13,13 @@ import com.lts.job.tracker.support.checker.FeedbackJobSendChecker;
 public class JobTrackerMasterChangeListener implements MasterChangeListener {
 
     private JobTrackerApplication application;
-    private DeadJobChecker deadJobChecker;
+    private ExecutingDeadJobChecker executingDeadJobChecker;
     private FeedbackJobSendChecker feedbackJobSendChecker;
 
     public JobTrackerMasterChangeListener(JobTrackerApplication application) {
         this.application = application;
-        this.deadJobChecker = new DeadJobChecker(application);
-        this.application.setDeadJobChecker(deadJobChecker);
+        this.executingDeadJobChecker = new ExecutingDeadJobChecker(application);
+        this.application.setExecutingDeadJobChecker(executingDeadJobChecker);
         this.feedbackJobSendChecker = new FeedbackJobSendChecker(application);
     }
 
@@ -30,13 +30,13 @@ public class JobTrackerMasterChangeListener implements MasterChangeListener {
             // 如果 master 节点是自己
             // 2. 启动通知客户端失败检查重发的定时器
             feedbackJobSendChecker.start();
-            deadJobChecker.start();
+            executingDeadJobChecker.start();
         } else {
             // 如果 master 节点不是自己
 
             // 2. 关闭通知客户端失败检查重发的定时器
             feedbackJobSendChecker.stop();
-            deadJobChecker.stop();
+            executingDeadJobChecker.stop();
         }
     }
 }

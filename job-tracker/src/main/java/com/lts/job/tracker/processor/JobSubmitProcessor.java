@@ -42,7 +42,7 @@ public class JobSubmitProcessor extends AbstractProcessor {
                     JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code(), "job submit success!", jobSubmitResponse);
 
         } catch (JobReceiveException e) {
-            LOGGER.error("receive job failed , " + jobSubmitRequest, e);
+            LOGGER.error("receive job failed , jobs = " + jobSubmitRequest.getJobs(), e);
             jobSubmitResponse.setSuccess(false);
             jobSubmitResponse.setMsg(e.getMessage());
             jobSubmitResponse.setFailedJobs(e.getJobs());

@@ -5,11 +5,11 @@ import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.queue.JobFeedbackQueueFactory;
 
 /**
- * @author Robert HG (254963746@qq.com) on 5/20/15.
+ * @author Robert HG (254963746@qq.com) on 5/31/15.
  */
 public class MysqlJobFeedbackQueueFactory implements JobFeedbackQueueFactory {
     @Override
-    public JobFeedbackQueue getJobFeedbackQueue(Config config) {
+    public JobFeedbackQueue getQueue(Config config) {
         return new MysqlJobFeedbackQueue(config);
     }
 }

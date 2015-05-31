@@ -62,10 +62,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
             registry.register(node);
 
-            LOGGER.info("启动成功!");
+            LOGGER.info("started!");
 
         } catch (Throwable e) {
-            LOGGER.error("启动失败!", e);
+            LOGGER.error("start failed!", e);
         }
     }
 
@@ -91,9 +91,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
             innerStop();
 
-            LOGGER.info("停止成功!");
+            LOGGER.info("stop success!");
         } catch (Throwable e) {
-            LOGGER.error("停止失败!", e);
+            LOGGER.error("stop failed!", e);
         }
     }
 
@@ -102,7 +102,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         try {
             registry.destroy();
         } catch (Throwable e) {
-            LOGGER.error("销毁失败!", e);
+            LOGGER.error("destroy failed!", e);
         }
     }
 
@@ -151,7 +151,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         node = NodeFactory.create(getNodeClass(), config);
         config.setNodeType(node.getNodeType());
 
-        LOGGER.info("当前节点配置:{}", config);
+        LOGGER.info("Current node config :{}", config);
 
         application.setEventCenter(eventCenterFactory.getEventCenter(config));
 

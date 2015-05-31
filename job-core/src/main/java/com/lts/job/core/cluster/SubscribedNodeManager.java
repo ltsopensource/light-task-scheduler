@@ -54,7 +54,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
             NODES.put(node.getNodeType(), nodeList);
         }
         nodeList.add(node);
-        LOGGER.info("添加节点{}", node);
+        LOGGER.info("add node {}", node);
     }
 
     public List<Node> getNodeList(final NodeType nodeType, final String nodeGroup) {
@@ -79,7 +79,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
             for (Node node : nodeList) {
                 if (node.getIdentity().equals(delNode.getIdentity())) {
                     nodeList.remove(node);
-                    LOGGER.info("删除节点{}", node);
+                    LOGGER.info("remove node {}", node);
                 }
             }
         }
