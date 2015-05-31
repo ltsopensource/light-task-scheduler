@@ -1,6 +1,7 @@
 package com.lts.job.biz.logger.mongo;
 
 
+import com.lts.job.biz.logger.JobLogUtils;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.biz.logger.domain.BizLogPo;
 import com.lts.job.biz.logger.domain.JobLogPo;
@@ -18,14 +19,12 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
 
     @Override
     public void log(JobLogPo jobLogPo) {
-
-
-//        ds.save(jobLogPo);
+        template.save(jobLogPo);
     }
 
     @Override
     public void log(BizLogPo bizLogPo) {
-//        ds.save(JobLogUtils.bizConvert(bizLogPo));
+        template.save(JobLogUtils.bizConvert(bizLogPo));
     }
 
 }
