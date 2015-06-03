@@ -12,9 +12,9 @@ public class JobTrackerTest {
     public static void main(String[] args) {
 
         // 1. 使用mongo做任务队列
-        testMongoQueue();
+//        testMongoQueue();
         // 2. 使用mysql做任务队列
-//        testMysqlQueue();
+        testMysqlQueue();
     }
 
     /**

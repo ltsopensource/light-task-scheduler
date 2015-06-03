@@ -24,7 +24,7 @@ public class TestJobRunner implements JobRunner {
         bizLogger.info("测试，业务日志啊啊啊啊啊");
 
         try {
-            Thread.sleep(1000L);
+            Thread.sleep(100L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
