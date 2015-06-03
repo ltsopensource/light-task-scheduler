@@ -96,7 +96,6 @@ public class JobDistributor {
     // 推送失败
     private final int PUSH_FAILED = 3;
 
-
     /**
      * 是否推送成功
      *

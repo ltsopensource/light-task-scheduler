@@ -9,6 +9,7 @@ import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
 import com.lts.job.queue.ExecutableJobQueue;
+import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.store.mongo.MongoRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 public class MongoExecutableJobQueue extends MongoRepository implements ExecutableJobQueue {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoExecutableJobQueue.class);
+
     public MongoExecutableJobQueue(Config config) {
         super(config);
     }
@@ -41,8 +43,6 @@ public class MongoExecutableJobQueue extends MongoRepository implements Executab
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
-            template.ensureIndex(tableName, "idx_taskTrackerNodeGroup_isRunning_triggerTime", "taskTrackerNodeGroup,isRunning,triggerTime");
-
             LOGGER.info("create queue " + tableName);
         }
         return true;
@@ -66,8 +66,7 @@ public class MongoExecutableJobQueue extends MongoRepository implements Executab
     public JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
-        query.field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup)
-                .field("isRunning").equal(false)
+        query.field("isRunning").equal(false)
                 .filter("triggerTime < ", System.currentTimeMillis())
                 .order(" triggerTime, priority , gmtCreated");
 
@@ -101,5 +100,14 @@ public class MongoExecutableJobQueue extends MongoRepository implements Executab
                         .set("taskTrackerIdentity", "")
                         .set("gmtModified", System.currentTimeMillis());
         template.update(query, operations);
+    }
+
+    @Override
+    public List<JobPo> getDeadJob(String taskTrackerNodeGroup, long deadline) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("isRunning").equal(false).
+                order("gmtCreated");
+        return query.asList();
     }
 }

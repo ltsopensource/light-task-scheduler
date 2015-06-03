@@ -9,6 +9,7 @@ import com.lts.job.ec.EventCenter;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,9 +33,10 @@ public class InjvmEventCenter implements EventCenter {
     public void subscribe(String topic, EventSubscriber subscriber) {
         Set<EventSubscriber> subscribers = ecMap.get(topic);
         if (subscribers == null) {
-            synchronized (ecMap) {
-                subscribers = new ConcurrentHashSet<EventSubscriber>();
-                ecMap.put(topic, subscribers);
+            subscribers = new ConcurrentHashSet<EventSubscriber>();
+            Set<EventSubscriber> oldSubscribers = ecMap.putIfAbsent(topic, subscribers);
+            if (oldSubscribers != null) {
+                subscribers = oldSubscribers;
             }
         }
         subscribers.add(subscriber);

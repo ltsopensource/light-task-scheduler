@@ -51,7 +51,10 @@ public class SubscribedNodeManager implements NodeChangeListener {
         List<Node> nodeList = NODES.get(node.getNodeType());
         if (CollectionUtils.isEmpty(nodeList)) {
             nodeList = new CopyOnWriteArrayList<Node>();
-            NODES.put(node.getNodeType(), nodeList);
+            List<Node> oldNodeList = NODES.putIfAbsent(node.getNodeType(), nodeList);
+            if (oldNodeList != null) {
+                nodeList = oldNodeList;
+            }
         }
         nodeList.add(node);
         LOGGER.info("add node {}", node);

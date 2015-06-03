@@ -21,7 +21,7 @@ public class TaskTrackerManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerManager.class);
     // 单例
-    private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<TaskTrackerNode>>();
+    private final ConcurrentHashMap<String/*nodeGroup*/, Set<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, Set<TaskTrackerNode>>();
     private JobTrackerApplication application;
 
     public TaskTrackerManager(JobTrackerApplication application) {
@@ -46,12 +46,13 @@ public class TaskTrackerManager {
         //  channel 可能为 null
         ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(),
                 node.getNodeType(), node.getIdentity());
-        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
+        Set<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
 
-        synchronized (NODE_MAP) {
-            if (taskTrackerNodes == null) {
-                taskTrackerNodes = new ConcurrentHashSet<TaskTrackerNode>();
-                NODE_MAP.put(node.getGroup(), taskTrackerNodes);
+        if (taskTrackerNodes == null) {
+            taskTrackerNodes = new ConcurrentHashSet<TaskTrackerNode>();
+            Set<TaskTrackerNode> oldSet = NODE_MAP.putIfAbsent(node.getGroup(), taskTrackerNodes);
+            if (oldSet != null) {
+                taskTrackerNodes = oldSet;
             }
         }
 
@@ -70,7 +71,7 @@ public class TaskTrackerManager {
      * @param node
      */
     public void removeNode(Node node) {
-        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
+        Set<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             TaskTrackerNode taskTrackerNode = new TaskTrackerNode(node.getIdentity());
             taskTrackerNode.setNodeGroup(node.getGroup());
@@ -80,7 +81,7 @@ public class TaskTrackerManager {
     }
 
     public TaskTrackerNode getTaskTrackerNode(String nodeGroup, String identity) {
-        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
+        Set<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
         if (taskTrackerNodes == null || taskTrackerNodes.size() == 0) {
             return null;
         }
@@ -120,7 +121,7 @@ public class TaskTrackerManager {
             Integer availableThreads,
             Long timestamp) {
 
-        ConcurrentHashSet<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
+        Set<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(nodeGroup);
 
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             for (TaskTrackerNode trackerNode : taskTrackerNodes) {

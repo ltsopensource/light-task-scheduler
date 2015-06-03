@@ -8,7 +8,7 @@ import com.lts.job.core.constant.Constants;
 public class NettyServerConfig {
     private int listenPort = 8888;
     private int serverWorkerThreads = 32;
-    private int serverCallbackExecutorThreads = 0;
+    private int serverCallbackExecutorThreads = Constants.AVAILABLE_PROCESSOR * 2;
     private int serverSelectorThreads = Constants.AVAILABLE_PROCESSOR * 2;
     private int serverOnewaySemaphoreValue = 32;
     private int serverAsyncSemaphoreValue = 64;

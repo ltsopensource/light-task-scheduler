@@ -13,6 +13,7 @@ import com.lts.job.store.jdbc.SqlExecutor;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/31/15.
@@ -48,7 +49,15 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     public boolean add(JobPo jobPo) {
         jobPo.setGmtCreated(DateUtils.currentTimeMillis());
         jobPo.setGmtModified(jobPo.getGmtCreated());
-        return super.add(getTableName(jobPo.getTaskTrackerNodeGroup()), jobPo);
+        try {
+            return super.add(getTableName(jobPo.getTaskTrackerNodeGroup()), jobPo);
+        } catch (JobQueueException e) {
+            if (e.getMessage().contains("doesn't exist Query:")) {
+                createQueue(jobPo.getTaskTrackerNodeGroup());
+                add(jobPo);
+            }
+        }
+        return true;
     }
 
     @Override
@@ -60,12 +69,11 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
                 // select for update
                 String selectForUpdateSql = "SELECT *" +
                         " FROM `{tableName}` " +
-                        " WHERE `task_tracker_node_group` = ? " +
-                        " AND is_running = ? " +
+                        " WHERE is_running = ? " +
                         " AND `trigger_time` < ? " +
                         " ORDER BY `trigger_time` ASC, `priority` ASC, `gmt_created` ASC " +
                         " LIMIT 0, 1 FOR UPDATE";
-                Object[] selectParams = new Object[]{taskTrackerNodeGroup, false, now};
+                Object[] selectParams = new Object[]{false, now};
                 JobPo jobPo = getSqlTemplate().query(conn, getRealSql(selectForUpdateSql, taskTrackerNodeGroup),
                         ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, selectParams
                 );
@@ -111,6 +119,16 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         try {
             Object[] params = new Object[]{false, null, System.currentTimeMillis(), jobPo.getJobId()};
             getSqlTemplate().update(getRealSql(updateSql, jobPo.getTaskTrackerNodeGroup()), params);
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+    }
+
+    @Override
+    public List<JobPo> getDeadJob(String taskTrackerNodeGroup, long deadline) {
+        String sql = "SELECT * FROM `{tableName}` WHERE is_running = ? AND gmt_modified < ?";
+        try {
+            return getSqlTemplate().query(getRealSql(sql, taskTrackerNodeGroup), ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER, true, deadline);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

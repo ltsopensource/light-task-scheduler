@@ -8,7 +8,7 @@ import com.lts.job.core.constant.Constants;
 public class NettyClientConfig {
     // 处理Server Response/Request
     private int clientWorkerThreads = 4;
-    private int clientCallbackExecutorThreads = Constants.AVAILABLE_PROCESSOR;
+    private int clientCallbackExecutorThreads = Constants.AVAILABLE_PROCESSOR * 2;
     private int clientSelectorThreads = 1;
     private int clientOnewaySemaphoreValue = 256;
     private int clientAsyncSemaphoreValue = 128;

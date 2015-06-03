@@ -25,7 +25,7 @@ public class JobClientManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobClientManager.class);
 
-    private final ConcurrentHashMap<String/*nodeGroup*/, ConcurrentHashSet<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, ConcurrentHashSet<JobClientNode>>();
+    private final ConcurrentHashMap<String/*nodeGroup*/, Set<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, Set<JobClientNode>>();
 
     private LoadBalance loadBalance;
     private JobTrackerApplication application;
@@ -52,12 +52,13 @@ public class JobClientManager {
     public void addNode(Node node) {
         //  channel 可能为 null
         ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
-        ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
+        Set<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
 
-        synchronized (NODE_MAP) {
-            if (jobClientNodes == null) {
-                jobClientNodes = new ConcurrentHashSet<JobClientNode>();
-                NODE_MAP.put(node.getGroup(), jobClientNodes);
+        if (jobClientNodes == null) {
+            jobClientNodes = new ConcurrentHashSet<JobClientNode>();
+            Set<JobClientNode> oldSet = NODE_MAP.putIfAbsent(node.getGroup(), jobClientNodes);
+            if (oldSet != null) {
+                jobClientNodes = oldSet;
             }
         }
 
@@ -75,7 +76,7 @@ public class JobClientManager {
      * @param node
      */
     public void removeNode(Node node) {
-        ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
+        Set<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
         if (jobClientNodes != null && jobClientNodes.size() != 0) {
             for (JobClientNode jobClientNode : jobClientNodes) {
                 if (node.getIdentity().equals(jobClientNode.getIdentity())) {
@@ -94,7 +95,7 @@ public class JobClientManager {
      */
     public JobClientNode getAvailableJobClient(String nodeGroup) {
 
-        ConcurrentHashSet<JobClientNode> jobClientNodes = NODE_MAP.get(nodeGroup);
+        Set<JobClientNode> jobClientNodes = NODE_MAP.get(nodeGroup);
 
         if (CollectionUtils.isEmpty(jobClientNodes)) {
             return null;
