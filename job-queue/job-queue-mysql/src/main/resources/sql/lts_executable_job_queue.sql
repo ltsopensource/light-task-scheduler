@@ -19,6 +19,5 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   UNIQUE KEY `idx_taskTrackerNodeGroup_taskId` (`task_tracker_node_group`,`task_id`),
   KEY `idx_taskTrackerIdentity` (`task_tracker_identity`),
   KEY `idx_triggerTime_priority_gmtCreated` (`trigger_time`,`priority`,`gmt_created`),
-  KEY `idx_isRunning` (`is_running`),
-  KEY `idx_taskTrackerNodeGroup_isRunning_triggerTime` (`task_tracker_node_group`,`is_running`,`trigger_time`)
+  KEY `idx_isRunning` (`is_running`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

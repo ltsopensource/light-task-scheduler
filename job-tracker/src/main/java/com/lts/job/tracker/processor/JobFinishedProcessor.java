@@ -84,7 +84,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             log(requestBody.getIdentity(), jobResults, LogType.FINISHED);
         }
 
-        LOGGER.info("job exe finished : {}", jobResults);
+        LOGGER.info("job exec finished : {}", jobResults);
 
         return finishJob(requestBody, jobResults);
     }
@@ -155,6 +155,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("send job {} to {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
                 }
+                application.getExecutingJobQueue().add(jobPo);
+                application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
+
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
             }

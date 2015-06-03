@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
-        console();
-//        testProtector();
+//        console();
+        testProtector();
     }
 
     public static void console() throws IOException {

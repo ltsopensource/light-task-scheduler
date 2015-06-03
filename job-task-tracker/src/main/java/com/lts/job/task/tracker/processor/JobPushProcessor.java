@@ -110,17 +110,17 @@ public class JobPushProcessor extends AbstractProcessor {
                             if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                                 JobPushRequest jobPushRequest = commandResponse.getBody();
                                 if (jobPushRequest != null) {
-                                    LOGGER.info("取到新任务:{}", jobPushRequest.getJob());
+                                    LOGGER.info("Get new job :{}", jobPushRequest.getJob());
                                     returnResponse.setJob(jobPushRequest.getJob());
                                 }
                             } else {
-                                LOGGER.info("任务完成通知反馈失败, 存储文件。{}", jobResult);
+                                LOGGER.info("Job feedback failed, save local files。{}", jobResult);
                                 try {
                                     retryScheduler.inSchedule(
                                             jobResult.getJob().getJobId().concat("_") + System.currentTimeMillis(),
                                             jobResult);
                                 } catch (Exception e) {
-                                    LOGGER.error("任务完成通知反馈存储文件失败", e);
+                                    LOGGER.error("Job feedback failed", e);
                                 }
                             }
                         } finally {
@@ -136,7 +136,7 @@ public class JobPushProcessor extends AbstractProcessor {
                 }
             } catch (JobTrackerNotFoundException e) {
                 try {
-                    LOGGER.warn("no job tracker available! , save local files .");
+                    LOGGER.warn("no job tracker available! save local files.");
                     retryScheduler.inSchedule(
                             jobResult.getJob().getJobId().concat("_") + System.currentTimeMillis(),
                             jobResult);
