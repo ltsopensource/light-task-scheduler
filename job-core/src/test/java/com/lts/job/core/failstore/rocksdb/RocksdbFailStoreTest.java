@@ -7,15 +7,12 @@ import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.KVPair;
 import com.lts.job.core.failstore.FailStore;
 import com.lts.job.core.failstore.FailStoreException;
-import com.lts.job.core.failstore.berkeleydb.BerkeleydbFailStore;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.JSONUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.

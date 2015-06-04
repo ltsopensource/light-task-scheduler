@@ -6,7 +6,6 @@ import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.BizLogSendRequest;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;

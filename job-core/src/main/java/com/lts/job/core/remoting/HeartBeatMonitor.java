@@ -8,13 +8,9 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.HeartBeatRequest;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.Holder;
-import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
