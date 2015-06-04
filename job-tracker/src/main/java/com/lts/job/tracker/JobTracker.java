@@ -2,7 +2,6 @@ package com.lts.job.tracker;
 
 import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.core.cluster.AbstractServerNode;
-import com.lts.job.core.constant.Constants;
 import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.queue.CronJobQueueFactory;
 import com.lts.job.queue.ExecutableJobQueueFactory;
@@ -13,8 +12,8 @@ import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 import com.lts.job.tracker.domain.JobTrackerNode;
 import com.lts.job.tracker.processor.RemotingDispatcher;
-import com.lts.job.tracker.support.cluster.JobClientManager;
 import com.lts.job.tracker.support.OldDataHandler;
+import com.lts.job.tracker.support.cluster.JobClientManager;
 import com.lts.job.tracker.support.cluster.TaskTrackerManager;
 import com.lts.job.tracker.support.listener.JobNodeChangeListener;
 import com.lts.job.tracker.support.listener.JobTrackerMasterChangeListener;
@@ -33,7 +32,6 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     private JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
     public JobTracker() {
-        config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
         // channel 管理者

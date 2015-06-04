@@ -75,4 +75,9 @@ public interface Constants {
     public static final int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;
 
     public static final int LATCH_TIMEOUT_MILLIS = 10 * 60 * 1000;      // 10分钟
+
+    // 取任务的时候的并发数控制
+    public static final String JOB_TAKE_PARALLEL_SIZE = "job.take.parallel.size";
+    public static final String JOB_TAKE_ACQUIRE_TIMEOUT = "job.take.acquire.timeout";
+    public static final int DEFAULT_JOB_TAKE_PARALLEL_SIZE = 20;
 }

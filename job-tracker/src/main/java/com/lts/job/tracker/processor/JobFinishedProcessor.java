@@ -155,7 +155,11 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("send job {} to {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
                 }
-                application.getExecutingJobQueue().add(jobPo);
+                try {
+                    application.getExecutingJobQueue().add(jobPo);
+                } catch (DuplicateJobException e) {
+                    // ignore
+                }
                 application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
 
                 // 返回 新的任务

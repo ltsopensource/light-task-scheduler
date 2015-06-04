@@ -1,7 +1,7 @@
 package com.lts.job.store.mongo;
 
-import com.google.code.morphia.AdvancedDatastore;
 import com.lts.job.core.cluster.Config;
+import org.mongodb.morphia.AdvancedDatastore;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/8/14.

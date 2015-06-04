@@ -1,6 +1,5 @@
 package com.lts.job.queue.mongo;
 
-import com.google.code.morphia.query.Query;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.DateUtils;
@@ -9,10 +8,8 @@ import com.lts.job.queue.CronJobQueue;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.store.mongo.MongoRepository;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
+import org.mongodb.morphia.query.Query;
 
 import java.util.List;
 
@@ -42,7 +39,7 @@ public class MongoCronJobQueue extends MongoRepository implements CronJobQueue {
             jobPo.setGmtCreated(DateUtils.currentTimeMillis());
             jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(jobPo);
-        } catch (MongoException.DuplicateKey e) {
+        } catch (DuplicateKeyException e) {
             // 已经存在
             throw new DuplicateJobException(e);
         }

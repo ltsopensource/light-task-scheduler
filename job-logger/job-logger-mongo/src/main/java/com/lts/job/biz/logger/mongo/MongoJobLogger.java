@@ -15,6 +15,7 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
 
     public MongoJobLogger(Config config) {
         super(config);
+        setTableName("lts_job_log_po");
     }
 
     @Override

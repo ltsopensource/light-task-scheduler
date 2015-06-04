@@ -1,11 +1,5 @@
 package com.lts.job.store.mongo;
 
-import com.google.code.morphia.AdvancedDatastore;
-import com.google.code.morphia.Key;
-import com.google.code.morphia.query.Query;
-import com.google.code.morphia.query.QueryImpl;
-import com.google.code.morphia.query.UpdateOperations;
-import com.google.code.morphia.query.UpdateResults;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.StringUtils;
@@ -13,6 +7,12 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
 import com.mongodb.DBCollection;
 import com.mongodb.WriteResult;
+import org.mongodb.morphia.AdvancedDatastore;
+import org.mongodb.morphia.Key;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.QueryImpl;
+import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
@@ -22,7 +22,7 @@ public class MongoTemplate {
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoTemplate.class);
 
     private AdvancedDatastore ds;
-    // 默认 DBCollection name
+    // default DBCollection name
     private String defaultCollName;
 
     public MongoTemplate(AdvancedDatastore ds) {
@@ -101,10 +101,10 @@ public class MongoTemplate {
         final BasicDBObject opts = (BasicDBObject) keyOpts.get();
         if (opts.isEmpty()) {
             LOGGER.debug("Ensuring index for " + dbColl.getName() + " with keys:" + dbFields);
-            dbColl.ensureIndex(dbFields);
+            dbColl.createIndex(dbFields);
         } else {
             LOGGER.debug("Ensuring index for " + dbColl.getName() + " with keys:" + fields + " and opts:" + opts);
-            dbColl.ensureIndex(dbFields, opts);
+            dbColl.createIndex(dbFields, opts);
         }
     }
 
@@ -155,19 +155,19 @@ public class MongoTemplate {
         return ds.delete(query);
     }
 
-    public <T> UpdateResults<T> update(final Query<T> query, final UpdateOperations<T> ops, final boolean createIfMissing) {
+    public <T> UpdateResults update(final Query<T> query, final UpdateOperations<T> ops, final boolean createIfMissing) {
         return ds.update(query, ops, createIfMissing);
     }
 
-    public <T> UpdateResults<T> update(final Query<T> query, final UpdateOperations<T> ops) {
+    public <T> UpdateResults update(final Query<T> query, final UpdateOperations<T> ops) {
         return ds.update(query, ops);
     }
 
-    public <T> UpdateResults<T> updateFirst(final Query<T> query, final UpdateOperations<T> ops, final boolean createIfMissing) {
+    public <T> UpdateResults updateFirst(final Query<T> query, final UpdateOperations<T> ops, final boolean createIfMissing) {
         return ds.updateFirst(query, ops, createIfMissing);
     }
 
-    public <T> UpdateResults<T> updateFirst(final Query<T> query, final UpdateOperations<T> ops) {
+    public <T> UpdateResults updateFirst(final Query<T> query, final UpdateOperations<T> ops) {
         return ds.updateFirst(query, ops);
     }
 

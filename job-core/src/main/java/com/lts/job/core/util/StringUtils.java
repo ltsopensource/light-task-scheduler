@@ -118,14 +118,14 @@ public final class StringUtils {
         }
     }
 
-    public static String concat(Object... objects) {
-        if (objects == null) {
+    public static String concat(String ... strings) {
+        if (strings == null) {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        for (Object object : objects) {
-            if (object != null) {
-                sb.append(object.toString());
+        for (String str : strings) {
+            if (str != null) {
+                sb.append(str);
             }
         }
         return sb.toString();

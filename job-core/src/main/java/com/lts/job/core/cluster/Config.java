@@ -20,7 +20,7 @@ public class Config {
     private String nodeGroup;
     // 唯一标识
     private String identity;
-    // 工作线程
+    // 工作线程, 目前只对 TaskTracker 有效
     private int workThreads;
     // 节点类型
     private NodeType nodeType;
