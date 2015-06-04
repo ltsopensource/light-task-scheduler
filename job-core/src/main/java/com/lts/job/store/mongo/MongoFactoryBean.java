@@ -2,42 +2,62 @@ package com.lts.job.store.mongo;
 
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.mongodb.Mongo;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ServerAddress;
+import com.lts.job.core.util.StringUtils;
+import com.mongodb.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/8/14.
- * Mongo 工厂类
+ *         Mongo 工厂类
  */
 public class MongoFactoryBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoFactoryBean.class);
     private List<ServerAddress> replicaSetSeeds = new ArrayList<ServerAddress>();
     private MongoClientOptions mongoClientOptions;
+    private List<MongoCredential> mongoCredentials;
+
 
     public MongoFactoryBean(String[] serverAddresses) {
         replSeeds(serverAddresses);
     }
 
-    public MongoFactoryBean(String serverAddress) {
-        replSeeds(new String[]{serverAddress});
+    public MongoFactoryBean(String[] serverAddresses, String username, String database, String pwd) {
+        this(serverAddresses, MongoCredential.MONGODB_CR_MECHANISM, username, database, pwd);
     }
 
-    public MongoFactoryBean(MongoClientOptions mongoClientOptions) {
+    public MongoFactoryBean(String[] serverAddresses, String mechanism, String username, String database, String pwd) {
+        replSeeds(serverAddresses);
+        if (StringUtils.isNotEmpty(username)) {
+            if (MongoCredential.GSSAPI_MECHANISM.equals(mechanism)) {
+                mongoCredentials.add(MongoCredential.createGSSAPICredential(username));
+            } else {
+                mongoCredentials.add(MongoCredential.createMongoCRCredential(username, database, pwd.toCharArray()));
+            }
+        }
+    }
+
+    public MongoFactoryBean(String[] serverAddresses, MongoClientOptions mongoClientOptions) {
+        this(serverAddresses);
         this.mongoClientOptions = mongoClientOptions;
     }
 
-    public Mongo createInstance() throws Exception {
+    public MongoClient createInstance() throws Exception {
         if (replicaSetSeeds.size() > 0) {
             if (mongoClientOptions != null) {
-                return new MongoClient(replicaSetSeeds, mongoClientOptions);
+                if (mongoCredentials != null) {
+                    return new MongoClient(replicaSetSeeds, mongoCredentials, mongoClientOptions);
+                } else {
+                    return new MongoClient(replicaSetSeeds, mongoClientOptions);
+                }
             }
-            return new MongoClient(replicaSetSeeds);
+            if (mongoCredentials != null) {
+                return new MongoClient(replicaSetSeeds, mongoCredentials);
+            } else {
+                return new MongoClient(replicaSetSeeds);
+            }
         }
         return new MongoClient();
     }

@@ -12,9 +12,9 @@ public class JobTrackerTest {
     public static void main(String[] args) {
 
         // 1. 使用mongo做任务队列
-//        testMongoQueue();
-        // 2. 使用mysql做任务队列
-        testMysqlQueue();
+        testMongoQueue();
+//         2. 使用mysql做任务队列
+//        testMysqlQueue();
     }
 
     /**
@@ -25,13 +25,15 @@ public class JobTrackerTest {
         // 节点信息配置
         jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
 //        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
-        jobTracker.setListenPort(35002); // 默认 35001
+//        jobTracker.setListenPort(35002); // 默认 35001
         jobTracker.setClusterName("test_cluster");
 
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
         // 设置业务日志记录
-//        jobTracker.addConfig("job.logger", "mongo");
+        jobTracker.addConfig("job.logger", "mongo");
+//        jobTracker.addConfig("job.logger", "mysql");
+//        jobTracker.addConfig("job.logger", "console");    // 默认
         // 任务队列用mongo
         jobTracker.addConfig("job.queue", "mongo");
         // mongo 配置
@@ -66,7 +68,7 @@ public class JobTrackerTest {
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
         // 设置业务日志记录 mysql
-//        jobTracker.addConfig("job.logger", "mysql");
+        jobTracker.addConfig("job.logger", "mysql");
         // 任务队列用mysql
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置

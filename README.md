@@ -63,6 +63,8 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     jobTracker.setClusterName("test_cluster");
     jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
     // 设置业务日志记录
+    //  jobTracker.addConfig("job.logger", "console");  // 默认
+    //  jobTracker.addConfig("job.logger", "mysql");
     //  jobTracker.addConfig("job.logger", "mongo");
     
     // 1. 任务队列用mongo
@@ -74,7 +76,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
     // 2. 任务队里用mysql
     // jobTracker.addConfig("job.queue", "mysql");
     // mysql 配置
-    // jobTracker.addConfig("jdbc.url", "jdbc:mysql://test.superboss.cc:3306/lts");
+    // jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
     // jobTracker.addConfig("jdbc.username", "root");
     // jobTracker.addConfig("jdbc.password", "root");
     

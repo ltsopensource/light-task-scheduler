@@ -66,12 +66,17 @@ public class FeedbackJobSendChecker {
      * 启动
      */
     public void start() {
-        if (!start) {
-            RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-            RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
-                    , 30, 30, TimeUnit.SECONDS);
-            start = true;
+        try {
+            if (!start) {
+                RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+                RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
+                        , 30, 30, TimeUnit.SECONDS);
+                start = true;
+            }
             LOGGER.info("feedback job checker started!");
+
+        } catch (Throwable t) {
+            LOGGER.error("feedback job checker start failed!", t);
         }
     }
 
@@ -79,11 +84,15 @@ public class FeedbackJobSendChecker {
      * 停止
      */
     public void stop() {
-        if (start) {
-            RETRY_EXECUTOR_SERVICE.shutdown();
-            RETRY_EXECUTOR_SERVICE = null;
-            start = false;
-            LOGGER.info("feedback job checker stopped!");
+        try {
+            if (start) {
+                RETRY_EXECUTOR_SERVICE.shutdown();
+                RETRY_EXECUTOR_SERVICE = null;
+                start = false;
+                LOGGER.info("feedback job checker stopped!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("feedback job checker stop failed!", t);
         }
     }
 

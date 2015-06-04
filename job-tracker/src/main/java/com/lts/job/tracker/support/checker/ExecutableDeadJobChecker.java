@@ -39,21 +39,26 @@ public class ExecutableDeadJobChecker {
     private ScheduledFuture<?> scheduledFuture;
 
     public void start() {
-        if (start) {
-            return;
-        }
-        start = true;
-
-        scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    fix();
-                } catch (Throwable t) {
-                    LOGGER.error(t.getMessage(), t);
-                }
+        try {
+            if (start) {
+                return;
             }
-        }, 30, 3 * 60, TimeUnit.SECONDS);// 3分钟执行一次
+            start = true;
+
+            scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        fix();
+                    } catch (Throwable t) {
+                        LOGGER.error(t.getMessage(), t);
+                    }
+                }
+            }, 30, 60, TimeUnit.SECONDS);// 3分钟执行一次
+            LOGGER.info("Executable dead job checker started!");
+        } catch (Throwable t) {
+            LOGGER.info("Executable dead job checker start failed!");
+        }
     }
 
     /**
@@ -76,10 +81,15 @@ public class ExecutableDeadJobChecker {
     }
 
     public void stop() {
-        if (start) {
-            start = false;
-            scheduledFuture.cancel(true);
-            FIXED_EXECUTOR_SERVICE.shutdown();
+        try {
+            if (start) {
+                start = false;
+                scheduledFuture.cancel(true);
+                FIXED_EXECUTOR_SERVICE.shutdown();
+            }
+            LOGGER.info("Executable dead job checker stopped!");
+        } catch (Throwable t) {
+            LOGGER.error("Executable dead job checker stop failed!", t);
         }
     }
 }

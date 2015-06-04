@@ -1,6 +1,5 @@
 package com.lts.job.queue.mongo;
 
-import com.google.code.morphia.query.Query;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
@@ -10,10 +9,8 @@ import com.lts.job.core.util.JobQueueUtils;
 import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.store.mongo.MongoRepository;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.WriteResult;
+import com.mongodb.*;
+import org.mongodb.morphia.query.Query;
 
 import java.util.List;
 
@@ -53,7 +50,7 @@ public class MongoJobFeedbackQueue extends MongoRepository implements JobFeedbac
                     jobFeedbackPo.getJobResult().getJob().getSubmitNodeGroup());
             try {
                 template.save(tableName, jobFeedbackPo);
-            } catch (MongoException.DuplicateKey e) {
+            } catch (DuplicateKeyException e) {
                 LOGGER.warn("duplicate key for job feedback po: " + JSONUtils.toJSONString(jobFeedbackPo));
             }
         }

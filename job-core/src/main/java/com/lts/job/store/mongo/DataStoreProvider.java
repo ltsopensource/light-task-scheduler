@@ -1,10 +1,10 @@
 package com.lts.job.store.mongo;
 
-import com.google.code.morphia.Datastore;
-import com.google.code.morphia.Morphia;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.util.StringUtils;
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,8 +22,10 @@ public class DataStoreProvider {
 
         String[] addresses = config.getParameter(ADDRESSES_KEY, new String[]{DEFAULT_ADDRESSES});
         String database = config.getParameter(DATABASE_KEY, DEFAULT_DATABASE);
+        String username = config.getParameter(USERNAME);
+        String pwd = config.getParameter(PASSWORD);
 
-        String cachedKey = StringUtils.concat(addresses, database);
+        String cachedKey = StringUtils.concat(StringUtils.concat(addresses), database, username, pwd);
 
         Datastore datastore = DATA_STORE_MAP.get(cachedKey);
         if (datastore == null) {
@@ -34,8 +36,8 @@ public class DataStoreProvider {
                         return datastore;
                     }
                     Morphia morphia = new Morphia();
-                    MongoFactoryBean mongoFactoryBean = new MongoFactoryBean(addresses);
-                    Mongo mongo = mongoFactoryBean.createInstance();
+                    MongoFactoryBean mongoFactoryBean = new MongoFactoryBean(addresses, username, database, pwd);
+                    MongoClient mongo = mongoFactoryBean.createInstance();
                     datastore = morphia.createDatastore(mongo, database);
                     DATA_STORE_MAP.put(cachedKey, datastore);
                 }
@@ -52,4 +54,8 @@ public class DataStoreProvider {
     private static final String DEFAULT_ADDRESSES = "127.0.0.1:27017";
     private static final String DATABASE_KEY = "mongo.database";
     private static final String DEFAULT_DATABASE = "lts";
+    private static final String USERNAME = "mongo.username";
+    private static final String PASSWORD = "mongo.password";
+
+
 }

@@ -13,6 +13,7 @@ import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.core.util.Holder;
 import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.remoting.InvokeCallback;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
@@ -160,7 +161,11 @@ public class JobDistributor {
             application.getExecutableJobQueue().resume(jobPo);
             return PUSH_FAILED;
         }
-        application.getExecutingJobQueue().add(jobPo);
+        try {
+            application.getExecutingJobQueue().add(jobPo);
+        } catch (DuplicateJobException e) {
+            // ignore
+        }
         application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
 
         return PUSH_SUCCESS;
