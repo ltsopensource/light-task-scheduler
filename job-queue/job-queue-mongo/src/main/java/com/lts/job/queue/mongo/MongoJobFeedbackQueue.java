@@ -9,7 +9,10 @@ import com.lts.job.core.util.JobQueueUtils;
 import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.store.mongo.MongoRepository;
-import com.mongodb.*;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.WriteResult;
 import org.mongodb.morphia.query.Query;
 
 import java.util.List;

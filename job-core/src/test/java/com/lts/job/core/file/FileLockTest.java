@@ -2,8 +2,6 @@ package com.lts.job.core.file;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.
  */

@@ -9,10 +9,10 @@ import com.lts.job.queue.ExecutingJobQueue;
 import com.lts.job.queue.JobFeedbackQueue;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.id.IdGenerator;
-import com.lts.job.tracker.support.cluster.JobClientManager;
 import com.lts.job.tracker.support.OldDataHandler;
-import com.lts.job.tracker.support.cluster.TaskTrackerManager;
 import com.lts.job.tracker.support.checker.ExecutingDeadJobChecker;
+import com.lts.job.tracker.support.cluster.JobClientManager;
+import com.lts.job.tracker.support.cluster.TaskTrackerManager;
 
 /**
  * JobTracker Application
