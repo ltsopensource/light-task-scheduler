@@ -195,6 +195,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
                 try {
                     for (Node node : failed) {
                         doRegister(node);
+                        failedRegistered.remove(node);
                     }
                 } catch (Throwable t) {     // 忽略所有异常，等待下次重试
                     LOGGER.warn("Failed to retry register " + failed + ", waiting for again, cause: " + t.getMessage(), t);
@@ -210,6 +211,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
                 try {
                     for (Node node : failed) {
                         doUnRegister(node);
+                        failedUnRegistered.remove(node);
                     }
                 } catch (Throwable t) {     // 忽略所有异常，等待下次重试
                     LOGGER.warn("Failed to retry unregister " + failed + ", waiting for again, cause: " + t.getMessage(), t);
@@ -235,6 +237,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
                             try {
                                 doSubscribe(node, listener);
                                 listeners.remove(listener);
+                                failedSubscribed.remove(entry.getKey());
                             } catch (Throwable t) { // 忽略所有异常，等待下次重试
                                 LOGGER.warn("Failed to retry subscribe " + failed + ", waiting for again, cause: " + t.getMessage(), t);
                             }
