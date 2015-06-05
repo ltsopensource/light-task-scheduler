@@ -5,19 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.lts</groupId>
-    <artifactId>job-parent</artifactId>
+    <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.5-SNAPSHOT</version>
     <modules>
-        <module>job-core</module>
-        <module>job-tracker</module>
-        <module>job-task-tracker</module>
-        <module>job-client</module>
-        <module>job-example</module>
-        <!--<module>job-extensions</module>-->
-        <!--<module>job-admin</module>-->
-        <module>job-queue</module>
-        <module>job-logger</module>
+        <module>lts-core</module>
+        <module>lts-job-tracker</module>
+        <module>lts-task-tracker</module>
+        <module>lts-job-client</module>
+        <module>lts-queue</module>
+        <module>lts-logger</module>
+        <module>lts-example</module>
+        <!--<module>lts-admin</module>-->
     </modules>
 
     <properties>
@@ -99,16 +98,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <!--<dependency>-->
-                <!--<groupId>com.thoughtworks.proxytoys</groupId>-->
-                <!--<artifactId>proxytoys</artifactId>-->
-                <!--<version>1.0</version>-->
-            <!--</dependency>-->
-            <!--<dependency>-->
-                <!--<groupId>cglib</groupId>-->
-                <!--<artifactId>cglib-nodep</artifactId>-->
-                <!--<version>2.2.2</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
