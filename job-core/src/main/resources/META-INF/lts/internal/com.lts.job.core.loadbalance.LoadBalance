@@ -1,2 +1,0 @@
-random=com.lts.job.core.loadbalance.RandomLoadBalance
-consistenthash=com.lts.job.core.loadbalance.ConsistentHashLoadBalance

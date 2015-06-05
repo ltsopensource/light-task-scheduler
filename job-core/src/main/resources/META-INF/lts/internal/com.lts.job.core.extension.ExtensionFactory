@@ -1,2 +1,0 @@
-adaptive=com.lts.job.core.extension.factory.AdaptiveExtensionFactory
-spi=com.lts.job.core.extension.factory.SpiExtensionFactory

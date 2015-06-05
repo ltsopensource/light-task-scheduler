@@ -1,3 +1,0 @@
-adaptive=com.lts.job.core.compiler.support.AdaptiveCompiler
-jdk=com.lts.job.core.compiler.support.JdkCompiler
-javassist=com.lts.job.core.compiler.support.JavassistCompiler
