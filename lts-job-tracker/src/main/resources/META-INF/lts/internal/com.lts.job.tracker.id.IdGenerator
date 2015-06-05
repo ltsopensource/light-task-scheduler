@@ -1,0 +1,2 @@
+md5=com.lts.job.tracker.id.Md5Generator
+uuid=com.lts.job.tracker.id.UUIDGenerator
