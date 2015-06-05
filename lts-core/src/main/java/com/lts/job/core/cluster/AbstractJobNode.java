@@ -106,6 +106,28 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         }
     }
 
+    protected void initConfig() {
+        application.setCommandBodyWrapper(new CommandBodyWrapper(config));
+        application.setMasterElector(new MasterElector(application));
+        application.getMasterElector().addMasterChangeListener(masterChangeListeners);
+
+        node = NodeFactory.create(getNodeClass(), config);
+        config.setNodeType(node.getNodeType());
+
+        LOGGER.info("Current node config :{}", config);
+
+        application.setEventCenter(eventCenterFactory.getEventCenter(config));
+
+        // 订阅的node管理
+        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
+        application.setSubscribedNodeManager(subscribedNodeManager);
+        nodeChangeListeners.add(subscribedNodeManager);
+        // 用于master选举的监听器
+        nodeChangeListeners.add(new MasterElectionListener(application));
+        // 监听自己节点变化（如，当前节点被禁用了）
+        nodeChangeListeners.add(new SelfChangeListener(application));
+    }
+
     private void initRegistry() {
         registry = RegistryFactory.getRegistry(config);
         if (registry instanceof AbstractRegistry) {
@@ -141,28 +163,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 }
             }
         });
-    }
-
-    protected void initConfig() {
-        application.setCommandBodyWrapper(new CommandBodyWrapper(config));
-        application.setMasterElector(new MasterElector(application));
-        application.getMasterElector().addMasterChangeListener(masterChangeListeners);
-
-        node = NodeFactory.create(getNodeClass(), config);
-        config.setNodeType(node.getNodeType());
-
-        LOGGER.info("Current node config :{}", config);
-
-        application.setEventCenter(eventCenterFactory.getEventCenter(config));
-
-        // 订阅的node管理
-        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
-        application.setSubscribedNodeManager(subscribedNodeManager);
-        nodeChangeListeners.add(subscribedNodeManager);
-        // 用于master选举的监听器
-        nodeChangeListeners.add(new MasterElectionListener(application));
-        // 监听自己节点变化（如，当前节点被禁用了）
-        nodeChangeListeners.add(new SelfChangeListener(application));
     }
 
     protected abstract void innerStart();

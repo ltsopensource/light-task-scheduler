@@ -4,9 +4,9 @@ import com.lts.job.core.constant.Level;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.BizLogSendRequest;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
@@ -56,12 +56,13 @@ public class BizLoggerImpl implements BizLogger {
     }
 
     private void sendMsg(String msg) {
+
         if (!remotingClient.isServerEnable()) {
             // TODO JobTracker不可用的时候
             return;
         }
 
-        BizLogSendRequest requestBody = application.getCommandBodyWrapper().wrapper(new BizLogSendRequest());
+        BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(application, new BizLogSendRequest());
         requestBody.setJobId(jobId);
         requestBody.setMsg(msg);
         requestBody.setLevel(level);

@@ -29,6 +29,13 @@ public class CollectionUtils {
         return !isNotEmpty(collection);
     }
 
+    public static int sizeOf(Collection collection) {
+        if (isEmpty(collection)) {
+            return 0;
+        }
+        return collection.size();
+    }
+
     /**
      * 返回第一个列表中比第二个多出来的元素
      *
@@ -36,7 +43,7 @@ public class CollectionUtils {
      * @param list2
      * @return
      */
-    public  static <T> List<T> getLeftDiff(List<T> list1, List<T> list2) {
+    public static <T> List<T> getLeftDiff(List<T> list1, List<T> list2) {
         if (isEmpty(list2)) {
             return list1;
         }

@@ -16,7 +16,7 @@
         <module>lts-queue</module>
         <module>lts-logger</module>
         <module>lts-example</module>
-        <!--<module>lts-admin</module>-->
+        <module>lts-admin</module>
     </modules>
 
     <properties>
@@ -39,6 +39,7 @@
         <mysql.version>5.1.26</mysql.version>
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
+        <reflectasm.version>1.11.0</reflectasm.version>
     </properties>
 
     <dependencyManagement>
@@ -167,6 +168,11 @@
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>
                 <version>${rocksdbjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.esotericsoftware</groupId>
+                <artifactId>reflectasm</artifactId>
+                <version>${reflectasm.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

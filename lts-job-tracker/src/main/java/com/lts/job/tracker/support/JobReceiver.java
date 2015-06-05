@@ -70,7 +70,7 @@ public class JobReceiver {
         try {
             jobPo = JobDomainConverter.convert(job);
             if (jobPo == null) {
-                LOGGER.warn("job can not be null。{}", job);
+                LOGGER.warn("Job can not be null。{}", job);
                 return null;
             }
             if (StringUtils.isEmpty(jobPo.getSubmitNodeGroup())) {
@@ -81,15 +81,15 @@ public class JobReceiver {
 
             if (job.isSchedule()) {
                 addCronJob(jobPo);
-                LOGGER.info("receive cron job success ! nodeGroup={}, CronExpression={}, {}",
+                LOGGER.info("Receive cron job success ! nodeGroup={}, CronExpression={}, {}",
                         request.getNodeGroup(), job.getCronExpression(), job);
             } else {
                 application.getExecutableJobQueue().add(jobPo);
-                LOGGER.info("receive job success ! nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.info("Receive job success ! nodeGroup={}, {}", request.getNodeGroup(), job);
             }
         } catch (DuplicateJobException e) {
             // already exist, ignore
-            LOGGER.info("job already exist ! nodeGroup={}, {}", request.getNodeGroup(), job);
+            LOGGER.info("Job already exist ! nodeGroup={}, {}", request.getNodeGroup(), job);
         }
         return jobPo;
     }

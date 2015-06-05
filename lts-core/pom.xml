@@ -94,5 +94,10 @@
             <artifactId>rocksdbjni</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

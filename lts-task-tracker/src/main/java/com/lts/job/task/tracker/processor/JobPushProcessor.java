@@ -136,12 +136,12 @@ public class JobPushProcessor extends AbstractProcessor {
                 }
             } catch (JobTrackerNotFoundException e) {
                 try {
-                    LOGGER.warn("no job tracker available! save local files.");
+                    LOGGER.warn("No job tracker available! save local files.");
                     retryScheduler.inSchedule(
                             jobResult.getJob().getJobId().concat("_") + System.currentTimeMillis(),
                             jobResult);
                 } catch (Exception e1) {
-                    LOGGER.error("save files failed, {}", jobResult.getJob(), e1);
+                    LOGGER.error("Save files failed, {}", jobResult.getJob(), e1);
                 }
             }
 
@@ -170,11 +170,11 @@ public class JobPushProcessor extends AbstractProcessor {
             if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                 return true;
             } else {
-                LOGGER.warn("send job failed, {}", commandResponse);
+                LOGGER.warn("Send job failed, {}", commandResponse);
                 return false;
             }
         } catch (JobTrackerNotFoundException e) {
-            LOGGER.error("retry send job result failed! jobResults={}", jobResults, e);
+            LOGGER.error("Retry send job result failed! jobResults={}", jobResults, e);
         }
         return false;
     }

@@ -1,5 +1,6 @@
 package com.lts.job.core.protocol.command;
 
+import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Config;
 
 /**
@@ -19,6 +20,10 @@ public class CommandBodyWrapper {
         commandBody.setNodeType(config.getNodeType().name());
         commandBody.setIdentity(config.getIdentity());
         return commandBody;
+    }
+
+    public static <T extends AbstractCommandBody> T wrapper(Application application, T commandBody) {
+        return application.getCommandBodyWrapper().wrapper(commandBody);
     }
 
 }
