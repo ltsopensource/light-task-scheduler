@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="../assets/css/dpl-min.css" rel="stylesheet" type="text/css"/>
+    <link href="../assets/css/bui-min.css" rel="stylesheet" type="text/css"/>
+    <link href="../assets/css/page-min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+    </div>
+    <div class="search-grid-container">
+        <div id="grid"></div>
+    </div>
+</div>
+<script type="text/javascript" src="../assets/js/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="../assets/js/bui.js"></script>
+
+
+<script type="text/javascript" src="../assets/js/config-min.js"></script>
+<script type="text/javascript">
+    BUI.use('common/page');
+</script>
+<script type="text/javascript">
+
+    function createLink(cfg) {
+        var temp = '<span class="page-action grid-command" data-id="{id}" data-href="{href}" title="{title}">{text}</span>';
+        return BUI.substitute(temp, cfg);
+    }
+
+    BUI.use(['bui/common', 'bui/grid', 'bui/form', 'bui/data', 'common/date-util'], function (BUI, Grid, Form, Data, DateUtil) {
+
+        var columns = [
+            {title: '节点标识', dataIndex: 'identity', width: 230},
+            {title: '集群名称', dataIndex: 'clusterName', width: 100},
+            {title: '节点类型', dataIndex: 'nodeType', width: 100},
+            {title: '节点组名', dataIndex: 'group', width: 150},
+            {
+                title: '节点创建时间', dataIndex: 'createTime', width: 125, renderer: function (v) {
+                return DateUtil.formatYMDHMD(v);
+            }
+            },
+            {
+                title: 'IP', dataIndex: 'ip', width: 140, renderer: function (v, obj) {
+                if (obj['port']) {
+                    return obj['ip'] + ":" + obj['port'];
+                }
+                return v;
+            }
+            },
+            {title: '工作线程数', dataIndex: 'threads', width: 60},
+            {
+                title: '状态', dataIndex: 'available', width: 60,
+                renderer: function (v, obj) {
+                    if (v) {
+                        return "正常";
+                    } else {
+                        return "禁用";
+                    }
+                }
+            },
+            {
+                title: '操作', dataIndex: '', width: 100, renderer: function (value, obj) {
+                var editStr = createLink({ //链接使用 此方式
+                            id: 'edit' + obj.id,
+                            title: '编辑学生信息',
+                            text: '编辑',
+                            href: 'search/edit.html'
+                        }),
+                        delStr = '<span class="grid-command btn-del" title="删除学生信息">删除</span>';
+                return editStr + delStr;
+            }
+            }
+        ];
+        $.ajax({
+            url: '/api/node/node-list-get/test_cluster',
+            type: 'GET',
+            dataType: 'json',
+            data: {},
+            success: function (json) {
+                if (json && json.success) {
+                    store = new Data.Store({
+                        data: json.rows,
+                        autoLoad: true,
+                        pageSize: 20,
+                        remoteSort: false
+                    });
+                    var grid = new Grid.Grid({
+                        render: "#grid",
+                        columns: columns,
+                        bbar: {
+                            // pagingBar:表明包含分页栏
+                            /*pagingBar: {
+                             xclass: 'pagingBar'
+                             }*/
+                            pagingBar: true
+                        },
+                        store: store
+                    });
+                    grid.render();
+                } else {
+                    BUI.Message.Alert('请求服务器失败！' + json.msg);
+                }
+            }
+        });
+    });
+</script>
+<body>
+</html>  

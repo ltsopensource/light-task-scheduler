@@ -1,5 +1,6 @@
 package com.lts.job.task.tracker.processor;
 
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobAskRequest;
 import com.lts.job.core.protocol.command.JobAskResponse;
 import com.lts.job.core.remoting.RemotingClientDelegate;
@@ -29,7 +30,8 @@ public class JobAskProcessor extends AbstractProcessor {
 
         List<String> notExistJobIds = application.getRunnerPool().getRunningJobManager().getNotExists(jobIds);
 
-        JobAskResponse responseBody = application.getCommandBodyWrapper().wrapper(new JobAskResponse());
+        JobAskResponse responseBody = CommandBodyWrapper.wrapper(application, new JobAskResponse());
+
         responseBody.setJobIds(notExistJobIds);
 
         return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "查询成功", responseBody);

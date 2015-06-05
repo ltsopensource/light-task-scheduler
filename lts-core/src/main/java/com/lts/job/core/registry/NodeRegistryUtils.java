@@ -49,8 +49,9 @@ public class NodeRegistryUtils {
         for (String paramEntry : paramArr) {
             String key = paramEntry.split("=")[0];
             String value = paramEntry.split("=")[1];
-
-            if ("group".equals(key)) {
+            if("clusterName".equals(key)){
+                node.setClusterName(value);
+            }else if ("group".equals(key)) {
                 node.setGroup(value);
             } else if ("threads".equals(key)) {
                 node.setThreads(Integer.valueOf(value));
@@ -82,7 +83,9 @@ public class NodeRegistryUtils {
 
         path.append("?")
                 .append("group=")
-                .append(node.getGroup());
+                .append(node.getGroup())
+                .append("&clusterName=")
+                .append(node.getClusterName());
         if (node.getThreads() != 0) {
             path.append("&threads=")
                     .append(node.getThreads());

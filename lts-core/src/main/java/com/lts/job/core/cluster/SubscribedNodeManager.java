@@ -8,7 +8,9 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.ListUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -33,8 +35,10 @@ public class SubscribedNodeManager implements NodeChangeListener {
      * @param node
      */
     private void addNode(Node node) {
-
-        if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
+        // 当前节点是管理节点，直接添加
+        if (NodeType.JOB_ADMIN.equals(application.getConfig().getNodeType())) {
+            _addNode(node);
+        } else if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
             // 如果增加的JobTracker节点，那么直接添加，因为三种节点都需要监听
             _addNode(node);
         } else if (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())) {
@@ -57,7 +61,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
             }
         }
         nodeList.add(node);
-        LOGGER.info("add node {}", node);
+        LOGGER.info("Add {}", node);
     }
 
     public List<Node> getNodeList(final NodeType nodeType, final String nodeGroup) {
@@ -76,13 +80,24 @@ public class SubscribedNodeManager implements NodeChangeListener {
         return NODES.get(nodeType);
     }
 
+    public List<Node> getNodeList() {
+        List<Node> nodes = new ArrayList<Node>();
+
+        for (Map.Entry<NodeType, List<Node>> entry : NODES.entrySet()) {
+            if (CollectionUtils.isNotEmpty(entry.getValue())) {
+                nodes.addAll(entry.getValue());
+            }
+        }
+        return nodes;
+    }
+
     private void removeNode(Node delNode) {
         List<Node> nodeList = NODES.get(delNode.getNodeType());
         if (CollectionUtils.isNotEmpty(nodeList)) {
             for (Node node : nodeList) {
                 if (node.getIdentity().equals(delNode.getIdentity())) {
                     nodeList.remove(node);
-                    LOGGER.info("remove node {}", node);
+                    LOGGER.info("Remove {}", node);
                 }
             }
         }

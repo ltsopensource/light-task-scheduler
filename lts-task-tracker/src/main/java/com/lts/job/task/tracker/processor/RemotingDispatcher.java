@@ -34,7 +34,8 @@ public class RemotingDispatcher extends AbstractProcessor {
         JobProtos.RequestCode code = valueOf(request.getCode());
         NettyRequestProcessor processor = processors.get(code);
         if (processor == null) {
-            return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_CODE_NOT_SUPPORTED.code(), "request code not supported!");
+            return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_CODE_NOT_SUPPORTED.code(),
+                    "request code not supported!");
         }
         return processor.processRequest(ctx, request);
     }

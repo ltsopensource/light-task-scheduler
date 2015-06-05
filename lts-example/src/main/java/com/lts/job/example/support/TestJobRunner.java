@@ -21,6 +21,7 @@ public class TestJobRunner implements JobRunner {
                         + " 我要执行：" + job + "shopId=" + job.getParam("shopId"));
 
         BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
+        // 会发送到 LTS (JobTracker上)
         bizLogger.info("测试，业务日志啊啊啊啊啊");
 
         try {

@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> LTS Admin</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="assets/css/dpl-min.css" rel="stylesheet" type="text/css"/>
+    <link href="assets/css/bui-min.css" rel="stylesheet" type="text/css"/>
+    <link href="assets/css/main-min.css" rel="stylesheet" type="text/css"/>
+    <link href="assets/css/lts.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<div class="header">
+    <div class="dl-title">
+        <span class="lp-title-port">LTS</span><span class="dl-title-text ml_5">Admin</span>
+    </div>
+    <div class="dl-log">欢迎您，<span class="dl-log-user">admin</span>
+        <a href="javascript:;" title="退出系统" class="dl-log-quit">[退出]</a>
+    </div>
+</div>
+<div class="content">
+    <ul id="J_NavContent" class="dl-tab-content">
+    </ul>
+</div>
+<script type="text/javascript" src="assets/js/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="assets/js/bui.js"></script>
+<script type="text/javascript" src="assets/js/config.js"></script>
+
+<script>
+    BUI.use('common/main', function () {
+        var config = [{
+            id: 'menu',
+            homePage: 'index',
+            menu: [{
+                text: '概况',
+                items: [
+                    {id: 'index', text: '概况', href: 'main/index.html', closeable: false}
+                ]
+            }, {
+                text: '节点管理',
+                items: [
+                    {id: 'operation', text: '节点管理', href: 'main/node-manager.html'}
+                ]
+            }, {
+                text: '任务队列管理',
+                items: [
+                    {id: 'loader', text: '定时任务管理', href: 'main/loader.html'},
+                    {id: 'resource', text: '执行中队列', href: 'main/resource.html'},
+                    {id: 'loader', text: '等待执行队列', href: 'main/loader.html'}
+                ]
+            },{
+                text: '日志管理',
+                items: [
+                    {id: 'operation', text: '日志', href: 'main/operation.html'},
+                ]
+            },{
+                text: '监控报警',
+                items: [
+                    {id: 'operation', text: '监控报警', href: 'main/operation.html'},
+                ]
+            }]
+        }];
+        new PageUtil.MainPage({
+            modulesConfig: config
+        });
+    });
+</script>
+</body>
+</html>
