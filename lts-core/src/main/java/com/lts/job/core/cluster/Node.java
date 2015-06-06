@@ -12,7 +12,7 @@ import java.util.List;
 public class Node {
 
     // 是否可用
-    private boolean isAvailable = true;
+    private boolean available = true;
     private String clusterName;
     private NodeType nodeType;
     private String ip;
@@ -30,11 +30,11 @@ public class Node {
     private String fullString;
 
     public boolean isAvailable() {
-        return isAvailable;
+        return available;
     }
 
     public void setAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
+        this.available = isAvailable;
     }
 
     public NodeType getNodeType() {
@@ -154,7 +154,7 @@ public class Node {
                 ", group='" + group + '\'' +
                 ", createTime=" + createTime +
                 ", threads=" + threads +
-                ", isAvailable=" + isAvailable +
+                ", isAvailable=" + available +
                 ", listenNodeTypes=" + listenNodeTypes +
                 '}';
     }

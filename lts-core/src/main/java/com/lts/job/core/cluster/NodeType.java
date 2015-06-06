@@ -12,5 +12,4 @@ public enum NodeType {
     // client
     JOB_CLIENT,
 
-    JOB_ADMIN   // admin
 }

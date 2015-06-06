@@ -37,6 +37,10 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> implements Set<E> {
         map = new ConcurrentHashMap<E, Object>(initialCapacity, loadFactor);
     }
 
+    public Set<E> list() {
+        return map.keySet();
+    }
+
     public Iterator<E> iterator() {
         return map.keySet().iterator();
     }

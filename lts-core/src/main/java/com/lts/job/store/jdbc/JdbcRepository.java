@@ -13,7 +13,8 @@ public abstract class JdbcRepository {
     public JdbcRepository(Config config) {
         if (!init) {
             sqlTemplate = new SqlTemplate(
-                    DataSourceProvider.getDataSource(config));
+                    DataSourceProviderFactory.create(config)
+                            .getDataSource(config));
             init = true;
         }
     }
