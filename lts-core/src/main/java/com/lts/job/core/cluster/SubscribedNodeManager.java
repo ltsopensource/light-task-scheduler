@@ -35,10 +35,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
      * @param node
      */
     private void addNode(Node node) {
-        // 当前节点是管理节点，直接添加
-        if (NodeType.JOB_ADMIN.equals(application.getConfig().getNodeType())) {
-            _addNode(node);
-        } else if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
+        if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
             // 如果增加的JobTracker节点，那么直接添加，因为三种节点都需要监听
             _addNode(node);
         } else if (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())) {

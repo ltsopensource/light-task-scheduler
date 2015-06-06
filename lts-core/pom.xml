@@ -99,5 +99,10 @@
             <artifactId>reflectasm</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>
