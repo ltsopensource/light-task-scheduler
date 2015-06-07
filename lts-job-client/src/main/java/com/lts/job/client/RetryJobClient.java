@@ -8,7 +8,6 @@ import com.lts.job.client.support.JobSubmitProtectException;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.support.RetryScheduler;
 import com.lts.job.core.util.JSONUtils;
-import sun.security.util.Resources_es;
 
 import java.util.Arrays;
 import java.util.List;

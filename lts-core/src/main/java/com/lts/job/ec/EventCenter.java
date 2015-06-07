@@ -2,6 +2,7 @@ package com.lts.job.ec;
 
 /**
  * 事件中心接口
+ *
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public interface EventCenter {
@@ -9,18 +10,10 @@ public interface EventCenter {
     /**
      * 订阅主题
      *
-     * @param topic
-     * @param subscriber
-     */
-    public void subscribe(String topic, EventSubscriber subscriber);
-
-    /**
-     * 订阅主题
-     *
      * @param topics
      * @param subscriber
      */
-    public void subscribe(String[] topics, EventSubscriber subscriber);
+    public void subscribe(EventSubscriber subscriber, String... topics);
 
     /**
      * 取消订阅主题

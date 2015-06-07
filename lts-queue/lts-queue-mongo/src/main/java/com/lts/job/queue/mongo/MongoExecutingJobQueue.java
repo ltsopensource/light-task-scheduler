@@ -1,6 +1,7 @@
 package com.lts.job.queue.mongo;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.domain.JobQueueRequest;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public class MongoExecutingJobQueue extends MongoRepository implements ExecutingJobQueue {
+public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements ExecutingJobQueue {
 
     public MongoExecutingJobQueue(Config config) {
         super(config);

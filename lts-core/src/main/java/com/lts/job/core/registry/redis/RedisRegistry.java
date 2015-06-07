@@ -46,8 +46,7 @@ public class RedisRegistry extends FailbackRegistry {
 
         GenericObjectPool.Config redisConfig = new GenericObjectPool.Config();
         // TODO 可以设置n多参数
-
-        String address = config.getRegistryAddress();
+        String address = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
 
         String cluster = config.getParameter("cluster", "failover");
         if (!"failover".equals(cluster) && !"replicate".equals(cluster)) {

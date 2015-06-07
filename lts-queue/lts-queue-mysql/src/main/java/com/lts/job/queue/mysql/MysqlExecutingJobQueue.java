@@ -1,6 +1,7 @@
 package com.lts.job.queue.mysql;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.domain.JobQueueRequest;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
@@ -18,6 +19,15 @@ import java.util.List;
  */
 public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements ExecutingJobQueue {
 
+    private String removeSQL = "DELETE FROM `{tableName}` WHERE job_id = ?"
+            .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
+
+    private String selectSQL = "SELECT * FROM `{tableName}` WHERE task_tracker_identity = ?"
+            .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
+
+    private String getDeadJobSQL = "SELECT * FROM `{tableName}` WHERE gmt_created < ?"
+            .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
+
     public MysqlExecutingJobQueue(Config config) {
         super(config);
         // create table
@@ -32,6 +42,11 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     }
 
     @Override
+    protected String getTableName(JobQueueRequest request) {
+        return JobQueueUtils.EXECUTING_JOB_QUEUE;
+    }
+
+    @Override
     public boolean add(JobPo jobPo) {
         jobPo.setGmtCreated(DateUtils.currentTimeMillis());
         jobPo.setGmtModified(jobPo.getGmtCreated());
@@ -40,10 +55,8 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
 
     @Override
     public boolean remove(String jobId) {
-        String deleteSql = "DELETE FROM `{tableName}` WHERE job_id = ?"
-                .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
         try {
-            return getSqlTemplate().update(deleteSql, jobId) == 1;
+            return getSqlTemplate().update(removeSQL, jobId) == 1;
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
@@ -51,10 +64,8 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
 
     @Override
     public List<JobPo> getJobs(String taskTrackerIdentity) {
-        String selectSql = "SELECT * FROM `{tableName}` WHERE task_tracker_identity = ?"
-                .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
         try {
-            return getSqlTemplate().query(selectSql,
+            return getSqlTemplate().query(selectSQL,
                     ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER,
                     taskTrackerIdentity);
         } catch (SQLException e) {
@@ -64,10 +75,8 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
 
     @Override
     public List<JobPo> getDeadJobs(long deadline) {
-        String selectSql = "SELECT * FROM `{tableName}` WHERE gmt_created < ?"
-                .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
         try {
-            return getSqlTemplate().query(selectSql,
+            return getSqlTemplate().query(getDeadJobSQL,
                     ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER,
                     deadline);
         } catch (SQLException e) {

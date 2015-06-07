@@ -8,7 +8,7 @@ import java.util.List;
  * 正在执行的 任务队列
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public interface ExecutingJobQueue {
+public interface ExecutingJobQueue extends JobQueue{
 
     /**
      * 入队列

@@ -11,25 +11,16 @@ import com.lts.job.core.util.StringUtils;
 public class RegistryFactory {
 
     public static Registry getRegistry(Config config) {
-        
+
         String address = config.getRegistryAddress();
         if (StringUtils.isEmpty(address)) {
             throw new IllegalArgumentException("address is null！");
         }
         if (address.startsWith("zookeeper://")) {
-            config.setRegistryAddress(
-                    address.replace("zookeeper://", "")
-            );
             return new ZookeeperRegistry(config);
         } else if (address.startsWith("redis://")) {
-            config.setRegistryAddress(
-                    address.replace("redis://", "")
-            );
             return new RedisRegistry(config);
-        } else if(address.startsWith("multicast://")){
-//            config.setRegistryAddress(
-//                    address.replace("multicast://", "")
-//            );
+        } else if (address.startsWith("multicast://")) {
 //            return new MulticastRegistry(config);
         }
         throw new IllegalArgumentException("illegal address protocol");

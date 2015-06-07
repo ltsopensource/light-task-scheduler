@@ -43,8 +43,6 @@ public class ExecutableDeadJobChecker {
             if (start) {
                 return;
             }
-            start = true;
-
             scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
@@ -55,6 +53,8 @@ public class ExecutableDeadJobChecker {
                     }
                 }
             }, 30, 60, TimeUnit.SECONDS);// 3分钟执行一次
+            start = true;
+
             LOGGER.info("Executable dead job checker started!");
         } catch (Throwable t) {
             LOGGER.info("Executable dead job checker start failed!");

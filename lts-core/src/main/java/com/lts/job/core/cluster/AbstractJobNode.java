@@ -1,7 +1,6 @@
 package com.lts.job.core.cluster;
 
 import com.lts.job.core.Application;
-import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.factory.JobNodeConfigFactory;
 import com.lts.job.core.factory.NodeFactory;
@@ -16,9 +15,6 @@ import com.lts.job.core.registry.*;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.GenericsUtils;
 import com.lts.job.ec.EventCenterFactory;
-import com.lts.job.ec.EventInfo;
-import com.lts.job.ec.EventSubscriber;
-import com.lts.job.ec.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +52,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
             innerStart();
 
-            initEvent();
+            remotingStart();
 
             initRegistry();
 
@@ -69,27 +65,12 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         }
     }
 
-    protected void initEvent(){
-        // 监听节点 启用/禁用消息
-        application.getEventCenter().subscribe(
-                new String[]{EcTopic.NODE_DISABLE, EcTopic.NODE_ENABLE},
-                new EventSubscriber(node.getIdentity(), new Observer() {
-                    @Override
-                    public void onObserved(EventInfo eventInfo) {
-                        if (EcTopic.NODE_DISABLE.equals(eventInfo.getTopic())) {
-                            nodeDisable();
-                        } else {
-                            nodeEnable();
-                        }
-                    }
-                }));
-    };
-
     final public void stop() {
         try {
             registry.unregister(node);
 
             innerStop();
+            remotingStop();
 
             LOGGER.info("stop success!");
         } catch (Throwable e) {
@@ -165,13 +146,15 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         });
     }
 
-    protected abstract void innerStart();
+    protected abstract void remotingStart();
 
-    protected abstract void innerStop();
+    protected abstract void remotingStop();
 
-    protected abstract void nodeEnable();
+    protected void innerStart() {
+    }
 
-    protected abstract void nodeDisable();
+    protected void innerStop() {
+    }
 
     @SuppressWarnings("unchecked")
     private App getApplication() {

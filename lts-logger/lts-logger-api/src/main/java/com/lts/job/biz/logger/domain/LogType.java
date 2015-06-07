@@ -5,6 +5,7 @@ package com.lts.job.biz.logger.domain;
  */
 public enum LogType {
 
+    SENT,            // 任务发送 开始执行
     FINISHED,        // 任务执行完成
     RESEND,          // TaskTracker 重新发送的任务执行结果
     FIXED_DEAD,       // 修复死掉的任务

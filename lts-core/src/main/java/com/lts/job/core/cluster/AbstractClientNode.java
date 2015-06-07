@@ -21,8 +21,7 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     protected RemotingClientDelegate remotingClient;
     private HeartBeatMonitor heartBeatMonitor;
 
-    protected void innerStart() {
-
+    protected void remotingStart() {
         this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
         this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
 
@@ -36,6 +35,11 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
                     Executors.newFixedThreadPool(processorSize,
                             new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
         }
+        injectRemotingClient();
+    }
+
+    protected void injectRemotingClient() {
+
     }
 
     /**
@@ -45,8 +49,8 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
      */
     protected abstract NettyRequestProcessor getDefaultProcessor();
 
-    protected void innerStop() {
-        heartBeatMonitor.start();
+    protected void remotingStop() {
+        heartBeatMonitor.stop();
         remotingClient.shutdown();
     }
 

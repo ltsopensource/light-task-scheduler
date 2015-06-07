@@ -2,6 +2,8 @@ package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.registry.redis.RedisRegistry;
+import com.lts.job.core.registry.zookeeper.ZookeeperRegistry;
 import com.lts.job.core.util.NetUtils;
 import com.lts.job.core.util.StringUtils;
 
@@ -49,9 +51,9 @@ public class NodeRegistryUtils {
         for (String paramEntry : paramArr) {
             String key = paramEntry.split("=")[0];
             String value = paramEntry.split("=")[1];
-            if("clusterName".equals(key)){
+            if ("clusterName".equals(key)) {
                 node.setClusterName(value);
-            }else if ("group".equals(key)) {
+            } else if ("group".equals(key)) {
                 node.setGroup(value);
             } else if ("threads".equals(key)) {
                 node.setThreads(Integer.valueOf(value));
@@ -101,25 +103,18 @@ public class NodeRegistryUtils {
         return path.toString();
     }
 
-    public static void main(String[] args) {
-        Node node = new Node();
-        node.setGroup("group1");
-        node.setIdentity(StringUtils.generateUUID());
-        node.setThreads(222);
-        node.setNodeType(NodeType.JOB_TRACKER);
-        node.setCreateTime(new Date().getTime());
-        node.setPort(2313);
-        node.setClusterName("lts");
-        node.setIp(NetUtils.getLocalHost());
-        String fullPath = NodeRegistryUtils.getFullPath(node);
-        System.out.println(fullPath);
-
-        node = NodeRegistryUtils.parse(fullPath);
-        node.setNodeType(NodeType.JOB_CLIENT);
-        fullPath = NodeRegistryUtils.getFullPath(node);
-        System.out.println(fullPath);
-
-        node = NodeRegistryUtils.parse(fullPath);
-        System.out.println(node);
+    public static String getRealRegistryAddress(String registryAddress) {
+        if (StringUtils.isEmpty(registryAddress)) {
+            throw new IllegalArgumentException("registryAddress is null！");
+        }
+        if (registryAddress.startsWith("zookeeper://")) {
+            return registryAddress.replace("zookeeper://", "");
+        } else if (registryAddress.startsWith("redis://")) {
+            return registryAddress.replace("redis://", "");
+        } else if (registryAddress.startsWith("multicast://")) {
+            return registryAddress.replace("multicast://", "");
+        }
+        throw new IllegalArgumentException("illegal address protocol");
     }
+
 }

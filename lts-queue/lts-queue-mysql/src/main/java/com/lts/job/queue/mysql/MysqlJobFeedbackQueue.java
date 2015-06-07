@@ -18,11 +18,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/20/15.
  */
 public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedbackQueue {
+
+
+    private final ConcurrentHashMap<String, String> SQL_CACHE_MAP = new ConcurrentHashMap<String, String>();
 
     public MysqlJobFeedbackQueue(Config config) {
         super(config);
@@ -46,8 +50,19 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
     }
 
     private String getRealSql(String sql, String jobClientNodeGroup) {
-        return sql.replace("{tableName}", getTableName(jobClientNodeGroup));
+        String key = sql.concat(jobClientNodeGroup);
+        String fineSQL = SQL_CACHE_MAP.get(key);
+        // 这里可以不用锁，多生成一次也不会产生什么问题
+        if (fineSQL == null) {
+            fineSQL = sql.replace("{tableName}", getTableName(jobClientNodeGroup));
+            SQL_CACHE_MAP.put(key, fineSQL);
+        }
+        return fineSQL;
     }
+
+    private String insertSQL = "INSERT IGNORE INTO `{tableName}` (" +
+            " `gmt_created`, `job_result`)" +
+            " VALUES (?,?)";
 
     @Override
     public boolean add(List<JobFeedbackPo> jobFeedbackPos) {
@@ -55,16 +70,13 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
             return true;
         }
         // insert ignore duplicate record
-        String sql = "INSERT IGNORE INTO `{tableName}` (" +
-                " `gmt_created`, `job_result`)" +
-                " VALUES (?,?)";
         Object[] params = new Object[2];
         for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
             params[0] = jobFeedbackPo.getGmtCreated();
             params[1] = JSONUtils.toJSONString(jobFeedbackPo.getJobResult());
             try {
                 String jobClientNodeGroup = jobFeedbackPo.getJobResult().getJob().getSubmitNodeGroup();
-                getSqlTemplate().update(getRealSql(sql, jobClientNodeGroup), params);
+                getSqlTemplate().update(getRealSql(insertSQL, jobClientNodeGroup), params);
             } catch (SQLException e) {
                 throw new JobQueueException(e);
             }
@@ -72,32 +84,35 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         return true;
     }
 
+    String removeSQL = "DELETE FROM `{tableName}` WHERE id = ? ";
+
     @Override
     public boolean remove(String jobClientNodeGroup, String jobId) {
-        String deleteSql = "DELETE FROM `{tableName}` WHERE id = ? ";
         try {
-            getSqlTemplate().update(getRealSql(deleteSql, jobClientNodeGroup), jobId);
+            getSqlTemplate().update(getRealSql(removeSQL, jobClientNodeGroup), jobId);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
         return true;
     }
 
+    String countSQL = "SELECT COUNT(1) FROM `{tableName}`";
+
     @Override
     public long getCount(String jobClientNodeGroup) {
-        String sql = "SELECT COUNT(1) FROM `{tableName}`";
         try {
-            return getSqlTemplate().queryForValue(getRealSql(sql, jobClientNodeGroup));
+            return getSqlTemplate().queryForValue(getRealSql(countSQL, jobClientNodeGroup));
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
     }
 
+    String selectSQL = "SELECT * FROM `{tableName}` ORDER BY gmt_created ASC LIMIT 0, ?";
+
     @Override
     public List<JobFeedbackPo> fetchTop(String jobClientNodeGroup, int top) {
-        String selectSql = "SELECT * FROM `{tableName}` ORDER BY gmt_created ASC LIMIT 0, ?";
         try {
-            return getSqlTemplate().query(getRealSql(selectSql, jobClientNodeGroup), jobFeedbackPoListResultSetHandler, top);
+            return getSqlTemplate().query(getRealSql(selectSQL, jobClientNodeGroup), jobFeedbackPoListResultSetHandler, top);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

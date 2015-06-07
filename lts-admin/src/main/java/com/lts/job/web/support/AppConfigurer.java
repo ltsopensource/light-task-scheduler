@@ -31,6 +31,10 @@ public class AppConfigurer {
         }
     }
 
+    public static Map<String, String> allConfig() {
+        return CONFIG;
+    }
+
     public static String getProperties(String name) {
         return CONFIG.get(name);
     }

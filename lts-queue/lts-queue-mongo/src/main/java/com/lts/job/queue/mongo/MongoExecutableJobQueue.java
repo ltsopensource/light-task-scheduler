@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public class MongoExecutableJobQueue extends MongoRepository implements ExecutableJobQueue {
+public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements ExecutableJobQueue {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoExecutableJobQueue.class);
 

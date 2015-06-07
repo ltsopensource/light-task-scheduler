@@ -12546,7 +12546,7 @@ define('bui/data/abstractstore',['bui/common','bui/data/proxy'],function (requir
         'acceptchanges',
         /**  
         * \u5f53\u6570\u636e\u52a0\u8f7d\u5b8c\u6210\u540e
-        * @name BUI.Data.Store#load  
+        * @name BUI.Data.Store#load
         * @event  
         * @param {jQuery.Event} e  \u4e8b\u4ef6\u5bf9\u8c61\uff0c\u5305\u542b\u52a0\u8f7d\u6570\u636e\u65f6\u7684\u53c2\u6570
         */

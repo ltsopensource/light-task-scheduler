@@ -18,7 +18,7 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
 
     protected RemotingServerDelegate remotingServer;
 
-    protected void innerStart() {
+    protected void remotingStart() {
 
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         // config 配置
@@ -34,13 +34,18 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
             remotingServer.registerDefaultProcessor(defaultProcessor,
                     Executors.newFixedThreadPool(processorSize, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
         }
+        injectRemotingServer();
+    }
+
+    protected void injectRemotingServer(){
+
     }
 
     public void setListenPort(int listenPort) {
         config.setListenPort(listenPort);
     }
 
-    protected void innerStop() {
+    protected void remotingStop() {
         remotingServer.shutdown();
     }
 

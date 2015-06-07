@@ -11,4 +11,9 @@ public interface EcTopic {
     String NODE_ENABLE = "NODE_ENABLE";
     // 节点禁用
     String NODE_DISABLE = "NODE_DISABLE";
+
+    // 没有可用的JobTracker了
+    String NO_JOB_TRACKER_AVAILABLE = "NO_JOB_TRACKER_AVAILABLE";
+    // 有可用的JobTracker了
+    String JOB_TRACKER_AVAILABLE = "JOB_TRACKER_AVAILABLE";
 }

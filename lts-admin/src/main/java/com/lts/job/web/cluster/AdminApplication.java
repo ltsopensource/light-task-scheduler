@@ -1,10 +1,66 @@
 package com.lts.job.web.cluster;
 
 import com.lts.job.core.Application;
+import com.lts.job.core.cluster.Node;
+import com.lts.job.queue.*;
 
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
-public class AdminApplication extends Application{
+public class AdminApplication extends Application {
 
+    private CronJobQueue cronJobQueue;
+    private ExecutableJobQueue executableJobQueue;
+    private ExecutingJobQueue executingJobQueue;
+    private JobFeedbackQueue jobFeedbackQueue;
+    private NodeGroupStore nodeGroupStore;
+    private Node node;
+
+    public Node getNode() {
+        return node;
+    }
+
+    public void setNode(Node node) {
+        this.node = node;
+    }
+
+    public CronJobQueue getCronJobQueue() {
+        return cronJobQueue;
+    }
+
+    public void setCronJobQueue(CronJobQueue cronJobQueue) {
+        this.cronJobQueue = cronJobQueue;
+    }
+
+    public ExecutableJobQueue getExecutableJobQueue() {
+        return executableJobQueue;
+    }
+
+    public void setExecutableJobQueue(ExecutableJobQueue executableJobQueue) {
+        this.executableJobQueue = executableJobQueue;
+    }
+
+    public ExecutingJobQueue getExecutingJobQueue() {
+        return executingJobQueue;
+    }
+
+    public void setExecutingJobQueue(ExecutingJobQueue executingJobQueue) {
+        this.executingJobQueue = executingJobQueue;
+    }
+
+    public NodeGroupStore getNodeGroupStore() {
+        return nodeGroupStore;
+    }
+
+    public void setNodeGroupStore(NodeGroupStore nodeGroupStore) {
+        this.nodeGroupStore = nodeGroupStore;
+    }
+
+    public JobFeedbackQueue getJobFeedbackQueue() {
+        return jobFeedbackQueue;
+    }
+
+    public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
+        this.jobFeedbackQueue = jobFeedbackQueue;
+    }
 }

@@ -60,11 +60,6 @@ public class JobPo {
      */
     private Long triggerTime;
 
-    /**
-     * 上一次的执行时间
-     */
-    private Long prevExeTime;
-
     public String getCronExpression() {
         return cronExpression;
     }
@@ -79,14 +74,6 @@ public class JobPo {
 
     public void setTriggerTime(Long triggerTime) {
         this.triggerTime = triggerTime;
-    }
-
-    public Long getPrevExeTime() {
-        return prevExeTime;
-    }
-
-    public void setPrevExeTime(Long prevExeTime) {
-        this.prevExeTime = prevExeTime;
     }
 
     public Integer getPriority() {

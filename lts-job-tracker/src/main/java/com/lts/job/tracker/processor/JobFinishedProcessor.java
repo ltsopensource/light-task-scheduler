@@ -162,6 +162,11 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 }
                 application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
 
+                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+                jobLogPo.setLogType(LogType.SENT);
+                jobLogPo.setLevel(Level.INFO);
+                application.getJobLogger().log(jobLogPo);
+
                 // 返回 新的任务
                 return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
             }

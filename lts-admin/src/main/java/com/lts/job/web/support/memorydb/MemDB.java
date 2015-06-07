@@ -1,20 +1,23 @@
-package com.lts.job.web.support.db;
+package com.lts.job.web.support.memorydb;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.store.jdbc.DataSourceProviderFactory;
 import com.lts.job.store.jdbc.SqlTemplate;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Memory-Only Databases , HSQLDB
+ *
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 public abstract class MemDB {
 
     private SqlTemplate sqlTemplate;
-    private volatile boolean init = false;
+    private AtomicBoolean init = new AtomicBoolean(false);
 
     public MemDB() {
-        if (!init) {
+        if (init.compareAndSet(false, true)) {
             Config config = new Config();
             config.setParameter("jdbc.datasource.provider", "hsqldb");
             config.setParameter("jdbc.url", "jdbc:hsqldb:mem:lts");
@@ -23,7 +26,6 @@ public abstract class MemDB {
             sqlTemplate = new SqlTemplate(
                     DataSourceProviderFactory.create(config)
                             .getDataSource(config));
-            init = true;
         }
     }
 

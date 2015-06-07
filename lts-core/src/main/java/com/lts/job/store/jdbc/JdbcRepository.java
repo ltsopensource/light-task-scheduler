@@ -2,20 +2,21 @@ package com.lts.job.store.jdbc;
 
 import com.lts.job.core.cluster.Config;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author Robert HG (254963746@qq.com) on 5/19/15.
  */
 public abstract class JdbcRepository {
 
     private SqlTemplate sqlTemplate;
-    private volatile boolean init = false;
+    private AtomicBoolean init = new AtomicBoolean(false);
 
     public JdbcRepository(Config config) {
-        if (!init) {
+        if (init.compareAndSet(false, true)) {
             sqlTemplate = new SqlTemplate(
                     DataSourceProviderFactory.create(config)
                             .getDataSource(config));
-            init = true;
         }
     }
 
