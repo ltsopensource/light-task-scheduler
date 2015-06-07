@@ -1,9 +1,7 @@
 package com.lts.job.web.cluster;
 
-import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.registry.NotifyEvent;
 import com.lts.job.core.registry.NotifyListener;
 import com.lts.job.core.registry.Registry;
@@ -13,7 +11,10 @@ import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.web.request.NodeRequest;
 import com.lts.job.web.support.AppConfigurer;
-import com.lts.job.web.support.db.NodeMemDB;
+import com.lts.job.web.support.memorydb.NodeMemDB;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,41 +24,27 @@ import java.util.List;
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
 @Component
-public class RegistryService {
+public class RegistryService implements InitializingBean {
 
-    private final ConcurrentHashSet<String/*clusterName*/> map;
+    private final ConcurrentHashSet<String/*clusterName*/> MAP = new ConcurrentHashSet<String>();
+    private NodeMemDB nodeMemDB = new NodeMemDB();
 
-    private NodeMemDB nodeMemDB;
-
-    public RegistryService() {
-        this.map = new ConcurrentHashSet<String>();
-        this.nodeMemDB = new NodeMemDB();
-    }
+    @Autowired
+    @Qualifier("application")
+    AdminApplication application;
 
     public synchronized void register(String clusterName) {
 
-        if (map.contains(clusterName)) {
+        if (MAP.contains(clusterName)) {
             return;
         }
 
-        final Node node = new Node();
-        node.setIdentity("LTS_admin_" + StringUtils.generateUUID());
-        node.addListenNodeType(NodeType.JOB_CLIENT);
-        node.addListenNodeType(NodeType.TASK_TRACKER);
-        node.addListenNodeType(NodeType.JOB_TRACKER);
-
-        Config config = new Config();
-        config.setIdentity(node.getIdentity());
-        config.setNodeType(node.getNodeType());
-        config.setRegistryAddress(AppConfigurer.getProperties("registry.address"));
+        Config config = application.getConfig();
         config.setClusterName(clusterName);
-
-        Application application = new AdminApplication();
-        application.setConfig(config);
 
         Registry registry = RegistryFactory.getRegistry(config);
 
-        registry.subscribe(node, new NotifyListener() {
+        registry.subscribe(application.getNode(), new NotifyListener() {
             @Override
             public void notify(NotifyEvent event, List<Node> nodes) {
                 if (CollectionUtils.isEmpty(nodes)) {
@@ -74,14 +61,25 @@ public class RegistryService {
             }
         });
 
-        map.add(clusterName);
+        MAP.add(clusterName);
     }
 
     public List<String> getAllClusterNames() {
-        return new ArrayList<String>(map.list());
+        return new ArrayList<String>(MAP.list());
     }
 
     public List<Node> getNodes(NodeRequest request) {
         return nodeMemDB.search(request);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        String clusterNames = AppConfigurer.getProperties("clusterNames");
+        if (StringUtils.isNotEmpty(clusterNames)) {
+            String[] clusters = clusterNames.split(",");
+            for (String cluster : clusters) {
+                register(cluster.trim());
+            }
+        }
     }
 }

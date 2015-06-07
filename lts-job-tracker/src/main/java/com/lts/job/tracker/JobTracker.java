@@ -3,10 +3,7 @@ package com.lts.job.tracker;
 import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.core.cluster.AbstractServerNode;
 import com.lts.job.core.extension.ExtensionLoader;
-import com.lts.job.queue.CronJobQueueFactory;
-import com.lts.job.queue.ExecutableJobQueueFactory;
-import com.lts.job.queue.ExecutingJobQueueFactory;
-import com.lts.job.queue.JobFeedbackQueueFactory;
+import com.lts.job.queue.*;
 import com.lts.job.remoting.netty.NettyRequestProcessor;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.domain.JobTrackerApplication;
@@ -28,8 +25,8 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     private CronJobQueueFactory cronJobQueueFactory = ExtensionLoader.getExtensionLoader(CronJobQueueFactory.class).getAdaptiveExtension();
     private ExecutableJobQueueFactory executableJobQueueFactory = ExtensionLoader.getExtensionLoader(ExecutableJobQueueFactory.class).getAdaptiveExtension();
     private ExecutingJobQueueFactory executingJobQueueFactory = ExtensionLoader.getExtensionLoader(ExecutingJobQueueFactory.class).getAdaptiveExtension();
-
     private JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
+    private NodeGroupStoreFactory nodeGroupStoreFactory = ExtensionLoader.getExtensionLoader(NodeGroupStoreFactory.class).getAdaptiveExtension();
 
     public JobTracker() {
         // 添加节点变化监听器
@@ -40,44 +37,30 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setJobClientManager(new JobClientManager(application));
         // TaskTracker 管理者
         application.setTaskTrackerManager(new TaskTrackerManager(application));
-
         // 添加master节点变化监听器
         addMasterChangeListener(new JobTrackerMasterChangeListener(application));
     }
 
     @Override
     protected void innerStart() {
-
         application.setJobLogger(jobLoggerFactory.getJobLogger(config));
-
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
         application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
         application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
+        application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
 
         application.getChannelManager().start();
-        // 启动节点
-        super.innerStart();
+    }
 
-        // 设置 remotingServer, 其他地方要用这个
+    @Override
+    protected void injectRemotingServer() {
         application.setRemotingServer(remotingServer);
     }
 
     @Override
     protected void innerStop() {
-        super.innerStop();
-        application.getChannelManager().start();
-    }
-
-    @Override
-    protected void nodeEnable() {
-        // TODO
-
-    }
-
-    @Override
-    protected void nodeDisable() {
-        // TODO 节点被禁用
+        application.getChannelManager().stop();
     }
 
     @Override

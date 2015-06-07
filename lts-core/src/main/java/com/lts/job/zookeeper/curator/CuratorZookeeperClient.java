@@ -1,6 +1,7 @@
 package com.lts.job.zookeeper.curator;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.registry.NodeRegistryUtils;
 import com.lts.job.zookeeper.ChildListener;
 import com.lts.job.zookeeper.StateListener;
 import com.lts.job.zookeeper.serializer.SerializableSerializer;
@@ -30,8 +31,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
 
     public CuratorZookeeperClient(Config config) {
         try {
+            String registryAddress = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                    .connectString(config.getRegistryAddress())
+                    .connectString(registryAddress)
                     .retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000))
                     .connectionTimeoutMs(5000);
 

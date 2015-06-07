@@ -1,19 +1,23 @@
 package com.lts.job.task.tracker.support;
 
+import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.JobPullRequest;
-import com.lts.job.remoting.InvokeCallback;
+import com.lts.job.ec.EventInfo;
+import com.lts.job.ec.EventSubscriber;
+import com.lts.job.ec.Observer;
 import com.lts.job.remoting.exception.RemotingCommandFieldCheckException;
-import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 用来向JobTracker去取任务
@@ -25,58 +29,89 @@ public class JobPullMachine {
 
     // 定时检查TaskTracker是否有空闲的线程，如果有，那么向JobTracker发起任务pull请求
     private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
-
+    private ScheduledFuture scheduledFuture;
+    private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerApplication application;
+    private Runnable runnable;
 
-    public JobPullMachine(TaskTrackerApplication application) {
+    public JobPullMachine(final TaskTrackerApplication application) {
         this.application = application;
-    }
 
-    public void start() {
-        SCHEDULED_CHECKER.scheduleWithFixedDelay(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            sendRequest();
-                        } catch (Exception e) {
-                            LOGGER.error(e.getMessage(), e);
-                        }
-                    }
-
-                    /**
-                     * 发送Job pull 请求
-                     */
-                    private void sendRequest() throws RemotingCommandFieldCheckException {
-                        int availableThreads = application.getRunnerPool().getAvailablePoolSize();
-                        if (availableThreads == 0) {
-                            return;
-                        }
-                        JobPullRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobPullRequest());
-                        requestBody.setAvailableThreads(availableThreads);
-                        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
-
-                        try {
-                            RemotingCommand responseCommand = application.getRemotingClient().invokeSync(request);
-                            if (responseCommand == null) {
-                                LOGGER.warn("job pull request failed! response command is null!");
-                                return;
-                            }
-                            if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("job pull request success!");
+        application.getEventCenter().subscribe(
+                new EventSubscriber(JobPullMachine.class.getSimpleName().concat(application.getConfig().getIdentity()),
+                        new Observer() {
+                            @Override
+                            public void onObserved(EventInfo eventInfo) {
+                                if (EcTopic.JOB_TRACKER_AVAILABLE.equals(eventInfo.getTopic())) {
+                                    // JobTracker 可用了
+                                    start();
+                                } else if (EcTopic.NO_JOB_TRACKER_AVAILABLE.equals(eventInfo.getTopic())) {
+                                    stop();
                                 }
-                                return;
                             }
-                            LOGGER.warn("job pull request failed! response command is null!");
-                        } catch (JobTrackerNotFoundException e) {
-                            LOGGER.warn("no job tracker available!");
-                        }
-                    }
-                }, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
+                        }), EcTopic.JOB_TRACKER_AVAILABLE, EcTopic.NO_JOB_TRACKER_AVAILABLE);
+        this.runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    sendRequest();
+                } catch (Exception e) {
+                    LOGGER.error("Job pull machine run error!", e);
+                }
+            }
+        };
     }
 
-    public void stop() {
-        SCHEDULED_CHECKER.shutdown();
+    private void start() {
+        try {
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
+                LOGGER.info("Start job pull machine success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Start job pull machine failed!", t);
+        }
+    }
+
+    private void stop() {
+        try {
+            if (start.compareAndSet(true, false)) {
+                scheduledFuture.cancel(true);
+                SCHEDULED_CHECKER.shutdown();
+                LOGGER.info("Stop job pull machine success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Stop job pull machine failed!", t);
+        }
+    }
+
+    /**
+     * 发送Job pull 请求
+     */
+    private void sendRequest() throws RemotingCommandFieldCheckException {
+        int availableThreads = application.getRunnerPool().getAvailablePoolSize();
+        if (availableThreads == 0) {
+            return;
+        }
+        JobPullRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobPullRequest());
+        requestBody.setAvailableThreads(availableThreads);
+        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
+
+        try {
+            RemotingCommand responseCommand = application.getRemotingClient().invokeSync(request);
+            if (responseCommand == null) {
+                LOGGER.warn("job pull request failed! response command is null!");
+                return;
+            }
+            if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("job pull request success!");
+                }
+                return;
+            }
+            LOGGER.warn("job pull request failed! response command is null!");
+        } catch (JobTrackerNotFoundException e) {
+            LOGGER.warn("no job tracker available!");
+        }
     }
 }

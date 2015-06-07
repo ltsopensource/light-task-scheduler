@@ -42,6 +42,21 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-queue-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-queue-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-queue-mongo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>

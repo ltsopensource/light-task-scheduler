@@ -19,24 +19,26 @@ import java.sql.SQLException;
  */
 public class MysqlJobLogger extends JdbcRepository implements JobLogger {
 
+    private String insertSQL;
+
     public MysqlJobLogger(Config config) {
         super(config);
         doCreateTable();
-    }
 
-    @Override
-    public void log(JobLogPo jobLogPo) {
-        if(jobLogPo == null){
-            return ;
-        }
-        String sql = "INSERT INTO `lts_job_log_po` (`timestamp`, `log_type`, `success`, `msg`" +
+        insertSQL = "INSERT INTO `lts_job_log_po` (`timestamp`, `log_type`, `success`, `msg`" +
                 ", `code`, `task_tracker_identity`, `level`, `task_id`, `job_id`" +
                 ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `needFeedback`" +
                 ", `cron_expression`, `trigger_time`)" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    }
 
+    @Override
+    public void log(JobLogPo jobLogPo) {
+        if (jobLogPo == null) {
+            return;
+        }
         try {
-            getSqlTemplate().update(sql,
+            getSqlTemplate().update(insertSQL,
                     jobLogPo.getTimestamp(),
                     jobLogPo.getLogType().name(),
                     jobLogPo.isSuccess(),

@@ -18,7 +18,7 @@ import java.io.StringWriter;
  */
 public class JobRunnerDelegate implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("LTSJobRunner");
+    private static final Logger LOGGER = LoggerFactory.getLogger("LTS.TaskTracker");
     private Job job;
     private RunnerCallback callback;
     private BizLoggerImpl logger;

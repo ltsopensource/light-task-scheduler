@@ -1,6 +1,9 @@
 package com.lts.job.tracker.support;
 
+import com.lts.job.biz.logger.domain.JobLogPo;
+import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.constant.Constants;
+import com.lts.job.core.constant.Level;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.RemotingSendException;
 import com.lts.job.core.exception.RequestTimeoutException;
@@ -167,6 +170,12 @@ public class JobDistributor {
             // ignore
         }
         application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
+        // 记录日志
+
+        JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+        jobLogPo.setLogType(LogType.SENT);
+        jobLogPo.setLevel(Level.INFO);
+        application.getJobLogger().log(jobLogPo);
 
         return PUSH_SUCCESS;
     }

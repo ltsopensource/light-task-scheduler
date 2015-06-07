@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
@@ -24,33 +25,41 @@ public class ChannelManager {
     private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
 
     private ScheduledFuture scheduledFuture;
+    private AtomicBoolean start = new AtomicBoolean(false);
 
     public void start() {
         try {
-            scheduledFuture = channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    checkCloseChannel(clientChannelMap);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
-                    }
-                    checkCloseChannel(taskTrackerChannelMap);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
-                    }
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture = channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkCloseChannel(clientChannelMap);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
+                        }
+                        checkCloseChannel(taskTrackerChannelMap);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
+                        }
 
-                }
-            }, 10, 30, TimeUnit.SECONDS);
+                    }
+                }, 10, 10, TimeUnit.SECONDS);
+            }
+            LOGGER.info("Start channel manager success!");
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("Start channel manager failed!", t);
         }
     }
 
     public void stop() {
         try {
-            scheduledFuture.cancel(true);
+            if (start.compareAndSet(true, false)) {
+                scheduledFuture.cancel(true);
+                channelCheckExecutorService.shutdown();
+            }
+            LOGGER.info("Stop channel manager success!");
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("Stop channel manager failed!", t);
         }
     }
 

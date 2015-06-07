@@ -3,65 +3,135 @@ package com.lts.job.core.remoting;
 import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
+import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.HeartBeatRequest;
 import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.Holder;
-import com.lts.job.remoting.InvokeCallback;
-import com.lts.job.remoting.netty.ResponseFuture;
+import com.lts.job.ec.EventInfo;
+import com.lts.job.ec.EventSubscriber;
+import com.lts.job.ec.Observer;
 import com.lts.job.remoting.protocol.RemotingCommand;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * 如果用来发送心跳包，当没有连接上JobTracker的时候，启动快速检测连接；连接后，采用慢周期检测来保持长连接
+ *
  * @author Robert HG (254963746@qq.com) on 7/25/14.
- *         心跳监控。 如果心跳失败，连不上server，那么发现并连接新的server, 如果server集群中，没有可用的server, 那么报警
  */
 public class HeartBeatMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatMonitor.class.getSimpleName());
 
     // 用来定时发送心跳
-    private final ScheduledExecutorService HEART_BEAT_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService PING_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> pingScheduledFuture;
+    // 当没有可用的JobTracker的时候，启动这个来快速的检查（小间隔）
+    private final ScheduledExecutorService FAST_PING_EXECUTOR = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> fastPingScheduledFuture;
 
     private RemotingClientDelegate remotingClient;
     private Application application;
+    private HeartBeat heartBeat;
+    private EventSubscriber eventSubscriber;
 
     public HeartBeatMonitor(RemotingClientDelegate remotingClient, Application application) {
         this.remotingClient = remotingClient;
         this.application = application;
+        this.heartBeat = new HeartBeat();
+        this.eventSubscriber = new EventSubscriber("PING_" + application.getConfig().getIdentity(),
+                new Observer() {
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        startFastPing();
+                    }
+                });
     }
 
+    private AtomicBoolean pingStart = new AtomicBoolean(false);
+    private AtomicBoolean fastPingStart = new AtomicBoolean(false);
+
     public void start() {
-        HEART_BEAT_EXECUTOR_SERVICE.scheduleWithFixedDelay(
-                new HeartBeat(), 2, 30, TimeUnit.SECONDS);      // 30s 一次心跳
+        startFastPing();
     }
 
     public void stop() {
-        HEART_BEAT_EXECUTOR_SERVICE.shutdown();
+        stopPing();
+        stopFastPing();
+    }
+
+    private void startPing() {
+        try {
+            if (pingStart.compareAndSet(false, true)) {
+                // 用来监听 JobTracker不可用的消息，然后马上启动 快速检查定时器
+                application.getEventCenter().subscribe(eventSubscriber, EcTopic.NO_JOB_TRACKER_AVAILABLE);
+                pingScheduledFuture = PING_EXECUTOR_SERVICE.scheduleWithFixedDelay(
+                        heartBeat, 30, 30, TimeUnit.SECONDS);      // 30s 一次心跳
+                LOGGER.info("Start heart beat monitor success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Start heart beat monitor failed!", t);
+        }
+    }
+
+    private void stopPing() {
+        try {
+            if (pingStart.compareAndSet(true, false)) {
+                pingScheduledFuture.cancel(true);
+                PING_EXECUTOR_SERVICE.shutdown();
+                application.getEventCenter().unSubscribe(EcTopic.NO_JOB_TRACKER_AVAILABLE, eventSubscriber);
+                LOGGER.info("Stop heart beat monitor success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Stop heart beat monitor failed!", t);
+        }
+    }
+
+    private void startFastPing() {
+        if (fastPingStart.compareAndSet(false, true)) {
+            try {
+                // 2s 一次进行检查
+                fastPingScheduledFuture = FAST_PING_EXECUTOR.scheduleWithFixedDelay(
+                        heartBeat, 1, 2, TimeUnit.MILLISECONDS);
+                LOGGER.info("Start fast ping runner success!");
+            } catch (Throwable t) {
+                LOGGER.error("Start fast ping runner failed!", t);
+            }
+        }
+    }
+
+    private void stopFastPing() {
+        try {
+            if (fastPingStart.compareAndSet(true, false)) {
+                fastPingScheduledFuture.cancel(true);
+                FAST_PING_EXECUTOR.shutdown();
+                LOGGER.info("Stop fast ping runner success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Stop fast ping runner failed!", t);
+        }
     }
 
     private class HeartBeat implements Runnable {
 
+        private AtomicBoolean running = new AtomicBoolean(false);
+
         @Override
         public void run() {
             try {
-                boolean serverEnable = check();
-                if (!serverEnable) {
-                    // 没有jobTracker可用，加快心跳频率，改为2s一次
-                    while (!serverEnable) {
-                        try {
-                            Thread.sleep(2000L);    // sleep 2s
-                            serverEnable = check();
-                        } catch (Throwable t) {
-                            LOGGER.error(t.getMessage(), t);
-                        }
+                if (running.compareAndSet(false, true)) {
+                    // to ensure only one thread go there
+                    try {
+                        check();
+                    } finally {
+                        running.compareAndSet(true, false);
                     }
                 }
             } catch (Throwable t) {
@@ -69,23 +139,27 @@ public class HeartBeatMonitor {
             }
         }
 
-        private boolean check() {
+        private void check() {
             List<Node> jobTrackers = application.getSubscribedNodeManager().getNodeList(NodeType.JOB_TRACKER);
             if (CollectionUtils.isEmpty(jobTrackers)) {
-                return false;
+                return;
             }
-            boolean serverEnable = false;
             for (Node jobTracker : jobTrackers) {
                 // 每个JobTracker 都要发送心跳
                 if (beat(remotingClient, jobTracker.getAddress())) {
                     remotingClient.addJobTracker(jobTracker);
-                    remotingClient.setServerEnable(true);
-                    serverEnable = true;
+                    if (!remotingClient.isServerEnable()) {
+                        remotingClient.setServerEnable(true);
+                        application.getEventCenter().publishSync(new EventInfo(EcTopic.JOB_TRACKER_AVAILABLE));
+                    } else {
+                        remotingClient.setServerEnable(true);
+                    }
+                    stopFastPing();
+                    startPing();
                 } else {
                     remotingClient.removeJobTracker(jobTracker);
                 }
             }
-            return serverEnable;
         }
 
         /**
@@ -98,23 +172,22 @@ public class HeartBeatMonitor {
 
             HeartBeatRequest commandBody = application.getCommandBodyWrapper().wrapper(new HeartBeatRequest());
 
-            RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
+            RemotingCommand request = RemotingCommand.createRequestCommand(
+                    JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
             try {
-                RemotingCommand response = remotingClient.getNettyClient().invokeSync(addr, request, 10000);
-                if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS == JobProtos.ResponseCode.valueOf(response.getCode())) {
+                RemotingCommand response = remotingClient.getNettyClient().invokeSync(addr, request, 5000);
+                if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS ==
+                        JobProtos.ResponseCode.valueOf(response.getCode())) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("heart beat success! ");
                     }
                     return true;
                 }
-                LOGGER.error("heart beat error !" + response);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
             return false;
         }
-
     }
-
 
 }

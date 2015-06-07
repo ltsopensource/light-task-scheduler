@@ -7,7 +7,7 @@ import com.lts.job.core.extension.SPI;
 /**
  * @author Robert HG (254963746@qq.com) on 5/19/15.
  */
-@SPI("mongo")
+@SPI("mysql")
 public interface JobFeedbackQueueFactory {
 
     @Adaptive("job.queue")

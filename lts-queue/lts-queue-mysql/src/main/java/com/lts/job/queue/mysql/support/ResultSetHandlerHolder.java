@@ -52,7 +52,6 @@ public class ResultSetHandlerHolder {
         jobPo.setTaskTrackerIdentity(rs.getString("task_tracker_identity"));
         jobPo.setCronExpression(rs.getString("cron_expression"));
         jobPo.setNeedFeedback(rs.getBoolean("need_feedback"));
-        jobPo.setPrevExeTime(rs.getLong("prev_exe_time"));
         jobPo.setTriggerTime(rs.getLong("trigger_time"));
         return jobPo;
     }

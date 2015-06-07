@@ -3,10 +3,7 @@ package com.lts.job.tracker.domain;
 import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.core.Application;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.queue.CronJobQueue;
-import com.lts.job.queue.ExecutableJobQueue;
-import com.lts.job.queue.ExecutingJobQueue;
-import com.lts.job.queue.JobFeedbackQueue;
+import com.lts.job.queue.*;
 import com.lts.job.tracker.channel.ChannelManager;
 import com.lts.job.tracker.id.IdGenerator;
 import com.lts.job.tracker.support.cluster.JobClientManager;
@@ -39,6 +36,8 @@ public class JobTrackerApplication extends Application {
     private ExecutableJobQueue executableJobQueue;
     // executing job queue
     private ExecutingJobQueue executingJobQueue;
+    // store the connected node groups
+    private NodeGroupStore nodeGroupStore;
 
     // Cron Job queue
     private CronJobQueue cronJobQueue;
@@ -141,5 +140,13 @@ public class JobTrackerApplication extends Application {
 
     public void setExecutingJobQueue(ExecutingJobQueue executingJobQueue) {
         this.executingJobQueue = executingJobQueue;
+    }
+
+    public NodeGroupStore getNodeGroupStore() {
+        return nodeGroupStore;
+    }
+
+    public void setNodeGroupStore(NodeGroupStore nodeGroupStore) {
+        this.nodeGroupStore = nodeGroupStore;
     }
 }

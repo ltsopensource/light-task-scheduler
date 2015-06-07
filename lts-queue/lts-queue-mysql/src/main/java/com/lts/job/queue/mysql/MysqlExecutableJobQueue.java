@@ -2,11 +2,13 @@ package com.lts.job.queue.mysql;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.constant.Constants;
+import com.lts.job.core.domain.JobQueueRequest;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
+import com.lts.job.core.util.StringUtils;
 import com.lts.job.queue.ExecutableJobQueue;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.JobQueueException;
@@ -15,6 +17,7 @@ import com.lts.job.queue.mysql.support.ResultSetHandlerHolder;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +31,8 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     // 这里做一下流控, 尽量减小 mysql dead lock 的概率
     private Semaphore semaphore;
     private long acquireTimeout = 2000; // 2s
+    // 用来缓存SQL，不用每次去生成，可以重用
+    private final ConcurrentHashMap<String, String> SQL_CACHE_MAP = new ConcurrentHashMap<String, String>();
 
     public MysqlExecutableJobQueue(Config config) {
         super(config);
@@ -37,6 +42,14 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         }
         this.acquireTimeout = config.getParameter(Constants.JOB_TAKE_ACQUIRE_TIMEOUT, acquireTimeout);
         this.semaphore = new Semaphore(permits);
+    }
+
+    @Override
+    protected String getTableName(JobQueueRequest request) {
+        if (StringUtils.isEmpty(request.getTaskTrackerNodeGroup())) {
+            throw new IllegalArgumentException(" takeTrackerNodeGroup cat not be null");
+        }
+        return getTableName(request.getTaskTrackerNodeGroup());
     }
 
     @Override
@@ -57,7 +70,14 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     }
 
     private String getRealSql(String sql, String taskTrackerNodeGroup) {
-        return sql.replace("{tableName}", getTableName(taskTrackerNodeGroup));
+        String key = sql.concat(taskTrackerNodeGroup);
+        String fineSQL = SQL_CACHE_MAP.get(key);
+        // 这里可以不用锁，多生成一次也不会产生什么问题
+        if (fineSQL == null) {
+            fineSQL = sql.replace("{tableName}", getTableName(taskTrackerNodeGroup));
+            SQL_CACHE_MAP.put(key, fineSQL);
+        }
+        return fineSQL;
     }
 
     @Override
@@ -75,6 +95,19 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         return true;
     }
 
+    private String takeSelectSQL = "SELECT *" +
+            " FROM `{tableName}` " +
+            " WHERE is_running = ? " +
+            " AND `trigger_time` < ? " +
+            " ORDER BY `trigger_time` ASC, `priority` ASC, `gmt_created` ASC " +
+            " LIMIT 0, 1";
+
+    private String taskUpdateSQL = "UPDATE `{tableName}` SET " +
+            "`is_running` = ?, " +
+            "`task_tracker_identity` = ?, " +
+            "`gmt_modified` = ?" +
+            " WHERE job_id = ? AND is_running = ?";
+
     @Override
     public JobPo take(final String taskTrackerNodeGroup, final String taskTrackerIdentity) {
         try {
@@ -91,33 +124,21 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
              * 这里从SELECT FOR UPDATE 优化为 CAS 乐观锁
              */
             Long now = DateUtils.currentTimeMillis();
-            String selectSql = "SELECT *" +
-                    " FROM `{tableName}` " +
-                    " WHERE is_running = ? " +
-                    " AND `trigger_time` < ? " +
-                    " ORDER BY `trigger_time` ASC, `priority` ASC, `gmt_created` ASC " +
-                    " LIMIT 0, 1";
             Object[] selectParams = new Object[]{false, now};
 
-            JobPo jobPo = getSqlTemplate().query(getRealSql(selectSql, taskTrackerNodeGroup),
+            JobPo jobPo = getSqlTemplate().query(getRealSql(takeSelectSQL, taskTrackerNodeGroup),
                     ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, selectParams);
             if (jobPo == null) {
                 return null;
             }
 
-            String updateSql = "UPDATE `{tableName}` SET " +
-                    "`is_running` = ?, " +
-                    "`task_tracker_identity` = ?, " +
-                    "`gmt_modified` = ?," +
-                    "`prev_exe_time` = ? " +
-                    " WHERE job_id = ? AND is_running = ?";
             Object[] params = new Object[]{
-                    true, taskTrackerIdentity, now, now, jobPo.getJobId(), false
+                    true, taskTrackerIdentity, now, jobPo.getJobId(), false
             };
             // 返回影响的行数
             int affectedRow = 0;
             try {
-                affectedRow = getSqlTemplate().update(getRealSql(updateSql, taskTrackerNodeGroup), params);
+                affectedRow = getSqlTemplate().update(getRealSql(taskUpdateSQL, taskTrackerNodeGroup), params);
             } catch (SQLException e) {
                 //  dead lock ignore
                 if (e.getMessage().contains("Deadlock found when trying to get lock")) {
@@ -131,7 +152,6 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
                 jobPo.setIsRunning(true);
                 jobPo.setTaskTrackerIdentity(taskTrackerIdentity);
                 jobPo.setGmtModified(now);
-                jobPo.setPrevExeTime(now);
                 return jobPo;
             }
         } catch (SQLException e) {
@@ -141,36 +161,39 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         }
     }
 
+    private String removeSQL = "DELETE FROM `{tableName}` WHERE job_id = ?";
+
     @Override
     public boolean remove(String taskTrackerNodeGroup, String jobId) {
-        String deleteSql = "DELETE FROM `{tableName}` WHERE job_id = ?";
         try {
-            return getSqlTemplate().update(getRealSql(deleteSql, taskTrackerNodeGroup), jobId) == 1;
+            return getSqlTemplate().update(getRealSql(removeSQL, taskTrackerNodeGroup), jobId) == 1;
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
     }
+
+    private String resumeSQL = "UPDATE `{tableName}` SET " +
+            "`is_running` = ?," +
+            "`task_tracker_identity` = ?," +
+            "`gmt_modified` = ?" +
+            " WHERE job_id = ? ";
 
     @Override
     public void resume(JobPo jobPo) {
-        String updateSql = "UPDATE `{tableName}` SET " +
-                "`is_running` = ?," +
-                "`task_tracker_identity` = ?," +
-                "`gmt_modified` = ?" +
-                " WHERE job_id = ? ";
         try {
             Object[] params = new Object[]{false, null, System.currentTimeMillis(), jobPo.getJobId()};
-            getSqlTemplate().update(getRealSql(updateSql, jobPo.getTaskTrackerNodeGroup()), params);
+            getSqlTemplate().update(getRealSql(resumeSQL, jobPo.getTaskTrackerNodeGroup()), params);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
     }
 
+    private String getDeadJobSQL = "SELECT * FROM `{tableName}` WHERE is_running = ? AND gmt_modified < ?";
+
     @Override
     public List<JobPo> getDeadJob(String taskTrackerNodeGroup, long deadline) {
-        String sql = "SELECT * FROM `{tableName}` WHERE is_running = ? AND gmt_modified < ?";
         try {
-            return getSqlTemplate().query(getRealSql(sql, taskTrackerNodeGroup), ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER, true, deadline);
+            return getSqlTemplate().query(getRealSql(getDeadJobSQL, taskTrackerNodeGroup), ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER, true, deadline);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

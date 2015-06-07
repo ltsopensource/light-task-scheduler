@@ -8,7 +8,7 @@ import com.lts.job.queue.exception.DuplicateJobException;
  *
  * @author Robert HG (254963746@qq.com) on 5/27/15.
  */
-public interface CronJobQueue {
+public interface CronJobQueue extends JobQueue{
 
     /**
      * 添加任务
@@ -26,4 +26,5 @@ public interface CronJobQueue {
      * 移除Cron Job
      */
     boolean remove(String jobId);
+
 }

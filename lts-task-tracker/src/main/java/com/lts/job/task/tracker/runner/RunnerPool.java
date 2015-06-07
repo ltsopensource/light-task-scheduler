@@ -1,9 +1,13 @@
 package com.lts.job.task.tracker.runner;
 
+import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.util.ConcurrentHashSet;
+import com.lts.job.ec.EventInfo;
+import com.lts.job.ec.EventSubscriber;
+import com.lts.job.ec.Observer;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
 import com.lts.job.task.tracker.expcetion.NoAvailableJobRunnerException;
 
@@ -43,7 +47,14 @@ public class RunnerPool {
         if (runnerFactory == null) {
             runnerFactory = new DefaultRunnerFactory(application);
         }
-
+        // 向事件中心注册事件, 改变工作线程大小
+        application.getEventCenter().subscribe(
+                new EventSubscriber(application.getConfig().getIdentity(), new Observer() {
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        setMaximumPoolSize(application.getConfig().getWorkThreads());
+                    }
+                }), EcTopic.WORK_THREAD_CHANGE);
     }
 
     public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
@@ -51,10 +62,10 @@ public class RunnerPool {
             threadPoolExecutor.execute(
                     new JobRunnerDelegate(application, job, callback));
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("receive job success ! " + job);
+                LOGGER.debug("Receive job success ! " + job);
             }
         } catch (RejectedExecutionException e) {
-            LOGGER.warn("there has no available thread to run job .");
+            LOGGER.warn("No more thread to run job .");
             throw new NoAvailableJobRunnerException(e);
         }
     }
@@ -122,8 +133,8 @@ public class RunnerPool {
          */
         public List<String> getNotExists(List<String> jobIds) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("running jobs ：" + RUNNING_JOB_ID_SET);
-                LOGGER.debug("ask jobs:" + jobIds);
+                LOGGER.debug("Running jobs ：" + RUNNING_JOB_ID_SET);
+                LOGGER.debug("Ask jobs:" + jobIds);
             }
             List<String> notExistList = new ArrayList<String>();
             for (String jobId : jobIds) {

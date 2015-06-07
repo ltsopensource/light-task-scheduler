@@ -1,6 +1,7 @@
 package com.lts.job.queue.mysql;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.domain.JobQueueRequest;
 import com.lts.job.core.file.FileUtils;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
@@ -17,6 +18,12 @@ import java.sql.SQLException;
  */
 public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQueue {
 
+    private String finishSQL = "SELECT * FROM `{tableName}` WHERE job_id = ?"
+            .replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
+
+    private String removeSQL = "DELETE FROM `{tableName}` WHERE job_id = ?"
+            .replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
+
     public MysqlCronJobQueue(Config config) {
         super(config);
         // create table
@@ -31,6 +38,11 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     }
 
     @Override
+    protected String getTableName(JobQueueRequest request) {
+        return JobQueueUtils.CRON_JOB_QUEUE;
+    }
+
+    @Override
     public boolean add(JobPo jobPo) {
         jobPo.setGmtCreated(DateUtils.currentTimeMillis());
         jobPo.setGmtModified(jobPo.getGmtCreated());
@@ -39,9 +51,8 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
 
     @Override
     public JobPo finish(String jobId) {
-        String sql = "SELECT * FROM `{tableName}` WHERE job_id = ?".replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
         try {
-            return getSqlTemplate().query(sql, ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, jobId);
+            return getSqlTemplate().query(finishSQL, ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, jobId);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
@@ -49,11 +60,11 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
 
     @Override
     public boolean remove(String jobId) {
-        String sql = "DELETE FROM `{tableName}` WHERE job_id = ?".replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
         try {
-            return getSqlTemplate().update(sql, jobId) == 0;
+            return getSqlTemplate().update(removeSQL, jobId) == 0;
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
     }
+
 }

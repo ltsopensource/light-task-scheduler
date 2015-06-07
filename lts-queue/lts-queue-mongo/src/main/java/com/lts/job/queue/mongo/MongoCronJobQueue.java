@@ -1,6 +1,7 @@
 package com.lts.job.queue.mongo;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.domain.JobQueueRequest;
 import com.lts.job.core.util.CollectionUtils;
 import com.lts.job.core.util.DateUtils;
 import com.lts.job.core.util.JobQueueUtils;
@@ -16,7 +17,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public class MongoCronJobQueue extends MongoRepository implements CronJobQueue {
+public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQueue {
 
     public MongoCronJobQueue(Config config) {
         super(config);
@@ -60,4 +61,5 @@ public class MongoCronJobQueue extends MongoRepository implements CronJobQueue {
         WriteResult wr = template.delete(query);
         return wr.getN() == 1;
     }
+
 }

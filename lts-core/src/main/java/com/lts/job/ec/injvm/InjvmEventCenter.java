@@ -28,21 +28,17 @@ public class InjvmEventCenter implements EventCenter {
 
     private final ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2);
 
-    public void subscribe(String topic, EventSubscriber subscriber) {
-        Set<EventSubscriber> subscribers = ecMap.get(topic);
-        if (subscribers == null) {
-            subscribers = new ConcurrentHashSet<EventSubscriber>();
-            Set<EventSubscriber> oldSubscribers = ecMap.putIfAbsent(topic, subscribers);
-            if (oldSubscribers != null) {
-                subscribers = oldSubscribers;
-            }
-        }
-        subscribers.add(subscriber);
-    }
-
-    public void subscribe(String[] topics, EventSubscriber subscriber) {
+    public void subscribe(EventSubscriber subscriber, String... topics) {
         for (String topic : topics) {
-            subscribe(topic, subscriber);
+            Set<EventSubscriber> subscribers = ecMap.get(topic);
+            if (subscribers == null) {
+                subscribers = new ConcurrentHashSet<EventSubscriber>();
+                Set<EventSubscriber> oldSubscribers = ecMap.putIfAbsent(topic, subscribers);
+                if (oldSubscribers != null) {
+                    subscribers = oldSubscribers;
+                }
+            }
+            subscribers.add(subscriber);
         }
     }
 
@@ -62,7 +58,11 @@ public class InjvmEventCenter implements EventCenter {
         if (subscribers != null) {
             for (EventSubscriber subscriber : subscribers) {
                 eventInfo.setTopic(eventInfo.getTopic());
-                subscriber.getObserver().onObserved(eventInfo);
+                try {
+                    subscriber.getObserver().onObserved(eventInfo);
+                } catch (Throwable t) {      // 防御性容错
+                    LOGGER.error(" eventInfo:{}, subscriber:{}", JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
+                }
             }
         }
     }
@@ -72,16 +72,17 @@ public class InjvmEventCenter implements EventCenter {
             @Override
             public void run() {
                 String topic = eventInfo.getTopic();
-                try {
-                    Set<EventSubscriber> subscribers = ecMap.get(topic);
-                    if (subscribers != null) {
-                        for (EventSubscriber subscriber : subscribers) {
+
+                Set<EventSubscriber> subscribers = ecMap.get(topic);
+                if (subscribers != null) {
+                    for (EventSubscriber subscriber : subscribers) {
+                        try {
                             eventInfo.setTopic(topic);
                             subscriber.getObserver().onObserved(eventInfo);
+                        } catch (Throwable t) {     // 防御性容错
+                            LOGGER.error(" eventInfo:{}, subscriber:{}", JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
                         }
                     }
-                } catch (Throwable t) {
-                    LOGGER.error("topic:{}, eventInfo:{}", topic, JSONUtils.toJSONString(eventInfo), t);
                 }
             }
         });

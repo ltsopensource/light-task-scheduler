@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public interface ExecutableJobQueue {
+public interface ExecutableJobQueue extends JobQueue{
 
     /**
      * 创建一个队列

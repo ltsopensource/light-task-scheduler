@@ -5,6 +5,7 @@ import com.lts.job.core.constant.Level;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.task.tracker.runner.RunnerFactory;
 import com.lts.job.task.tracker.runner.RunnerPool;
+import com.lts.job.task.tracker.support.JobPullMachine;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
@@ -18,6 +19,8 @@ public class TaskTrackerApplication extends Application{
     private RunnerPool runnerPool;
 
     private RunnerFactory runnerFactory;
+
+    private JobPullMachine jobPullMachine;
     /**
      * 业务日志记录级别
      */
@@ -65,5 +68,13 @@ public class TaskTrackerApplication extends Application{
 
     public void setRemotingClient(RemotingClientDelegate remotingClient) {
         this.remotingClient = remotingClient;
+    }
+
+    public JobPullMachine getJobPullMachine() {
+        return jobPullMachine;
+    }
+
+    public void setJobPullMachine(JobPullMachine jobPullMachine) {
+        this.jobPullMachine = jobPullMachine;
     }
 }

@@ -18,6 +18,7 @@ import com.lts.job.core.exception.JobTrackerNotFoundException;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
+import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
 import com.lts.job.core.protocol.command.JobSubmitResponse;
 import com.lts.job.core.util.BatchUtils;
@@ -37,9 +38,10 @@ import java.util.concurrent.TimeUnit;
  * @author Robert HG (254963746@qq.com) on 7/25/14.
  *         任务客户端
  */
-public class JobClient<T extends JobClientNode, App extends Application> extends AbstractClientNode<JobClientNode, JobClientApplication> {
+public class JobClient<T extends JobClientNode, App extends Application> extends
+        AbstractClientNode<JobClientNode, JobClientApplication> {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger("JobClient");
+    protected static final Logger LOGGER = LoggerFactory.getLogger("LTS.JobClient");
 
     private static final int BATCH_SIZE = 50;
 
@@ -49,21 +51,9 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     private JobFinishedHandler jobFinishedHandler;
 
     public JobClient() {
-        // 设置默认节点组
-        config.setNodeGroup(Constants.DEFAULT_NODE_JOB_CLIENT_GROUP);
-        //
-        int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE, Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
+        int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
+                Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
-    }
-
-    @Override
-    protected void nodeEnable() {
-        // TODO
-    }
-
-    @Override
-    protected void nodeDisable() {
-        // TODO
     }
 
     /**
@@ -86,11 +76,11 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     private void checkFields(List<Job> jobs) {
         // 参数验证
         if (CollectionUtils.isEmpty(jobs)) {
-            throw new JobSubmitException("job can not be null!");
+            throw new JobSubmitException("Job can not be null!");
         }
         for (Job job : jobs) {
             if (job == null) {
-                throw new JobSubmitException("job can not be null!");
+                throw new JobSubmitException("Job can not be null!");
             } else {
                 job.checkField();
             }
@@ -103,10 +93,11 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
         final Response response = new Response();
         try {
-            JobSubmitRequest jobSubmitRequest = application.getCommandBodyWrapper().wrapper(new JobSubmitRequest());
+            JobSubmitRequest jobSubmitRequest = CommandBodyWrapper.wrapper(application, new JobSubmitRequest());
             jobSubmitRequest.setJobs(jobs);
 
-            RemotingCommand requestCommand = RemotingCommand.createRequestCommand(JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);
+            RemotingCommand requestCommand = RemotingCommand.createRequestCommand(
+                    JobProtos.RequestCode.SUBMIT_JOB.code(), jobSubmitRequest);
 
             SubmitCallback submitCallback = new SubmitCallback() {
                 @Override
@@ -114,13 +105,13 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     if (responseCommand == null) {
                         response.setFailedJobs(jobs);
                         response.setSuccess(false);
-                        LOGGER.warn("submit job failed: {}, {}",
+                        LOGGER.warn("Submit job failed: {}, {}",
                                 jobs, "JobTracker is broken");
                         return;
                     }
 
                     if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                        LOGGER.info("submit job success: {}", jobs);
+                        LOGGER.info("Submit job success: {}", jobs);
                         response.setSuccess(true);
                         return;
                     }
@@ -129,7 +120,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     response.setFailedJobs(jobSubmitResponse.getFailedJobs());
                     response.setSuccess(false);
                     response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
-                    LOGGER.warn("submit job failed: {}, {}, {}",
+                    LOGGER.warn("Submit job failed: {}, {}, {}",
                             jobs,
                             responseCommand.getRemark(),
                             jobSubmitResponse.getMsg());
@@ -144,7 +135,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         } catch (JobTrackerNotFoundException e) {
             response.setSuccess(false);
             response.setCode(ResponseCode.JOB_TRACKER_NOT_FOUND);
-            response.setMsg("can not found JobTracker node!");
+            response.setMsg("Can not found JobTracker node!");
         } catch (Exception e) {
             response.setSuccess(false);
             response.setCode(ResponseCode.SYSTEM_ERROR);
@@ -154,7 +145,8 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         return response;
     }
 
-    private void asyncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback) throws JobTrackerNotFoundException {
+    private void asyncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback)
+            throws JobTrackerNotFoundException {
         final CountDownLatch latch = new CountDownLatch(1);
         remotingClient.invokeAsync(requestCommand, new InvokeCallback() {
             @Override
@@ -169,11 +161,12 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         try {
             latch.await(Constants.LATCH_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            throw new JobSubmitException("submit job failed, async request timeout!", e);
+            throw new JobSubmitException("Submit job failed, async request timeout!", e);
         }
     }
 
-    private void syncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback) throws JobTrackerNotFoundException {
+    private void syncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback)
+            throws JobTrackerNotFoundException {
         submitCallback.call(remotingClient.invokeSync(requestCommand));
     }
 

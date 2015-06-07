@@ -63,6 +63,7 @@ public class TaskTrackerManager {
 
         // create executable queue
         application.getExecutableJobQueue().createQueue(node.getGroup());
+        application.getNodeGroupStore().addNodeGroup(NodeType.TASK_TRACKER, node.getGroup());
     }
 
     /**
