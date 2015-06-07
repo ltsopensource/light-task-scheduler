@@ -5,7 +5,7 @@ import com.lts.job.core.extension.Adaptive;
 import com.lts.job.core.extension.SPI;
 
 /**
- * Created by hugui on 6/7/15.
+ * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
 @SPI("mysql")
 public interface NodeGroupStoreFactory {

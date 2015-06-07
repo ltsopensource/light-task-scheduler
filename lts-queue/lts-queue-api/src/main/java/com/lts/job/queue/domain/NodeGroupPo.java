@@ -3,7 +3,7 @@ package com.lts.job.queue.domain;
 import com.lts.job.core.cluster.NodeType;
 
 /**
- * Created by hugui on 6/7/15.
+ * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
 public class NodeGroupPo {
 

@@ -13,7 +13,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.util.Map;
 
 /**
- * Created by hugui on 6/6/15.
+ * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, InitializingBean {
 

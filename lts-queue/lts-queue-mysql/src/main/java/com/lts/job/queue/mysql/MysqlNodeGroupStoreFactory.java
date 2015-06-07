@@ -7,7 +7,7 @@ import com.lts.job.queue.NodeGroupStoreFactory;
 import com.lts.job.store.jdbc.JdbcRepository;
 
 /**
- * Created by hugui on 6/7/15.
+ * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
 public class MysqlNodeGroupStoreFactory implements NodeGroupStoreFactory {
 

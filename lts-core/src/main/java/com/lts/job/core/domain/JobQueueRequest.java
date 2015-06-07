@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Created by hugui on 6/6/15.
+ * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 public class JobQueueRequest extends PageRequest {
 

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Created by hugui on 6/6/15.
+ * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 @RestController
 public class JobQueueApiController extends AbstractController {

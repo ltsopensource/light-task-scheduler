@@ -15,7 +15,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * Created by hugui on 6/7/15.
+ * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
 @Component
 public class ExceptionHandlerResolver implements HandlerExceptionResolver {

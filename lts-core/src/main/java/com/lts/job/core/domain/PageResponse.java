@@ -3,7 +3,7 @@ package com.lts.job.core.domain;
 import java.util.List;
 
 /**
- * Created by hugui on 6/7/15.
+ * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
 public class PageResponse<T> {
 
