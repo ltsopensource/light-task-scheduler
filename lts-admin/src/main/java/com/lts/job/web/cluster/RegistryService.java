@@ -11,7 +11,7 @@ import com.lts.job.core.util.ConcurrentHashSet;
 import com.lts.job.core.util.StringUtils;
 import com.lts.job.web.request.NodeRequest;
 import com.lts.job.web.support.AppConfigurer;
-import com.lts.job.web.support.memorydb.NodeMemDB;
+import com.lts.job.web.support.memorydb.NodeMemoryDB;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,7 @@ import java.util.List;
 public class RegistryService implements InitializingBean {
 
     private final ConcurrentHashSet<String/*clusterName*/> MAP = new ConcurrentHashSet<String>();
-    private NodeMemDB nodeMemDB = new NodeMemDB();
+    private NodeMemoryDB nodeMemDB = new NodeMemoryDB();
 
     @Autowired
     @Qualifier("application")

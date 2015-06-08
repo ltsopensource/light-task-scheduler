@@ -11,12 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
-public abstract class MemDB {
+public abstract class MemoryDB {
 
     private SqlTemplate sqlTemplate;
     private AtomicBoolean init = new AtomicBoolean(false);
 
-    public MemDB() {
+    public MemoryDB() {
         if (init.compareAndSet(false, true)) {
             Config config = new Config();
             config.setParameter("jdbc.datasource.provider", "hsqldb");

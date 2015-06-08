@@ -1,4 +1,7 @@
 /* 有关间距、空隙 */
+.hidden{
+    display: none;
+}
 .nomargin {
     margin: 0 !important;
 }

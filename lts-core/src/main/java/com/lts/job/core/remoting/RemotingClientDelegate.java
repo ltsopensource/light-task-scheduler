@@ -20,7 +20,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/1/14.
- *         JobRemotingClient 包装了 NettyRemotingClient , 每次请求，都会随机连上一台JobTracker
+ *         JobRemotingClient 包装了 NettyRemotingClient
  */
 public class RemotingClientDelegate {
 

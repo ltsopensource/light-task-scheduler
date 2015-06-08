@@ -30,7 +30,7 @@ public class JobQueueRequest extends PageRequest {
 
     private Map<String, String> extParams;
 
-    private Long triggerTime;
+    private Date triggerTime;
 
     private Integer priority;
 
@@ -130,11 +130,11 @@ public class JobQueueRequest extends PageRequest {
         this.endGmtModified = endGmtModified;
     }
 
-    public Long getTriggerTime() {
+    public Date getTriggerTime() {
         return triggerTime;
     }
 
-    public void setTriggerTime(Long triggerTime) {
+    public void setTriggerTime(Date triggerTime) {
         this.triggerTime = triggerTime;
     }
 }

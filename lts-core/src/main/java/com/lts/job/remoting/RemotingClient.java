@@ -19,14 +19,6 @@ public interface RemotingClient {
 
     /**
      * 同步调用
-     * @param addr
-     * @param request
-     * @param timeoutMillis
-     * @return
-     * @throws InterruptedException
-     * @throws RemotingConnectException
-     * @throws RemotingSendRequestException
-     * @throws RemotingTimeoutException
      */
     public RemotingCommand invokeSync(final String addr, final RemotingCommand request,
                                       final long timeoutMillis) throws InterruptedException, RemotingConnectException,
@@ -34,15 +26,6 @@ public interface RemotingClient {
 
     /**
      * 异步调用
-     * @param addr
-     * @param request
-     * @param timeoutMillis
-     * @param invokeCallback
-     * @throws InterruptedException
-     * @throws RemotingConnectException
-     * @throws RemotingTooMuchRequestException
-     * @throws RemotingTimeoutException
-     * @throws RemotingSendRequestException
      */
     public void invokeAsync(final String addr, final RemotingCommand request, final long timeoutMillis,
                             final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
@@ -50,14 +33,6 @@ public interface RemotingClient {
 
     /**
      * 单向调用
-     * @param addr
-     * @param request
-     * @param timeoutMillis
-     * @throws InterruptedException
-     * @throws RemotingConnectException
-     * @throws RemotingTooMuchRequestException
-     * @throws RemotingTimeoutException
-     * @throws RemotingSendRequestException
      */
     public void invokeOneway(final String addr, final RemotingCommand request, final long timeoutMillis)
             throws InterruptedException, RemotingConnectException, RemotingTooMuchRequestException,
@@ -65,17 +40,12 @@ public interface RemotingClient {
 
     /**
      * 注册处理器
-     * @param requestCode
-     * @param processor
-     * @param executor
      */
     public void registerProcessor(final int requestCode, final NettyRequestProcessor processor,
                                   final ExecutorService executor);
 
     /**
      * 注册默认处理器
-     * @param processor
-     * @param executor
      */
     public void registerDefaultProcessor(final NettyRequestProcessor processor, final ExecutorService executor);
 

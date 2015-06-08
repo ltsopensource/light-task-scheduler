@@ -87,7 +87,7 @@
             {title: '优先级', dataIndex: 'priority', width: 60},
             {
                 title: '反馈客户端', dataIndex: 'needFeedback', width: 80, renderer: function (v) {
-                return v ? '是' : '否';
+                return v ? '需要' : '不需要';
             }
             },
             {
@@ -118,7 +118,7 @@
         var store = new Data.Store({
             url: '/api/job-queue/executable-job-get',
             autoLoad: false,
-            pageSize: 14,
+            pageSize: 10,
             remoteSort: true
         });
 
