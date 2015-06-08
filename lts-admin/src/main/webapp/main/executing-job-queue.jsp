@@ -34,6 +34,7 @@
 
                     <div class="controls">
                         <select name="taskTrackerNodeGroup">
+                            <option value="">不限</option>
                             <c:forEach items="${taskTrackerNodeGroups}" var="nodeGroup">
                                 <option value="${nodeGroup.name}">${nodeGroup.name}</option>
                             </c:forEach>

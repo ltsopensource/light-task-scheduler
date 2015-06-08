@@ -109,6 +109,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcRepository implements Jo
         sql.addUpdateField("ext_params", request.getExtParams() == null ? null : JSONUtils.toJSONString(request.getExtParams()));
         sql.addUpdateField("trigger_time", request.getTriggerTime() == null ? null : request.getTriggerTime().getTime());
         sql.addUpdateField("priority", request.getPriority());
+        sql.addUpdateField("submit_node_group", request.getSubmitNodeGroup());
         sql.addUpdateField("task_tracker_node_group", request.getTaskTrackerNodeGroup());
         sql.addCondition("job_id", request.getJobId());
 
