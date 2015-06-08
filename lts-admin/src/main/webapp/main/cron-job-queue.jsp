@@ -34,6 +34,7 @@
 
                     <div class="controls">
                         <select name="taskTrackerNodeGroup">
+                            <option value="">不限</option>
                             <c:forEach items="${taskTrackerNodeGroups}" var="nodeGroup">
                                 <option value="${nodeGroup.name}">${nodeGroup.name}</option>
                             </c:forEach>
@@ -53,6 +54,9 @@
                 </div>
                 <div class="span3 offset2">
                     <button type="button" id="btnSearch" class="button button-primary">搜索</button>
+                </div>
+                <div class="span3">
+                    <button type="button" id="btnAdd" class="button button-primary">添加</button>
                 </div>
             </div>
         </form>
@@ -83,6 +87,14 @@
                 <div class="controls">
                     <input type="text" name="priority" placeholder="数值越小，优先级越大" class="input-normal control-text"
                            data-rules="{required : true, number:true}">
+                </div>
+            </div>
+            <div class="control-group span8">
+                <label class="control-label">提交节点组：</label>
+
+                <div class="controls">
+                    <input type="text" name="submitNodeGroup" class="input-normal control-text"
+                           data-rules="{required : true}">
                 </div>
             </div>
             <div class="control-group span8">
@@ -253,6 +265,10 @@
                 if (taskTrackerNodeGroup.trim() != oldJob.taskTrackerNodeGroup) {
                     updateJSON['taskTrackerNodeGroup'] = taskTrackerNodeGroup;
                 }
+                var submitNodeGroup = editForm.find("input[name='submitNodeGroup']").val();
+                if (submitNodeGroup.trim() != oldJob.submitNodeGroup) {
+                    updateJSON['submitNodeGroup'] = submitNodeGroup;
+                }
 
                 // 判断是否修改过
                 console.log(updateJSON);
@@ -273,13 +289,14 @@
                         success: function (json) {
                             if (json && json.success) {
                                 BUI.Message.Alert("修改成功");
-                                this.close();
                                 location.reload();
                             } else {
                                 BUI.Message.Alert("修改失败, " + json.msg);
                             }
                         }
                     });
+                } else {
+                    jobEditDlg.close();
                 }
             }
         });
@@ -293,6 +310,7 @@
             editForm.find("input[name='cronExpression']").val(job.cronExpression);
             editForm.find("input[name='priority']").val(job.priority);
             editForm.find("input[name='taskTrackerNodeGroup']").val(job.taskTrackerNodeGroup);
+            editForm.find("input[name='submitNodeGroup']").val(job.submitNodeGroup);
             editForm.find("select[name='needFeedback']").val("" + job.needFeedback);
             editForm.find("textarea[name='extParams']").val(JSON.stringify(job.extParams));
             jobEditDlg.show();
