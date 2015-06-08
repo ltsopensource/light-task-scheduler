@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
@@ -30,9 +31,9 @@ public abstract class RetryScheduler<T> {
     private Class<?> type = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture;
-
+    private AtomicBoolean start = new AtomicBoolean(false);
     private FailStore failStore;
 
     // 批量发送的消息数
@@ -49,20 +50,26 @@ public abstract class RetryScheduler<T> {
     }
 
     public void start() {
-        if (RETRY_EXECUTOR_SERVICE == null) {
-            RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-            // 这个时间后面再去优化
-            scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 10, 30, TimeUnit.SECONDS);
+        try {
+            if (start.compareAndSet(false, true)) {
+                // 这个时间后面再去优化
+                scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 10, 30, TimeUnit.SECONDS);
+                LOGGER.error("Start retry scheduler success!");
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Start retry scheduler failed!", t);
         }
     }
 
     public void stop() {
         try {
-            scheduledFuture.cancel(true);
-            RETRY_EXECUTOR_SERVICE.shutdown();
-            RETRY_EXECUTOR_SERVICE = null;
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture.cancel(true);
+                RETRY_EXECUTOR_SERVICE.shutdown();
+                LOGGER.error("Stop retry scheduler success!");
+            }
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("Stop retry scheduler failed!", t);
         }
     }
 
@@ -116,7 +123,7 @@ public abstract class RetryScheduler<T> {
                                 LOGGER.warn(e1.getMessage(), e1);
                             }
                         }
-                    }finally {
+                    } finally {
                         failStore.close();
                     }
                 } while (CollectionUtils.isNotEmpty(kvPairs));

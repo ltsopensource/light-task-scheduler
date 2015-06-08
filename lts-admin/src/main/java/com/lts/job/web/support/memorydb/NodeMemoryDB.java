@@ -17,9 +17,9 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
-public class NodeMemDB extends MemDB {
+public class NodeMemoryDB extends MemoryDB {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMemDB.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMemoryDB.class);
 
     private String insertSQL = "INSERT INTO lts_node " +
             "( identity, " +
@@ -35,7 +35,7 @@ public class NodeMemDB extends MemDB {
 
     private String deleteSQL = "DELETE FROM lts_node where identity = ?";
 
-    public NodeMemDB() {
+    public NodeMemoryDB() {
         createTable();
     }
 

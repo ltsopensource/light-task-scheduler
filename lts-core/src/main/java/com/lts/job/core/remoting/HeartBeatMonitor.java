@@ -150,7 +150,7 @@ public class HeartBeatMonitor {
                     remotingClient.addJobTracker(jobTracker);
                     if (!remotingClient.isServerEnable()) {
                         remotingClient.setServerEnable(true);
-                        application.getEventCenter().publishSync(new EventInfo(EcTopic.JOB_TRACKER_AVAILABLE));
+                        application.getEventCenter().publishAsync(new EventInfo(EcTopic.JOB_TRACKER_AVAILABLE));
                     } else {
                         remotingClient.setServerEnable(true);
                     }

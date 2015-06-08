@@ -74,7 +74,7 @@ public class ExecutableDeadJobChecker {
             if (CollectionUtils.isNotEmpty(deadJobPo)) {
                 for (JobPo jobPo : deadJobPo) {
                     application.getExecutableJobQueue().resume(jobPo);
-                    LOGGER.info("Fix executable job : {} ", JSONUtils.toJSON(jobPo));
+                    LOGGER.info("Fix executable job : {} ", JSONUtils.toJSONString(jobPo));
                 }
             }
         }

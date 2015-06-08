@@ -12,7 +12,7 @@ public class AppConfigurer {
     static {
         try {
             List<String> configList = new ArrayList<String>(2);
-            configList.add("config");
+            configList.add("lts-admin-config");
             Locale locale = Locale.getDefault();
             for (String config : configList) {
                 try {

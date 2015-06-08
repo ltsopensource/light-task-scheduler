@@ -87,7 +87,7 @@
             {title: '优先级', dataIndex: 'priority', width: 60},
             {
                 title: '反馈客户端', dataIndex: 'needFeedback', width: 80, renderer: function (v) {
-                return v ? '是' : '否';
+                return v ? '需要' : '不需要';
             }
             },
             {
@@ -106,11 +106,6 @@
             {
                 title: '修改时间', dataIndex: 'gmtModified', width: 125, renderer: function (v) {
                 return DateUtil.formatYMDHMD(v);
-            }
-            },
-            {
-                title: '操作', dataIndex: '', width: 60, sortable: false, renderer: function (value, obj) {
-                return "";
             }
             }
         ];
