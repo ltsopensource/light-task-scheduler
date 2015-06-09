@@ -76,8 +76,9 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
 
     @Override
     public JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity) {
+        boolean acquire = false;
         try {
-            boolean acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
+            acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
             if (!acquire) {
                 // 直接返回null
                 return null;
@@ -99,7 +100,9 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
                             .set("gmtModified", System.currentTimeMillis());
             return template.findAndModify(query, operations, false);
         } finally {
-            semaphore.release();
+            if (acquire) {
+                semaphore.release();
+            }
         }
     }
 
