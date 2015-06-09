@@ -58,10 +58,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
             registry.register(node);
 
-            LOGGER.info("started!");
+            LOGGER.info("Start success!");
 
         } catch (Throwable e) {
-            LOGGER.error("start failed!", e);
+            LOGGER.error("Start failed!", e);
         }
     }
 
@@ -72,9 +72,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
             innerStop();
             remotingStop();
 
-            LOGGER.info("stop success!");
+            LOGGER.info("Stop success!");
         } catch (Throwable e) {
-            LOGGER.error("stop failed!", e);
+            LOGGER.error("Stop failed!", e);
         }
     }
 
@@ -82,8 +82,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     public void destroy() {
         try {
             registry.destroy();
+            LOGGER.info("Destroy success!");
         } catch (Throwable e) {
-            LOGGER.error("destroy failed!", e);
+            LOGGER.error("Destroy failed!", e);
         }
     }
 

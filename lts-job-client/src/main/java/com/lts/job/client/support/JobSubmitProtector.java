@@ -36,9 +36,10 @@ public class JobSubmitProtector {
     }
 
     public Response execute(final List<Job> jobs, final JobSubmitExecutor<Response> jobSubmitExecutor) throws JobSubmitException {
+        boolean acquire = false;
         try {
             try {
-                boolean acquire = semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+                acquire = semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
                 if (!acquire) {
                     throw new JobSubmitProtectException(concurrentSize, errorMsg);
                 }
@@ -47,7 +48,9 @@ public class JobSubmitProtector {
             }
             return jobSubmitExecutor.execute(jobs);
         } finally {
-            semaphore.release();
+            if (acquire) {
+                semaphore.release();
+            }
         }
     }
 

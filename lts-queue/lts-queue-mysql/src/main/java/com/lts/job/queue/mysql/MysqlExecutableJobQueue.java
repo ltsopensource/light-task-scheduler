@@ -110,8 +110,9 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
 
     @Override
     public JobPo take(final String taskTrackerNodeGroup, final String taskTrackerIdentity) {
+        boolean acquire = false;
         try {
-            boolean acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
+            acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
             if (!acquire) {
                 // 直接返回null
                 return null;
@@ -157,7 +158,9 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         } catch (SQLException e) {
             throw new JobQueueException(e);
         } finally {
-            semaphore.release();
+            if(acquire){
+                semaphore.release();
+            }
         }
     }
 

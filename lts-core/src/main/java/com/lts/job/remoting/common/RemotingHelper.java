@@ -11,7 +11,7 @@ import java.net.SocketAddress;
  */
 public class RemotingHelper {
 
-    public static final String RemotingLogName = "LTSRemoting";
+    public static final String RemotingLogName = "LTS.Remoting";
 
     public static String exceptionSimpleDesc(final Exception e) {
         StringBuffer sb = new StringBuffer();
