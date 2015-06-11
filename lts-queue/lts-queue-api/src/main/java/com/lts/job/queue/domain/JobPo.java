@@ -1,6 +1,6 @@
 package com.lts.job.queue.domain;
 
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 
 import java.util.Map;
 

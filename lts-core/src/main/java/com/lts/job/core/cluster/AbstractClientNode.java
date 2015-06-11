@@ -5,7 +5,7 @@ import com.lts.job.core.constant.Constants;
 import com.lts.job.core.factory.NamedThreadFactory;
 import com.lts.job.core.remoting.HeartBeatMonitor;
 import com.lts.job.core.remoting.RemotingClientDelegate;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.remoting.netty.NettyClientConfig;
 import com.lts.job.remoting.netty.NettyRemotingClient;
 import com.lts.job.remoting.netty.NettyRequestProcessor;

@@ -7,8 +7,8 @@ import com.lts.job.core.domain.Job;
 import com.lts.job.core.domain.KVPair;
 import com.lts.job.core.failstore.FailStore;
 import com.lts.job.core.failstore.FailStoreException;
-import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 import org.junit.Before;
 import org.junit.Test;
 

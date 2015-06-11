@@ -4,7 +4,7 @@ import com.lts.job.core.constant.EcTopic;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.lts.job.core.util.ConcurrentHashSet;
+import com.lts.job.core.commons.collect.ConcurrentHashSet;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
 import com.lts.job.ec.Observer;

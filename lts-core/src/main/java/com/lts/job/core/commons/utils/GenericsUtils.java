@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

@@ -8,7 +8,7 @@ import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.HeartBeatRequest;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.ec.EventInfo;
 import com.lts.job.ec.EventSubscriber;
 import com.lts.job.ec.Observer;

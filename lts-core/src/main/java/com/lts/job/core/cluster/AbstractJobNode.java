@@ -12,8 +12,8 @@ import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.registry.*;
-import com.lts.job.core.util.CollectionUtils;
-import com.lts.job.core.util.GenericsUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
+import com.lts.job.core.commons.utils.GenericsUtils;
 import com.lts.job.ec.EventCenterFactory;
 
 import java.util.ArrayList;

@@ -1,7 +1,7 @@
 package com.lts.job.store.jdbc;
 
 import com.lts.job.core.cluster.Config;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import org.hsqldb.jdbc.JDBCDataSource;
 
 import javax.sql.DataSource;

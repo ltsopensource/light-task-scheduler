@@ -12,7 +12,7 @@ import com.lts.job.core.registry.FailbackRegistry;
 import com.lts.job.core.registry.NodeRegistryUtils;
 import com.lts.job.core.registry.NotifyEvent;
 import com.lts.job.core.registry.NotifyListener;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;

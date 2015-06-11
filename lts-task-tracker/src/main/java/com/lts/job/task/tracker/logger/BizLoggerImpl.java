@@ -7,6 +7,7 @@ import com.lts.job.core.protocol.command.BizLogSendRequest;
 import com.lts.job.core.protocol.command.CommandBodyWrapper;
 import com.lts.job.core.remoting.RemotingClientDelegate;
 import com.lts.job.remoting.InvokeCallback;
+import com.lts.job.remoting.common.Pair;
 import com.lts.job.remoting.netty.ResponseFuture;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.task.tracker.domain.TaskTrackerApplication;
@@ -16,10 +17,10 @@ import com.lts.job.task.tracker.domain.TaskTrackerApplication;
  */
 public class BizLoggerImpl implements BizLogger {
 
-    private volatile String jobId;
     private Level level;
     private RemotingClientDelegate remotingClient;
     private TaskTrackerApplication application;
+    private final ThreadLocal<Pair<String, String>> jobTL;
 
     public BizLoggerImpl(Level level, RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
         this.level = level;
@@ -28,10 +29,15 @@ public class BizLoggerImpl implements BizLogger {
         }
         this.application = application;
         this.remotingClient = remotingClient;
+        this.jobTL = new ThreadLocal<Pair<String, String>>();
     }
 
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
+    public void setId(String jobId, String taskId) {
+        jobTL.set(new Pair<String, String>(jobId, taskId));
+    }
+
+    public void removeId() {
+        jobTL.remove();
     }
 
     @Override
@@ -63,7 +69,8 @@ public class BizLoggerImpl implements BizLogger {
         }
 
         BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(application, new BizLogSendRequest());
-        requestBody.setJobId(jobId);
+        requestBody.setJobId(jobTL.get().getObject1());
+        requestBody.setTaskId(jobTL.get().getObject2());
         requestBody.setMsg(msg);
         requestBody.setLevel(level);
 
@@ -83,7 +90,6 @@ public class BizLoggerImpl implements BizLogger {
         } catch (JobTrackerNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
 }

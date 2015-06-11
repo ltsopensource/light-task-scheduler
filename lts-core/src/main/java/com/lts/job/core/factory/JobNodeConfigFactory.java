@@ -2,7 +2,7 @@ package com.lts.job.core.factory;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.

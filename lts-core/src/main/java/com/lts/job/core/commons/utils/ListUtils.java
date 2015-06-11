@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import java.util.ArrayList;
 import java.util.List;

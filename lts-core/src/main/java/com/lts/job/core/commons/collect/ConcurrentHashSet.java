@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.collect;
 
 import java.util.AbstractSet;
 import java.util.Collection;

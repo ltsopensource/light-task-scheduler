@@ -5,7 +5,7 @@ import com.lts.job.client.RetryJobClient;
 import com.lts.job.client.domain.Response;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobSubmitException;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.example.support.BaseJobClientTest;
 import com.lts.job.example.support.JobFinishedHandlerImpl;
 import com.lts.job.example.support.MasterChangeListenerImpl;

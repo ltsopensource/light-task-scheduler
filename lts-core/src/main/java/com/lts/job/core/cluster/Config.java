@@ -2,7 +2,7 @@ package com.lts.job.core.cluster;
 
 import com.lts.job.core.compiler.support.AdaptiveCompiler;
 import com.lts.job.core.constant.Constants;
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 
 import java.util.HashMap;
 import java.util.Map;

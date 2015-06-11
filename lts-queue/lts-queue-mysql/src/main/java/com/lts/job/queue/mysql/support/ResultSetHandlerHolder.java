@@ -1,7 +1,7 @@
 package com.lts.job.queue.mysql.support;
 
 import com.alibaba.fastjson.TypeReference;
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 import com.lts.job.queue.domain.JobPo;
 import org.apache.commons.dbutils.ResultSetHandler;
 

@@ -10,7 +10,7 @@ import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.command.JobFinishedRequest;
 import com.lts.job.core.protocol.command.JobPushRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.DuplicateJobException;

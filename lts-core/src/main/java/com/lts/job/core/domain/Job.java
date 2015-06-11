@@ -3,8 +3,8 @@ package com.lts.job.core.domain;
 
 import com.lts.job.core.exception.JobSubmitException;
 import com.lts.job.core.support.CronExpression;
-import com.lts.job.core.util.JSONUtils;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.remoting.annotation.NotNull;
 
 import java.util.HashMap;

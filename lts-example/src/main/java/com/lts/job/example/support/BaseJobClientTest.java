@@ -4,7 +4,7 @@ import com.lts.job.client.JobClient;
 import com.lts.job.client.domain.Response;
 import com.lts.job.core.domain.Job;
 import com.lts.job.core.exception.JobSubmitException;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

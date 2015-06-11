@@ -1,8 +1,8 @@
 package com.lts.job.core.logger.support;
 
 import com.lts.job.core.logger.Logger;
-import com.lts.job.core.util.NetUtils;
-import com.lts.job.core.util.Version;
+import com.lts.job.core.commons.utils.NetUtils;
+import com.lts.job.core.support.Version;
 
 public class FailsafeLogger extends AbstractLogger implements Logger {
 

@@ -1,6 +1,7 @@
 package com.lts.job.tracker.processor;
 
-import com.lts.job.biz.logger.domain.BizLogPo;
+import com.lts.job.biz.logger.domain.JobLogPo;
+import com.lts.job.biz.logger.domain.LogType;
 import com.lts.job.core.protocol.JobProtos;
 import com.lts.job.core.protocol.command.BizLogSendRequest;
 import com.lts.job.core.remoting.RemotingServerDelegate;
@@ -23,16 +24,17 @@ public class JobBizLogProcessor extends AbstractProcessor {
 
         BizLogSendRequest requestBody = request.getBody();
 
-        BizLogPo bizLogPo = new BizLogPo();
-        bizLogPo.setJobId(requestBody.getJobId());
-        bizLogPo.setTaskTrackerIdentity(requestBody.getIdentity());
-        bizLogPo.setLevel(requestBody.getLevel());
-        bizLogPo.setMsg(requestBody.getMsg());
-        bizLogPo.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
-        bizLogPo.setTimestamp(requestBody.getTimestamp());
-        bizLogPo.setLevel(requestBody.getLevel());
+        JobLogPo jobLogPo = new JobLogPo();
+        jobLogPo.setTimestamp(requestBody.getTimestamp());
+        jobLogPo.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
+        jobLogPo.setTaskTrackerIdentity(requestBody.getIdentity());
+        jobLogPo.setJobId(requestBody.getJobId());
+        jobLogPo.setMsg(requestBody.getMsg());
+        jobLogPo.setSuccess(true);
+        jobLogPo.setLevel(requestBody.getLevel());
+        jobLogPo.setLogType(LogType.BIZ);
 
-        application.getJobLogger().log(bizLogPo);
+        application.getJobLogger().log(jobLogPo);
 
         return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.BIZ_LOG_SEND_SUCCESS.code(), "");
     }

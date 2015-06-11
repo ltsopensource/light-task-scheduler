@@ -30,13 +30,15 @@
     BUI.use('common/main', function () {
         var config = [{
             id: 'menu',
-            homePage: 'index',
-            menu: [{
-                text: '概况',
-                items: [
-                    {id: 'index', text: '概况', href: 'main/index.html', closeable: false}
-                ]
-            }, {
+            homePage: 'node',
+            menu: [
+//                {
+//                text: '概况',
+//                items: [
+//                    {id: 'index', text: '概况', href: 'main/index.html', closeable: false}
+//                ]
+//            },
+            {
                 text: '节点管理',
                 items: [
                     {id: 'node', text: '节点管理', href: 'node/node-manager.htm'}
@@ -44,6 +46,7 @@
             }, {
                 text: '任务队列管理',
                 items: [
+                    {id: 'job-add', text: '任务添加', href: 'job-queue/job-add-ui.htm'},
                     {id: 'cron-job', text: '定时任务管理', href: 'job-queue/cron-job-queue.htm'},
                     {id: 'executing-job', text: '执行中队列', href: 'job-queue/executing-job-queue.htm'},
                     {id: 'executable-job', text: '等待执行队列', href: 'job-queue/executable-job-queue.htm'}
@@ -51,7 +54,7 @@
             },{
                 text: '日志管理',
                 items: [
-                    {id: 'operation', text: '日志', href: 'main/operation.html'},
+                    {id: 'job-logger', text: '日志', href: 'job-logger/job-logger.htm'},
                 ]
             },{
                 text: '监控报警',

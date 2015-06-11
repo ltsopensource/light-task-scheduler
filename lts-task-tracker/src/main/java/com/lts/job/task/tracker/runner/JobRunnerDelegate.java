@@ -36,19 +36,17 @@ public class JobRunnerDelegate implements Runnable {
 
     @Override
     public void run() {
-
         try {
             LtsLoggerFactory.setLogger(logger);
 
             while (job != null) {
                 // 设置当前context中的jobId
-                logger.setJobId(job.getJobId());
-
-                application.getRunnerPool().getRunningJobManager().in(job.getJobId());
-
+                logger.setId(job.getJobId(), job.getTaskId());
                 Response response = new Response();
                 response.setJob(job);
                 try {
+                    application.getRunnerPool().getRunningJobManager().in(job.getJobId());
+
                     application.getRunnerPool().getRunnerFactory().newRunner().run(job);
                     response.setSuccess(true);
                     LOGGER.info("Job exec success : {}", job);
@@ -65,6 +63,7 @@ public class JobRunnerDelegate implements Runnable {
                         LOGGER.info("Job exec error : {} {}", job, t.getMessage(), t);
                     }
                 } finally {
+                    logger.removeId();
                     application.getRunnerPool().getRunningJobManager().out(job.getJobId());
                 }
                 job = callback.runComplete(response);

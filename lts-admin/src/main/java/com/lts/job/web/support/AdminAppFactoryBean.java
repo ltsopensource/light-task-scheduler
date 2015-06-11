@@ -1,10 +1,11 @@
 package com.lts.job.web.support;
 
+import com.lts.job.biz.logger.JobLoggerFactory;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.extension.ExtensionLoader;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.queue.*;
 import com.lts.job.web.cluster.AdminApplication;
 import org.springframework.beans.factory.FactoryBean;
@@ -25,6 +26,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
             ExecutingJobQueueFactory.class).getAdaptiveExtension();
     NodeGroupStoreFactory nodeGroupStoreFactory = ExtensionLoader.getExtensionLoader(
             NodeGroupStoreFactory.class).getAdaptiveExtension();
+    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(
+            JobLoggerFactory.class).getAdaptiveExtension();
 
     private AdminApplication application;
 
@@ -70,6 +73,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
+        application.setJobLogger(jobLoggerFactory.getJobLogger(config));
     }
 
 }

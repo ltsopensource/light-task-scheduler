@@ -108,6 +108,12 @@
                 title: '修改时间', dataIndex: 'gmtModified', width: 125, renderer: function (v) {
                 return DateUtil.formatYMDHMD(v);
             }
+            },
+            {
+                title: '操作', dataIndex: '', width: 40, sortable: false, renderer: function (value, obj) {
+                var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
+                return '<a target="_blank" href="'+ logUrl +'" class="job-logger-btn" taskId="' + obj.taskId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">日志</a>&nbsp;';
+            }
             }
         ];
 
@@ -129,6 +135,7 @@
             bbar: {
                 pagingBar: true
             },
+            emptyDataTpl : '<div class="centered">查询的数据不存在</div>',
             store: store
         });
         grid.render();

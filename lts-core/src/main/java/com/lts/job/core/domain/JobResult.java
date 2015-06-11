@@ -1,6 +1,6 @@
 package com.lts.job.core.domain;
 
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.

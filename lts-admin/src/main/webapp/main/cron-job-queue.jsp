@@ -11,7 +11,7 @@
         <form id="searchForm" class="form-horizontal span24">
             <div class="row">
                 <div class="control-group span8">
-                    <label class="control-label">任务ID：</label>
+                    <label class="control-label">TaskId：</label>
 
                     <div class="controls">
                         <input type="text" class="control-text" name="taskId">
@@ -54,9 +54,6 @@
                 </div>
                 <div class="span3 offset2">
                     <button type="button" id="btnSearch" class="button button-primary">搜索</button>
-                </div>
-                <div class="span3">
-                    <button type="button" id="btnAdd" class="button button-primary">添加</button>
                 </div>
             </div>
         </form>
@@ -138,7 +135,7 @@
     function buiInit(BUI, Grid, Form, Data, Overlay, DateUtil) {
 
         var columns = [
-            {title: '任务ID', dataIndex: 'taskId', width: 230, sortable: false},
+            {title: '任务ID(TaskId)', dataIndex: 'taskId', width: 230, sortable: false},
             {title: '提交节点组', dataIndex: 'submitNodeGroup', width: 150},
             {title: '执行节点组', dataIndex: 'taskTrackerNodeGroup', width: 150},
             {title: 'cron表达式', dataIndex: 'cronExpression', width: 100},
@@ -167,8 +164,10 @@
             }
             },
             {
-                title: '操作', dataIndex: '', width: 60, sortable: false, renderer: function (value, obj) {
-                return '<a href="javascript:;" class="job-edit-btn">编辑<span class="hidden">' + JSON.stringify(obj) + '</span></a>&nbsp;' +
+                title: '操作', dataIndex: '', width: 90, sortable: false, renderer: function (value, obj) {
+                var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
+                return '<a target="_blank" href="'+ logUrl +'" class="job-logger-btn" taskId="' + obj.taskId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">日志</a>&nbsp;' +
+                        '<a href="javascript:;" class="job-edit-btn">编辑<span class="hidden">' + JSON.stringify(obj) + '</span></a>&nbsp;' +
                         '<a href="javascript:;" class="job-del-btn" jobId="' + obj.jobId + '">删除</a>';
             }
             }
@@ -192,6 +191,7 @@
             bbar: {
                 pagingBar: true
             },
+            emptyDataTpl : '<div class="centered">查询的数据不存在</div>',
             store: store
         });
         grid.render();
@@ -327,7 +327,7 @@
                     data: {jobId: jobId},
                     success: function (json) {
                         if (json && json.success) {
-                            BUI.Message.Alert("删除成功!");
+                            BUI.Message.Alert("添加成功!");
                             that.parents(".bui-grid-row").remove();
                         } else {
                             BUI.Message.Alert("删除失败, " + json.msg);
@@ -335,6 +335,12 @@
                     }
                 });
             }, 'question');
+        });
+
+        $(document).on("click", ".job-logger-btn", function(){
+            var taskId = $(this).attr("taskId");
+            var taskTrackerNodeGroup = $(this).attr("taskTrackerNodeGroup");
+
         });
     }
 

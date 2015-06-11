@@ -1,6 +1,6 @@
 package com.lts.job.web.support;
 
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 import com.lts.job.web.vo.RestfulResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

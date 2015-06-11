@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import java.util.Collection;
 import java.util.Map;

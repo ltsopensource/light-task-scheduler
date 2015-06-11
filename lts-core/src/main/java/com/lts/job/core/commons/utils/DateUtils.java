@@ -1,8 +1,9 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -142,5 +143,34 @@ public class DateUtils {
         DateFormat df = getDateFormat(YMD);
         return df.format(date).equals(df.format(date2));
     }
+
+    public static Date addMonth(Date date, int interval) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MONTH, interval);
+        return calendar.getTime();
+    }
+
+    public static Date addDay(Date date, int interval) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_MONTH, interval);
+        return calendar.getTime();
+    }
+
+    public static Date addHour(Date date, int interval) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.HOUR_OF_DAY, interval);
+        return calendar.getTime();
+    }
+
+    public static Date addMinute(Date date, int interval) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.MINUTE, interval);
+        return calendar.getTime();
+    }
+
 
 }
