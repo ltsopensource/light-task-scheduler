@@ -217,6 +217,7 @@
             bbar: {
                 pagingBar: true
             },
+            emptyDataTpl : '<div class="centered">查询的数据不存在</div>',
             store: store
         });
         grid.render();

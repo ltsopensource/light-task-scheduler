@@ -57,6 +57,21 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-logger-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-logger-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-logger-mongo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>

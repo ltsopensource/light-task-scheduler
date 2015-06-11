@@ -1,5 +1,6 @@
 package com.lts.job.web.cluster;
 
+import com.lts.job.biz.logger.JobLogger;
 import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.queue.*;
@@ -14,6 +15,7 @@ public class AdminApplication extends Application {
     private ExecutingJobQueue executingJobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
     private NodeGroupStore nodeGroupStore;
+    private JobLogger jobLogger;
     private Node node;
 
     public Node getNode() {
@@ -62,5 +64,13 @@ public class AdminApplication extends Application {
 
     public void setJobFeedbackQueue(JobFeedbackQueue jobFeedbackQueue) {
         this.jobFeedbackQueue = jobFeedbackQueue;
+    }
+
+    public JobLogger getJobLogger() {
+        return jobLogger;
+    }
+
+    public void setJobLogger(JobLogger jobLogger) {
+        this.jobLogger = jobLogger;
     }
 }

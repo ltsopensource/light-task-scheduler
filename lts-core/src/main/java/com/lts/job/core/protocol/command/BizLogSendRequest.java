@@ -7,6 +7,8 @@ import com.lts.job.core.constant.Level;
  */
 public class BizLogSendRequest extends AbstractCommandBody{
 
+    private String taskId;
+
     private String jobId;
 
     private String msg;
@@ -19,6 +21,14 @@ public class BizLogSendRequest extends AbstractCommandBody{
 
     public void setJobId(String jobId) {
         this.jobId = jobId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getMsg() {

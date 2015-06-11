@@ -51,14 +51,6 @@
                         </select>
                     </div>
                 </div>
-                <%--<div class="control-group span12">--%>
-                <%--<label class="control-label">创建时间：</label>--%>
-
-                <%--<div class="controls">--%>
-                <%--<input type="text" class="calendar calendar-time" name="startDate"><span> ---%>
-                <%--</span><input name="endDate" type="text" class="calendar calendar-time">--%>
-                <%--</div>--%>
-                <%--</div>--%>
                 <div class="span3 offset2">
                     <button type="button" id="btnSearch" class="button button-primary">搜索</button>
                 </div>
@@ -83,6 +75,11 @@
             {title: '任务ID', dataIndex: 'taskId', width: 230, sortable: false},
             {title: '提交节点组', dataIndex: 'submitNodeGroup', width: 150},
             {title: '执行节点组', dataIndex: 'taskTrackerNodeGroup', width: 150},
+            {
+                title: '执行时间', dataIndex: 'triggerTime', width: 125, renderer: function (v) {
+                return DateUtil.formatYMDHMD(v);
+            }
+            },
             {title: 'cron表达式', dataIndex: 'cronExpression', width: 100},
             {title: '优先级', dataIndex: 'priority', width: 60},
             {
@@ -109,8 +106,11 @@
             }
             },
             {
-                title: '操作', dataIndex: '', width: 60, sortable: false, renderer: function (value, obj) {
-                return "";
+                title: '操作', dataIndex: '', width: 90, sortable: false, renderer: function (value, obj) {
+                var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
+                return '<a target="_blank" href="'+ logUrl +'" class="job-logger-btn" taskId="' + obj.taskId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">日志</a>&nbsp;' +
+                        '<a href="javascript:;" class="job-edit-btn">编辑<span class="hidden">' + JSON.stringify(obj) + '</span></a>&nbsp;' +
+                        '<a href="javascript:;" class="job-del-btn" jobId="' + obj.jobId + '">删除</a>';
             }
             }
         ];
@@ -133,6 +133,7 @@
             bbar: {
                 pagingBar: true
             },
+            emptyDataTpl : '<div class="centered">查询的数据不存在</div>',
             store: store
         });
         grid.render();

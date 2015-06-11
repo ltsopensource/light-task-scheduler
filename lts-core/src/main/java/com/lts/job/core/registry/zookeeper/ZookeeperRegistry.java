@@ -126,6 +126,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
                 public void childChanged(String parentPath, List<String> currentChilds) {
 
+                    if (CollectionUtils.isEmpty(currentChilds)) {
+                        currentChilds = new ArrayList<String>(0);
+                    }
+
                     List<String> oldChilds = cachedChildrenNodeMap.get(parentPath);
                     // 1. 找出增加的 节点
                     List<String> addChilds = CollectionUtils.getLeftDiff(currentChilds, oldChilds);

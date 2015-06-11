@@ -1,5 +1,6 @@
 package com.lts.job.core.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +30,7 @@ public class PageResponse<T> {
     }
 
     public List<T> getRows() {
-        return rows;
+        return rows == null ? new ArrayList<T>(0) : rows;
     }
 
     public void setRows(List<T> rows) {

@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `cron_expression` varchar(32) DEFAULT NULL COMMENT 'cron表达式',
   `trigger_time` bigint(20) DEFAULT NULL COMMENT '触发时间',
   PRIMARY KEY (`id`),
-  KEY `timestamp` (`timestamp`)
+  KEY `timestamp` (`timestamp`),
+  KEY `task_id_task_tracker_node_group` (`task_id`,`task_tracker_node_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
