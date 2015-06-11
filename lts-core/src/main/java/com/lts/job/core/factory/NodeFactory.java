@@ -2,7 +2,7 @@ package com.lts.job.core.factory;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.util.NetUtils;
+import com.lts.job.core.commons.utils.NetUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/25/14.

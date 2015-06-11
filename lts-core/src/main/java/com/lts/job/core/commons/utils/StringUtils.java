@@ -1,7 +1,8 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
+
+import com.lts.job.core.logger.support.FormattingTuple;
+import com.lts.job.core.logger.support.MessageFormatter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

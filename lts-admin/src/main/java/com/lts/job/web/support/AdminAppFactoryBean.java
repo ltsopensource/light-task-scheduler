@@ -4,7 +4,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.extension.ExtensionLoader;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.queue.*;
 import com.lts.job.web.cluster.AdminApplication;
 import org.springframework.beans.factory.FactoryBean;

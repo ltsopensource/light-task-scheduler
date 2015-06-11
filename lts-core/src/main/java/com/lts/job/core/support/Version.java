@@ -1,5 +1,6 @@
-package com.lts.job.core.util;
+package com.lts.job.core.support;
 
+import com.lts.job.core.commons.utils.ClassHelper;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 

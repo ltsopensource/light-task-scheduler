@@ -4,7 +4,7 @@ import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.store.jdbc.SqlBuilder;
 import com.lts.job.web.request.NodeRequest;
 import org.apache.commons.dbutils.ResultSetHandler;

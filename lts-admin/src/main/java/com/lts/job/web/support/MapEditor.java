@@ -1,7 +1,7 @@
 package com.lts.job.web.support;
 
 import com.alibaba.fastjson.TypeReference;
-import com.lts.job.core.util.JSONUtils;
+import com.lts.job.core.commons.utils.JSONUtils;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;

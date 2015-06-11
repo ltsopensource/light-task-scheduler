@@ -5,7 +5,7 @@ import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.constant.EcTopic;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.ec.EventInfo;
 
 import java.util.List;

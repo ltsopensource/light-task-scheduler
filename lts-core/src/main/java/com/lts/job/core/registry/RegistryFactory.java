@@ -3,7 +3,7 @@ package com.lts.job.core.registry;
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.registry.redis.RedisRegistry;
 import com.lts.job.core.registry.zookeeper.ZookeeperRegistry;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/17/15.

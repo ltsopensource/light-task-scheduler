@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;

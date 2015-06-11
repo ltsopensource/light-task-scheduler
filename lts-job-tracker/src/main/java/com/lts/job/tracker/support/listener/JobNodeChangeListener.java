@@ -3,7 +3,7 @@ package com.lts.job.tracker.support.listener;
 import com.lts.job.core.cluster.Node;
 import com.lts.job.core.cluster.NodeType;
 import com.lts.job.core.listener.NodeChangeListener;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.tracker.domain.JobTrackerApplication;
 
 import java.util.List;

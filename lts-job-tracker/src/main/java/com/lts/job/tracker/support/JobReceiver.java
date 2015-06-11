@@ -6,7 +6,7 @@ import com.lts.job.core.extension.ExtensionLoader;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
 import com.lts.job.core.protocol.command.JobSubmitRequest;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.DuplicateJobException;
 import com.lts.job.tracker.domain.JobTrackerApplication;

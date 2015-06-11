@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 import java.text.DateFormat;
 import java.text.ParseException;

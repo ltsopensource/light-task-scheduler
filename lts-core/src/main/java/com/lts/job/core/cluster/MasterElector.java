@@ -4,9 +4,8 @@ import com.lts.job.core.Application;
 import com.lts.job.core.listener.MasterChangeListener;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -22,23 +21,19 @@ public class MasterElector {
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterElector.class);
 
     private Application application;
-    private List<MasterChangeListener> masterChangeListenerList;
+    private List<MasterChangeListener> listeners;
     private volatile Node master;
 
     public MasterElector(Application application) {
         this.application = application;
     }
 
-    public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
-        addMasterChangeListener(new CopyOnWriteArrayList<MasterChangeListener>(Arrays.asList(masterChangeListener)));
-    }
-
     public void addMasterChangeListener(List<MasterChangeListener> masterChangeListeners) {
-        if (masterChangeListenerList == null) {
-            masterChangeListenerList = new CopyOnWriteArrayList<MasterChangeListener>();
+        if (listeners == null) {
+            listeners = new CopyOnWriteArrayList<MasterChangeListener>();
         }
         if (CollectionUtils.isNotEmpty(masterChangeListeners)) {
-            masterChangeListenerList.addAll(masterChangeListeners);
+            listeners.addAll(masterChangeListeners);
         }
     }
 
@@ -108,8 +103,8 @@ public class MasterElector {
             isMaster = false;
         }
 
-        if (masterChangeListenerList != null) {
-            for (MasterChangeListener masterChangeListener : masterChangeListenerList) {
+        if (listeners != null) {
+            for (MasterChangeListener masterChangeListener : listeners) {
                 try {
                     masterChangeListener.change(master, isMaster);
                 } catch (Throwable t) {

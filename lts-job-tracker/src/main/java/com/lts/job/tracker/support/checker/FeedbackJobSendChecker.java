@@ -3,7 +3,7 @@ package com.lts.job.tracker.support.checker;
 import com.lts.job.core.domain.JobResult;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.queue.domain.JobFeedbackPo;
 import com.lts.job.tracker.domain.JobClientNode;
 import com.lts.job.tracker.domain.JobTrackerApplication;

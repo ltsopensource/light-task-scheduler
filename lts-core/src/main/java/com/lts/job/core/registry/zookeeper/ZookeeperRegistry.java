@@ -8,7 +8,7 @@ import com.lts.job.core.registry.FailbackRegistry;
 import com.lts.job.core.registry.NodeRegistryUtils;
 import com.lts.job.core.registry.NotifyEvent;
 import com.lts.job.core.registry.NotifyListener;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 import com.lts.job.zookeeper.ChildListener;
 import com.lts.job.zookeeper.StateListener;
 import com.lts.job.zookeeper.ZookeeperClient;

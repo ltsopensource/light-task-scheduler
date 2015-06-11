@@ -1,6 +1,6 @@
 package com.lts.job.core;
 
-import com.lts.job.core.util.NetUtils;
+import com.lts.job.core.commons.utils.NetUtils;
 import org.junit.Test;
 
 /**

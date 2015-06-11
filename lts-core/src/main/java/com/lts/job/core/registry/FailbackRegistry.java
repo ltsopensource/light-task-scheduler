@@ -2,9 +2,9 @@ package com.lts.job.core.registry;
 
 import com.lts.job.core.cluster.Config;
 import com.lts.job.core.cluster.Node;
+import com.lts.job.core.commons.collect.ConcurrentHashSet;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.factory.NamedThreadFactory;
-import com.lts.job.core.util.ConcurrentHashSet;
 
 import java.util.*;
 import java.util.concurrent.*;

@@ -1,6 +1,6 @@
 package com.lts.job.store.jdbc;
 
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;

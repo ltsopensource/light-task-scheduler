@@ -1,7 +1,7 @@
 package com.lts.job.tracker.id;
 
 import com.lts.job.core.cluster.Config;
-import com.lts.job.core.util.Md5Encrypt;
+import com.lts.job.core.commons.utils.Md5Encrypt;
 import com.lts.job.queue.domain.JobPo;
 
 /**

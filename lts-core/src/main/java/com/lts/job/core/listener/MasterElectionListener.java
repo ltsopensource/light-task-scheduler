@@ -2,7 +2,7 @@ package com.lts.job.core.listener;
 
 import com.lts.job.core.Application;
 import com.lts.job.core.cluster.Node;
-import com.lts.job.core.util.CollectionUtils;
+import com.lts.job.core.commons.utils.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;

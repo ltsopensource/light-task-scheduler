@@ -1,4 +1,4 @@
-package com.lts.job.core.util;
+package com.lts.job.core.commons.utils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/18/15.

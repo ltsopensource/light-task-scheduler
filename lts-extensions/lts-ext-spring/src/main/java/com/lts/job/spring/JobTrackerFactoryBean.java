@@ -1,8 +1,8 @@
 package com.lts.job.spring;
 
 import com.lts.job.core.listener.MasterChangeListener;
-import com.lts.job.core.util.Assert;
-import com.lts.job.core.util.StringUtils;
+import com.lts.job.core.commons.utils.Assert;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.tracker.JobTracker;
 import com.lts.job.tracker.logger.JobLogger;
 import com.lts.job.tracker.queue.JobFeedbackQueue;
