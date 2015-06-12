@@ -163,6 +163,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
 
                 JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+                jobLogPo.setSuccess(true);
                 jobLogPo.setLogType(LogType.SENT);
                 jobLogPo.setLevel(Level.INFO);
                 application.getJobLogger().log(jobLogPo);

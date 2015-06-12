@@ -193,6 +193,7 @@ public class ExecutingDeadJobChecker {
             // 2. remove from executing queue
             application.getExecutingJobQueue().remove(jobPo.getJobId());
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+            jobLogPo.setSuccess(true);
             jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
             application.getJobLogger().log(jobLogPo);

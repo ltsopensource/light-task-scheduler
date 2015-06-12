@@ -29,6 +29,7 @@ public class JobBizLogProcessor extends AbstractProcessor {
         jobLogPo.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
         jobLogPo.setTaskTrackerIdentity(requestBody.getIdentity());
         jobLogPo.setJobId(requestBody.getJobId());
+        jobLogPo.setTaskId(requestBody.getTaskId());
         jobLogPo.setMsg(requestBody.getMsg());
         jobLogPo.setSuccess(true);
         jobLogPo.setLevel(requestBody.getLevel());

@@ -166,7 +166,7 @@
             {
                 title: '操作', dataIndex: '', width: 90, sortable: false, renderer: function (value, obj) {
                 var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
-                return '<a target="_blank" href="'+ logUrl +'" class="job-logger-btn" taskId="' + obj.taskId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">日志</a>&nbsp;' +
+                return '<a target="_blank" href="'+ logUrl +'">日志</a>&nbsp;' +
                         '<a href="javascript:;" class="job-edit-btn">编辑<span class="hidden">' + JSON.stringify(obj) + '</span></a>&nbsp;' +
                         '<a href="javascript:;" class="job-del-btn" jobId="' + obj.jobId + '">删除</a>';
             }

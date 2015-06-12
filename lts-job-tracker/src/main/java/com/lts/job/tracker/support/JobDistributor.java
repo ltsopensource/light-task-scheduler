@@ -173,6 +173,7 @@ public class JobDistributor {
         // 记录日志
 
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+        jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.SENT);
         jobLogPo.setLevel(Level.INFO);
         application.getJobLogger().log(jobLogPo);

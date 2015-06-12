@@ -28,8 +28,13 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
         // create index if not exist
         if (CollectionUtils.isEmpty(indexInfo)) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
-            template.ensureIndex("idx_taskTrackerNodeGroup_taskId", "taskTrackerNodeGroup,taskId", true, true);
+            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
         }
+    }
+
+    @Override
+    protected String getTargetTable(String taskTrackerNodeGroup) {
+        return JobQueueUtils.CRON_JOB_QUEUE;
     }
 
     @Override
