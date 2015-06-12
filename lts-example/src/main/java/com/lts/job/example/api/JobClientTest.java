@@ -62,9 +62,13 @@ public class JobClientTest extends BaseJobClientTest {
 //                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
 //        jobClient.addConfig("job.fail.store", "berkeleydb");
 //        jobClient.addConfig("job.fail.store", "rocksdb");
-        jobClient.addConfig("job.submit.concurrency.size", "3");
+        jobClient.addConfig("job.submit.concurrency.size", "20");
         jobClient.start();
 
+        fastSubmit(jobClient);
+    }
+
+    private static void fastSubmit(final JobClient jobClient) {
         final AtomicLong num = new AtomicLong();
         System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
@@ -81,7 +85,7 @@ public class JobClientTest extends BaseJobClientTest {
                         try {
                             Response response = jobClient.submitJob(job);
                             System.out.print(" " + num.incrementAndGet());
-                            if(num.incrementAndGet() % 50 == 0){
+                            if (num.incrementAndGet() % 50 == 0) {
                                 System.out.println("");
                             }
 //                            System.out.println(JSONObject.toJSONString(response));
@@ -97,7 +101,6 @@ public class JobClientTest extends BaseJobClientTest {
                 }
             }).start();
         }
-
     }
 
 }

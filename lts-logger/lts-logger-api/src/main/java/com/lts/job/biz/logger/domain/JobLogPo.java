@@ -11,7 +11,7 @@ import java.util.Map;
 public class JobLogPo {
 
     // 日志记录时间
-    private Long timestamp = System.currentTimeMillis();
+    private Long timestamp;
     // 日志类型
     private LogType logType;
     private boolean success;

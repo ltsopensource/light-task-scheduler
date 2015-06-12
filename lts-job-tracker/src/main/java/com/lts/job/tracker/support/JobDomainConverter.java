@@ -60,6 +60,7 @@ public class JobDomainConverter {
 
     public static JobLogPo convertJobLog(Job job) {
         JobLogPo jobLogPo = new JobLogPo();
+        jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
         jobLogPo.setPriority(job.getPriority());
         jobLogPo.setExtParams(job.getExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
@@ -74,6 +75,7 @@ public class JobDomainConverter {
 
     public static JobLogPo convertJobLog(JobPo jobPo) {
         JobLogPo jobLogPo = new JobLogPo();
+        jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
         jobLogPo.setPriority(jobPo.getPriority());
         jobLogPo.setExtParams(jobPo.getExtParams());
         jobLogPo.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());

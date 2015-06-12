@@ -1,19 +1,23 @@
 package com.lts.job.queue.mongo;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.commons.utils.JSONUtils;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.core.domain.JobQueueRequest;
-import com.lts.job.core.domain.PageRequest;
 import com.lts.job.core.domain.PageResponse;
 import com.lts.job.queue.JobQueue;
 import com.lts.job.queue.domain.JobPo;
+import com.lts.job.queue.exception.JobQueueException;
 import com.lts.job.store.mongo.MongoRepository;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
 
-import java.util.List;
+import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
-public abstract class AbstractMongoJobQueue extends MongoRepository implements JobQueue{
+public abstract class AbstractMongoJobQueue extends MongoRepository implements JobQueue {
 
     public AbstractMongoJobQueue(Config config) {
         super(config);
@@ -21,11 +25,96 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
 
     @Override
     public PageResponse<JobPo> pageSelect(JobQueueRequest request) {
-        return null;
+        Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
+        addCondition(query, "jobId", request.getJobId());
+        addCondition(query, "taskId", request.getTaskId());
+        addCondition(query, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addCondition(query, "submitNodeGroup", request.getSubmitNodeGroup());
+        addCondition(query, "needFeedback", request.getNeedFeedback());
+        if (request.getStartGmtCreated() != null) {
+            query.filter("gmtCreated >= ", request.getStartGmtCreated().getTime());
+        }
+        if (request.getEndGmtCreated() != null) {
+            query.filter("gmtCreated <= ", request.getEndGmtCreated().getTime());
+        }
+        if (request.getStartGmtModified() != null) {
+            query.filter("gmtModified <= ", request.getStartGmtModified().getTime());
+        }
+        if (request.getEndGmtModified() != null) {
+            query.filter("gmtModified >= ", request.getEndGmtModified().getTime());
+        }
+        PageResponse<JobPo> response = new PageResponse<JobPo>();
+        Long results = template.getCount(query);
+        response.setResults(results.intValue());
+        if (results == 0) {
+            return response;
+        }
+
+        if (StringUtils.isNotEmpty(request.getField()) && StringUtils.isNotEmpty(request.getDirection())) {
+            query.order(("ASC".equalsIgnoreCase(request.getDirection()) ? "+" : "-") + request.getField());
+        }
+        query.offset(request.getStart()).limit(request.getLimit());
+        response.setRows(query.asList());
+        return response;
     }
 
     @Override
     public boolean selectiveUpdate(JobQueueRequest request) {
-        return false;
+        if (StringUtils.isEmpty(request.getJobId())) {
+            throw new JobQueueException("Only allow by jobId");
+        }
+        Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
+        query.field("jobId").equal(request.getJobId());
+
+        UpdateOperations<JobPo> operations = template.createUpdateOperations(JobPo.class);
+        addUpdateField(operations, "cronExpression", request.getCronExpression());
+        addUpdateField(operations, "needFeedback", request.getNeedFeedback());
+        addUpdateField(operations, "extParams", JSONUtils.toJSONString(request.getExtParams()));
+        addUpdateField(operations, "triggerTime", request.getTriggerTime() == null ? null : request.getTriggerTime().getTime());
+        addUpdateField(operations, "priority", request.getPriority());
+        addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
+
+        template.update(query, operations);
+
+        return true;
     }
+
+    private Query<JobPo> addCondition(Query<JobPo> query, String field, Object o) {
+        if (!checkCondition(o)) {
+            return query;
+        }
+        query.field(field).equal(o);
+        return query;
+    }
+
+    private UpdateOperations<JobPo> addUpdateField(UpdateOperations<JobPo> operations, String field, Object o) {
+        if (!checkCondition(o)) {
+            return operations;
+        }
+        operations.set(field, o);
+        return operations;
+    }
+
+    private boolean checkCondition(Object obj) {
+        if (obj == null) {
+            return false;
+        } else if (obj instanceof String) {
+            if (StringUtils.isEmpty((String) obj)) {
+                return false;
+            }
+        } else if (
+                obj instanceof Boolean ||
+                        obj instanceof Long ||
+                        obj instanceof Float ||
+                        obj instanceof Date) {
+            return true;
+        } else {
+            throw new IllegalArgumentException("Can not support type " + obj.getClass());
+        }
+
+        return true;
+    }
+
+    protected abstract String getTargetTable(String taskTrackerNodeGroup);
+
 }

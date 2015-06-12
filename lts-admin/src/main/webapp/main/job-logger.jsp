@@ -98,7 +98,10 @@
             {title: '提交节点组', dataIndex: 'submitNodeGroup', sortable: false, width: 150},
             {
                 title: '执行时间', dataIndex: 'triggerTime', sortable: false, width: 125, renderer: function (v) {
-                return DateUtil.formatYMDHMD(v);
+                if(v){
+                    return DateUtil.formatYMDHMD(v);
+                }
+                return v;
             }
             },
             {title: 'cron表达式', dataIndex: 'cronExpression', sortable: false, width: 100},
@@ -117,7 +120,7 @@
             },
             {
                 title: '内容', dataIndex: 'msg', sortable: false, width: 200
-            },
+            }
         ];
 
         var store = new Data.Store({

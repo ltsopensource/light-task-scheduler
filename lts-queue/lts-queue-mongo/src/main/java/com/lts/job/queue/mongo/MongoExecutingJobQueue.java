@@ -28,10 +28,15 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
         // create index if not exist
         if (CollectionUtils.isEmpty(indexInfo)) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
-            template.ensureIndex("idx_taskTrackerNodeGroup_taskId", "taskTrackerNodeGroup,taskId", true, true);
+            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
             template.ensureIndex("idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex("idx_gmtCreated", "gmtCreated");
         }
+    }
+
+    @Override
+    protected String getTargetTable(String taskTrackerNodeGroup) {
+        return JobQueueUtils.EXECUTING_JOB_QUEUE;
     }
 
     @Override

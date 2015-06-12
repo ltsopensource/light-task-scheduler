@@ -112,7 +112,7 @@
             {
                 title: '操作', dataIndex: '', width: 40, sortable: false, renderer: function (value, obj) {
                 var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
-                return '<a target="_blank" href="'+ logUrl +'" class="job-logger-btn" taskId="' + obj.taskId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">日志</a>&nbsp;';
+                return '<a target="_blank" href="'+ logUrl +'">日志</a>&nbsp;';
             }
             }
         ];

@@ -1,6 +1,7 @@
 package com.lts.job.queue.mongo;
 
 import com.lts.job.core.cluster.Config;
+import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.core.constant.Constants;
 import com.lts.job.core.logger.Logger;
 import com.lts.job.core.logger.LoggerFactory;
@@ -10,6 +11,7 @@ import com.lts.job.core.support.JobQueueUtils;
 import com.lts.job.queue.ExecutableJobQueue;
 import com.lts.job.queue.domain.JobPo;
 import com.lts.job.queue.exception.DuplicateJobException;
+import com.lts.job.queue.exception.JobQueueException;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -43,6 +45,14 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     }
 
     @Override
+    protected String getTargetTable(String taskTrackerNodeGroup) {
+        if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
+            throw new JobQueueException("taskTrackerNodeGroup can not be null");
+        }
+        return JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+    }
+
+    @Override
     public boolean createQueue(String taskTrackerNodeGroup) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         DBCollection dbCollection = template.getCollection(tableName);
@@ -50,7 +60,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
         // create index if not exist
         if (CollectionUtils.isEmpty(indexInfo)) {
             template.ensureIndex(tableName, "idx_jobId", "jobId", true, true);
-            template.ensureIndex(tableName, "idx_taskTrackerNodeGroup_taskId", "taskTrackerNodeGroup,taskId", true, true);
+            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");

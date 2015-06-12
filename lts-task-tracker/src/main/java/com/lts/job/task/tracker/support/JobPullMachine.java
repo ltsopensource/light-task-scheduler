@@ -54,6 +54,9 @@ public class JobPullMachine {
             @Override
             public void run() {
                 try {
+                    if (!start.get()) {
+                        return;
+                    }
                     sendRequest();
                 } catch (Exception e) {
                     LOGGER.error("Job pull machine run error!", e);
@@ -65,7 +68,9 @@ public class JobPullMachine {
     private void start() {
         try {
             if (start.compareAndSet(false, true)) {
-                scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
+                if (scheduledFuture == null) {
+                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
+                }
                 LOGGER.info("Start job pull machine success!");
             }
         } catch (Throwable t) {
@@ -76,8 +81,8 @@ public class JobPullMachine {
     private void stop() {
         try {
             if (start.compareAndSet(true, false)) {
-                scheduledFuture.cancel(true);
-                SCHEDULED_CHECKER.shutdown();
+//                scheduledFuture.cancel(true);
+//                SCHEDULED_CHECKER.shutdown();
                 LOGGER.info("Stop job pull machine success!");
             }
         } catch (Throwable t) {
