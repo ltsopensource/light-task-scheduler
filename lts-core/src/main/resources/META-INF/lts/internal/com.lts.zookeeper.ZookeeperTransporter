@@ -1,0 +1,2 @@
+zkclient=com.lts.zookeeper.zkclient.ZkClientZookeeperTransporter
+curator=com.lts.zookeeper.curator.CuratorZookeeperTransporter

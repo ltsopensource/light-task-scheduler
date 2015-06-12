@@ -13,17 +13,17 @@
     <dependencies>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-job-tracker</artifactId>
+            <artifactId>lts-jobtracker</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-task-tracker</artifactId>
+            <artifactId>lts-tasktracker</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-job-client</artifactId>
+            <artifactId>lts-jobclient</artifactId>
             <version>${project.version}</version>
         </dependency>
 

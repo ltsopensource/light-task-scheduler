@@ -1,2 +1,0 @@
-zkclient=com.lts.job.zookeeper.zkclient.ZkClientZookeeperTransporter
-curator=com.lts.job.zookeeper.curator.CuratorZookeeperTransporter
