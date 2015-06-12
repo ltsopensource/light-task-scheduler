@@ -40,6 +40,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
                 return false;
             }
         };
+        retryScheduler.setName(RetryJobClient.class.getSimpleName());
         super.innerStart();
         retryScheduler.start();
     }

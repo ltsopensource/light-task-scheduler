@@ -51,7 +51,7 @@ public class JobPushProcessor extends AbstractProcessor {
                 return retrySendJobResults(jobResults);
             }
         };
-
+        retryScheduler.setName("JobPush");
         retryScheduler.start();
 
         // 线程安全的

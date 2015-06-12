@@ -35,6 +35,8 @@ public abstract class RetryScheduler<T> {
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private FailStore failStore;
+    // 名称主要是用来记录日志
+    private String name;
 
     // 批量发送的消息数
     private int batchSize = 5;
@@ -47,6 +49,7 @@ public abstract class RetryScheduler<T> {
         FailStoreFactory failStoreFactory = ExtensionLoader.getExtensionLoader(FailStoreFactory.class).getAdaptiveExtension();
         failStore = failStoreFactory.getFailStore(application.getConfig(), storePath);
     }
+
     public RetryScheduler(Application application, String storePath, int batchSize) {
         this(application, storePath);
         this.batchSize = batchSize;
@@ -57,15 +60,19 @@ public abstract class RetryScheduler<T> {
         this.batchSize = batchSize;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void start() {
         try {
             if (start.compareAndSet(false, true)) {
                 // 这个时间后面再去优化
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 10, 30, TimeUnit.SECONDS);
-                LOGGER.error("Start retry scheduler success!");
+                LOGGER.info("Start {} retry scheduler success!", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Start retry scheduler failed!", t);
+            LOGGER.error("Start {} retry scheduler failed!", name, t);
         }
     }
 
@@ -74,10 +81,10 @@ public abstract class RetryScheduler<T> {
             if (start.compareAndSet(false, true)) {
                 scheduledFuture.cancel(true);
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.error("Stop retry scheduler success!");
+                LOGGER.info("Stop {} retry scheduler success!", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop retry scheduler failed!", t);
+            LOGGER.error("Stop {} retry scheduler failed!", name, t);
         }
     }
 
@@ -117,7 +124,7 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("本地数据发送成功, {}", JSONUtils.toJSONString(values));
+                            LOGGER.info("{} local files send success, {}", name, JSONUtils.toJSONString(values));
                             failStore.delete(keys);
                         } else {
                             break;
@@ -137,7 +144,7 @@ public abstract class RetryScheduler<T> {
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
             } catch (Throwable e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.error("Run {} retry scheduler error.", name, e);
             }
         }
 
@@ -152,7 +159,7 @@ public abstract class RetryScheduler<T> {
                 failStore.close();
             }
         } catch (FailStoreException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("{} in schedule error. ", e);
         }
     }
 
