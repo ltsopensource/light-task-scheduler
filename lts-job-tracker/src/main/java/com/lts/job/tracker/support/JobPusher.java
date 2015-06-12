@@ -40,8 +40,7 @@ public class JobPusher {
 
     public JobPusher(JobTrackerApplication application) {
         this.application = application;
-        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5
-                , new NamedThreadFactory(JobPusher.class.getSimpleName()));
+        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5, new NamedThreadFactory(JobPusher.class.getSimpleName()));
     }
 
     public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
@@ -69,9 +68,10 @@ public class JobPusher {
         String nodeGroup = request.getNodeGroup();
         String identity = request.getIdentity();
         // 更新TaskTracker的可用线程数
-        application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup, identity, request.getAvailableThreads(), request.getTimestamp());
-
-        TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().getTaskTrackerNode(nodeGroup, identity);
+        application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
+                identity, request.getAvailableThreads(), request.getTimestamp());
+        TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().
+                getTaskTrackerNode(nodeGroup, identity);
 
         if (taskTrackerNode == null) {
             return;
@@ -81,24 +81,20 @@ public class JobPusher {
 
         while (availableThreads > 0) {
             // 推送任务
-            int code = sendJob(remotingServer, taskTrackerNode);
-            if (code == NO_JOB) {
-                // 没有可以执行的任务, 直接停止
+            PushResult result = sendJob(remotingServer, taskTrackerNode);
+            if (result == PushResult.SUCCESS) {
+                availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
+            } else {
                 break;
             }
-            if (code == PUSH_FAILED) {
-                break;
-            }
-            availableThreads = taskTrackerNode.getAvailableThread().get();
         }
     }
 
-    // 没有任务可执行
-    private final int NO_JOB = 1;
-    // 推送成功
-    private final int PUSH_SUCCESS = 2;
-    // 推送失败
-    private final int PUSH_FAILED = 3;
+    private enum PushResult {
+        NO_JOB, // 没有任务可执行
+        SUCCESS, //推送成功
+        FAILED      //推送失败
+    }
 
     /**
      * 是否推送成功
@@ -107,7 +103,7 @@ public class JobPusher {
      * @param taskTrackerNode
      * @return
      */
-    private int sendJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
+    private PushResult sendJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
 
         String nodeGroup = taskTrackerNode.getNodeGroup();
         String identity = taskTrackerNode.getIdentity();
@@ -116,7 +112,7 @@ public class JobPusher {
         JobPo jobPo = application.getExecutableJobQueue().take(nodeGroup, identity);
 
         if (jobPo == null) {
-            return NO_JOB;
+            return PushResult.NO_JOB;
         }
 
         JobPushRequest body = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
@@ -162,7 +158,7 @@ public class JobPusher {
                 LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + job);
             }
             application.getExecutableJobQueue().resume(jobPo);
-            return PUSH_FAILED;
+            return PushResult.FAILED;
         }
         try {
             application.getExecutingJobQueue().add(jobPo);
@@ -178,6 +174,6 @@ public class JobPusher {
         jobLogPo.setLevel(Level.INFO);
         application.getJobLogger().log(jobLogPo);
 
-        return PUSH_SUCCESS;
+        return PushResult.SUCCESS;
     }
 }
