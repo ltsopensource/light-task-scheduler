@@ -85,6 +85,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
         public void run(Job job) throws Throwable {
             System.out.println("我要执行"+ job);
             System.out.println(job.getParam("shopId"));
+            // TODO 用户自己的业务逻辑
             try {
                 Thread.sleep(5*1000L);
             } catch (InterruptedException e) {
