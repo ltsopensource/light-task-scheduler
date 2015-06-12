@@ -11,7 +11,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 框架支持实时任务，也支持定时任务，同时也支持CronExpression, 有问题，请加QQ群：109500214 一起完善，探讨
 
 ##架构图
-![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
+![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/LTS_architecture.png)
 ##节点组:
 * 1. 一个节点组等同于一个集群，同一个节点组中的各个节点是对等的，外界无论连接节点组中的任务一个节点都是可以的。
 * 2. 每个节点组中都有一个master节点(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。

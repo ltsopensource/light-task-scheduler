@@ -32,24 +32,24 @@ import java.util.concurrent.TimeUnit;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         任务分发管理
  */
-public class JobDistributor {
+public class JobPusher {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(JobDistributor.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
     private JobTrackerApplication application;
     private final ExecutorService executor;
 
-    public JobDistributor(JobTrackerApplication application) {
+    public JobPusher(JobTrackerApplication application) {
         this.application = application;
         executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5
-                , new NamedThreadFactory(JobDistributor.class.getSimpleName()));
+                , new NamedThreadFactory(JobPusher.class.getSimpleName()));
     }
 
-    public void distribute(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
+    public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
         executor.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    _sendJob(remotingServer, request);
+                    pushJob(remotingServer, request);
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
@@ -64,7 +64,7 @@ public class JobDistributor {
      * @param remotingServer
      * @param request
      */
-    private void _sendJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
+    private void pushJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
 
         String nodeGroup = request.getNodeGroup();
         String identity = request.getIdentity();

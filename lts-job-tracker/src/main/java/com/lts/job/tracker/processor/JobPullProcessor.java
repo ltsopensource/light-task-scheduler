@@ -6,7 +6,7 @@ import com.lts.job.core.remoting.RemotingServerDelegate;
 import com.lts.job.remoting.exception.RemotingCommandException;
 import com.lts.job.remoting.protocol.RemotingCommand;
 import com.lts.job.tracker.domain.JobTrackerApplication;
-import com.lts.job.tracker.support.JobDistributor;
+import com.lts.job.tracker.support.JobPusher;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
@@ -15,12 +15,12 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class JobPullProcessor extends AbstractProcessor {
 
-    private JobDistributor jobDistributor;
+    private JobPusher jobPusher;
 
     public JobPullProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
         super(remotingServer, application);
 
-        jobDistributor = new JobDistributor(application);
+        jobPusher = new JobPusher(application);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class JobPullProcessor extends AbstractProcessor {
 
         JobPullRequest requestBody = request.getBody();
 
-        jobDistributor.distribute(remotingServer, requestBody);
+        jobPusher.push(remotingServer, requestBody);
 
         return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.JOB_PULL_SUCCESS.code(), "");
     }
