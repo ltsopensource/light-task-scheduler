@@ -51,6 +51,7 @@ public class BizLoggerImpl implements BizLogger {
                 return sendBizLog(list);
             }
         };
+        retryScheduler.setName(BizLogger.class.getSimpleName());
         this.retryScheduler.start();
     }
 
