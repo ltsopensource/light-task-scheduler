@@ -10,9 +10,9 @@
     <version>1.5-SNAPSHOT</version>
     <modules>
         <module>lts-core</module>
-        <module>lts-job-tracker</module>
-        <module>lts-task-tracker</module>
-        <module>lts-job-client</module>
+        <module>lts-jobtracker</module>
+        <module>lts-tasktracker</module>
+        <module>lts-jobclient</module>
         <module>lts-queue</module>
         <module>lts-logger</module>
         <module>lts-example</module>

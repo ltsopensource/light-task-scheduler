@@ -1,4 +1,0 @@
-slf4j=com.lts.job.core.logger.slf4j.Slf4jLoggerAdapter
-jcl=com.lts.job.core.logger.jcl.JclLoggerAdapter
-log4j=com.lts.job.core.logger.log4j.Log4jLoggerAdapter
-jdk=com.lts.job.core.logger.jdk.JdkLoggerAdapter

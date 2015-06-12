@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
         >
 
-    <context:component-scan base-package="com.lts.job.web.controller"/>
+    <context:component-scan base-package="com.lts.web.controller"/>
     <aop:aspectj-autoproxy proxy-target-class="true"/>
     <context:annotation-config/>
     <mvc:annotation-driven/>
@@ -29,7 +29,7 @@
                 <bean class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                     <property name="objectMapper">
-                        <bean class="com.lts.job.web.support.NotNullObjectMapping"/>
+                        <bean class="com.lts.web.support.NotNullObjectMapping"/>
                     </property>
                 </bean>
                 <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>

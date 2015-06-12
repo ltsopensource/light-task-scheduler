@@ -1,3 +1,0 @@
-leveldb=com.lts.job.core.failstore.leveldb.LeveldbFailStoreFactory
-berkeleydb=com.lts.job.core.failstore.berkeleydb.BerkeleydbFailStoreFactory
-rocksdb=com.lts.job.core.failstore.rocksdb.RocksdbFailStoreFactory
