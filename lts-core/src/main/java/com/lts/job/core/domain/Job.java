@@ -7,6 +7,7 @@ import com.lts.job.core.commons.utils.JSONUtils;
 import com.lts.job.core.commons.utils.StringUtils;
 import com.lts.job.remoting.annotation.NotNull;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,6 +125,12 @@ public class Job {
 
     public boolean isSchedule() {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
+    }
+
+    public void setTriggerTime(Date date){
+        if(date != null){
+            this.triggerTime = date.getTime();
+        }
     }
 
     public Long getTriggerTime() {
