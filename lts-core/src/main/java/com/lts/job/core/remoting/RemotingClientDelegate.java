@@ -121,6 +121,9 @@ public class RemotingClientDelegate {
             remotingClient.invokeAsync(jobTracker.getAddress(), request,
                     application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
             this.serverEnable = true;
+            // publish msg
+            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
+            application.getEventCenter().publishAsync(eventInfo);
 
         } catch (Throwable e) {
             // 将这个JobTracker移除
@@ -152,6 +155,9 @@ public class RemotingClientDelegate {
             remotingClient.invokeOneway(jobTracker.getAddress(), request,
                     application.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
+            // publish msg
+            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
+            application.getEventCenter().publishAsync(eventInfo);
 
         } catch (Throwable e) {
             // 将这个JobTracker移除
