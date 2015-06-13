@@ -14,9 +14,10 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `submit_node_group` varchar(64) DEFAULT NULL COMMENT '提交节点group',
   `task_tracker_node_group` varchar(64) DEFAULT NULL COMMENT '执行节点group',
   `ext_params` text COMMENT '额外参数',
-  `needFeedback` tinyint(4) DEFAULT NULL COMMENT '是否需要反馈',
+  `need_feedback` tinyint(4) DEFAULT NULL COMMENT '是否需要反馈',
   `cron_expression` varchar(32) DEFAULT NULL COMMENT 'cron表达式',
   `trigger_time` bigint(20) DEFAULT NULL COMMENT '触发时间',
+  `retry_times` int(11) DEFAULT NULL COMMENT '重试次数',
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`),
   KEY `task_id_task_tracker_node_group` (`task_id`,`task_tracker_node_group`)

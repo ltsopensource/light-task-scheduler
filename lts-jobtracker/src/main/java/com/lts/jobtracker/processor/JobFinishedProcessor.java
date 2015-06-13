@@ -287,6 +287,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 } else {
                     // 表示下次还要执行
                     try {
+                        cronJobPo.setTaskTrackerIdentity(null);
                         cronJobPo.setIsRunning(false);
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                         cronJobPo.setGmtModified(System.currentTimeMillis());
@@ -316,8 +317,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 // 重试次数+1
                 jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
                 Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), jobPo.getRetryTimes()).getTime();
-                // 延迟重试时间就等于重试次数(分钟)
-                jobPo.setTriggerTime(nextRetryTriggerTime);
 
                 boolean needAdd = true;
 
@@ -329,6 +328,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         if (nextTriggerTime != null && nextTriggerTime.getTime() < nextRetryTriggerTime) {
                             // 表示下次还要执行, 并且下次执行时间比下次重试时间要早, 那么不重试，直接使用下次的执行时间
                             try {
+                                cronJobPo.setTaskTrackerIdentity(null);
                                 cronJobPo.setIsRunning(false);
                                 cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 cronJobPo.setGmtModified(System.currentTimeMillis());
@@ -345,6 +345,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 if (needAdd) {
                     // 加入到队列, 重试
                     jobPo.setIsRunning(false);
+                    jobPo.setTaskTrackerIdentity(null);
+                    // 延迟重试时间就等于重试次数(分钟)
+                    jobPo.setTriggerTime(nextRetryTriggerTime);
                     application.getExecutableJobQueue().add(jobPo);
                 }
                 // 从正在执行的队列中移除

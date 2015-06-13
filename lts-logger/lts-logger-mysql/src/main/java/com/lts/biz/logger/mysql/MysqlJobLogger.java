@@ -39,8 +39,8 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         insertSQL = "INSERT INTO `lts_job_log_po` (`log_time`,`gmt_created`, `log_type`, `success`, `msg`" +
                 ",`task_tracker_identity`, `level`, `task_id`, `job_id`" +
                 ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `need_feedback`" +
-                ", `cron_expression`, `trigger_time`)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                ", `cron_expression`, `trigger_time`, `retry_times`)" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -65,7 +65,8 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
                     JSONUtils.toJSONString(jobLogPo.getExtParams()),
                     jobLogPo.isNeedFeedback(),
                     jobLogPo.getCronExpression(),
-                    jobLogPo.getTriggerTime()
+                    jobLogPo.getTriggerTime(),
+                    jobLogPo.getRetryTimes()
             );
         } catch (SQLException e) {
             throw new JobLogException(e.getMessage(), e);
@@ -80,17 +81,17 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         String prefixSQL = "INSERT INTO `lts_job_log_po` ( `log_time`, `gmt_created`, `log_type`, `success`, `msg`" +
                 ",`task_tracker_identity`, `level`, `task_id`, `job_id`" +
                 ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `need_feedback`" +
-                ", `cron_expression`, `trigger_time`) VALUES ";
+                ", `cron_expression`, `trigger_time`, `retry_times`) VALUES ";
         int size = jobLogPos.size();
         for (int i = 0; i < size; i++) {
             if (i == size - 1) {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             } else {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),";
+                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),";
             }
         }
 
-        Object[][] params = new Object[size][16];
+        Object[][] params = new Object[size][17];
         int index = 0;
         for (JobLogPo jobLogPo : jobLogPos) {
             int i = index++;
@@ -110,6 +111,7 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
             params[i][13] = jobLogPo.isNeedFeedback();
             params[i][14] = jobLogPo.getCronExpression();
             params[i][15] = jobLogPo.getTriggerTime();
+            params[i][16] = jobLogPo.getRetryTimes();
         }
 
         try {
@@ -142,6 +144,7 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
                 jobLogPo.setNeedFeedback(rs.getBoolean("need_feedback"));
                 jobLogPo.setCronExpression(rs.getString("cron_expression"));
                 jobLogPo.setTriggerTime(rs.getLong("trigger_time"));
+                jobLogPo.setRetryTimes(rs.getInt("retry_times"));
                 result.add(jobLogPo);
             }
             return result;

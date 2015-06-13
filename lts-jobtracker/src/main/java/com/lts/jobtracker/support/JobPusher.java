@@ -2,6 +2,7 @@ package com.lts.jobtracker.support;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
+import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
@@ -171,6 +172,7 @@ public class JobPusher {
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.SENT);
+        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
         jobLogPo.setLevel(Level.INFO);
         application.getJobLogger().log(jobLogPo);
 

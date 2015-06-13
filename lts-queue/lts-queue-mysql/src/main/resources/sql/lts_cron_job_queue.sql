@@ -16,5 +16,5 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `trigger_time` bigint(20) DEFAULT NULL COMMENT '下一次执行时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),
-  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`),
+  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
