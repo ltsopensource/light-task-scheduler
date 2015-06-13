@@ -7,10 +7,10 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
 import com.lts.core.remoting.RemotingServerDelegate;
-import com.lts.remoting.exception.RemotingCommandException;
-import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.JobReceiver;
+import com.lts.remoting.exception.RemotingCommandException;
+import com.lts.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

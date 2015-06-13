@@ -1,7 +1,7 @@
 package com.lts.tasktracker.domain;
 
-import com.lts.core.domain.JobWrapper;
 import com.lts.core.domain.Action;
+import com.lts.core.domain.JobWrapper;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.

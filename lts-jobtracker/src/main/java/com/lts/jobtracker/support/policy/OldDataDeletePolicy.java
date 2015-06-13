@@ -1,9 +1,9 @@
 package com.lts.jobtracker.support.policy;
 
 import com.lts.core.support.SystemClock;
+import com.lts.jobtracker.support.OldDataHandler;
 import com.lts.queue.JobFeedbackQueue;
 import com.lts.queue.domain.JobFeedbackPo;
-import com.lts.jobtracker.support.OldDataHandler;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.

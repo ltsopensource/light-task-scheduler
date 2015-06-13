@@ -1,9 +1,9 @@
 package com.lts.tasktracker.runner;
 
+import com.lts.core.domain.Action;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.domain.Action;
 import com.lts.core.support.LoggerName;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;

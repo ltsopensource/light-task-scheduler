@@ -1,11 +1,10 @@
 package com.lts.tasktracker.runner;
 
+import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.constant.EcTopic;
-import com.lts.core.domain.Job;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;

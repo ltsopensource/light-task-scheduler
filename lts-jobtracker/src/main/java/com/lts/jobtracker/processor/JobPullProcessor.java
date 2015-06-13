@@ -3,10 +3,10 @@ package com.lts.jobtracker.processor;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
-import com.lts.remoting.exception.RemotingCommandException;
-import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.JobPusher;
+import com.lts.remoting.exception.RemotingCommandException;
+import com.lts.remoting.protocol.RemotingCommand;
 import io.netty.channel.ChannelHandlerContext;
 
 /**

@@ -1,13 +1,12 @@
 package com.lts.jobtracker.support.checker;
 
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.DateUtils;
-import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.support.SystemClock;
-import com.lts.queue.domain.JobPo;
 import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.queue.domain.JobPo;
 
 import java.util.List;
 import java.util.Set;

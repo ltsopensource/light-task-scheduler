@@ -3,8 +3,6 @@ package com.lts.jobtracker;
 import com.lts.biz.logger.JobLoggerFactory;
 import com.lts.core.cluster.AbstractServerNode;
 import com.lts.core.extension.ExtensionLoader;
-import com.lts.queue.*;
-import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.jobtracker.channel.ChannelManager;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.JobTrackerNode;
@@ -14,6 +12,8 @@ import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.listener.JobNodeChangeListener;
 import com.lts.jobtracker.support.listener.JobTrackerMasterChangeListener;
+import com.lts.queue.*;
+import com.lts.remoting.netty.NettyRequestProcessor;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/23/14.

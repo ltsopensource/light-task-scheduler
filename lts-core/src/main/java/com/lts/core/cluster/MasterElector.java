@@ -1,7 +1,7 @@
 package com.lts.core.cluster;
 
-import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.Application;
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.listener.MasterChangeListener;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;

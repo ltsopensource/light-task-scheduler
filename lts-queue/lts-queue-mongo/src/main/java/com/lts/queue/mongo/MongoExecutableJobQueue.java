@@ -1,12 +1,11 @@
 package com.lts.queue.mongo;
 
-import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.cluster.Config;
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;

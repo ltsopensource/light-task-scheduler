@@ -1,10 +1,10 @@
 package com.lts.example.support;
 
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.domain.Response;
-import com.lts.core.commons.utils.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

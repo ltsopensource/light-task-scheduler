@@ -1,7 +1,7 @@
 package com.lts.core.spi;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.Application;
+import com.lts.core.cluster.Config;
 import com.lts.core.extension.ExtensionLoader;
 
 /**

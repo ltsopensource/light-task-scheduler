@@ -2,8 +2,8 @@ package com.lts.jobtracker.support.listener;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
-import com.lts.core.listener.NodeChangeListener;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.listener.NodeChangeListener;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 
 import java.util.List;

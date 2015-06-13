@@ -11,6 +11,7 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.core.support.LoggerName;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
 import com.lts.remoting.InvokeCallback;
@@ -22,7 +23,6 @@ import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.tasktracker.runner.RunnerCallback;
-import com.lts.core.support.LoggerName;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;

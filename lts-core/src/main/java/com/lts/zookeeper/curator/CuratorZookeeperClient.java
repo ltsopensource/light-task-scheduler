@@ -1,7 +1,7 @@
 package com.lts.zookeeper.curator;
 
-import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.core.cluster.Config;
+import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.serializer.SerializableSerializer;

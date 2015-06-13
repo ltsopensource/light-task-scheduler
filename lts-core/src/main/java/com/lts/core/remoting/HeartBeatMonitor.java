@@ -1,5 +1,6 @@
 package com.lts.core.remoting;
 
+import com.lts.core.Application;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -11,7 +12,6 @@ import com.lts.core.protocol.command.HeartBeatRequest;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
-import com.lts.core.Application;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.List;
