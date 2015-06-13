@@ -13,9 +13,9 @@ public class JobLoggerRequest extends PageRequest {
 
     private String taskTrackerNodeGroup;
 
-    private Date startTimestamp;
+    private Date startLogTime;
 
-    private Date endTimestamp;
+    private Date endLogTime;
 
     public String getTaskId() {
         return taskId;
@@ -33,19 +33,19 @@ public class JobLoggerRequest extends PageRequest {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
     }
 
-    public Date getStartTimestamp() {
-        return startTimestamp;
+    public Date getStartLogTime() {
+        return startLogTime;
     }
 
-    public void setStartTimestamp(Date startTimestamp) {
-        this.startTimestamp = startTimestamp;
+    public void setStartLogTime(Date startLogTime) {
+        this.startLogTime = startLogTime;
     }
 
-    public Date getEndTimestamp() {
-        return endTimestamp;
+    public Date getEndLogTime() {
+        return endLogTime;
     }
 
-    public void setEndTimestamp(Date endTimestamp) {
-        this.endTimestamp = endTimestamp;
+    public void setEndLogTime(Date endLogTime) {
+        this.endLogTime = endLogTime;
     }
 }

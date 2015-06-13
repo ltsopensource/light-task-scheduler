@@ -1,25 +1,26 @@
 package com.lts.example.support;
 
+import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.LtsLoggerFactory;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
  */
 public class TestJobRunner implements JobRunner {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestJobRunner.class);
+
     @Override
     public Result run(Job job) throws Throwable {
         try {
-            System.out.println(
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())
-                            + " 我要执行：" + job + "shopId=" + job.getParam("shopId"));
+            LOGGER.info("我要执行：" + job);
 
             BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
             // 会发送到 LTS (JobTracker上)
@@ -27,10 +28,14 @@ public class TestJobRunner implements JobRunner {
 
             Thread.sleep(1000L);
 
+            if (DateUtils.currentTimeMillis() % 2 == 1) {
+                return new Result(Action.EXECUTE_LATER, "稍后执行");
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Result(false, e.getMessage());
+            LOGGER.info("Run job failed!", e);
+            return new Result(Action.EXECUTE_LATER, e.getMessage());
         }
-        return new Result(true, "执行成功了，哈哈");
+        return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
     }
 }

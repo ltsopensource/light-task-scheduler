@@ -169,12 +169,12 @@ public class FeedbackJobSendChecker {
             return id;
         }
 
-        public TaskTrackerJobResultWrapper(String id, TaskTrackerJobResult taskTrackerJobResult) {
+        public TaskTrackerJobResultWrapper(String id, TaskTrackerJobResult result) {
             this.id = id;
-            setJobWrapper(taskTrackerJobResult.getJobWrapper());
-            setMsg(taskTrackerJobResult.getMsg());
-            setSuccess(taskTrackerJobResult.isSuccess());
-            setTime(taskTrackerJobResult.getTime());
+            setJobWrapper(result.getJobWrapper());
+            setMsg(result.getMsg());
+            setAction(result.getAction());
+            setTime(result.getTime());
         }
     }
 

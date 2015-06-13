@@ -91,7 +91,7 @@ public class BizLoggerImpl implements BizLogger {
         final BizLog bizLog = new BizLog();
         bizLog.setTaskTrackerIdentity(requestBody.getIdentity());
         bizLog.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
-        bizLog.setTimestamp(DateUtils.currentTimeMillis());
+        bizLog.setLogTime(DateUtils.currentTimeMillis());
         bizLog.setJobId(jobTL.get().getObject1());
         bizLog.setTaskId(jobTL.get().getObject2());
         bizLog.setMsg(msg);

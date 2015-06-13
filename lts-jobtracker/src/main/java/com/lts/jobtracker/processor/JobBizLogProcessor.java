@@ -3,6 +3,7 @@ package com.lts.jobtracker.processor;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.domain.BizLog;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
@@ -32,7 +33,8 @@ public class JobBizLogProcessor extends AbstractProcessor {
         if (CollectionUtils.isNotEmpty(bizLogs)) {
             for (BizLog bizLog : bizLogs) {
                 JobLogPo jobLogPo = new JobLogPo();
-                jobLogPo.setTimestamp(bizLog.getTimestamp());
+                jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
+                jobLogPo.setLogTime(bizLog.getLogTime());
                 jobLogPo.setTaskTrackerNodeGroup(bizLog.getTaskTrackerNodeGroup());
                 jobLogPo.setTaskTrackerIdentity(bizLog.getTaskTrackerIdentity());
                 jobLogPo.setJobId(bizLog.getJobId());

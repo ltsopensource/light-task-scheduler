@@ -60,6 +60,19 @@ public class JobPo {
      */
     private Long triggerTime;
 
+    /**
+     * 重试次数
+     */
+    private Integer retryTimes;
+
+    public Integer getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(Integer retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
     public String getCronExpression() {
         return cronExpression;
     }

@@ -11,7 +11,9 @@ import java.util.Map;
 public class JobLogPo {
 
     // 日志记录时间
-    private Long timestamp;
+    private Long logTime;
+    // 日志记录时间
+    private Long gmtCreated;
     // 日志类型
     private LogType logType;
     private boolean success;
@@ -45,12 +47,22 @@ public class JobLogPo {
      */
     private Long triggerTime;
 
-    public Long getTimestamp() {
-        return timestamp;
+    private Integer retryTimes;
+
+    public Integer getRetryTimes() {
+        return retryTimes;
     }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
+    public void setRetryTimes(Integer retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
+    public Long getGmtCreated() {
+        return gmtCreated;
+    }
+
+    public void setGmtCreated(Long gmtCreated) {
+        this.gmtCreated = gmtCreated;
     }
 
     public LogType getLogType() {
@@ -163,5 +175,13 @@ public class JobLogPo {
 
     public void setTriggerTime(Long triggerTime) {
         this.triggerTime = triggerTime;
+    }
+
+    public Long getLogTime() {
+        return logTime;
+    }
+
+    public void setLogTime(Long logTime) {
+        this.logTime = logTime;
     }
 }

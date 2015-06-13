@@ -36,11 +36,11 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         super(config);
         doCreateTable();
 
-        insertSQL = "INSERT INTO `lts_job_log_po` (`timestamp`, `log_type`, `success`, `msg`" +
+        insertSQL = "INSERT INTO `lts_job_log_po` (`log_time`,`gmt_created`, `log_type`, `success`, `msg`" +
                 ",`task_tracker_identity`, `level`, `task_id`, `job_id`" +
                 ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `need_feedback`" +
                 ", `cron_expression`, `trigger_time`)" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
@@ -50,7 +50,8 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         }
         try {
             getSqlTemplate().update(insertSQL,
-                    jobLogPo.getTimestamp(),
+                    jobLogPo.getLogTime(),
+                    jobLogPo.getGmtCreated(),
                     jobLogPo.getLogType().name(),
                     jobLogPo.isSuccess(),
                     jobLogPo.getMsg(),
@@ -76,38 +77,39 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         if (CollectionUtils.isEmpty(jobLogPos)) {
             return;
         }
-        String prefixSQL = "INSERT INTO `lts_job_log_po` (`timestamp`, `log_type`, `success`, `msg`" +
+        String prefixSQL = "INSERT INTO `lts_job_log_po` ( `log_time`, `gmt_created`, `log_type`, `success`, `msg`" +
                 ",`task_tracker_identity`, `level`, `task_id`, `job_id`" +
                 ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `need_feedback`" +
                 ", `cron_expression`, `trigger_time`) VALUES ";
         int size = jobLogPos.size();
         for (int i = 0; i < size; i++) {
             if (i == size - 1) {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             } else {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),";
+                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),";
             }
         }
 
-        Object[][] params = new Object[size][15];
+        Object[][] params = new Object[size][16];
         int index = 0;
         for (JobLogPo jobLogPo : jobLogPos) {
             int i = index++;
-            params[i][0] = jobLogPo.getTimestamp();
-            params[i][1] = jobLogPo.getLogType().name();
-            params[i][2] = jobLogPo.isSuccess();
-            params[i][3] = jobLogPo.getMsg();
-            params[i][4] = jobLogPo.getTaskTrackerIdentity();
-            params[i][5] = jobLogPo.getLevel().name();
-            params[i][6] = jobLogPo.getTaskId();
-            params[i][7] = jobLogPo.getJobId();
-            params[i][8] = jobLogPo.getPriority();
-            params[i][9] = jobLogPo.getSubmitNodeGroup();
-            params[i][10] = jobLogPo.getTaskTrackerNodeGroup();
-            params[i][11] = JSONUtils.toJSONString(jobLogPo.getExtParams());
-            params[i][12] = jobLogPo.isNeedFeedback();
-            params[i][13] = jobLogPo.getCronExpression();
-            params[i][14] = jobLogPo.getTriggerTime();
+            params[i][0] = jobLogPo.getLogTime();
+            params[i][1] = jobLogPo.getGmtCreated();
+            params[i][2] = jobLogPo.getLogType().name();
+            params[i][3] = jobLogPo.isSuccess();
+            params[i][4] = jobLogPo.getMsg();
+            params[i][5] = jobLogPo.getTaskTrackerIdentity();
+            params[i][6] = jobLogPo.getLevel().name();
+            params[i][7] = jobLogPo.getTaskId();
+            params[i][8] = jobLogPo.getJobId();
+            params[i][9] = jobLogPo.getPriority();
+            params[i][10] = jobLogPo.getSubmitNodeGroup();
+            params[i][11] = jobLogPo.getTaskTrackerNodeGroup();
+            params[i][12] = JSONUtils.toJSONString(jobLogPo.getExtParams());
+            params[i][13] = jobLogPo.isNeedFeedback();
+            params[i][14] = jobLogPo.getCronExpression();
+            params[i][15] = jobLogPo.getTriggerTime();
         }
 
         try {
@@ -123,7 +125,8 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
             List<JobLogPo> result = new ArrayList<JobLogPo>();
             while (rs.next()) {
                 JobLogPo jobLogPo = new JobLogPo();
-                jobLogPo.setTimestamp(rs.getLong("timestamp"));
+                jobLogPo.setLogTime(rs.getLong("log_time"));
+                jobLogPo.setGmtCreated(rs.getLong("gmt_created"));
                 jobLogPo.setLogType(LogType.valueOf(rs.getString("log_type")));
                 jobLogPo.setSuccess(rs.getBoolean("success"));
                 jobLogPo.setMsg(rs.getString("msg"));
@@ -163,8 +166,8 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
             SqlBuilder countSQL = new SqlBuilder("SELECT count(1) FROM `lts_job_log_po` ");
             countSQL.addCondition("task_id", request.getTaskId());
             countSQL.addCondition("task_tracker_node_group", request.getTaskTrackerNodeGroup());
-            countSQL.addCondition("timestamp", getTimestamp(request.getStartTimestamp()), ">=");
-            countSQL.addCondition("timestamp", getTimestamp(request.getEndTimestamp()), "<=");
+            countSQL.addCondition("log_time", getTimestamp(request.getStartLogTime()), ">=");
+            countSQL.addCondition("log_time", getTimestamp(request.getEndLogTime()), "<=");
             Long results = getSqlTemplate().queryForValue(countSQL.getSQL(), countSQL.getParams().toArray());
             response.setResults(results.intValue());
             if (results == 0) {
@@ -174,10 +177,10 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
             SqlBuilder rowsSQL = new SqlBuilder("SELECT * FROM `lts_job_log_po` ");
             rowsSQL.addCondition("task_id", request.getTaskId());
             rowsSQL.addCondition("task_tracker_node_group", request.getTaskTrackerNodeGroup());
-            rowsSQL.addCondition("timestamp", getTimestamp(request.getStartTimestamp()), ">=");
-            rowsSQL.addCondition("timestamp", getTimestamp(request.getEndTimestamp()), "<=");
+            rowsSQL.addCondition("log_time", getTimestamp(request.getStartLogTime()), ">=");
+            rowsSQL.addCondition("log_time", getTimestamp(request.getEndLogTime()), "<=");
 
-            rowsSQL.addOrderBy("timestamp", "DESC");
+            rowsSQL.addOrderBy("log_time", "DESC");
             rowsSQL.addLimit(request.getStart(), request.getLimit());
             List<JobLogPo> rows = getSqlTemplate().query(rowsSQL.getSQL(), RESULT_SET_HANDLER, rowsSQL.getParams().toArray());
             response.setRows(rows);

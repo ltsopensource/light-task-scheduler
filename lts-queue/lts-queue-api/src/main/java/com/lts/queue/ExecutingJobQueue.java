@@ -20,6 +20,8 @@ public interface ExecutingJobQueue extends JobQueue{
      */
     boolean remove(String jobId);
 
+    JobPo get(String jobId);
+
     /**
      * 得到某个TaskTracker节点上正在执行的任务
      */

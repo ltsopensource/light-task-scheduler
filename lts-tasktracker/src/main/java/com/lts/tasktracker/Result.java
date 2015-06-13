@@ -1,32 +1,34 @@
 package com.lts.tasktracker;
 
+import com.lts.core.domain.Action;
+
 /**
  * @author Robert HG (254963746@qq.com) on 6/12/15.
  */
 public class Result {
 
-    private boolean success;
+    private Action action;
 
     private String msg;
 
     public Result() {
     }
 
-    public Result(boolean success) {
-        this.success = success;
-    }
-
-    public Result(boolean success, String msg) {
-        this.success = success;
+    public Result(Action action, String msg) {
+        this.action = action;
         this.msg = msg;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public Result(Action action) {
+        this.action = action;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
     }
 
     public String getMsg() {

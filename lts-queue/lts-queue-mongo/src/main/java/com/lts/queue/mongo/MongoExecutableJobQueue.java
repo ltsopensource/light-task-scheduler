@@ -60,7 +60,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
         // create index if not exist
         if (CollectionUtils.isEmpty(indexInfo)) {
             template.ensureIndex(tableName, "idx_jobId", "jobId", true, true);
-            template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex(tableName, "idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
