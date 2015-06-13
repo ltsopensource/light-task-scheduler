@@ -1,9 +1,10 @@
 package com.lts.tasktracker.runner;
 
+import com.lts.core.domain.Action;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.domain.Action;
+import com.lts.core.support.LoggerName;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
@@ -19,7 +20,7 @@ import java.io.StringWriter;
  */
 public class JobRunnerDelegate implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger("LTS.TaskTracker");
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
     private JobWrapper jobWrapper;
     private RunnerCallback callback;
     private BizLoggerImpl logger;

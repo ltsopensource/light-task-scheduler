@@ -3,8 +3,8 @@ package com.lts.core;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
-import com.lts.ec.EventCenter;
 import com.lts.core.protocol.command.CommandBodyWrapper;
+import com.lts.ec.EventCenter;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/17/14.

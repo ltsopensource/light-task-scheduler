@@ -1,7 +1,7 @@
 package com.lts.queue;
 
-import com.lts.core.domain.PageResponse;
 import com.lts.core.domain.JobQueueRequest;
+import com.lts.core.domain.PageResponse;
 import com.lts.queue.domain.JobPo;
 
 /**

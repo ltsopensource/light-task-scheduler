@@ -1,12 +1,12 @@
 package com.lts.core.cluster;
 
 
-import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.Application;
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.ListUtils;
 import com.lts.core.listener.NodeChangeListener;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.utils.ListUtils;
 
 import java.util.ArrayList;
 import java.util.List;

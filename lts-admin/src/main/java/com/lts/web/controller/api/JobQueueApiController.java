@@ -1,13 +1,13 @@
 package com.lts.web.controller.api;
 
+import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.PageResponse;
-import com.lts.biz.logger.domain.JobLogPo;
-import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.domain.JobQueueRequest;
+import com.lts.core.domain.PageResponse;
 import com.lts.core.support.CronExpression;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.controller.AbstractController;
@@ -163,7 +163,7 @@ public class JobQueueApiController extends AbstractController {
         jobPo.setJobId(StringUtils.generateUUID());
         jobPo.setCronExpression(request.getCronExpression());
         jobPo.setExtParams(request.getExtParams());
-        jobPo.setGmtCreated(DateUtils.currentTimeMillis());
+        jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         jobPo.setNeedFeedback(request.getNeedFeedback());
         jobPo.setPriority(request.getPriority());
@@ -181,7 +181,7 @@ public class JobQueueApiController extends AbstractController {
             }
         }
         if (jobPo.getTriggerTime() == null) {
-            jobPo.setTriggerTime(DateUtils.currentTimeMillis());
+            jobPo.setTriggerTime(SystemClock.now());
         }
 
         application.getExecutableJobQueue().add(jobPo);

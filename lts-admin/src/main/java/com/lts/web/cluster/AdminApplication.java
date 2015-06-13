@@ -1,8 +1,8 @@
 package com.lts.web.cluster;
 
 import com.lts.biz.logger.JobLogger;
-import com.lts.core.cluster.Node;
 import com.lts.core.Application;
+import com.lts.core.cluster.Node;
 import com.lts.queue.*;
 
 /**

@@ -1,16 +1,17 @@
 package com.lts.jobtracker.support;
 
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobReceiveException;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
-import com.lts.core.commons.utils.StringUtils;
-import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.core.support.LoggerName;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.id.IdGenerator;
+import com.lts.queue.domain.JobPo;
+import com.lts.queue.exception.DuplicateJobException;
 
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.List;
  */
 public class JobReceiver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobReceiver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
     private JobTrackerApplication application;
     private IdGenerator idGenerator;
@@ -81,15 +82,15 @@ public class JobReceiver {
 
             if (job.isSchedule()) {
                 addCronJob(jobPo);
-                LOGGER.info("Receive cron job success ! nodeGroup={}, CronExpression={}, {}",
+                LOGGER.info("Receive cron job success. nodeGroup={}, CronExpression={}, {}",
                         request.getNodeGroup(), job.getCronExpression(), job);
             } else {
                 application.getExecutableJobQueue().add(jobPo);
-                LOGGER.info("Receive job success ! nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.info("Receive job success. nodeGroup={}, {}", request.getNodeGroup(), job);
             }
         } catch (DuplicateJobException e) {
             // already exist, ignore
-            LOGGER.info("Job already exist ! nodeGroup={}, {}", request.getNodeGroup(), job);
+            LOGGER.info("Job already exist. nodeGroup={}, {}", request.getNodeGroup(), job);
         }
         return jobPo;
     }

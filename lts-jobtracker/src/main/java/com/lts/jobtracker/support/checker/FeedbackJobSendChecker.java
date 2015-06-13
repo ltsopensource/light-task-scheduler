@@ -1,15 +1,15 @@
 package com.lts.jobtracker.support.checker;
 
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.jobtracker.domain.JobClientNode;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
 import com.lts.jobtracker.support.OldDataHandler;
+import com.lts.queue.domain.JobFeedbackPo;
 
 import java.util.ArrayList;
 import java.util.List;

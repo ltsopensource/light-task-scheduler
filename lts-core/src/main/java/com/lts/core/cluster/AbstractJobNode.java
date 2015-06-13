@@ -9,12 +9,12 @@ import com.lts.core.factory.NodeFactory;
 import com.lts.core.listener.MasterChangeListener;
 import com.lts.core.listener.MasterElectionListener;
 import com.lts.core.listener.NodeChangeListener;
+import com.lts.core.listener.SelfChangeListener;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.*;
 import com.lts.ec.EventCenterFactory;
-import com.lts.core.listener.SelfChangeListener;
-import com.lts.core.protocol.command.CommandBodyWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     final public void start() {
         try {
-
             // 初始化配置
             initConfig();
 

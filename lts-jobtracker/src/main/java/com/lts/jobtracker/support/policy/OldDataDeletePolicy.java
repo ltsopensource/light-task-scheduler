@@ -1,8 +1,9 @@
 package com.lts.jobtracker.support.policy;
 
+import com.lts.core.support.SystemClock;
+import com.lts.jobtracker.support.OldDataHandler;
 import com.lts.queue.JobFeedbackQueue;
 import com.lts.queue.domain.JobFeedbackPo;
-import com.lts.jobtracker.support.OldDataHandler;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
@@ -20,7 +21,7 @@ public class OldDataDeletePolicy implements OldDataHandler {
 
     public boolean handle(JobFeedbackQueue jobFeedbackQueue, JobFeedbackPo jobFeedbackPo, JobFeedbackPo po) {
 
-        if (System.currentTimeMillis() - jobFeedbackPo.getGmtCreated() > expired) {
+        if (SystemClock.now() - jobFeedbackPo.getGmtCreated() > expired) {
             // delete
             jobFeedbackQueue.remove(po.getTaskTrackerJobResult().getJobWrapper().getJob().getTaskTrackerNodeGroup(), po.getId());
             return true;

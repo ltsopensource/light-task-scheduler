@@ -69,7 +69,12 @@
 
         var columns = [
             {
-                title: '日志时间', dataIndex: 'timestamp', width: 125, renderer: function (v) {
+                title: '日志记录时间', dataIndex: 'logTime', width: 125, renderer: function (v) {
+                return DateUtil.formatYMDHMD(v);
+            }
+            },
+            {
+                title: '日志创建时间', dataIndex: 'gmtCreated', width: 125, renderer: function (v) {
                 return DateUtil.formatYMDHMD(v);
             }
             },

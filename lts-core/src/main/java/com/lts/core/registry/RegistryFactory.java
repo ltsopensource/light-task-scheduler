@@ -1,9 +1,9 @@
 package com.lts.core.registry;
 
 import com.lts.core.cluster.Config;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.redis.RedisRegistry;
 import com.lts.core.registry.zookeeper.ZookeeperRegistry;
-import com.lts.core.commons.utils.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/17/15.

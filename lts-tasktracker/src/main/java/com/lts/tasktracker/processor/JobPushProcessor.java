@@ -1,18 +1,19 @@
 package com.lts.tasktracker.processor;
 
-import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Constants;
-import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.domain.JobWrapper;
+import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
-import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
+import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.core.support.LoggerName;
 import com.lts.core.support.RetryScheduler;
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.netty.ResponseFuture;
@@ -34,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class JobPushProcessor extends AbstractProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobPushProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
 
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
@@ -87,7 +88,7 @@ public class JobPushProcessor extends AbstractProcessor {
         public JobWrapper runComplete(Response response) {
             // 发送消息给 JobTracker
             final TaskTrackerJobResult taskTrackerJobResult = new TaskTrackerJobResult();
-            taskTrackerJobResult.setTime(DateUtils.currentTimeMillis());
+            taskTrackerJobResult.setTime(SystemClock.now());
             taskTrackerJobResult.setJobWrapper(response.getJobWrapper());
             taskTrackerJobResult.setAction(response.getAction());
             taskTrackerJobResult.setMsg(response.getMsg());
@@ -119,7 +120,7 @@ public class JobPushProcessor extends AbstractProcessor {
                                 LOGGER.info("Job feedback failed, save local files。{}", taskTrackerJobResult);
                                 try {
                                     retryScheduler.inSchedule(
-                                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + System.currentTimeMillis(),
+                                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + SystemClock.now(),
                                             taskTrackerJobResult);
                                 } catch (Exception e) {
                                     LOGGER.error("Job feedback failed", e);
@@ -140,7 +141,7 @@ public class JobPushProcessor extends AbstractProcessor {
                 try {
                     LOGGER.warn("No job tracker available! save local files.");
                     retryScheduler.inSchedule(
-                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + System.currentTimeMillis(),
+                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + SystemClock.now(),
                             taskTrackerJobResult);
                 } catch (Exception e1) {
                     LOGGER.error("Save files failed, {}", taskTrackerJobResult.getJobWrapper(), e1);

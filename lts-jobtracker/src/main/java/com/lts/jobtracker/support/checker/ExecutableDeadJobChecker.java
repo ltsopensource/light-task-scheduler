@@ -1,12 +1,12 @@
 package com.lts.jobtracker.support.checker;
 
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.DateUtils;
-import com.lts.core.commons.utils.JSONUtils;
-import com.lts.queue.domain.JobPo;
+import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.queue.domain.JobPo;
 
 import java.util.List;
 import java.util.Set;
@@ -70,7 +70,7 @@ public class ExecutableDeadJobChecker {
             return;
         }
         for (String nodeGroup : nodeGroups) {
-            List<JobPo> deadJobPo = application.getExecutableJobQueue().getDeadJob(nodeGroup, DateUtils.currentTimeMillis() - MAX_TIME_OUT);
+            List<JobPo> deadJobPo = application.getExecutableJobQueue().getDeadJob(nodeGroup, SystemClock.now() - MAX_TIME_OUT);
             if (CollectionUtils.isNotEmpty(deadJobPo)) {
                 for (JobPo jobPo : deadJobPo) {
                     application.getExecutableJobQueue().resume(jobPo);

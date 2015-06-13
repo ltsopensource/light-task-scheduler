@@ -1,8 +1,8 @@
 package com.lts.core.factory;
 
 import com.lts.core.cluster.Config;
-import com.lts.core.constant.Constants;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Constants;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.

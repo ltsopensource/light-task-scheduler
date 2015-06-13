@@ -1,8 +1,8 @@
 package com.lts.jobclient.processor;
 
-import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.remoting.protocol.RemotingCommand;

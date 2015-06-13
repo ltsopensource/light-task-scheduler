@@ -1,5 +1,6 @@
 package com.lts.core.protocol.command;
 
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.CommandBody;
 import com.lts.remoting.annotation.NotNull;
 import com.lts.remoting.annotation.Nullable;
@@ -32,7 +33,7 @@ public class AbstractCommandBody implements CommandBody {
     @NotNull
     private String identity;
 
-    private Long timestamp = System.currentTimeMillis();
+    private Long timestamp = SystemClock.now();
 
     // 额外的参数
     @Nullable

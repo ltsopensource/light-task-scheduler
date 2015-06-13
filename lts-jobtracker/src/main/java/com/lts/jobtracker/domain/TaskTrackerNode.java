@@ -1,6 +1,7 @@
 package com.lts.jobtracker.domain;
 
 
+import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +19,7 @@ public class TaskTrackerNode {
     // 该节点的channel
     public ChannelWrapper channel;
 
-    public Long timestamp = System.currentTimeMillis();
+    public Long timestamp = SystemClock.now();
 
     public TaskTrackerNode(String nodeGroup, int availableThread, String identity, ChannelWrapper channel) {
         this.nodeGroup = nodeGroup;

@@ -4,7 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.store.mongo.MongoRepository;
@@ -39,7 +39,7 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
             NodeGroupPo nodeGroupPo = new NodeGroupPo();
             nodeGroupPo.setNodeType(nodeType);
             nodeGroupPo.setName(name);
-            nodeGroupPo.setGmtCreated(DateUtils.currentTimeMillis());
+            nodeGroupPo.setGmtCreated(SystemClock.now());
             template.save(nodeGroupPo);
         } catch (DuplicateKeyException e) {
             // ignore

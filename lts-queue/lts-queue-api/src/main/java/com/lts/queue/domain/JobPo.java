@@ -1,6 +1,7 @@
 package com.lts.queue.domain;
 
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.support.SystemClock;
 
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class JobPo {
      */
     private String taskId;
     // 创建时间
-    private Long gmtCreated = System.currentTimeMillis();
+    private Long gmtCreated = SystemClock.now();
     // 修改时间
     private Long gmtModified;
     /**
@@ -63,7 +64,7 @@ public class JobPo {
     /**
      * 重试次数
      */
-    private Integer retryTimes;
+    private Integer retryTimes = 0;
 
     public Integer getRetryTimes() {
         return retryTimes;

@@ -4,12 +4,12 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.AbstractCommandBody;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.jobtracker.channel.ChannelWrapper;
+import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
-import com.lts.jobtracker.channel.ChannelWrapper;
-import com.lts.jobtracker.domain.JobTrackerApplication;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;

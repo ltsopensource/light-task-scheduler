@@ -3,10 +3,10 @@ package com.lts.core.logger;
 
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.logger.jcl.JclLoggerAdapter;
+import com.lts.core.logger.jdk.JdkLoggerAdapter;
 import com.lts.core.logger.log4j.Log4jLoggerAdapter;
 import com.lts.core.logger.slf4j.Slf4jLoggerAdapter;
 import com.lts.core.logger.support.FailsafeLogger;
-import com.lts.core.logger.jdk.JdkLoggerAdapter;
 
 import java.io.File;
 import java.util.Map;

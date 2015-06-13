@@ -1,10 +1,10 @@
 package com.lts.example.support;
 
-import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.runner.JobRunner;
@@ -28,7 +28,12 @@ public class TestJobRunner implements JobRunner {
 
             Thread.sleep(1000L);
 
-            if (DateUtils.currentTimeMillis() % 2 == 1) {
+            if (job.getRetryTimes() > 5) {
+                return new Result(Action.EXECUTE_FAILED, "重试次数超过5次了，放过你吧!");
+            }
+
+
+            if (SystemClock.now() % 2 == 1) {
                 return new Result(Action.EXECUTE_LATER, "稍后执行");
             }
 

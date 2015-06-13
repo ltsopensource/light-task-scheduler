@@ -2,6 +2,7 @@ package com.lts.remoting.netty;
 
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.ChannelEventListener;
 import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.common.Pair;
@@ -213,7 +214,7 @@ public abstract class NettyRemotingAbstract {
             Entry<Integer, ResponseFuture> next = it.next();
             ResponseFuture rep = next.getValue();
 
-            if ((rep.getBeginTimestamp() + rep.getTimeoutMillis() + 1000) <= System.currentTimeMillis()) {
+            if ((rep.getBeginTimestamp() + rep.getTimeoutMillis() + 1000) <= SystemClock.now()) {
                 it.remove();
                 rep.release();
                 try {

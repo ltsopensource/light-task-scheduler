@@ -47,7 +47,7 @@ public class JobLogPo {
      */
     private Long triggerTime;
 
-    private Integer retryTimes;
+    private Integer retryTimes = 0;
 
     public Integer getRetryTimes() {
         return retryTimes;

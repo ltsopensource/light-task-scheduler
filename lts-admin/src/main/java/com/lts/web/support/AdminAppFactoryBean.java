@@ -1,16 +1,16 @@
 package com.lts.web.support;
 
-import com.lts.core.cluster.Node;
-import com.lts.core.cluster.NodeType;
 import com.lts.biz.logger.JobLoggerFactory;
 import com.lts.core.cluster.Config;
-import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.cluster.Node;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.extension.ExtensionLoader;
 import com.lts.queue.CronJobQueueFactory;
+import com.lts.queue.ExecutableJobQueueFactory;
 import com.lts.queue.ExecutingJobQueueFactory;
 import com.lts.queue.NodeGroupStoreFactory;
 import com.lts.web.cluster.AdminApplication;
-import com.lts.queue.ExecutableJobQueueFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 

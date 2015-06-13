@@ -5,10 +5,10 @@ import com.lts.core.Application;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.channel.ChannelManager;
 import com.lts.jobtracker.id.IdGenerator;
-import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.OldDataHandler;
-import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.checker.ExecutingDeadJobChecker;
+import com.lts.jobtracker.support.cluster.JobClientManager;
+import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.queue.*;
 
 /**

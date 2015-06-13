@@ -1,6 +1,7 @@
 package com.lts.core.cluster;
 
 import com.lts.core.registry.NodeRegistryUtils;
+import com.lts.core.support.SystemClock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,7 @@ public class Node {
     private String ip;
     private Integer port;
     private String group;
-    private Long createTime = System.currentTimeMillis();
+    private Long createTime = SystemClock.instance().now();
     // 线程个数
     private Integer threads;
     // 唯一标识

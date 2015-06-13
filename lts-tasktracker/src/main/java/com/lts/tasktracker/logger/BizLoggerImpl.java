@@ -1,7 +1,6 @@
 package com.lts.tasktracker.logger;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.BizLog;
@@ -11,6 +10,7 @@ import com.lts.core.protocol.command.BizLogSendRequest;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.RetryScheduler;
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.common.Pair;
 import com.lts.remoting.netty.ResponseFuture;
@@ -91,7 +91,7 @@ public class BizLoggerImpl implements BizLogger {
         final BizLog bizLog = new BizLog();
         bizLog.setTaskTrackerIdentity(requestBody.getIdentity());
         bizLog.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
-        bizLog.setLogTime(DateUtils.currentTimeMillis());
+        bizLog.setLogTime(SystemClock.now());
         bizLog.setJobId(jobTL.get().getObject1());
         bizLog.setTaskId(jobTL.get().getObject2());
         bizLog.setMsg(msg);
