@@ -2,9 +2,10 @@ package com.lts.jobtracker.support;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.core.domain.Job;
-import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.domain.JobWrapper;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.domain.JobPo;
 
@@ -44,7 +45,7 @@ public class JobDomainConverter {
      * @param jobPo
      * @return
      */
-    public static Job convert(JobPo jobPo) {
+    public static JobWrapper convert(JobPo jobPo) {
         Job job = new Job();
         job.setPriority(jobPo.getPriority());
         job.setExtParams(jobPo.getExtParams());
@@ -52,22 +53,24 @@ public class JobDomainConverter {
         job.setTaskId(jobPo.getTaskId());
         job.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
         job.setNeedFeedback(jobPo.isNeedFeedback());
-        job.setJobId(jobPo.getJobId());
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
-        return job;
+        return new JobWrapper(jobPo.getJobId(), job);
     }
 
-    public static JobLogPo convertJobLog(Job job) {
+    public static JobLogPo convertJobLog(JobWrapper jobWrapper) {
         JobLogPo jobLogPo = new JobLogPo();
         jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
+
+        Job job = jobWrapper.getJob();
+
         jobLogPo.setPriority(job.getPriority());
         jobLogPo.setExtParams(job.getExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobLogPo.setTaskId(job.getTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
-        jobLogPo.setJobId(job.getJobId());
+        jobLogPo.setJobId(jobWrapper.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
         return jobLogPo;
@@ -89,9 +92,9 @@ public class JobDomainConverter {
         return jobLogPo;
     }
 
-    public static JobFeedbackPo convert(JobResult jobResult) {
+    public static JobFeedbackPo convert(TaskTrackerJobResult taskTrackerJobResult) {
         JobFeedbackPo jobFeedbackPo = new JobFeedbackPo();
-        jobFeedbackPo.setJobResult(jobResult);
+        jobFeedbackPo.setTaskTrackerJobResult(taskTrackerJobResult);
         jobFeedbackPo.setId(StringUtils.generateUUID());
         jobFeedbackPo.setGmtCreated(System.currentTimeMillis());
         return jobFeedbackPo;

@@ -2,6 +2,7 @@ package com.lts.tasktracker.runner;
 
 import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.Job;
+import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.commons.collect.ConcurrentHashSet;
@@ -57,12 +58,12 @@ public class RunnerPool {
                 }), EcTopic.WORK_THREAD_CHANGE);
     }
 
-    public void execute(Job job, RunnerCallback callback) throws NoAvailableJobRunnerException {
+    public void execute(JobWrapper jobWrapper, RunnerCallback callback) throws NoAvailableJobRunnerException {
         try {
             threadPoolExecutor.execute(
-                    new JobRunnerDelegate(application, job, callback));
+                    new JobRunnerDelegate(application, jobWrapper, callback));
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Receive job success ! " + job);
+                LOGGER.debug("Receive job success ! " + jobWrapper);
             }
         } catch (RejectedExecutionException e) {
             LOGGER.warn("No more thread to run job .");

@@ -1,6 +1,6 @@
 package com.lts.tasktracker.runner;
 
-import com.lts.core.domain.Job;
+import com.lts.core.domain.JobWrapper;
 import com.lts.tasktracker.domain.Response;
 
 /**
@@ -13,6 +13,6 @@ public interface RunnerCallback {
      * @param response
      * @return 如果有新的任务, 那么返回新的任务过来
      */
-    public Job runComplete(Response response);
+    public JobWrapper runComplete(Response response);
 
 }

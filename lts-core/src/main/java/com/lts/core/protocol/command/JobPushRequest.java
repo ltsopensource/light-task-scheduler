@@ -1,6 +1,6 @@
 package com.lts.core.protocol.command;
 
-import com.lts.core.domain.Job;
+import com.lts.core.domain.JobWrapper;
 import com.lts.remoting.annotation.NotNull;
 
 /**
@@ -9,13 +9,13 @@ import com.lts.remoting.annotation.NotNull;
 public class JobPushRequest extends AbstractCommandBody{
 
     @NotNull
-    private Job job;
+    private JobWrapper jobWrapper;
 
-    public Job getJob() {
-        return job;
+    public JobWrapper getJobWrapper() {
+        return jobWrapper;
     }
 
-    public void setJob(Job job) {
-        this.job = job;
+    public void setJobWrapper(JobWrapper jobWrapper) {
+        this.jobWrapper = jobWrapper;
     }
 }

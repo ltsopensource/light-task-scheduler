@@ -1,6 +1,5 @@
 package com.lts.core.failstore.berkeleydb;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileLock;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;

@@ -39,6 +39,7 @@ public class LeveldbFailStore implements FailStore {
         dbPath = FileUtils.createDirIfNotExist(failStorePath);
         options = new Options();
         options.createIfMissing(true);
+//        options.compressionType(CompressionType.NONE);
         options.cacheSize(100 * 1024 * 1024);   // 100M
 //        options.logger(new Logger() {
 //            @Override
@@ -107,10 +108,13 @@ public class LeveldbFailStore implements FailStore {
 
     @Override
     public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+        Snapshot snapshot = db.getSnapshot();
         DBIterator iterator = null;
         try {
             List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
-            iterator = db.iterator();
+            ReadOptions options=new ReadOptions();
+            options.snapshot(snapshot);
+            iterator = db.iterator(options);
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 Map.Entry<byte[], byte[]> entry = iterator.peekNext();
                 String key = new String(entry.getKey(), "UTF-8");
@@ -131,6 +135,11 @@ public class LeveldbFailStore implements FailStore {
                 } catch (IOException e) {
                     throw new FailStoreException(e);
                 }
+            }
+            try {
+                snapshot.close();
+            } catch (IOException e) {
+                throw new FailStoreException(e);
             }
         }
     }

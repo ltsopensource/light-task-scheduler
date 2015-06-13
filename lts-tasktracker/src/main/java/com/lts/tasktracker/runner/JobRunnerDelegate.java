@@ -1,6 +1,6 @@
 package com.lts.tasktracker.runner;
 
-import com.lts.core.domain.Job;
+import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.tasktracker.Result;
@@ -19,14 +19,14 @@ import java.io.StringWriter;
 public class JobRunnerDelegate implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger("LTS.TaskTracker");
-    private Job job;
+    private JobWrapper jobWrapper;
     private RunnerCallback callback;
     private BizLoggerImpl logger;
     private TaskTrackerApplication application;
 
     public JobRunnerDelegate(TaskTrackerApplication application,
-                             Job job, RunnerCallback callback) {
-        this.job = job;
+                             JobWrapper jobWrapper, RunnerCallback callback) {
+        this.jobWrapper = jobWrapper;
         this.callback = callback;
         this.application = application;
         this.logger = (BizLoggerImpl) BizLoggerFactory.getLogger(
@@ -39,32 +39,32 @@ public class JobRunnerDelegate implements Runnable {
         try {
             LtsLoggerFactory.setLogger(logger);
 
-            while (job != null) {
+            while (jobWrapper != null) {
                 // 设置当前context中的jobId
-                logger.setId(job.getJobId(), job.getTaskId());
+                logger.setId(jobWrapper.getJobId(), jobWrapper.getJob().getTaskId());
                 Response response = new Response();
-                response.setJob(job);
+                response.setJobWrapper(jobWrapper);
                 try {
-                    application.getRunnerPool().getRunningJobManager().in(job.getJobId());
-                    Result result = application.getRunnerPool().getRunnerFactory().newRunner().run(job);
+                    application.getRunnerPool().getRunningJobManager().in(jobWrapper.getJobId());
+                    Result result = application.getRunnerPool().getRunnerFactory().newRunner().run(jobWrapper.getJob());
                     if (result == null) {
                         response.setSuccess(true);
                     } else {
                         response.setSuccess(result.isSuccess());
                         response.setMsg(result.getMsg());
                     }
-                    LOGGER.info("Job exec success : {}", job);
+                    LOGGER.info("Job exec success : {}", jobWrapper);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setSuccess(false);
                     response.setMsg(sw.toString());
-                    LOGGER.info("Job exec error : {} {}", job, t.getMessage(), t);
+                    LOGGER.info("Job exec error : {} {}", jobWrapper, t.getMessage(), t);
                 } finally {
                     logger.removeId();
-                    application.getRunnerPool().getRunningJobManager().out(job.getJobId());
+                    application.getRunnerPool().getRunningJobManager().out(jobWrapper.getJobId());
                 }
-                job = callback.runComplete(response);
+                jobWrapper = callback.runComplete(response);
             }
         } finally {
             LtsLoggerFactory.remove();

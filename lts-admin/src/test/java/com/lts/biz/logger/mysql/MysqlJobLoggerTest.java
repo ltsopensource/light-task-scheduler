@@ -14,7 +14,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 /**
- * Created by hugui on 6/12/15.
+ * @author Robert HG (254963746@qq.com) on 6/12/15.
  */
 public class MysqlJobLoggerTest {
 

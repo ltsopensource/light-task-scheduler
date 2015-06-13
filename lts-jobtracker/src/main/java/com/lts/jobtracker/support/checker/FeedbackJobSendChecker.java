@@ -1,6 +1,6 @@
 package com.lts.jobtracker.support.checker;
 
-import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -45,17 +45,17 @@ public class FeedbackJobSendChecker {
     public FeedbackJobSendChecker(final JobTrackerApplication application) {
         this.application = application;
 
-        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<JobResultWrapper>() {
+        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<TaskTrackerJobResultWrapper>() {
             @Override
-            public void handleSuccess(List<JobResultWrapper> jobResults) {
-                for (JobResultWrapper jobResult : jobResults) {
-                    String submitNodeGroup = jobResult.getJob().getSubmitNodeGroup();
+            public void handleSuccess(List<TaskTrackerJobResultWrapper> jobResults) {
+                for (TaskTrackerJobResultWrapper jobResult : jobResults) {
+                    String submitNodeGroup = jobResult.getJobWrapper().getJob().getSubmitNodeGroup();
                     application.getJobFeedbackQueue().remove(submitNodeGroup, jobResult.getId());
                 }
             }
 
             @Override
-            public void handleFailed(List<JobResultWrapper> jobResults) {
+            public void handleFailed(List<TaskTrackerJobResultWrapper> jobResults) {
                 // do nothing
             }
         });
@@ -136,7 +136,7 @@ public class FeedbackJobSendChecker {
                 return;
             }
 
-            LOGGER.info("{} job need to feedback.", count);
+            LOGGER.info("{} jobs need to feedback.", count);
             // 检测是否有可用的客户端
 
             List<JobFeedbackPo> jobFeedbackPos;
@@ -146,12 +146,12 @@ public class FeedbackJobSendChecker {
                 if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                     return;
                 }
-                List<JobResultWrapper> jobResults = new ArrayList<JobResultWrapper>(jobFeedbackPos.size());
+                List<TaskTrackerJobResultWrapper> jobResults = new ArrayList<TaskTrackerJobResultWrapper>(jobFeedbackPos.size());
                 for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                     // 判断是否是过时的数据，如果是，那么移除
                     if (oldDataHandler == null ||
                             (oldDataHandler != null && !oldDataHandler.handle(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
-                        jobResults.add(new JobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getJobResult()));
+                        jobResults.add(new TaskTrackerJobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getTaskTrackerJobResult()));
                     }
                 }
                 // 返回发送成功的个数
@@ -162,19 +162,19 @@ public class FeedbackJobSendChecker {
         }
     }
 
-    private class JobResultWrapper extends JobResult {
+    private class TaskTrackerJobResultWrapper extends TaskTrackerJobResult {
         private String id;
 
         public String getId() {
             return id;
         }
 
-        public JobResultWrapper(String id, JobResult jobResult) {
+        public TaskTrackerJobResultWrapper(String id, TaskTrackerJobResult taskTrackerJobResult) {
             this.id = id;
-            setJob(jobResult.getJob());
-            setMsg(jobResult.getMsg());
-            setSuccess(jobResult.isSuccess());
-            setTime(jobResult.getTime());
+            setJobWrapper(taskTrackerJobResult.getJobWrapper());
+            setMsg(taskTrackerJobResult.getMsg());
+            setSuccess(taskTrackerJobResult.isSuccess());
+            setTime(taskTrackerJobResult.getTime());
         }
     }
 

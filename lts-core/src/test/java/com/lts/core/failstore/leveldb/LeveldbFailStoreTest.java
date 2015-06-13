@@ -1,10 +1,7 @@
 package com.lts.core.failstore.leveldb;
 
-import com.lts.core.cluster.Config;
-import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
-import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.FailStore;
@@ -15,7 +12,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Created by hugui on 6/12/15.
+ * @author Robert HG (254963746@qq.com) on 6/12/15.
  */
 public class LeveldbFailStoreTest {
 
