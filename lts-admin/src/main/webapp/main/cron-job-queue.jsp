@@ -135,7 +135,7 @@
     function buiInit(BUI, Grid, Form, Data, Overlay, DateUtil) {
 
         var columns = [
-            {title: '任务ID(TaskId)', dataIndex: 'taskId', width: 230, sortable: false},
+            {title: '任务ID(TaskId)', dataIndex: 'taskId', width: 240, sortable: false},
             {title: '提交节点组', dataIndex: 'submitNodeGroup', width: 150},
             {title: '执行节点组', dataIndex: 'taskTrackerNodeGroup', width: 150},
             {title: 'cron表达式', dataIndex: 'cronExpression', width: 100},
@@ -327,7 +327,7 @@
                     data: {jobId: jobId},
                     success: function (json) {
                         if (json && json.success) {
-                            BUI.Message.Alert("添加成功!");
+                            BUI.Message.Alert("删除成功!");
                             that.parents(".bui-grid-row").remove();
                         } else {
                             BUI.Message.Alert("删除失败, " + json.msg);
@@ -335,12 +335,6 @@
                     }
                 });
             }, 'question');
-        });
-
-        $(document).on("click", ".job-logger-btn", function(){
-            var taskId = $(this).attr("taskId");
-            var taskTrackerNodeGroup = $(this).attr("taskTrackerNodeGroup");
-
         });
     }
 

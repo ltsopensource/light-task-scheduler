@@ -81,7 +81,7 @@
     function buiInit(BUI, Grid, Form, Data, Overlay, DateUtil) {
 
         var columns = [
-            {title: '任务ID', dataIndex: 'taskId', width: 230, sortable: false},
+            {title: '任务ID', dataIndex: 'taskId', width: 240, sortable: false},
             {title: '提交节点组', dataIndex: 'submitNodeGroup', width: 150},
             {title: '执行节点组', dataIndex: 'taskTrackerNodeGroup', width: 150},
             {title: 'cron表达式', dataIndex: 'cronExpression', width: 100},

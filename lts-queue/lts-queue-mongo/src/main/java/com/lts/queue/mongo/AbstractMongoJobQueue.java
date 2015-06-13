@@ -51,7 +51,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         }
 
         if (StringUtils.isNotEmpty(request.getField()) && StringUtils.isNotEmpty(request.getDirection())) {
-            query.order(("ASC".equalsIgnoreCase(request.getDirection()) ? "+" : "-") + request.getField());
+            query.order(("ASC".equalsIgnoreCase(request.getDirection()) ? "" : "-") + request.getField());
         }
         query.offset(request.getStart()).limit(request.getLimit());
         response.setRows(query.asList());
@@ -73,6 +73,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "triggerTime", request.getTriggerTime() == null ? null : request.getTriggerTime().getTime());
         addUpdateField(operations, "priority", request.getPriority());
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
+        addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
 
         template.update(query, operations);
 
@@ -103,6 +104,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
                 return false;
             }
         } else if (
+                obj instanceof Integer ||
                 obj instanceof Boolean ||
                         obj instanceof Long ||
                         obj instanceof Float ||

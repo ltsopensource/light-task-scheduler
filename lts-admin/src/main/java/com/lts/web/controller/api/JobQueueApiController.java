@@ -77,6 +77,46 @@ public class JobQueueApiController extends AbstractController {
                 return response;
             }
         }
+        try {
+            Assert.hasLength(request.getJobId(), "jobId不能为空!");
+        } catch (IllegalArgumentException e) {
+            response.setSuccess(false);
+            response.setMsg(e.getMessage());
+            return response;
+        }
+
+        application.getCronJobQueue().selectiveUpdate(request);
+        response.setSuccess(true);
+        return response;
+    }
+
+    @RequestMapping("/job-queue/executable-job-update")
+    public RestfulResponse executableJobUpdate(JobQueueRequest request) {
+        RestfulResponse response = new RestfulResponse();
+        // 检查参数
+        // 1. 检测 cronExpression是否是正确的
+        if (StringUtils.isNotEmpty(request.getCronExpression())) {
+            try {
+                CronExpression expression = new CronExpression(request.getCronExpression());
+                if (expression.getTimeAfter(new Date()) == null) {
+                    response.setSuccess(false);
+                    response.setMsg(StringUtils.format("该CronExpression={} 已经没有执行时间点!", request.getCronExpression()));
+                    return response;
+                }
+            } catch (ParseException e) {
+                response.setSuccess(false);
+                response.setMsg("请输入正确的 CronExpression!");
+                return response;
+            }
+        }
+        try {
+            Assert.hasLength(request.getJobId(), "jobId不能为空!");
+            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
+        } catch (IllegalArgumentException e) {
+            response.setSuccess(false);
+            response.setMsg(e.getMessage());
+            return response;
+        }
         application.getCronJobQueue().selectiveUpdate(request);
         response.setSuccess(true);
         return response;
@@ -91,6 +131,23 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
         application.getCronJobQueue().remove(request.getJobId());
+        response.setSuccess(true);
+        return response;
+    }
+
+    @RequestMapping("/job-queue/executable-job-delete")
+    public RestfulResponse executableJobDelete(JobQueueRequest request) {
+        RestfulResponse response = new RestfulResponse();
+        try {
+            Assert.hasLength(request.getJobId(), "jobId不能为空!");
+            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
+        } catch (IllegalArgumentException e) {
+            response.setSuccess(false);
+            response.setMsg(e.getMessage());
+            return response;
+        }
+
+        application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
         response.setSuccess(true);
         return response;
     }

@@ -1,7 +1,7 @@
 package com.lts.core.support;
 
 /**
- * Created by hugui on 6/13/15.
+ * @author Robert HG (254963746@qq.com)  on 6/13/15.
  */
 public interface LoggerName {
 

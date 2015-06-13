@@ -95,7 +95,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 2. log info
         log(requestBody.isReSend(), requestBody.getIdentity(), results);
 
-        LOGGER.info("Job exec finished : {}", results);
+        LOGGER.info("Job execute finished : {}", results);
 
         // 3. process
         return process(requestBody.isReceiveNewJob(), requestBody.getNodeGroup(),

@@ -59,13 +59,13 @@ public class JobRunnerDelegate implements Runnable {
                         response.setAction(action);
                         response.setMsg(result.getMsg());
                     }
-                    LOGGER.info("Job exec finished : {}", jobWrapper);
+                    LOGGER.info("Job execute finished : {}", jobWrapper);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setAction(Action.EXECUTE_EXCEPTION);
                     response.setMsg(sw.toString());
-                    LOGGER.info("Job exec error : {} {}", jobWrapper, t.getMessage(), t);
+                    LOGGER.info("Job execute error : {} {}", jobWrapper, t.getMessage(), t);
                 } finally {
                     logger.removeId();
                     application.getRunnerPool().getRunningJobManager().out(jobWrapper.getJobId());

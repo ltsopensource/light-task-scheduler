@@ -40,14 +40,23 @@
         },
 
         formatYMD: function (date) {
+            if (!date) {
+                return date;
+            }
             return this.format(date, this.FORMAT_YMD);
         },
 
         formatYMDHMD: function (date) {
+            if (!date) {
+                return date;
+            }
             return this.format(date, this.FORMAT_YMD_HMS);
         },
 
         formatMD: function (date) {
+            if(!data){
+                return date;
+            }
             return this.format(date, 'MM-dd');
         },
 
@@ -341,7 +350,7 @@
 
     // RequireJS && SeaJS
     if (typeof define === 'function') {
-        define(function() {
+        define(function () {
             return DateUtil;
         });
 
