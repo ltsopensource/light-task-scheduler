@@ -15,6 +15,8 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 
 感兴趣，请加QQ群：109500214 一起探讨、完善。并且记得star一下哈，3Q
 
+github地址:[https://github.com/qq254963746/light-task-schedule](https://github.com/qq254963746/light-task-schedule) 
+
 ###架构图
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/LTS_architecture.png)
 ####节点组:
