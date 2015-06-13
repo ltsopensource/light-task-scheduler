@@ -2,7 +2,7 @@ LTS 轻量级分布式任务调度框架(Light Task Scheduler)
 -----------------
 
 ###框架概况：
- LTS是一个轻量级分布式任务调度框架，参考hadoop的部分思想。有三种角色, JobClient, JobTracker, TaskTracker。各个节点都是无状态的，可以部署多个，来实现负载均衡，实现更大的负载量, 并且框架具有很好的容错能力。
+ LTS是一个轻量级分布式任务调度框架。有三种角色, JobClient, JobTracker, TaskTracker。各个节点都是无状态的，可以部署多个，来实现负载均衡，实现更大的负载量, 并且框架具有很好的容错能力。
  采用多种注册中心（Zookeeper，redis等）进行节点信息暴露，master选举。(Mongo or Mysql)存储任务队列和任务执行日志, netty做底层通信。
 * JobClient : 主要负责提交任务, 和 接收任务执行反馈结果。
 * JobTracker : 负责接收并分配任务，任务调度。
