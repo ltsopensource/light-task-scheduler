@@ -1,4 +1,4 @@
-LTS 轻量级分布式任务调度框架(Light Task Schedule)
+LTS 轻量级分布式任务调度框架(Light Task Scheduler)
 -----------------
 
 ###框架概况：
@@ -15,10 +15,10 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 
 感兴趣，请加QQ群：109500214 一起探讨、完善。并且记得star一下哈，3Q
 
-github地址:[https://github.com/qq254963746/light-task-schedule](https://github.com/qq254963746/light-task-schedule) 
+github地址:[https://github.com/qq254963746/light-task-scheduler](https://github.com/qq254963746/light-task-scheduler) 
 
 ###架构图
-![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/LTS_architecture.png)
+![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-scheduler/master/doc/LTS_architecture.png)
 ####节点组:
 * 1. 一个节点组等同于一个集群，同一个节点组中的各个节点是对等的，外界无论连接节点组中的任务一个节点都是可以的。
 * 2. 每个节点组中都有一个master节点(master宕机，会自动选举出新的master节点)，框架会提供接口API来监听master节点的变化，用户可以自己使用master节点做自己想做的事情。
@@ -54,9 +54,9 @@ github地址:[https://github.com/qq254963746/light-task-schedule](https://github
 * 实现LTS的分布式队列存储
 
 ###LTS Admin
-![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/LTS_Admin.png)
+![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-scheduler/master/doc/LTS_Admin.png)
 ###调用示例
-下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-schedule/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
+下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-scheduler/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
 
 ####JobTracker 端
 ```java
