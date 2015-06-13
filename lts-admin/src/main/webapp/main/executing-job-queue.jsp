@@ -92,6 +92,9 @@
             }
             },
             {
+                title: '重试次数', dataIndex: 'retryTimes', width: 60
+            },
+            {
                 title: '用户参数', dataIndex: 'extParams', width: 140, sortable: false, renderer: function (v, obj) {
                 if (v) {
                     return JSON.stringify(v);

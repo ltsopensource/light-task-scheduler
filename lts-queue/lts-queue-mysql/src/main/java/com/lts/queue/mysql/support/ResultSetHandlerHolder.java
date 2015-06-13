@@ -41,6 +41,7 @@ public class ResultSetHandlerHolder {
         JobPo jobPo = new JobPo();
         jobPo.setJobId(rs.getString("job_id"));
         jobPo.setPriority(rs.getInt("priority"));
+        jobPo.setRetryTimes(rs.getInt("retry_times"));
         jobPo.setTaskId(rs.getString("task_id"));
         jobPo.setGmtCreated(rs.getLong("gmt_created"));
         jobPo.setGmtModified(rs.getLong("gmt_modified"));

@@ -29,7 +29,7 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
         // create index if not exist
         if (CollectionUtils.isEmpty(indexInfo)) {
-            template.ensureIndex("idx_timestamp", "timestamp");
+            template.ensureIndex("idx_logTime", "logTime");
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId,taskTrackerNodeGroup");
         }
     }
@@ -50,11 +50,11 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         Query<JobLogPo> query = template.createQuery(JobLogPo.class);
         query.field("taskId").equal(request.getTaskId())
                 .field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
-        if (request.getStartTimestamp() != null) {
-            query.filter("timestamp >= ", getTimestamp(request.getStartTimestamp()));
+        if (request.getStartLogTime() != null) {
+            query.filter("logTime >= ", getTimestamp(request.getStartLogTime()));
         }
-        if (request.getEndTimestamp() != null) {
-            query.filter("timestamp <= ", getTimestamp(request.getEndTimestamp()));
+        if (request.getEndLogTime() != null) {
+            query.filter("logTime <= ", getTimestamp(request.getEndLogTime()));
         }
         PageResponse<JobLogPo> pageResponse = new PageResponse<JobLogPo>();
         Long results = template.getCount(query);
@@ -63,7 +63,7 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
             return pageResponse;
         }
         // 查询rows
-        query.order("-timestamp").offset(request.getStart()).limit(request.getLimit());
+        query.order("-logTime").offset(request.getStart()).limit(request.getLimit());
 
         pageResponse.setRows(query.asList());
 

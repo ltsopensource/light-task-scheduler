@@ -27,7 +27,6 @@ public class JobDomainConverter {
         jobPo.setExtParams(job.getExtParams());
         jobPo.setNeedFeedback(job.isNeedFeedback());
         jobPo.setCronExpression(job.getCronExpression());
-
         if (!jobPo.isSchedule()) {
             if (job.getTriggerTime() == null) {
                 jobPo.setTriggerTime(DateUtils.currentTimeMillis());
@@ -41,9 +40,6 @@ public class JobDomainConverter {
 
     /**
      * JobPo 转 Job
-     *
-     * @param jobPo
-     * @return
      */
     public static JobWrapper convert(JobPo jobPo) {
         Job job = new Job();
@@ -55,21 +51,21 @@ public class JobDomainConverter {
         job.setNeedFeedback(jobPo.isNeedFeedback());
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
+        job.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         return new JobWrapper(jobPo.getJobId(), job);
     }
 
     public static JobLogPo convertJobLog(JobWrapper jobWrapper) {
         JobLogPo jobLogPo = new JobLogPo();
-        jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
-
+        jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
         Job job = jobWrapper.getJob();
-
         jobLogPo.setPriority(job.getPriority());
         jobLogPo.setExtParams(job.getExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobLogPo.setTaskId(job.getTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
+        jobLogPo.setRetryTimes(job.getRetryTimes());
         jobLogPo.setJobId(jobWrapper.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
@@ -78,7 +74,7 @@ public class JobDomainConverter {
 
     public static JobLogPo convertJobLog(JobPo jobPo) {
         JobLogPo jobLogPo = new JobLogPo();
-        jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
+        jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
         jobLogPo.setPriority(jobPo.getPriority());
         jobLogPo.setExtParams(jobPo.getExtParams());
         jobLogPo.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());
@@ -89,12 +85,13 @@ public class JobDomainConverter {
         jobLogPo.setCronExpression(jobPo.getCronExpression());
         jobLogPo.setTriggerTime(jobPo.getTriggerTime());
         jobLogPo.setTaskTrackerIdentity(jobPo.getTaskTrackerIdentity());
+        jobLogPo.setRetryTimes(jobPo.getRetryTimes());
         return jobLogPo;
     }
 
-    public static JobFeedbackPo convert(TaskTrackerJobResult taskTrackerJobResult) {
+    public static JobFeedbackPo convert(TaskTrackerJobResult result) {
         JobFeedbackPo jobFeedbackPo = new JobFeedbackPo();
-        jobFeedbackPo.setTaskTrackerJobResult(taskTrackerJobResult);
+        jobFeedbackPo.setTaskTrackerJobResult(result);
         jobFeedbackPo.setId(StringUtils.generateUUID());
         jobFeedbackPo.setGmtCreated(System.currentTimeMillis());
         return jobFeedbackPo;

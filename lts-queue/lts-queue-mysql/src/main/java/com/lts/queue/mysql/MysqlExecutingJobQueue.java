@@ -25,6 +25,9 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     private String selectSQL = "SELECT * FROM `{tableName}` WHERE task_tracker_identity = ?"
             .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
 
+    private String selectOneSQL = "SELECT * FROM `{tableName}` WHERE job_id = ?"
+            .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
+
     private String getDeadJobSQL = "SELECT * FROM `{tableName}` WHERE gmt_created < ?"
             .replace("{tableName}", JobQueueUtils.EXECUTING_JOB_QUEUE);
 
@@ -57,6 +60,15 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     public boolean remove(String jobId) {
         try {
             return getSqlTemplate().update(removeSQL, jobId) == 1;
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+    }
+
+    @Override
+    public JobPo get(String jobId) {
+        try {
+            return getSqlTemplate().query(selectOneSQL, ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, jobId);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

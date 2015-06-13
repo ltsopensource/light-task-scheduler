@@ -31,6 +31,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcRepository implements Jo
                 "`" + tableName + "` ( " +
                 "`job_id`, " +
                 "`priority`, " +
+                "`retry_times`, " +
                 "`task_id`, " +
                 "`gmt_created`, " +
                 "`gmt_modified`, " +
@@ -43,11 +44,12 @@ public abstract class AbstractMysqlJobQueue extends JdbcRepository implements Jo
                 "`cron_expression`, " +
                 "`trigger_time`)" +
                 "VALUES " +
-                " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             getSqlTemplate().update(sql,
                     jobPo.getJobId(),
                     jobPo.getPriority(),
+                    jobPo.getRetryTimes(),
                     jobPo.getTaskId(),
                     jobPo.getGmtCreated(),
                     jobPo.getGmtModified(),

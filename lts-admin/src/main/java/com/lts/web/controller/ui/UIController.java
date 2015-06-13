@@ -39,17 +39,17 @@ public class UIController {
 
     @RequestMapping("job-logger/job-logger")
     public String jobLoggerUI(Model model, String taskId, String taskTrackerNodeGroup,
-                              Date startTimestamp, Date endTimestamp) {
+                              Date startLogTime, Date endLogTime) {
         model.addAttribute("taskId", taskId);
         model.addAttribute("taskTrackerNodeGroup", taskTrackerNodeGroup);
-        if (startTimestamp == null) {
-            startTimestamp = DateUtils.addDay(new Date(), -3);
+        if (startLogTime == null) {
+            startLogTime = DateUtils.addDay(new Date(), -3);
         }
-        model.addAttribute("startTimestamp", DateUtils.formatYMD_HMS(startTimestamp));
-        if (endTimestamp == null) {
-            endTimestamp = new Date();
+        model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(startLogTime));
+        if (endLogTime == null) {
+            endLogTime = new Date();
         }
-        model.addAttribute("endTimestamp", DateUtils.formatYMD_HMS(endTimestamp));
+        model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(endLogTime));
         setAttr(model);
         return "job-logger";
     }

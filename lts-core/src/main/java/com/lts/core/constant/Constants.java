@@ -80,4 +80,9 @@ public interface Constants {
     public static final String JOB_TAKE_PARALLEL_SIZE = "job.take.parallel.size";
     public static final String JOB_TAKE_ACQUIRE_TIMEOUT = "job.take.acquire.timeout";
     public static final int DEFAULT_JOB_TAKE_PARALLEL_SIZE = 20;
+
+    // 任务最多重试次数
+    public static final String JOB_MAX_RETRY_TIMES = "job.max.retry.times";
+    public static final int DEFAULT_JOB_MAX_RETRY_TIMES = 10;
+
 }

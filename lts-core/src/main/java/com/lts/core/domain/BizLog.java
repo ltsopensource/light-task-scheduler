@@ -17,7 +17,7 @@ public class BizLog implements Serializable {
 
     private Level level;
 
-    private Long timestamp;
+    private Long logTime;
 
     private String taskTrackerIdentity;
 
@@ -55,12 +55,12 @@ public class BizLog implements Serializable {
         this.level = level;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
+    public Long getLogTime() {
+        return logTime;
     }
 
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
+    public void setLogTime(Long logTime) {
+        this.logTime = logTime;
     }
 
     public String getTaskTrackerIdentity() {

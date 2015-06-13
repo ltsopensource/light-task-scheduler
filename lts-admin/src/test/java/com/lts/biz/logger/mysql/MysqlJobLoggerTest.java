@@ -33,7 +33,8 @@ public class MysqlJobLoggerTest {
         List<JobLogPo> jobLogPoList = new ArrayList<JobLogPo>();
 
         JobLogPo jobLogPo = new JobLogPo();
-        jobLogPo.setTimestamp(DateUtils.currentTimeMillis());
+        jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
+        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
         jobLogPo.setLevel(Level.INFO);
         jobLogPo.setLogType(LogType.BIZ);
         jobLogPoList.add(jobLogPo);

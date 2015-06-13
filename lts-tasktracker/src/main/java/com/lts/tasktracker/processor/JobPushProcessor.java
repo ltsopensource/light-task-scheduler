@@ -1,5 +1,6 @@
 package com.lts.tasktracker.processor;
 
+import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.domain.JobWrapper;
@@ -47,8 +48,8 @@ public class JobPushProcessor extends AbstractProcessor {
             }
 
             @Override
-            protected boolean retry(List<TaskTrackerJobResult> taskTrackerJobResults) {
-                return retrySendJobResults(taskTrackerJobResults);
+            protected boolean retry(List<TaskTrackerJobResult> results) {
+                return retrySendJobResults(results);
             }
         };
         retryScheduler.setName("JobPush");
@@ -86,9 +87,9 @@ public class JobPushProcessor extends AbstractProcessor {
         public JobWrapper runComplete(Response response) {
             // 发送消息给 JobTracker
             final TaskTrackerJobResult taskTrackerJobResult = new TaskTrackerJobResult();
-            taskTrackerJobResult.setTime(System.currentTimeMillis());
+            taskTrackerJobResult.setTime(DateUtils.currentTimeMillis());
             taskTrackerJobResult.setJobWrapper(response.getJobWrapper());
-            taskTrackerJobResult.setSuccess(response.isSuccess());
+            taskTrackerJobResult.setAction(response.getAction());
             taskTrackerJobResult.setMsg(response.getMsg());
             TtJobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new TtJobFinishedRequest());
             requestBody.addJobResult(taskTrackerJobResult);
@@ -153,13 +154,13 @@ public class JobPushProcessor extends AbstractProcessor {
     /**
      * 发送JobResults
      *
-     * @param taskTrackerJobResults
+     * @param results
      * @return
      */
-    private boolean retrySendJobResults(List<TaskTrackerJobResult> taskTrackerJobResults) {
+    private boolean retrySendJobResults(List<TaskTrackerJobResult> results) {
         // 发送消息给 JobTracker
         TtJobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new TtJobFinishedRequest());
-        requestBody.setTaskTrackerJobResults(taskTrackerJobResults);
+        requestBody.setTaskTrackerJobResults(results);
         requestBody.setReSend(true);
 
         int requestCode = JobProtos.RequestCode.JOB_FINISHED.code();
@@ -175,7 +176,7 @@ public class JobPushProcessor extends AbstractProcessor {
                 return false;
             }
         } catch (JobTrackerNotFoundException e) {
-            LOGGER.error("Retry send job result failed! jobResults={}", taskTrackerJobResults, e);
+            LOGGER.error("Retry send job result failed! jobResults={}", results, e);
         }
         return false;
     }

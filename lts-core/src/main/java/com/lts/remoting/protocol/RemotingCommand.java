@@ -60,6 +60,10 @@ public class RemotingCommand {
         return cmd;
     }
 
+    public static RemotingCommand createResponseCommand(int code) {
+        return createResponseCommand(code, null, null);
+    }
+
     public static RemotingCommand createResponseCommand(int code, String remark) {
         return createResponseCommand(code, remark, null);
     }

@@ -3,6 +3,7 @@ package com.lts.tasktracker.runner;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.domain.Action;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
@@ -48,16 +49,20 @@ public class JobRunnerDelegate implements Runnable {
                     application.getRunnerPool().getRunningJobManager().in(jobWrapper.getJobId());
                     Result result = application.getRunnerPool().getRunnerFactory().newRunner().run(jobWrapper.getJob());
                     if (result == null) {
-                        response.setSuccess(true);
+                        response.setAction(Action.EXECUTE_SUCCESS);
                     } else {
-                        response.setSuccess(result.isSuccess());
+                        Action action = result.getAction();
+                        if (result.getAction() == null) {
+                            action = Action.EXECUTE_SUCCESS;
+                        }
+                        response.setAction(action);
                         response.setMsg(result.getMsg());
                     }
-                    LOGGER.info("Job exec success : {}", jobWrapper);
+                    LOGGER.info("Job exec finished : {}", jobWrapper);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
-                    response.setSuccess(false);
+                    response.setAction(Action.EXECUTE_EXCEPTION);
                     response.setMsg(sw.toString());
                     LOGGER.info("Job exec error : {} {}", jobWrapper, t.getMessage(), t);
                 } finally {

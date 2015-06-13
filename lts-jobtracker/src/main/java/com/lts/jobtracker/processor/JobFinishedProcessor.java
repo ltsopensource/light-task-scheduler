@@ -2,7 +2,11 @@ package com.lts.jobtracker.processor;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
+import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
+import com.lts.core.domain.Action;
+import com.lts.core.domain.Job;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
@@ -35,168 +39,240 @@ import java.util.List;
 public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class.getSimpleName());
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class);
+    // 任务的最大重试次数
+    private final Integer maxRetryTimes;
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer, final JobTrackerApplication application) {
         super(remotingServer, application);
+        this.maxRetryTimes = application.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
+                Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
+
         this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<TaskTrackerJobResult>() {
             @Override
-            public void handleSuccess(List<TaskTrackerJobResult> taskTrackerJobResults) {
-                finishedJob(taskTrackerJobResults);
+            public void handleSuccess(List<TaskTrackerJobResult> results) {
+                finishProcess(results);
             }
 
             @Override
-            public void handleFailed(List<TaskTrackerJobResult> taskTrackerJobResults) {
-                if (CollectionUtils.isNotEmpty(taskTrackerJobResults)) {
+            public void handleFailed(List<TaskTrackerJobResult> results) {
+                if (CollectionUtils.isNotEmpty(results)) {
                     List<JobFeedbackPo> jobFeedbackPos =
-                            new ArrayList<JobFeedbackPo>(taskTrackerJobResults.size());
+                            new ArrayList<JobFeedbackPo>(results.size());
 
-                    for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
+                    for (TaskTrackerJobResult result : results) {
                         JobFeedbackPo jobFeedbackPo =
-                                JobDomainConverter.convert(taskTrackerJobResult);
+                                JobDomainConverter.convert(result);
                         jobFeedbackPos.add(jobFeedbackPo);
                     }
                     // 2. 失败的存储在反馈队列
                     application.getJobFeedbackQueue().add(jobFeedbackPos);
                     // 3. 完成任务 
-                    finishedJob(taskTrackerJobResults);
+                    finishProcess(results);
                 }
             }
         });
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request)
+            throws RemotingCommandException {
 
         TtJobFinishedRequest requestBody = request.getBody();
 
-        List<TaskTrackerJobResult> taskTrackerJobResults = requestBody.getTaskTrackerJobResults();
+        List<TaskTrackerJobResult> results = requestBody.getTaskTrackerJobResults();
 
-        // 1. 检验参数
-        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
-            return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(),
-                    "JobFinishedRequest.jobResults can not be empty!");
+        // 1. check params
+        if (CollectionUtils.isEmpty(results)) {
+            return RemotingCommand.createResponseCommand(RemotingProtos
+                            .ResponseCode.REQUEST_PARAM_ERROR.code(),
+                    "JobResults can not be empty!");
         }
 
-        if (requestBody.isReSend()) {
-            log(requestBody.getIdentity(), taskTrackerJobResults, LogType.RESEND);
-        } else {
-            log(requestBody.getIdentity(), taskTrackerJobResults, LogType.FINISHED);
-        }
+        // 2. log info
+        log(requestBody.isReSend(), requestBody.getIdentity(), results);
 
-        LOGGER.info("job exec finished : {}", taskTrackerJobResults);
+        LOGGER.info("Job exec finished : {}", results);
 
-        return finishJob(requestBody, taskTrackerJobResults);
+        // 3. process
+        return process(requestBody.isReceiveNewJob(), requestBody.getNodeGroup(),
+                requestBody.getIdentity(), results);
     }
 
     /**
      * 记录日志
-     *
-     * @param taskTrackerJobResults
-     * @param logType
      */
-    private void log(String taskTrackerIdentity, List<TaskTrackerJobResult> taskTrackerJobResults, LogType logType) {
-        try {
-            for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
-                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(taskTrackerJobResult.getJobWrapper());
-                jobLogPo.setMsg(taskTrackerJobResult.getMsg());
-                jobLogPo.setLogType(logType);
-                jobLogPo.setSuccess(taskTrackerJobResult.isSuccess());
-                jobLogPo.setTaskTrackerIdentity(taskTrackerIdentity);
-                jobLogPo.setLevel(Level.INFO);
-                application.getJobLogger().log(jobLogPo);
-            }
-        } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+    private void log(boolean resend, String taskTrackerIdentity,
+                     List<TaskTrackerJobResult> results) {
+
+        LogType logType = resend ? LogType.RESEND : LogType.FINISHED;
+
+        for (TaskTrackerJobResult result : results) {
+
+            JobLogPo jobLogPo = JobDomainConverter.convertJobLog(result.getJobWrapper());
+            jobLogPo.setMsg(result.getMsg());
+            jobLogPo.setLogType(logType);
+            jobLogPo.setSuccess(Action.EXECUTE_SUCCESS.equals(result.getAction()));
+            jobLogPo.setTaskTrackerIdentity(taskTrackerIdentity);
+            jobLogPo.setLevel(Level.INFO);
+            jobLogPo.setLogTime(result.getTime());
+            application.getJobLogger().log(jobLogPo);
         }
     }
 
     /**
-     * taskTracker 完成非定时任务
-     *
-     * @param requestBody
-     * @return
+     * 处理
      */
-    private RemotingCommand finishJob(TtJobFinishedRequest requestBody, List<TaskTrackerJobResult> taskTrackerJobResults) {
+    private RemotingCommand process(boolean receiveNewJob,
+                                    String taskTrackerNodeGroup,
+                                    String taskTrackerIdentity,
+                                    List<TaskTrackerJobResult> results) {
+
+        if (CollectionUtils.sizeOf(results) == 1) {
+            singleResultsProcess(results);
+        } else {
+            multiResultsProcess(results);
+        }
+
+        // 判断是否接受新任务
+        if (receiveNewJob) {
+            // 查看有没有其他可以执行的任务
+            JobPushRequest jobPushRequest = getNewJob(taskTrackerNodeGroup, taskTrackerIdentity);
+            // 返回 新的任务
+            return RemotingCommand.createResponseCommand(RemotingProtos
+                    .ResponseCode.SUCCESS.code(), jobPushRequest);
+        }
+
+        // 返回给 任务执行端
+        return RemotingCommand.createResponseCommand(RemotingProtos
+                .ResponseCode.SUCCESS.code());
+    }
+
+    private void singleResultsProcess(List<TaskTrackerJobResult> results) {
+        TaskTrackerJobResult result = results.get(0);
+
+        if (!needRetry(result)) {
+            // 这种情况下，如果要反馈客户端的，直接反馈客户端，不进行重试
+            if (result.getJobWrapper().getJob().isNeedFeedback()) {
+                clientNotifier.send(results);
+            } else {
+                finishProcess(results);
+            }
+        } else {
+            // 需要retry
+            retryProcess(results);
+        }
+    }
+
+    /**
+     * 判断任务是否需要加入重试队列
+     */
+    private boolean needRetry(TaskTrackerJobResult result) {
+        // TODO 是否需要加个时间过滤 result.getTime()
+
+        // 判断重试次数
+        Job job = result.getJobWrapper().getJob();
+        Integer retryTimes = job.getRetryTimes();
+        if (retryTimes >= maxRetryTimes) {
+            // 重试次数过多
+            return false;
+        }
+        // 判断类型
+        return !(Action.EXECUTE_SUCCESS.equals(result.getAction())
+                || Action.EXECUTE_FAILED.equals(result.getAction()));
+    }
+
+    /**
+     * 这里情况一般是发送失败，重新发送的
+     */
+    private void multiResultsProcess(List<TaskTrackerJobResult> results) {
+
+        List<TaskTrackerJobResult> retryResults = null;
 
         // 过滤出来需要通知客户端的
-        List<TaskTrackerJobResult> needFeedbackList = null;
+        List<TaskTrackerJobResult> feedbackResults = null;
         // 不需要反馈的
-        List<TaskTrackerJobResult> notNeedFeedbackList = null;
+        List<TaskTrackerJobResult> finishResults = null;
 
-        for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
-            if (taskTrackerJobResult.getJobWrapper().getJob().isNeedFeedback()) {
-                if (needFeedbackList == null) {
-                    needFeedbackList = new ArrayList<TaskTrackerJobResult>();
+        for (TaskTrackerJobResult result : results) {
+
+            if (needRetry(result)) {
+                // 需要加入到重试队列的
+                if (retryResults == null) {
+                    retryResults = new ArrayList<TaskTrackerJobResult>();
                 }
-                needFeedbackList.add(taskTrackerJobResult);
+                retryResults.add(result);
+            } else if (result.getJobWrapper().getJob().isNeedFeedback()) {
+                // 需要反馈给客户端
+                if (feedbackResults == null) {
+                    feedbackResults = new ArrayList<TaskTrackerJobResult>();
+                }
+                feedbackResults.add(result);
             } else {
-                if (notNeedFeedbackList == null) {
-                    notNeedFeedbackList = new ArrayList<TaskTrackerJobResult>();
+                // 不用反馈客户端，也不用重试，直接完成处理
+                if (finishResults == null) {
+                    finishResults = new ArrayList<TaskTrackerJobResult>();
                 }
-                notNeedFeedbackList.add(taskTrackerJobResult);
+                finishResults.add(result);
             }
         }
 
         // 通知客户端
-        notifyClient(needFeedbackList);
+        clientNotifier.send(feedbackResults);
 
-        // 不需要通知客户端的并且不是定时任务直接删除
-        finishedJob(notNeedFeedbackList);
+        // 完成任务
+        finishProcess(finishResults);
 
-        // 判断是否接受新任务
-        if (requestBody.isReceiveNewJob()) {
-            // 查看有没有其他可以执行的任务
-            JobPo jobPo = application.getExecutableJobQueue().take(requestBody.getNodeGroup(), requestBody.getIdentity());
-            if (jobPo != null) {
-                JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
-                jobPushRequest.setJobWrapper(JobDomainConverter.convert(jobPo));
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("send job {} to {} {} ", jobPo, requestBody.getNodeGroup(), requestBody.getIdentity());
-                }
-                try {
-                    application.getExecutingJobQueue().add(jobPo);
-                } catch (DuplicateJobException e) {
-                    // ignore
-                }
-                application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
-
-                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
-                jobLogPo.setSuccess(true);
-                jobLogPo.setLogType(LogType.SENT);
-                jobLogPo.setLevel(Level.INFO);
-                application.getJobLogger().log(jobLogPo);
-
-                // 返回 新的任务
-                return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success and has new job!", jobPushRequest);
-            }
-        }
-        // 返回给 任务执行端
-        return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "receive msg success!");
+        // 将任务加入到重试队列
+        retryProcess(retryResults);
     }
 
     /**
-     * 启动新的线程去通知客户端
-     *
-     * @param taskTrackerJobResults
+     * 获取新任务去执行
      */
-    private void notifyClient(final List<TaskTrackerJobResult> taskTrackerJobResults) {
+    private JobPushRequest getNewJob(String taskTrackerNodeGroup, String taskTrackerIdentity) {
 
-        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
-            return;
+        JobPo jobPo = application.getExecutableJobQueue().take(taskTrackerNodeGroup, taskTrackerIdentity);
+        if (jobPo == null) {
+            return null;
         }
-        // 1.发送给客户端
-        clientNotifier.send(taskTrackerJobResults);
+        JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
+        jobPushRequest.setJobWrapper(JobDomainConverter.convert(jobPo));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Send job {} to {} {} ", jobPo, taskTrackerNodeGroup, taskTrackerIdentity);
+        }
+        try {
+            application.getExecutingJobQueue().add(jobPo);
+        } catch (DuplicateJobException e) {
+            // ignore
+        }
+        application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
+
+        JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+        jobLogPo.setSuccess(true);
+        jobLogPo.setLogType(LogType.SENT);
+        jobLogPo.setLevel(Level.INFO);
+        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
+        application.getJobLogger().log(jobLogPo);
+        return jobPushRequest;
     }
 
-    private void finishedJob(List<TaskTrackerJobResult> taskTrackerJobResults) {
-        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
+    /**
+     * 完成任务
+     */
+    private void finishProcess(List<TaskTrackerJobResult> results) {
+
+        if (CollectionUtils.isEmpty(results)) {
             return;
         }
-        for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
-            JobWrapper jobWrapper = taskTrackerJobResult.getJobWrapper();
+
+        for (TaskTrackerJobResult result : results) {
+
+            JobWrapper jobWrapper = result.getJobWrapper();
             // 移除
             application.getExecutingJobQueue().remove(jobWrapper.getJobId());
+
 
             if (jobWrapper.getJob().isSchedule()) {
 
@@ -211,13 +287,71 @@ public class JobFinishedProcessor extends AbstractProcessor {
                 } else {
                     // 表示下次还要执行
                     try {
+                        cronJobPo.setTaskTrackerIdentity(null);
+                        cronJobPo.setIsRunning(false);
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                         cronJobPo.setGmtModified(System.currentTimeMillis());
                         application.getExecutableJobQueue().add(cronJobPo);
                     } catch (DuplicateJobException e) {
-                        LOGGER.warn("this cron job is duplicate !", e);
+                        if (LOGGER.isWarnEnabled()) {
+                            LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * 将任务加入重试队列
+     */
+    private void retryProcess(List<TaskTrackerJobResult> results) {
+        if (CollectionUtils.isEmpty(results)) {
+            return;
+        }
+        for (TaskTrackerJobResult result : results) {
+            JobWrapper jobWrapper = result.getJobWrapper();
+            // 1. 加入到重试队列
+            JobPo jobPo = application.getExecutingJobQueue().get(jobWrapper.getJobId());
+            if (jobPo != null) {
+                // 重试次数+1
+                jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
+                Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), jobPo.getRetryTimes()).getTime();
+
+                boolean needAdd = true;
+
+                if (jobPo.isSchedule()) {
+                    // 如果是 cron Job, 判断任务下一次执行时间和重试时间的比较
+                    JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
+                    if (cronJobPo != null) {
+                        Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
+                        if (nextTriggerTime != null && nextTriggerTime.getTime() < nextRetryTriggerTime) {
+                            // 表示下次还要执行, 并且下次执行时间比下次重试时间要早, 那么不重试，直接使用下次的执行时间
+                            try {
+                                cronJobPo.setTaskTrackerIdentity(null);
+                                cronJobPo.setIsRunning(false);
+                                cronJobPo.setTriggerTime(nextTriggerTime.getTime());
+                                cronJobPo.setGmtModified(System.currentTimeMillis());
+                                application.getExecutableJobQueue().add(cronJobPo);
+                            } catch (DuplicateJobException e) {
+                                if (LOGGER.isWarnEnabled()) {
+                                    LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
+                                }
+                            }
+                            needAdd = false;
+                        }
+                    }
+                }
+                if (needAdd) {
+                    // 加入到队列, 重试
+                    jobPo.setIsRunning(false);
+                    jobPo.setTaskTrackerIdentity(null);
+                    // 延迟重试时间就等于重试次数(分钟)
+                    jobPo.setTriggerTime(nextRetryTriggerTime);
+                    application.getExecutableJobQueue().add(jobPo);
+                }
+                // 从正在执行的队列中移除
+                application.getExecutingJobQueue().remove(jobPo.getJobId());
             }
         }
     }

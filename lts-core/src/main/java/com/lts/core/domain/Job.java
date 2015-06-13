@@ -17,21 +17,22 @@ import java.util.Map;
 public class Job {
 
     @NotNull
-    protected String taskId;
+    private String taskId;
     /**
      * 优先级 (数值越大 优先级越低)
      */
-    protected Integer priority = 100;
+    private Integer priority = 100;
     // 提交的节点 （可以手动指定）
-    protected String submitNodeGroup;
+    private String submitNodeGroup;
     // 执行的节点
     @NotNull
-    protected String taskTrackerNodeGroup;
+    private String taskTrackerNodeGroup;
 
-    protected Map<String, String> extParams;
+    private Map<String, String> extParams;
     // 是否要反馈给客户端
-    protected boolean needFeedback = true;
-
+    private boolean needFeedback = true;
+    // 重试次数
+    private int retryTimes;
     /**
      * 执行表达式 和 quartz 的一样
      * 如果这个为空，表示立即执行的
@@ -80,6 +81,14 @@ public class Job {
         return needFeedback;
     }
 
+    public Integer getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
     public void setNeedFeedback(boolean needFeedback) {
         this.needFeedback = needFeedback;
     }
@@ -118,8 +127,8 @@ public class Job {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
     }
 
-    public void setTriggerTime(Date date){
-        if(date != null){
+    public void setTriggerTime(Date date) {
+        if (date != null) {
             this.triggerTime = date.getTime();
         }
     }

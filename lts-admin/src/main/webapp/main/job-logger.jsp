@@ -33,9 +33,9 @@
                     <label class="control-label">日志记录时间：</label>
 
                     <div class="controls">
-                        <input type="text" class="calendar calendar-time" name="startTimestamp"
-                               value="${startTimestamp}"><span> -
-                        </span><input name="endTimestamp" value="${endTimestamp}" type="text"
+                        <input type="text" class="calendar calendar-time" name="startLogTime"
+                               value="${startLogTime}"><span> -
+                        </span><input name="endLogTime" value="${endLogTime}" type="text"
                                       class="calendar calendar-time">
                     </div>
                 </div>
@@ -91,6 +91,9 @@
             },
             {
                 title: '日志级别', dataIndex: 'level', width: 60
+            },
+            {
+                title: '重试次数', dataIndex: 'retryTimes', width: 60
             },
             {
                 title: '优先级', dataIndex: 'priority', sortable: false, width: 60

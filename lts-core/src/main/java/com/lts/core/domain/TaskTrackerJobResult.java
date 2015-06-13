@@ -10,8 +10,7 @@ public class TaskTrackerJobResult {
 
     private JobWrapper jobWrapper;
 
-    // 执行成功还是失败
-    private boolean success;
+    private Action action;
 
     private String msg;
     // 任务完成时间
@@ -25,12 +24,12 @@ public class TaskTrackerJobResult {
         this.jobWrapper = jobWrapper;
     }
 
-    public boolean isSuccess() {
-        return success;
+    public Action getAction() {
+        return action;
     }
 
-    public void setSuccess(boolean success) {
-        this.success = success;
+    public void setAction(Action action) {
+        this.action = action;
     }
 
     public String getMsg() {

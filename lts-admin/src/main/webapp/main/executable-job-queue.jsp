@@ -83,6 +83,9 @@
             {title: 'cron表达式', dataIndex: 'cronExpression', width: 100},
             {title: '优先级', dataIndex: 'priority', width: 60},
             {
+                title: '重试次数', dataIndex: 'retryTimes', width: 60
+            },
+            {
                 title: '反馈客户端', dataIndex: 'needFeedback', width: 80, renderer: function (v) {
                 return v ? '需要' : '不需要';
             }
