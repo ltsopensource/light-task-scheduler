@@ -17,6 +17,7 @@ import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.commons.utils.Holder;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 import com.lts.remoting.InvokeCallback;
@@ -172,7 +173,7 @@ public class JobPusher {
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.SENT);
-        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
+        jobLogPo.setLogTime(SystemClock.now());
         jobLogPo.setLevel(Level.INFO);
         application.getJobLogger().log(jobLogPo);
 

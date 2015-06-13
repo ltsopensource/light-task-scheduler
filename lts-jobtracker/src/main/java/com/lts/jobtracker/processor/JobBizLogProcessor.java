@@ -8,6 +8,7 @@ import com.lts.core.domain.BizLog;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.jobtracker.domain.JobTrackerApplication;
@@ -33,7 +34,7 @@ public class JobBizLogProcessor extends AbstractProcessor {
         if (CollectionUtils.isNotEmpty(bizLogs)) {
             for (BizLog bizLog : bizLogs) {
                 JobLogPo jobLogPo = new JobLogPo();
-                jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
+                jobLogPo.setGmtCreated(SystemClock.now());
                 jobLogPo.setLogTime(bizLog.getLogTime());
                 jobLogPo.setTaskTrackerNodeGroup(bizLog.getTaskTrackerNodeGroup());
                 jobLogPo.setTaskTrackerIdentity(bizLog.getTaskTrackerIdentity());

@@ -6,6 +6,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
+import com.lts.core.support.SystemClock;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class MysqlJobLoggerTest {
         List<JobLogPo> jobLogPoList = new ArrayList<JobLogPo>();
 
         JobLogPo jobLogPo = new JobLogPo();
-        jobLogPo.setGmtCreated(DateUtils.currentTimeMillis());
-        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
+        jobLogPo.setGmtCreated(SystemClock.now());
+        jobLogPo.setLogTime(SystemClock.now());
         jobLogPo.setLevel(Level.INFO);
         jobLogPo.setLogType(LogType.BIZ);
         jobLogPoList.add(jobLogPo);

@@ -15,6 +15,8 @@ import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.support.LoggerName;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -40,7 +42,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
     // 任务的最大重试次数
     private final Integer maxRetryTimes;
 
@@ -253,7 +255,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.SENT);
         jobLogPo.setLevel(Level.INFO);
-        jobLogPo.setLogTime(DateUtils.currentTimeMillis());
+        jobLogPo.setLogTime(SystemClock.now());
         application.getJobLogger().log(jobLogPo);
         return jobPushRequest;
     }
@@ -290,7 +292,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         cronJobPo.setTaskTrackerIdentity(null);
                         cronJobPo.setIsRunning(false);
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
-                        cronJobPo.setGmtModified(System.currentTimeMillis());
+                        cronJobPo.setGmtModified(SystemClock.now());
                         application.getExecutableJobQueue().add(cronJobPo);
                     } catch (DuplicateJobException e) {
                         if (LOGGER.isWarnEnabled()) {
@@ -331,7 +333,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                                 cronJobPo.setTaskTrackerIdentity(null);
                                 cronJobPo.setIsRunning(false);
                                 cronJobPo.setTriggerTime(nextTriggerTime.getTime());
-                                cronJobPo.setGmtModified(System.currentTimeMillis());
+                                cronJobPo.setGmtModified(SystemClock.now());
                                 application.getExecutableJobQueue().add(cronJobPo);
                             } catch (DuplicateJobException e) {
                                 if (LOGGER.isWarnEnabled()) {

@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.common.SemaphoreReleaseOnlyOnce;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -16,7 +17,7 @@ public class ResponseFuture {
     private final int opaque;
     private final long timeoutMillis;
     private final InvokeCallback invokeCallback;
-    private final long beginTimestamp = System.currentTimeMillis();
+    private final long beginTimestamp = SystemClock.now();
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
     // 保证信号量至多至少只被释放一次
     private final SemaphoreReleaseOnlyOnce once;
@@ -53,7 +54,7 @@ public class ResponseFuture {
 
 
     public boolean isTimeout() {
-        long diff = System.currentTimeMillis() - this.beginTimestamp;
+        long diff = SystemClock.now() - this.beginTimestamp;
         return diff > this.timeoutMillis;
     }
 

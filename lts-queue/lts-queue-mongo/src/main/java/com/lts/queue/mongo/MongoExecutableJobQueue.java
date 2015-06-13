@@ -8,6 +8,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.support.JobQueueUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -73,7 +74,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     public boolean add(JobPo jobPo) {
         try {
             String tableName = JobQueueUtils.getExecutableQueueName(jobPo.getTaskTrackerNodeGroup());
-            jobPo.setGmtCreated(DateUtils.currentTimeMillis());
+            jobPo.setGmtCreated(SystemClock.now());
             jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(tableName, jobPo);
         } catch (DuplicateKeyException e) {
@@ -99,14 +100,14 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
             Query<JobPo> query = template.createQuery(tableName, JobPo.class);
             query.field("isRunning").equal(false)
-                    .filter("triggerTime < ", System.currentTimeMillis())
+                    .filter("triggerTime < ", SystemClock.now())
                     .order(" triggerTime, priority , gmtCreated");
 
             UpdateOperations<JobPo> operations =
                     template.createUpdateOperations(JobPo.class)
                             .set("isRunning", true)
                             .set("taskTrackerIdentity", taskTrackerIdentity)
-                            .set("gmtModified", System.currentTimeMillis());
+                            .set("gmtModified", SystemClock.now());
             return template.findAndModify(query, operations, false);
         } finally {
             if (acquire) {
@@ -134,7 +135,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
                 template.createUpdateOperations(JobPo.class)
                         .set("isRunning", false)
                         .set("taskTrackerIdentity", "")
-                        .set("gmtModified", System.currentTimeMillis());
+                        .set("gmtModified", SystemClock.now());
         template.update(query, operations);
     }
 

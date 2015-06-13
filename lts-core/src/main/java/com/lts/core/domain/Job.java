@@ -32,7 +32,7 @@ public class Job {
     // 是否要反馈给客户端
     private boolean needFeedback = true;
     // 重试次数
-    private int retryTimes;
+    private int retryTimes = 0;
     /**
      * 执行表达式 和 quartz 的一样
      * 如果这个为空，表示立即执行的

@@ -1,5 +1,6 @@
 package com.lts.jobclient;
 
+import com.lts.core.support.LoggerName;
 import com.lts.jobclient.domain.JobClientApplication;
 import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
@@ -41,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class JobClient<T extends JobClientNode, App extends Application> extends
         AbstractClientNode<JobClientNode, JobClientApplication> {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger("LTS.JobClient");
+    protected static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobClient);
 
     private static final int BATCH_SIZE = 50;
 

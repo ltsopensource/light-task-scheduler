@@ -5,6 +5,7 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.domain.JobQueueRequest;
 import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutingJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
@@ -51,7 +52,7 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
 
     @Override
     public boolean add(JobPo jobPo) {
-        jobPo.setGmtCreated(DateUtils.currentTimeMillis());
+        jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         return super.add(JobQueueUtils.EXECUTING_JOB_QUEUE, jobPo);
     }

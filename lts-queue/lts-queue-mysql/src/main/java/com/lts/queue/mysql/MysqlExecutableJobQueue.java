@@ -9,6 +9,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
@@ -82,7 +83,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
 
     @Override
     public boolean add(JobPo jobPo) {
-        jobPo.setGmtCreated(DateUtils.currentTimeMillis());
+        jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         try {
             return super.add(getTableName(jobPo.getTaskTrackerNodeGroup()), jobPo);
@@ -124,7 +125,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
             /**
              * 这里从SELECT FOR UPDATE 优化为 CAS 乐观锁
              */
-            Long now = DateUtils.currentTimeMillis();
+            Long now = SystemClock.now();
             Object[] selectParams = new Object[]{false, now};
 
             JobPo jobPo = getSqlTemplate().query(getRealSql(takeSelectSQL, taskTrackerNodeGroup),
@@ -184,7 +185,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     @Override
     public void resume(JobPo jobPo) {
         try {
-            Object[] params = new Object[]{false, null, System.currentTimeMillis(), jobPo.getJobId()};
+            Object[] params = new Object[]{false, null, SystemClock.now(), jobPo.getJobId()};
             getSqlTemplate().update(getRealSql(resumeSQL, jobPo.getTaskTrackerNodeGroup()), params);
         } catch (SQLException e) {
             throw new JobQueueException(e);

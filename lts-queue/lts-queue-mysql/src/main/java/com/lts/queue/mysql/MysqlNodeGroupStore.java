@@ -5,6 +5,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.support.JobQueueUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.queue.exception.JobQueueException;
@@ -74,7 +75,7 @@ public class MysqlNodeGroupStore extends JdbcRepository implements NodeGroupStor
                 //  already exist
                 return;
             }
-            getSqlTemplate().update(insertSQL, nodeType.name(), name, DateUtils.currentTimeMillis());
+            getSqlTemplate().update(insertSQL, nodeType.name(), name, SystemClock.now());
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

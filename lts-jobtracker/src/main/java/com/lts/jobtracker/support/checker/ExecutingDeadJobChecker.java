@@ -15,6 +15,7 @@ import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 import com.lts.remoting.InvokeCallback;
@@ -86,7 +87,7 @@ public class ExecutingDeadJobChecker {
         // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
         // 一般来说这个是没有多大的，我就不分页去查询了
         List<JobPo> jobPos = application.getExecutingJobQueue().getDeadJobs(
-                DateUtils.currentTimeMillis() - MAX_DEAD_CHECK_TIME);
+                SystemClock.now() - MAX_DEAD_CHECK_TIME);
         if (jobPos != null && jobPos.size() > 0) {
             List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.TASK_TRACKER);
             HashSet<String/*identity*/> identities = new HashSet<String>();
@@ -102,7 +103,7 @@ public class ExecutingDeadJobChecker {
                     fixedDeadJob(jobPo);
                 } else {
                     // 如果节点存在，并且超时了, 那么去主动询问taskTracker 这个任务是否在执行中
-                    if (System.currentTimeMillis() - jobPo.getGmtModified() > MAX_TIME_OUT) {
+                    if (SystemClock.now() - jobPo.getGmtModified() > MAX_TIME_OUT) {
                         TaskTrackerNode taskTrackerNode = new TaskTrackerNode(jobPo.getTaskTrackerIdentity(), jobPo.getTaskTrackerNodeGroup());
                         List<JobPo> jobPosList = timeoutMap.get(taskTrackerNode);
                         if (jobPosList == null) {

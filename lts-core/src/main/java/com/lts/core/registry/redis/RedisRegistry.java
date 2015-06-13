@@ -8,11 +8,12 @@ import com.lts.core.constant.Constants;
 import com.lts.core.exception.NodeRegistryException;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.FailbackRegistry;
 import com.lts.core.registry.NodeRegistryUtils;
-import com.lts.core.registry.NotifyListener;
-import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.NotifyEvent;
+import com.lts.core.registry.NotifyListener;
+import com.lts.core.support.SystemClock;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -83,7 +84,7 @@ public class RedisRegistry extends FailbackRegistry {
                 try {
                     for (Node node : new HashSet<Node>(getRegistered())) {
                         String key = NodeRegistryUtils.getNodeTypePath(clusterName, node.getNodeType());
-                        if (jedis.hset(key, node.toFullString(), String.valueOf(System.currentTimeMillis() + expirePeriod)) == 1) {
+                        if (jedis.hset(key, node.toFullString(), String.valueOf(SystemClock.now() + expirePeriod)) == 1) {
                             jedis.publish(key, Constants.REGISTER);
                         }
                     }
@@ -103,7 +104,7 @@ public class RedisRegistry extends FailbackRegistry {
     @Override
     protected void doRegister(Node node) {
         String key = NodeRegistryUtils.getNodeTypePath(clusterName, node.getNodeType());
-        String expire = String.valueOf(System.currentTimeMillis() + expirePeriod);
+        String expire = String.valueOf(SystemClock.now() + expirePeriod);
         boolean success = false;
         NodeRegistryException exception = null;
         for (Map.Entry<String, JedisPool> entry : jedisPools.entrySet()) {

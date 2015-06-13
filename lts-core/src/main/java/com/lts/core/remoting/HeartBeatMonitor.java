@@ -82,10 +82,10 @@ public class HeartBeatMonitor {
                                 }
                             }, 30, 30, TimeUnit.SECONDS);      // 30s 一次心跳
                 }
-                LOGGER.info("Start heart beat monitor success!");
+                LOGGER.info("Start slow ping success.");
             }
         } catch (Throwable t) {
-            LOGGER.error("Start heart beat monitor failed!", t);
+            LOGGER.error("Start slow ping failed.", t);
         }
     }
 
@@ -95,10 +95,10 @@ public class HeartBeatMonitor {
 //                pingScheduledFuture.cancel(true);
 //                PING_EXECUTOR_SERVICE.shutdown();
                 application.getEventCenter().unSubscribe(EcTopic.NO_JOB_TRACKER_AVAILABLE, eventSubscriber);
-                LOGGER.info("Stop heart beat monitor success!");
+                LOGGER.info("Stop slow ping success.");
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop heart beat monitor failed!", t);
+            LOGGER.error("Stop slow ping failed.", t);
         }
     }
 
@@ -117,9 +117,9 @@ public class HeartBeatMonitor {
                                 }
                             }, 1, 2, TimeUnit.MILLISECONDS);
                 }
-                LOGGER.info("Start fast ping runner success!");
+                LOGGER.info("Start fast ping success.");
             } catch (Throwable t) {
-                LOGGER.error("Start fast ping runner failed!", t);
+                LOGGER.error("Start fast ping failed.", t);
             }
         }
     }
@@ -129,10 +129,10 @@ public class HeartBeatMonitor {
             if (fastPingStart.compareAndSet(true, false)) {
 //                fastPingScheduledFuture.cancel(true);
 //                FAST_PING_EXECUTOR.shutdown();
-                LOGGER.info("Stop fast ping runner success!");
+                LOGGER.info("Stop fast ping success.");
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop fast ping runner failed!", t);
+            LOGGER.error("Stop fast ping failed.", t);
         }
     }
 
@@ -193,7 +193,7 @@ public class HeartBeatMonitor {
             if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS ==
                     JobProtos.ResponseCode.valueOf(response.getCode())) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("heart beat success! ");
+                    LOGGER.debug("heart beat success. ");
                 }
                 return true;
             }
