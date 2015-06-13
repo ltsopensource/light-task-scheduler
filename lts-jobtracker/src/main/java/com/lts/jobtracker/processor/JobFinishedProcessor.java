@@ -3,11 +3,11 @@ package com.lts.jobtracker.processor;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.constant.Level;
-import com.lts.core.domain.Job;
-import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.protocol.command.JobFinishedRequest;
+import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -39,27 +39,27 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer, final JobTrackerApplication application) {
         super(remotingServer, application);
-        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<JobResult>() {
+        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<TaskTrackerJobResult>() {
             @Override
-            public void handleSuccess(List<JobResult> jobResults) {
-                finishedJob(jobResults);
+            public void handleSuccess(List<TaskTrackerJobResult> taskTrackerJobResults) {
+                finishedJob(taskTrackerJobResults);
             }
 
             @Override
-            public void handleFailed(List<JobResult> jobResults) {
-                if (CollectionUtils.isNotEmpty(jobResults)) {
+            public void handleFailed(List<TaskTrackerJobResult> taskTrackerJobResults) {
+                if (CollectionUtils.isNotEmpty(taskTrackerJobResults)) {
                     List<JobFeedbackPo> jobFeedbackPos =
-                            new ArrayList<JobFeedbackPo>(jobResults.size());
+                            new ArrayList<JobFeedbackPo>(taskTrackerJobResults.size());
 
-                    for (JobResult jobResult : jobResults) {
+                    for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
                         JobFeedbackPo jobFeedbackPo =
-                                JobDomainConverter.convert(jobResult);
+                                JobDomainConverter.convert(taskTrackerJobResult);
                         jobFeedbackPos.add(jobFeedbackPo);
                     }
                     // 2. 失败的存储在反馈队列
                     application.getJobFeedbackQueue().add(jobFeedbackPos);
                     // 3. 完成任务 
-                    finishedJob(jobResults);
+                    finishedJob(taskTrackerJobResults);
                 }
             }
         });
@@ -68,40 +68,40 @@ public class JobFinishedProcessor extends AbstractProcessor {
     @Override
     public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
 
-        JobFinishedRequest requestBody = request.getBody();
+        TtJobFinishedRequest requestBody = request.getBody();
 
-        List<JobResult> jobResults = requestBody.getJobResults();
+        List<TaskTrackerJobResult> taskTrackerJobResults = requestBody.getTaskTrackerJobResults();
 
         // 1. 检验参数
-        if (CollectionUtils.isEmpty(jobResults)) {
+        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
             return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_PARAM_ERROR.code(),
                     "JobFinishedRequest.jobResults can not be empty!");
         }
 
         if (requestBody.isReSend()) {
-            log(requestBody.getIdentity(), jobResults, LogType.RESEND);
+            log(requestBody.getIdentity(), taskTrackerJobResults, LogType.RESEND);
         } else {
-            log(requestBody.getIdentity(), jobResults, LogType.FINISHED);
+            log(requestBody.getIdentity(), taskTrackerJobResults, LogType.FINISHED);
         }
 
-        LOGGER.info("job exec finished : {}", jobResults);
+        LOGGER.info("job exec finished : {}", taskTrackerJobResults);
 
-        return finishJob(requestBody, jobResults);
+        return finishJob(requestBody, taskTrackerJobResults);
     }
 
     /**
      * 记录日志
      *
-     * @param jobResults
+     * @param taskTrackerJobResults
      * @param logType
      */
-    private void log(String taskTrackerIdentity, List<JobResult> jobResults, LogType logType) {
+    private void log(String taskTrackerIdentity, List<TaskTrackerJobResult> taskTrackerJobResults, LogType logType) {
         try {
-            for (JobResult jobResult : jobResults) {
-                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobResult.getJob());
-                jobLogPo.setMsg(jobResult.getMsg());
+            for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
+                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(taskTrackerJobResult.getJobWrapper());
+                jobLogPo.setMsg(taskTrackerJobResult.getMsg());
                 jobLogPo.setLogType(logType);
-                jobLogPo.setSuccess(jobResult.isSuccess());
+                jobLogPo.setSuccess(taskTrackerJobResult.isSuccess());
                 jobLogPo.setTaskTrackerIdentity(taskTrackerIdentity);
                 jobLogPo.setLevel(Level.INFO);
                 application.getJobLogger().log(jobLogPo);
@@ -117,24 +117,24 @@ public class JobFinishedProcessor extends AbstractProcessor {
      * @param requestBody
      * @return
      */
-    private RemotingCommand finishJob(JobFinishedRequest requestBody, List<JobResult> jobResults) {
+    private RemotingCommand finishJob(TtJobFinishedRequest requestBody, List<TaskTrackerJobResult> taskTrackerJobResults) {
 
         // 过滤出来需要通知客户端的
-        List<JobResult> needFeedbackList = null;
+        List<TaskTrackerJobResult> needFeedbackList = null;
         // 不需要反馈的
-        List<JobResult> notNeedFeedbackList = null;
+        List<TaskTrackerJobResult> notNeedFeedbackList = null;
 
-        for (JobResult jobResult : jobResults) {
-            if (jobResult.getJob().isNeedFeedback()) {
+        for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
+            if (taskTrackerJobResult.getJobWrapper().getJob().isNeedFeedback()) {
                 if (needFeedbackList == null) {
-                    needFeedbackList = new ArrayList<JobResult>();
+                    needFeedbackList = new ArrayList<TaskTrackerJobResult>();
                 }
-                needFeedbackList.add(jobResult);
+                needFeedbackList.add(taskTrackerJobResult);
             } else {
                 if (notNeedFeedbackList == null) {
-                    notNeedFeedbackList = new ArrayList<JobResult>();
+                    notNeedFeedbackList = new ArrayList<TaskTrackerJobResult>();
                 }
-                notNeedFeedbackList.add(jobResult);
+                notNeedFeedbackList.add(taskTrackerJobResult);
             }
         }
 
@@ -150,17 +150,16 @@ public class JobFinishedProcessor extends AbstractProcessor {
             JobPo jobPo = application.getExecutableJobQueue().take(requestBody.getNodeGroup(), requestBody.getIdentity());
             if (jobPo != null) {
                 JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
-                Job job = JobDomainConverter.convert(jobPo);
-                jobPushRequest.setJob(job);
+                jobPushRequest.setJobWrapper(JobDomainConverter.convert(jobPo));
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("send job {} to {} {} ", job, requestBody.getNodeGroup(), requestBody.getIdentity());
+                    LOGGER.debug("send job {} to {} {} ", jobPo, requestBody.getNodeGroup(), requestBody.getIdentity());
                 }
                 try {
                     application.getExecutingJobQueue().add(jobPo);
                 } catch (DuplicateJobException e) {
                     // ignore
                 }
-                application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
+                application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
                 JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
                 jobLogPo.setSuccess(true);
@@ -179,36 +178,36 @@ public class JobFinishedProcessor extends AbstractProcessor {
     /**
      * 启动新的线程去通知客户端
      *
-     * @param jobResults
+     * @param taskTrackerJobResults
      */
-    private void notifyClient(final List<JobResult> jobResults) {
+    private void notifyClient(final List<TaskTrackerJobResult> taskTrackerJobResults) {
 
-        if (CollectionUtils.isEmpty(jobResults)) {
+        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
             return;
         }
         // 1.发送给客户端
-        clientNotifier.send(jobResults);
+        clientNotifier.send(taskTrackerJobResults);
     }
 
-    private void finishedJob(List<JobResult> jobResults) {
-        if (CollectionUtils.isEmpty(jobResults)) {
+    private void finishedJob(List<TaskTrackerJobResult> taskTrackerJobResults) {
+        if (CollectionUtils.isEmpty(taskTrackerJobResults)) {
             return;
         }
-        for (JobResult jobResult : jobResults) {
-            Job job = jobResult.getJob();
+        for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
+            JobWrapper jobWrapper = taskTrackerJobResult.getJobWrapper();
             // 移除
-            application.getExecutingJobQueue().remove(job.getJobId());
+            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
 
-            if (job.isSchedule()) {
+            if (jobWrapper.getJob().isSchedule()) {
 
-                JobPo cronJobPo = application.getCronJobQueue().finish(job.getJobId());
+                JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
                 if (cronJobPo == null) {
                     // 可能任务队列中改条记录被删除了
                     return;
                 }
                 Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
                 if (nextTriggerTime == null) {
-                    application.getCronJobQueue().remove(job.getJobId());
+                    application.getCronJobQueue().remove(jobWrapper.getJobId());
                 } else {
                     // 表示下次还要执行
                     try {

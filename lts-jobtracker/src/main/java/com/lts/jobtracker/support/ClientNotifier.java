@@ -1,7 +1,10 @@
 package com.lts.jobtracker.support;
 
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.Holder;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.logger.Logger;
@@ -9,13 +12,11 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobFinishedRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.Holder;
+import com.lts.jobtracker.domain.JobClientNode;
+import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
-import com.lts.jobtracker.domain.JobClientNode;
-import com.lts.jobtracker.domain.JobTrackerApplication;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -41,7 +42,7 @@ public class ClientNotifier {
      * @param jobResults
      * @return 返回成功的个数
      */
-    public <T extends JobResult> int send(List<T> jobResults) {
+    public <T extends TaskTrackerJobResult> int send(List<T> jobResults) {
         if (CollectionUtils.isEmpty(jobResults)) {
             return 0;
         }
@@ -49,35 +50,35 @@ public class ClientNotifier {
         // 单个 就不用 分组了
         if (jobResults.size() == 1) {
 
-            JobResult jobResult = jobResults.get(0);
-            if (!send0(jobResult.getJob().getSubmitNodeGroup(), Arrays.asList(jobResult))) {
+            TaskTrackerJobResult taskTrackerJobResult = jobResults.get(0);
+            if (!send0(taskTrackerJobResult.getJobWrapper().getJob().getSubmitNodeGroup(), Arrays.asList(taskTrackerJobResult))) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
                 return 0;
             }
         } else if (jobResults.size() > 1) {
 
-            List<JobResult> failedJobResult = new ArrayList<JobResult>();
+            List<TaskTrackerJobResult> failedTaskTrackerJobResult = new ArrayList<TaskTrackerJobResult>();
 
             // 有多个要进行分组 (出现在 失败重发的时候)
-            Map<String/*nodeGroup*/, List<JobResult>> groupMap = new HashMap<String, List<JobResult>>();
+            Map<String/*nodeGroup*/, List<TaskTrackerJobResult>> groupMap = new HashMap<String, List<TaskTrackerJobResult>>();
 
             for (T jobResult : jobResults) {
-                List<JobResult> jobResultList = groupMap.get(jobResult.getJob().getSubmitNodeGroup());
-                if (jobResultList == null) {
-                    jobResultList = new ArrayList<JobResult>();
-                    groupMap.put(jobResult.getJob().getSubmitNodeGroup(), jobResultList);
+                List<TaskTrackerJobResult> taskTrackerJobResultList = groupMap.get(jobResult.getJobWrapper().getJob().getSubmitNodeGroup());
+                if (taskTrackerJobResultList == null) {
+                    taskTrackerJobResultList = new ArrayList<TaskTrackerJobResult>();
+                    groupMap.put(jobResult.getJobWrapper().getJob().getSubmitNodeGroup(), taskTrackerJobResultList);
                 }
-                jobResultList.add(jobResult);
+                taskTrackerJobResultList.add(jobResult);
             }
-            for (Map.Entry<String, List<JobResult>> entry : groupMap.entrySet()) {
+            for (Map.Entry<String, List<TaskTrackerJobResult>> entry : groupMap.entrySet()) {
 
                 if (!send0(entry.getKey(), entry.getValue())) {
-                    failedJobResult.addAll(entry.getValue());
+                    failedTaskTrackerJobResult.addAll(entry.getValue());
                 }
             }
-            clientNotifyHandler.handleFailed(failedJobResult);
-            return jobResults.size() - failedJobResult.size();
+            clientNotifyHandler.handleFailed(failedTaskTrackerJobResult);
+            return jobResults.size() - failedTaskTrackerJobResult.size();
         }
         return jobResults.size();
     }
@@ -87,15 +88,24 @@ public class ClientNotifier {
      * 返回是否发送成功还是失败
      *
      * @param nodeGroup
-     * @param jobResults
+     * @param taskTrackerJobResults
      * @return
      */
-    private boolean send0(String nodeGroup, final List<JobResult> jobResults) {
+    private boolean send0(String nodeGroup, final List<TaskTrackerJobResult> taskTrackerJobResults) {
         // 得到 可用的客户端节点
         JobClientNode jobClientNode = application.getJobClientManager().getAvailableJobClient(nodeGroup);
 
         if (jobClientNode == null) {
             return false;
+        }
+        List<JobResult> jobResults = new ArrayList<JobResult>(taskTrackerJobResults.size());
+        for (TaskTrackerJobResult taskTrackerJobResult : taskTrackerJobResults) {
+            JobResult jobResult = new JobResult();
+            jobResult.setJob(taskTrackerJobResult.getJobWrapper().getJob());
+            jobResult.setSuccess(taskTrackerJobResult.isSuccess());
+            jobResult.setMsg(taskTrackerJobResult.getMsg());
+            jobResult.setTime(taskTrackerJobResult.getTime());
+            jobResults.add(jobResult);
         }
 
         JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
@@ -112,7 +122,7 @@ public class ClientNotifier {
                         RemotingCommand commandResponse = responseFuture.getResponseCommand();
 
                         if (commandResponse != null && commandResponse.getCode() == JobProtos.ResponseCode.JOB_NOTIFY_SUCCESS.code()) {
-                            clientNotifyHandler.handleSuccess(jobResults);
+                            clientNotifyHandler.handleSuccess(taskTrackerJobResults);
                             result.set(true);
                         } else {
                             result.set(false);

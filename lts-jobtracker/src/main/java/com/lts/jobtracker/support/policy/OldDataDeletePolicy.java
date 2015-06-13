@@ -22,7 +22,7 @@ public class OldDataDeletePolicy implements OldDataHandler {
 
         if (System.currentTimeMillis() - jobFeedbackPo.getGmtCreated() > expired) {
             // delete
-            jobFeedbackQueue.remove(po.getJobResult().getJob().getTaskTrackerNodeGroup(), po.getId());
+            jobFeedbackQueue.remove(po.getTaskTrackerJobResult().getJobWrapper().getJob().getTaskTrackerNodeGroup(), po.getId());
             return true;
         }
 

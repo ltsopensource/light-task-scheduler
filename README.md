@@ -54,7 +54,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
 ###LTS Admin
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-schedule/master/doc/LTS_Admin.png)
 ###调用示例
-下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-schedule/tree/master/lts-example/src/main/java/com/lts/job/example/api) 模块下的 API 调用方式例子.
+下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-schedule/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
 
 ####JobTracker 端
 ```java
@@ -85,7 +85,7 @@ LTS 轻量级分布式任务调度框架(Light Task Schedule)
         public void run(Job job) throws Throwable {
             System.out.println("我要执行"+ job);
             System.out.println(job.getParam("shopId"));
-            // TODO 用户自己的业务逻辑
+            // TODO 用户自己的业务逻辑, 应该保证幂等
             try {
                 Thread.sleep(5*1000L);
             } catch (InterruptedException e) {

@@ -5,6 +5,7 @@ import com.lts.biz.logger.domain.LogType;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
+import com.lts.core.domain.JobWrapper;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.factory.NamedThreadFactory;
@@ -116,8 +117,7 @@ public class JobPusher {
         }
 
         JobPushRequest body = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
-        Job job = JobDomainConverter.convert(jobPo);
-        body.setJob(job);
+        body.setJobWrapper(JobDomainConverter.convert(jobPo));
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
         // 是否分发推送任务成功
@@ -155,7 +155,7 @@ public class JobPusher {
 
         if (!pushSuccess.get()) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + job);
+                LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + jobPo);
             }
             application.getExecutableJobQueue().resume(jobPo);
             return PushResult.FAILED;
@@ -165,7 +165,7 @@ public class JobPusher {
         } catch (DuplicateJobException e) {
             // ignore
         }
-        application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
+        application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
         // 记录日志
 
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);

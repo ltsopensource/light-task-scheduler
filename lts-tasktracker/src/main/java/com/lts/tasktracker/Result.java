@@ -1,7 +1,7 @@
 package com.lts.tasktracker;
 
 /**
- * Created by hugui on 6/12/15.
+ * @author Robert HG (254963746@qq.com) on 6/12/15.
  */
 public class Result {
 

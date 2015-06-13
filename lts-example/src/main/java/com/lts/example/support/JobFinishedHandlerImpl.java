@@ -1,8 +1,9 @@
 package com.lts.example.support;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.core.domain.JobResult;
+import com.lts.jobclient.support.JobFinishedHandler;
+import com.lts.core.domain.TaskTrackerJobResult;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

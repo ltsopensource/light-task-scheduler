@@ -1,6 +1,7 @@
 package com.lts.jobclient.support;
 
 import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 
 import java.util.List;
 
@@ -11,7 +12,6 @@ public interface JobFinishedHandler {
 
     /**
      * 处理返回结果
-     * @param jobResults
      */
     public void handle(List<JobResult> jobResults);
 }

@@ -1,7 +1,7 @@
 package com.lts.queue.domain;
 
 
-import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/3/15.
@@ -12,14 +12,14 @@ public class JobFeedbackPo{
 
     private Long gmtCreated;
 
-    private JobResult jobResult;
+    private TaskTrackerJobResult taskTrackerJobResult;
 
-    public JobResult getJobResult() {
-        return jobResult;
+    public TaskTrackerJobResult getTaskTrackerJobResult() {
+        return taskTrackerJobResult;
     }
 
-    public void setJobResult(JobResult jobResult) {
-        this.jobResult = jobResult;
+    public void setTaskTrackerJobResult(TaskTrackerJobResult taskTrackerJobResult) {
+        this.taskTrackerJobResult = taskTrackerJobResult;
     }
 
     public Long getGmtCreated() {

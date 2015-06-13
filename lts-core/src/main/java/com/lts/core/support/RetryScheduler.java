@@ -93,9 +93,6 @@ public abstract class RetryScheduler<T> {
      */
     private class CheckRunner implements Runnable {
 
-        // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-        private int maxSentSize = 100;
-
         @Override
         public void run() {
             try {
@@ -103,8 +100,6 @@ public abstract class RetryScheduler<T> {
                 if (!isRemotingEnable()) {
                     return;
                 }
-
-                int sentSize = 0;
 
                 List<KVPair<String, T>> kvPairs = null;
                 do {
@@ -124,19 +119,10 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("{} local files send success, {}", name, JSONUtils.toJSONString(values));
+                            LOGGER.info("{} local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
                             failStore.delete(keys);
                         } else {
                             break;
-                        }
-                        sentSize += kvPairs.size();
-                        if (sentSize >= maxSentSize) {
-                            // 一次最多提交maxSentSize个, 保证文件所也能被其他线程拿到
-                            try {
-                                Thread.sleep(1000L);
-                            } catch (InterruptedException e1) {
-                                LOGGER.warn(e1.getMessage(), e1);
-                            }
                         }
                     } finally {
                         failStore.close();
@@ -155,6 +141,7 @@ public abstract class RetryScheduler<T> {
             try {
                 failStore.open();
                 failStore.put(key, value);
+                LOGGER.info("{}  local files save success, {}", name, JSONUtils.toJSONString(value));
             } finally {
                 failStore.close();
             }

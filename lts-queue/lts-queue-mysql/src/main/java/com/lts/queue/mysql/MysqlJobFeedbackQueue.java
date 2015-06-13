@@ -6,7 +6,7 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.domain.JobResult;
+import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.queue.JobFeedbackQueue;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.exception.JobQueueException;
@@ -73,9 +73,9 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         Object[] params = new Object[2];
         for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
             params[0] = jobFeedbackPo.getGmtCreated();
-            params[1] = JSONUtils.toJSONString(jobFeedbackPo.getJobResult());
+            params[1] = JSONUtils.toJSONString(jobFeedbackPo.getTaskTrackerJobResult());
             try {
-                String jobClientNodeGroup = jobFeedbackPo.getJobResult().getJob().getSubmitNodeGroup();
+                String jobClientNodeGroup = jobFeedbackPo.getTaskTrackerJobResult().getJobWrapper().getJob().getSubmitNodeGroup();
                 getSqlTemplate().update(getRealSql(insertSQL, jobClientNodeGroup), params);
             } catch (SQLException e) {
                 throw new JobQueueException(e);
@@ -125,7 +125,7 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
             while (rs.next()) {
                 JobFeedbackPo jobFeedbackPo = new JobFeedbackPo();
                 jobFeedbackPo.setId(rs.getString("id"));
-                jobFeedbackPo.setJobResult(JSONUtils.parse(rs.getString("job_result"), new TypeReference<JobResult>() {
+                jobFeedbackPo.setTaskTrackerJobResult(JSONUtils.parse(rs.getString("job_result"), new TypeReference<TaskTrackerJobResult>() {
                 }));
                 jobFeedbackPo.setGmtCreated(rs.getLong("gmt_created"));
                 jobFeedbackPos.add(jobFeedbackPo);

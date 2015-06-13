@@ -7,12 +7,11 @@ import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
 import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.DB;
-import org.iq80.leveldb.DBIterator;
-import org.iq80.leveldb.Options;
+import org.iq80.leveldb.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,15 @@ public class LeveldbFailStore implements FailStore {
         failStorePath = failStorePath + "/leveldb/";
         dbPath = FileUtils.createDirIfNotExist(failStorePath);
         options = new Options();
+        options.createIfMissing(true);
+//        options.compressionType(CompressionType.NONE);
+        options.cacheSize(100 * 1024 * 1024);   // 100M
+//        options.logger(new Logger() {
+//            @Override
+//            public void log(String message) {
+//                System.out.println(message);
+//            }
+//        });
         lock = new FileLock(failStorePath + "___db.lock");
     }
 
@@ -46,6 +54,7 @@ public class LeveldbFailStore implements FailStore {
     public void open() throws FailStoreException {
         try {
             lock.tryLock();
+            JniDBFactory.factory.repair(dbPath, options);
             db = JniDBFactory.factory.open(dbPath, options);
         } catch (IOException e) {
             throw new FailStoreException(e);
@@ -79,16 +88,33 @@ public class LeveldbFailStore implements FailStore {
         if (keys == null || keys.size() == 0) {
             return;
         }
-        for (String key : keys) {
-            delete(key);
+        WriteBatch batch = db.createWriteBatch();
+        try {
+
+            for (String key : keys) {
+                batch.delete(key.getBytes("UTF-8"));
+            }
+            db.write(batch);
+        } catch (UnsupportedEncodingException e) {
+            throw new FailStoreException(e);
+        } finally {
+            try {
+                batch.close();
+            } catch (IOException e) {
+                throw new FailStoreException(e);
+            }
         }
     }
 
     @Override
     public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+        Snapshot snapshot = db.getSnapshot();
+        DBIterator iterator = null;
         try {
             List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
-            DBIterator iterator = db.iterator();
+            ReadOptions options=new ReadOptions();
+            options.snapshot(snapshot);
+            iterator = db.iterator(options);
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 Map.Entry<byte[], byte[]> entry = iterator.peekNext();
                 String key = new String(entry.getKey(), "UTF-8");
@@ -102,6 +128,19 @@ public class LeveldbFailStore implements FailStore {
             return list;
         } catch (Exception e) {
             throw new FailStoreException(e);
+        } finally {
+            if (iterator != null) {
+                try {
+                    iterator.close();
+                } catch (IOException e) {
+                    throw new FailStoreException(e);
+                }
+            }
+            try {
+                snapshot.close();
+            } catch (IOException e) {
+                throw new FailStoreException(e);
+            }
         }
     }
 

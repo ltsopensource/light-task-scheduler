@@ -1,10 +1,10 @@
 package com.lts.core.domain;
 
 
-import com.lts.core.exception.JobSubmitException;
-import com.lts.core.support.CronExpression;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.exception.JobSubmitException;
+import com.lts.core.support.CronExpression;
 import com.lts.remoting.annotation.NotNull;
 
 import java.util.Date;
@@ -16,7 +16,6 @@ import java.util.Map;
  */
 public class Job {
 
-    protected String jobId;
     @NotNull
     protected String taskId;
     /**
@@ -83,14 +82,6 @@ public class Job {
 
     public void setNeedFeedback(boolean needFeedback) {
         this.needFeedback = needFeedback;
-    }
-
-    public String getJobId() {
-        return jobId;
-    }
-
-    public void setJobId(String jobId) {
-        this.jobId = jobId;
     }
 
     public Map<String, String> getExtParams() {

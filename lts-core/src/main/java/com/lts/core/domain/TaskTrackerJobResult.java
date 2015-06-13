@@ -3,12 +3,12 @@ package com.lts.core.domain;
 import com.lts.core.commons.utils.JSONUtils;
 
 /**
- * @author Robert HG (254963746@qq.com) on 6/13/15.
- * 发送给客户端的 任务执行结果
+ * @author Robert HG (254963746@qq.com) on 8/19/14.
+ * TaskTracker 任务执行结果
  */
-public class JobResult {
+public class TaskTrackerJobResult {
 
-    private Job job;
+    private JobWrapper jobWrapper;
 
     // 执行成功还是失败
     private boolean success;
@@ -17,12 +17,12 @@ public class JobResult {
     // 任务完成时间
     private Long time;
 
-    public Job getJob() {
-        return job;
+    public JobWrapper getJobWrapper() {
+        return jobWrapper;
     }
 
-    public void setJob(Job job) {
-        this.job = job;
+    public void setJobWrapper(JobWrapper jobWrapper) {
+        this.jobWrapper = jobWrapper;
     }
 
     public boolean isSuccess() {
