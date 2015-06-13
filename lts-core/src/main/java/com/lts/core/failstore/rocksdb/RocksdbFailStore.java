@@ -103,7 +103,7 @@ public class RocksdbFailStore implements FailStore {
         try {
             List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
             iterator = db.newIterator();
-            for (iterator.seekToLast(); iterator.isValid(); iterator.prev()) {
+            for (iterator.seekToFirst(); iterator.isValid(); iterator.next()) {
                 iterator.status();
                 String key = new String(iterator.key(), "UTF-8");
                 T value = JSONUtils.parse(new String(iterator.value(), "UTF-8"), type);

@@ -32,7 +32,9 @@ public class LeveldbFailStoreTest {
     public void put() throws FailStoreException {
         Job job = new Job();
         job.setTaskId("2131232");
-        failStore.put(key, job);
+        for (int i = 0; i < 100; i++) {
+            failStore.put(key + "" + i, job);
+        }
         System.out.println("这里debug测试多线程");
         failStore.close();
     }
