@@ -26,20 +26,20 @@ public class JobClientTest extends BaseJobClientTest {
     }
 
     public static void console() throws IOException {
+        // 推荐使用RetryJobClient
         JobClient jobClient = new RetryJobClient();
-//      final JobClient jobClient = new JobClient();
         jobClient.setNodeGroup("test_jobClient");
         jobClient.setClusterName("test_cluster");
         jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-//        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
+        // jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
-//        jobClient.setFailStorePath(Constants.USER_HOME);
+        // jobClient.setFailStorePath(Constants.USER_HOME);
+        // 任务完成反馈接口
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-//        jobClient.setLoadBalance("consistenthash");
-//        jobClient.addConfig("job.fail.store", "leveldb");
-//        jobClient.addConfig("job.fail.store", "berkeleydb");
-//        jobClient.addConfig("job.fail.store", "rocksdb");
+        // 可选址  leveldb(默认), rocksdb, bekeleydb
+        // taskTracker.addConfig("job.fail.store", "leveldb");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();

@@ -8,7 +8,6 @@ import com.lts.jobtracker.domain.JobClientNode;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
-import com.lts.jobtracker.support.OldDataHandler;
 import com.lts.queue.domain.JobFeedbackPo;
 
 import java.util.ArrayList;
@@ -30,7 +29,6 @@ public class FeedbackJobSendChecker {
     private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
     private volatile boolean start = false;
     private ClientNotifier clientNotifier;
-    private OldDataHandler oldDataHandler;
     private JobTrackerApplication application;
 
     /**
@@ -59,7 +57,6 @@ public class FeedbackJobSendChecker {
                 // do nothing
             }
         });
-        this.oldDataHandler = application.getOldDataHandler();
     }
 
     /**
@@ -149,8 +146,8 @@ public class FeedbackJobSendChecker {
                 List<TaskTrackerJobResultWrapper> jobResults = new ArrayList<TaskTrackerJobResultWrapper>(jobFeedbackPos.size());
                 for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                     // 判断是否是过时的数据，如果是，那么移除
-                    if (oldDataHandler == null ||
-                            (oldDataHandler != null && !oldDataHandler.handle(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
+                    if (application.getOldDataHandler() == null ||
+                            (!application.getOldDataHandler().handle(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
                         jobResults.add(new TaskTrackerJobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getTaskTrackerJobResult()));
                     }
                 }

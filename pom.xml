@@ -17,6 +17,7 @@
         <module>lts-logger</module>
         <module>lts-example</module>
         <module>lts-admin</module>
+        <module>lts-file-system</module>
     </modules>
 
     <properties>
