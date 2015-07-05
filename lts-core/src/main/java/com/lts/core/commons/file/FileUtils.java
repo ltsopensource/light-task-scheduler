@@ -41,4 +41,26 @@ public class FileUtils {
         return createTableSql.toString();
     }
 
+    public static void delete(File file) {
+        if (!file.exists()) {
+            return;
+        }
+        if (file.isDirectory()) {
+            //若目录下没有文件则直接删除
+            File[] delFiles = file.listFiles();
+            if (delFiles == null || delFiles.length == 0) {
+                file.delete();
+            } else {
+                for (File delFile : delFiles) {
+                    if (delFile.isDirectory()) {
+                        delete(delFile);
+                    }
+                    delFile.delete();
+                }
+            }
+        }
+        // 自己也删除
+        file.delete();
+    }
+
 }

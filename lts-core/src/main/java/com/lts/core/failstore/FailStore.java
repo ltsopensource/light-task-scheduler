@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface FailStore {
 
+    public String getPath();
+
     public void open() throws FailStoreException;
 
     public void put(String key, Object value) throws FailStoreException;

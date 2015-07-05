@@ -4,6 +4,7 @@ import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.compiler.support.AdaptiveCompiler;
 import com.lts.core.constant.Constants;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Robert HG (254963746@qq.com) on 8/20/14.
  *         任务节点配置
  */
-public class Config {
+public class Config implements Serializable {
 
     // 节点是否可用
     private boolean available = true;

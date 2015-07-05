@@ -240,7 +240,6 @@ public class JobQueueApiController extends AbstractController {
         if (jobPo.getTriggerTime() == null) {
             jobPo.setTriggerTime(SystemClock.now());
         }
-
         application.getExecutableJobQueue().add(jobPo);
     }
 }

@@ -2,9 +2,11 @@ package com.lts.core.cluster;
 
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.constant.EcTopic;
 import com.lts.core.listener.MasterChangeListener;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.ec.EventInfo;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -49,6 +51,16 @@ public class MasterElector {
             }
         }
         addNode(newMaster);
+    }
+
+    /**
+     * 当前节点是否是master
+     */
+    public boolean isCurrentMaster() {
+        if (master != null && master.getIdentity().equals(application.getConfig().getIdentity())) {
+            return true;
+        }
+        return false;
     }
 
     public void addNode(Node newNode) {
@@ -112,6 +124,10 @@ public class MasterElector {
                 }
             }
         }
+        EventInfo eventInfo = new EventInfo(EcTopic.MASTER_CHANGED);
+        eventInfo.setParam("master", master);
+        eventInfo.setParam("isMaster", isMaster);
+        application.getEventCenter().publishSync(eventInfo);
     }
 
 }

@@ -37,18 +37,16 @@ public class Md5Encrypt {
         } catch (UnsupportedEncodingException e) {
 
             throw new IllegalStateException(
-                    "System doesn't support your  EncodingException.");
+                    "System doesn't support your EncodingException.");
 
         }
 
         byte[] bytes = msgDigest.digest();
 
-        String md5Str = new String(encodeHex(bytes));
-
-        return md5Str;
+        return new String(encodeHex(bytes));
     }
 
-    public static char[] encodeHex(byte[] data) {
+    private static char[] encodeHex(byte[] data) {
 
         int l = data.length;
 

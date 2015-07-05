@@ -21,10 +21,11 @@ public class JobSubmitProtector {
     private Semaphore semaphore;
     private int timeout = 500;
     private String errorMsg;
-    ;
 
     public JobSubmitProtector() {
-        errorMsg = "the concurrent size is " + concurrentSize + " , submit too fast ! use " + Constants.JOB_SUBMIT_CONCURRENCY_SIZE + " can change the concurrent size .";
+        errorMsg = "the concurrent size is " + concurrentSize +
+                " , submit too fast , use " + Constants.JOB_SUBMIT_CONCURRENCY_SIZE +
+                " can change the concurrent size .";
     }
 
     public JobSubmitProtector(int concurrentSize) {

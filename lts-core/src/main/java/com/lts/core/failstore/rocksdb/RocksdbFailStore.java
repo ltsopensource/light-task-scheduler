@@ -1,33 +1,35 @@
 package com.lts.core.failstore.rocksdb;
 
-import com.lts.core.commons.file.FileLock;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.domain.KVPair;
-import com.lts.core.failstore.FailStore;
+import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
 import org.rocksdb.*;
 import org.rocksdb.util.SizeUnit;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.
  */
-public class RocksdbFailStore implements FailStore {
+public class RocksdbFailStore extends AbstractFailStore {
 
     private RocksDB db = null;
     private Options options;
-    private String failStorePath;
-    private FileLock lock;
+    private ReentrantLock lock = new ReentrantLock();
 
-    public RocksdbFailStore(String failStorePath) {
-        failStorePath = failStorePath + "rocksdb/";
-        this.failStorePath = failStorePath;
-        FileUtils.createDirIfNotExist(failStorePath);
+    public RocksdbFailStore(File dbPath) {
+        super(dbPath);
+    }
+
+    @Override
+    protected void init() {
         options = new Options();
         options.setCreateIfMissing(true)
                 .setWriteBufferSize(8 * SizeUnit.KB)
@@ -49,15 +51,23 @@ public class RocksdbFailStore implements FailStore {
                 .setBlockCacheCompressedNumShardBits(10);
 
         options.setTableFormatConfig(tableConfig);
-        lock = new FileLock(failStorePath + "___db.lock");
-        // TODO other settings
+    }
+
+    public RocksdbFailStore(String storePath, String identity) {
+        this(new File(storePath.concat("rocksdb").concat("/").concat(identity)));
+        getLock(dbPath.getPath());
+    }
+
+    @Override
+    protected String getName() {
+        return "rocksdb";
     }
 
     @Override
     public void open() throws FailStoreException {
         try {
-            lock.tryLock();
-            db = RocksDB.open(options, failStorePath);
+            lock.lock();
+            db = RocksDB.open(options, dbPath.getPath());
         } catch (Exception e) {
             throw new FailStoreException(e);
         }
@@ -132,7 +142,9 @@ public class RocksdbFailStore implements FailStore {
         } catch (Exception e) {
             throw new FailStoreException(e);
         } finally {
-            lock.release();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
@@ -144,7 +156,10 @@ public class RocksdbFailStore implements FailStore {
         } catch (Exception e) {
             throw new FailStoreException(e);
         } finally {
-            lock.delete();
+            if (fileLock != null) {
+                fileLock.release();
+            }
+            FileUtils.delete(dbPath);
         }
     }
 }

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
@@ -74,11 +75,23 @@ public class BaseJobClientTest {
 
     public void submitWithCronExpression(final JobClient jobClient, String cronExpression) throws ParseException, JobSubmitException {
         Job job = new Job();
+        // 必填，尽量taskId 有一定规律性，能让自己识别
         job.setTaskId(StringUtils.generateUUID());
+        // 任务的参数，value必须为字符串
         job.setParam("shopId", "111");
+        // 执行节点的group名称
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-        job.setCronExpression(cronExpression);
+        // 是否接收执行反馈消息 jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl()); 中接受
+        job.setNeedFeedback(true);
+        // 这个是 cron expression 和 quartz 一样，可选
+        // job.setCronExpression(cronExpression);
+        // 这个是指定执行时间，可选
+        // job.setTriggerTime(new Date());
+        // 当 cronExpression 和 triggerTime 都不设置的时候，默认是立即执行任务
+        // response 返回提交成功还是失败
         Response response = jobClient.submitJob(job);
+
+
         System.out.println(response);
     }
 

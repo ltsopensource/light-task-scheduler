@@ -10,10 +10,10 @@ import com.lts.core.failstore.FailStoreFactory;
  */
 public class BerkeleydbFailStoreFactory implements FailStoreFactory {
     @Override
-    public FailStore getFailStore(Config config, String failStorePath) {
-        if (StringUtils.isEmpty(failStorePath)) {
-            failStorePath = config.getFailStorePath();
+    public FailStore getFailStore(Config config, String storePath) {
+        if (StringUtils.isEmpty(storePath)) {
+            storePath = config.getFailStorePath();
         }
-        return new BerkeleydbFailStore(failStorePath);
+        return new BerkeleydbFailStore(storePath, config.getIdentity());
     }
 }

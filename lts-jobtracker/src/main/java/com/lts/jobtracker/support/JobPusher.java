@@ -36,58 +36,49 @@ public class JobPusher {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
     private JobTrackerApplication application;
-    private final ExecutorService executor;
+    private final ExecutorService executorService;
 
     public JobPusher(JobTrackerApplication application) {
         this.application = application;
-        executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5, new NamedThreadFactory(JobPusher.class.getSimpleName()));
+        this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
+                new NamedThreadFactory(JobPusher.class.getSimpleName()));
     }
 
     public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
-        executor.submit(new Runnable() {
+
+        this.executorService.submit(new Runnable() {
             @Override
             public void run() {
                 try {
-                    pushJob(remotingServer, request);
+                    String nodeGroup = request.getNodeGroup();
+                    String identity = request.getIdentity();
+                    // 更新TaskTracker的可用线程数
+                    application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
+                            identity, request.getAvailableThreads(), request.getTimestamp());
+
+                    TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().
+                            getTaskTrackerNode(nodeGroup, identity);
+
+                    if (taskTrackerNode == null) {
+                        return;
+                    }
+
+                    int availableThreads = taskTrackerNode.getAvailableThread().get();
+
+                    while (availableThreads > 0) {
+                        // 推送任务
+                        PushResult result = sendJob(remotingServer, taskTrackerNode);
+                        if (result == PushResult.SUCCESS) {
+                            availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
+                        } else {
+                            break;
+                        }
+                    }
                 } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.error("Job push failed!", e);
                 }
             }
         });
-    }
-
-    /**
-     * 对 TaskTracker的每次请求进行处理
-     * 分发任务等
-     *
-     * @param remotingServer
-     * @param request
-     */
-    private void pushJob(RemotingServerDelegate remotingServer, JobPullRequest request) {
-
-        String nodeGroup = request.getNodeGroup();
-        String identity = request.getIdentity();
-        // 更新TaskTracker的可用线程数
-        application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
-                identity, request.getAvailableThreads(), request.getTimestamp());
-        TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().
-                getTaskTrackerNode(nodeGroup, identity);
-
-        if (taskTrackerNode == null) {
-            return;
-        }
-
-        int availableThreads = taskTrackerNode.getAvailableThread().get();
-
-        while (availableThreads > 0) {
-            // 推送任务
-            PushResult result = sendJob(remotingServer, taskTrackerNode);
-            if (result == PushResult.SUCCESS) {
-                availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
-            } else {
-                break;
-            }
-        }
     }
 
     private enum PushResult {

@@ -61,7 +61,8 @@ public class InjvmEventCenter implements EventCenter {
                 try {
                     subscriber.getObserver().onObserved(eventInfo);
                 } catch (Throwable t) {      // 防御性容错
-                    LOGGER.error(" eventInfo:{}, subscriber:{}", JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
+                    LOGGER.error(" eventInfo:{}, subscriber:{}",
+                            JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
                 }
             }
         }
@@ -80,7 +81,8 @@ public class InjvmEventCenter implements EventCenter {
                             eventInfo.setTopic(topic);
                             subscriber.getObserver().onObserved(eventInfo);
                         } catch (Throwable t) {     // 防御性容错
-                            LOGGER.error(" eventInfo:{}, subscriber:{}", JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
+                            LOGGER.error(" eventInfo:{}, subscriber:{}",
+                                    JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
                         }
                     }
                 }

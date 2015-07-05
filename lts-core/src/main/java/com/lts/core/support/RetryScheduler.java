@@ -4,13 +4,18 @@ import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.KVPair;
 import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.failstore.FailStoreFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.ec.EventInfo;
+import com.lts.ec.EventSubscriber;
+import com.lts.ec.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +37,11 @@ public abstract class RetryScheduler<T> {
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
     private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> masterScheduledFuture;
     private ScheduledFuture<?> scheduledFuture;
-    private AtomicBoolean start = new AtomicBoolean(false);
+    private AtomicBoolean selfCheckStart = new AtomicBoolean(false);
+    private AtomicBoolean masterCheckStart = new AtomicBoolean(false);
     private FailStore failStore;
     // 名称主要是用来记录日志
     private String name;
@@ -48,6 +56,25 @@ public abstract class RetryScheduler<T> {
     public RetryScheduler(Application application, String storePath) {
         FailStoreFactory failStoreFactory = ExtensionLoader.getExtensionLoader(FailStoreFactory.class).getAdaptiveExtension();
         failStore = failStoreFactory.getFailStore(application.getConfig(), storePath);
+
+        EventSubscriber subscriber = new EventSubscriber(RetryScheduler.class.getSimpleName()
+                .concat(application.getConfig().getIdentity()),
+                new Observer() {
+                    @Override
+                    public void onObserved(EventInfo eventInfo) {
+                        Boolean isMaster = (Boolean) eventInfo.getParam("isMaster");
+                        if (isMaster) {
+                            startMasterCheck();
+                        } else {
+                            stopMasterCheck();
+                        }
+                    }
+                });
+        application.getEventCenter().subscribe(subscriber, EcTopic.MASTER_CHANGED);
+
+        if (application.getMasterElector().isCurrentMaster()) {
+            startMasterCheck();
+        }
     }
 
     public RetryScheduler(Application application, String storePath, int batchSize) {
@@ -66,32 +93,67 @@ public abstract class RetryScheduler<T> {
 
     public void start() {
         try {
-            if (start.compareAndSet(false, true)) {
+            if (selfCheckStart.compareAndSet(false, true)) {
                 // 这个时间后面再去优化
-                scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new CheckRunner(), 10, 30, TimeUnit.SECONDS);
-                LOGGER.info("Start {} retry scheduler success!", name);
+                scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay
+                        (new CheckSelfRunner(), 10, 30, TimeUnit.SECONDS);
+                LOGGER.info("Start {} retry scheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} retry scheduler failed!", name, t);
+            LOGGER.error("Start {} retry scheduler failed.", name, t);
+        }
+    }
+
+    private void startMasterCheck() {
+        try {
+            if (masterCheckStart.compareAndSet(false, true)) {
+                // 这个时间后面再去优化
+                masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
+                        scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 5, 5, TimeUnit.SECONDS);
+                LOGGER.info("Start {} master retry scheduler success.", name);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Start {} master retry scheduler failed.", name, t);
+        }
+    }
+
+    private void stopMasterCheck() {
+        try {
+            if (masterCheckStart.compareAndSet(true, false)) {
+                masterScheduledFuture.cancel(true);
+                MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
+                LOGGER.info("Stop {} master retry scheduler success.", name);
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Stop {} master retry scheduler failed.", name, t);
         }
     }
 
     public void stop() {
         try {
-            if (start.compareAndSet(false, true)) {
+            if (selfCheckStart.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} retry scheduler success!", name);
+                LOGGER.info("Stop {} retry scheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} retry scheduler failed!", name, t);
+            LOGGER.error("Stop {} retry scheduler failed.", name, t);
+        }
+    }
+
+    public void destroy() {
+        try {
+            stop();
+            failStore.destroy();
+        } catch (FailStoreException e) {
+            LOGGER.error("destroy {} retry schedule failed.", name, e);
         }
     }
 
     /**
      * 定时检查 提交失败任务的Runnable
      */
-    private class CheckRunner implements Runnable {
+    private class CheckSelfRunner implements Runnable {
 
         @Override
         public void run() {
@@ -133,13 +195,64 @@ public abstract class RetryScheduler<T> {
                 LOGGER.error("Run {} retry scheduler error.", name, e);
             }
         }
+    }
 
+    /**
+     * 定时检查 已经down掉的机器的FailStore目录
+     */
+    private class CheckDeadFailStoreRunner implements Runnable {
+
+        @Override
+        public void run() {
+            try {
+                // 1. 检测 远程连接 是否可用
+                if (!isRemotingEnable()) {
+                    return;
+                }
+                List<FailStore> failStores = null;
+                if (failStore instanceof AbstractFailStore) {
+                    failStores = ((AbstractFailStore) failStore).getDeadFailStores();
+                }
+                if (CollectionUtils.isNotEmpty(failStores)) {
+                    for (FailStore store : failStores) {
+                        store.open();
+
+                        while (true) {
+                            List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
+                            if (CollectionUtils.isEmpty(kvPairs)) {
+                                store.destroy();
+                                LOGGER.info("{} , delete store dir[{}] success.", name, store.getPath());
+                                break;
+                            }
+                            List<T> values = new ArrayList<T>(kvPairs.size());
+                            List<String> keys = new ArrayList<String>(kvPairs.size());
+                            for (KVPair<String, T> kvPair : kvPairs) {
+                                keys.add(kvPair.getKey());
+                                values.add(kvPair.getValue());
+                            }
+                            if (retry(values)) {
+                                LOGGER.info("{} dead local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
+                                store.delete(keys);
+                            } else {
+                                break;
+                            }
+                            try {
+                                Thread.sleep(500);
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                LOGGER.error("Run {} master retry scheduler error.", name, e);
+            }
+        }
     }
 
     public void inSchedule(String key, T value) {
         try {
+            failStore.open();
             try {
-                failStore.open();
                 failStore.put(key, value);
                 LOGGER.info("{}  local files save success, {}", name, JSONUtils.toJSONString(value));
             } finally {

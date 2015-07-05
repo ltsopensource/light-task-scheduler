@@ -12,6 +12,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 文件锁
@@ -45,38 +46,30 @@ public class FileLock {
     /**
      * 获得锁
      */
-    public void tryLock() {
+    public boolean tryLock(long timeout) {
+        try {
+            boolean acquire = semaphore.tryAcquire(timeout, TimeUnit.MILLISECONDS);
+            if (!acquire) {
+                return false;
+            }
+        } catch (InterruptedException e) {
+            return false;
+        }
 
         try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        while (true) {
-            try {
-                Path path = Paths.get(file.getPath());
-                if (channel != null && channel.isOpen()) {
-                    continue;
-                }
-                channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.READ);
-                java.nio.channels.FileLock tmpFileLock = null;
-                do {
-                    tmpFileLock = channel.tryLock();
-                } while (tmpFileLock == null);
-
-                fileLock = tmpFileLock;
-
-                // 获得到锁, 跳出
-                break;
-            } catch (IOException e) {
-                LOGGER.error("can not get file fileLock! other jvm hold the fileLock.", e);
-                try {
-                    Thread.sleep(50L);
-                } catch (InterruptedException e1) {
-                    LOGGER.error(e1.getMessage(), e1);
-                }
+            Path path = Paths.get(file.getPath());
+            if (channel != null && channel.isOpen()) {
+                return false;
             }
+            channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.READ);
+            fileLock = channel.tryLock();
+            if (fileLock != null) {
+                return true;
+            }
+        } catch (IOException e) {
+            return false;
         }
+        return false;
     }
 
     /**
@@ -88,16 +81,12 @@ public class FileLock {
                 try {
                     channel.close();   // also releases the lock
                 } catch (IOException e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.error(" file channel close failed.", e);
                 }
-//                fileLock = null;
+                fileLock = null;
             }
         } finally {
             semaphore.release();
         }
-    }
-
-    public void delete() {
-        file.deleteOnExit();
     }
 }
