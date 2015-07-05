@@ -4,6 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.KVPair;
@@ -26,10 +27,11 @@ public class RocksdbFailStoreTest {
     @Before
     public void setup() throws FailStoreException {
         Config config = new Config();
+        config.setIdentity(StringUtils.generateUUID());
         config.setNodeGroup("berkeleydb_test");
         config.setNodeType(NodeType.JOB_CLIENT);
         config.setFailStorePath(Constants.USER_HOME);
-        failStore = new RocksdbFailStore(config.getFailStorePath());
+        failStore = new RocksdbFailStore(config.getFailStorePath(), config.getIdentity());
         failStore.open();
     }
 

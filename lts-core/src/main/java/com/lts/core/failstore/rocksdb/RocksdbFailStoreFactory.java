@@ -11,10 +11,10 @@ import com.lts.core.failstore.FailStoreFactory;
 public class RocksdbFailStoreFactory implements FailStoreFactory {
 
     @Override
-    public FailStore getFailStore(Config config, String failStorePath) {
-        if (StringUtils.isEmpty(failStorePath)) {
-            failStorePath = config.getFailStorePath();
+    public FailStore getFailStore(Config config, String storePath) {
+        if (StringUtils.isEmpty(storePath)) {
+            storePath = config.getFailStorePath();
         }
-        return new RocksdbFailStore(failStorePath);
+        return new RocksdbFailStore(storePath, config.getIdentity());
     }
 }

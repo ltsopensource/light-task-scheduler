@@ -1,6 +1,7 @@
 package com.lts.core.constant;
 
 
+import java.nio.charset.Charset;
 import java.util.regex.Pattern;
 
 /**
@@ -85,4 +86,5 @@ public interface Constants {
     public static final String JOB_MAX_RETRY_TIMES = "job.max.retry.times";
     public static final int DEFAULT_JOB_MAX_RETRY_TIMES = 10;
 
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 }

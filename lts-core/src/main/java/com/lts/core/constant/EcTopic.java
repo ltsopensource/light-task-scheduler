@@ -16,4 +16,6 @@ public interface EcTopic {
     String NO_JOB_TRACKER_AVAILABLE = "NO_JOB_TRACKER_AVAILABLE";
     // 有可用的JobTracker了
     String JOB_TRACKER_AVAILABLE = "JOB_TRACKER_AVAILABLE";
+    // master 节点改变了
+    String MASTER_CHANGED = "MASTER_CHANGED";
 }

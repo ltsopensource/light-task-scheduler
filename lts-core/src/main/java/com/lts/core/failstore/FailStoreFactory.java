@@ -11,6 +11,6 @@ import com.lts.core.extension.SPI;
 public interface FailStoreFactory {
 
     @Adaptive("job.fail.store")
-    public FailStore getFailStore(Config config, String failStorePath);
+    public FailStore getFailStore(Config config, String storePath);
 
 }

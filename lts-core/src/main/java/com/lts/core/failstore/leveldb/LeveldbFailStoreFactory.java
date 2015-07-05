@@ -10,10 +10,10 @@ import com.lts.core.failstore.FailStoreFactory;
  */
 public class LeveldbFailStoreFactory implements FailStoreFactory {
     @Override
-    public FailStore getFailStore(Config config, String failStorePath) {
-        if (StringUtils.isEmpty(failStorePath)) {
-            failStorePath = config.getFailStorePath();
+    public FailStore getFailStore(Config config, String storePath) {
+        if (StringUtils.isEmpty(storePath)) {
+            storePath = config.getFailStorePath();
         }
-        return new LeveldbFailStore(failStorePath);
+        return new LeveldbFailStore(storePath, config.getIdentity());
     }
 }

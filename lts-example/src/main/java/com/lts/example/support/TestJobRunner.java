@@ -22,16 +22,15 @@ public class TestJobRunner implements JobRunner {
         try {
             LOGGER.info("我要执行：" + job);
 
+            Thread.sleep(1000L);
+
             BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
             // 会发送到 LTS (JobTracker上)
             bizLogger.info("测试，业务日志啊啊啊啊啊");
 
-            Thread.sleep(1000L);
-
             if (job.getRetryTimes() > 5) {
                 return new Result(Action.EXECUTE_FAILED, "重试次数超过5次了，放过你吧!");
             }
-
 
             if (SystemClock.now() % 2 == 1) {
                 return new Result(Action.EXECUTE_LATER, "稍后执行");

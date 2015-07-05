@@ -1,11 +1,10 @@
 package com.lts.core.failstore.berkeleydb;
 
-import com.lts.core.commons.file.FileLock;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.domain.KVPair;
-import com.lts.core.failstore.FailStore;
+import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -15,24 +14,27 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Robert HG (254963746@qq.com) on 5/26/15.
  */
-public class BerkeleydbFailStore implements FailStore {
+public class BerkeleydbFailStore extends AbstractFailStore {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BerkeleydbFailStore.class);
     private Environment environment;
     private Database db;
     private EnvironmentConfig envConfig;
-    private File envHome;
-    private FileLock lock;
+    private ReentrantLock lock = new ReentrantLock();
     private DatabaseConfig dbConfig;
 
-    public BerkeleydbFailStore(String failStorePath) {
+    public BerkeleydbFailStore(File dbPath) {
+        super(dbPath);
+    }
+
+    @Override
+    protected void init() {
         try {
-            failStorePath = failStorePath + "berkeleydb/";
-            envHome = FileUtils.createDirIfNotExist(failStorePath);
             envConfig = new EnvironmentConfig();
             // 如果不存在则创建一个
             envConfig.setAllowCreate(true);
@@ -47,19 +49,21 @@ public class BerkeleydbFailStore implements FailStore {
             dbConfig.setAllowCreate(true);
             dbConfig.setSortedDuplicates(false);
             dbConfig.setTransactional(true);
-
-            lock = new FileLock(failStorePath + "___db.lock");
-
         } catch (DatabaseException e) {
             throw new RuntimeException(e);
         }
     }
 
+    public BerkeleydbFailStore(String storePath, String identity) {
+        this(new File(storePath.concat("berkeleydb").concat("/").concat(identity)));
+        getLock(dbPath.getPath());
+    }
+
     @Override
     public void open() throws FailStoreException {
         try {
-            lock.tryLock();
-            environment = new Environment(envHome, envConfig);
+            lock.lock();
+            environment = new Environment(dbPath, envConfig);
             db = environment.openDatabase(null, "lts", dbConfig);
         } catch (Exception e) {
             throw new FailStoreException(e);
@@ -146,7 +150,9 @@ public class BerkeleydbFailStore implements FailStore {
         } catch (Exception e) {
             throw new FailStoreException(e);
         } finally {
-            lock.release();
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
 
@@ -160,7 +166,15 @@ public class BerkeleydbFailStore implements FailStore {
         } catch (Exception e) {
             throw new FailStoreException(e);
         } finally {
-            lock.delete();
+            if (fileLock != null) {
+                fileLock.release();
+            }
+            FileUtils.delete(dbPath);
         }
+    }
+
+    @Override
+    protected String getName() {
+        return "berkeleydb";
     }
 }
