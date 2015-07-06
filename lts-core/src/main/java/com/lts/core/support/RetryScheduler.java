@@ -109,7 +109,7 @@ public abstract class RetryScheduler<T> {
             if (masterCheckStart.compareAndSet(false, true)) {
                 // 这个时间后面再去优化
                 masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
-                        scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 5, 5, TimeUnit.SECONDS);
+                        scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 30, 60, TimeUnit.SECONDS);
                 LOGGER.info("Start {} master retry scheduler success.", name);
             }
         } catch (Throwable t) {
