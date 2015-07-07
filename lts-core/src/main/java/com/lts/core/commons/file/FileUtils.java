@@ -1,14 +1,14 @@
 package com.lts.core.commons.file;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
 public class FileUtils {
 
-    public static File createFileIfNotExist(String path) {
-        File file = new File(path);
+    public static File createFileIfNotExist(File file) {
         if (!file.exists()) {
             // 创建父目录
             file.getParentFile().mkdirs();
@@ -21,14 +21,21 @@ public class FileUtils {
         return file;
     }
 
-    public static File createDirIfNotExist(String path) {
-        File file = new File(path);
+    public static File createFileIfNotExist(String path) {
+        return createFileIfNotExist(new File(path));
+    }
+
+    public static File createDirIfNotExist(File file) {
         if (!file.exists()) {
             // 创建父目录
             file.getParentFile().mkdirs();
             file.mkdir();
         }
         return file;
+    }
+
+    public static File createDirIfNotExist(String path) {
+        return createDirIfNotExist(new File(path));
     }
 
     public static String read(InputStream is) throws IOException {
@@ -63,4 +70,29 @@ public class FileUtils {
         file.delete();
     }
 
+    public static void delete(String path) {
+        delete(new File(path));
+    }
+
+    public static void write(CharSequence charSequence, File file, Charset charset, boolean append) {
+        Writer writer = null;
+        try {
+            createFileIfNotExist(file);
+            writer = new OutputStreamWriter(new FileOutputStream(file, append), charset);
+            writer.append(charSequence);
+            writer.flush();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

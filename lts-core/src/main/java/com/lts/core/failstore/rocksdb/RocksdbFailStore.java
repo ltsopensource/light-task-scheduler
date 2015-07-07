@@ -28,6 +28,8 @@ public class RocksdbFailStore extends AbstractFailStore {
         super(dbPath);
     }
 
+    public static final String name = "rocksdb";
+
     @Override
     protected void init() {
         options = new Options();
@@ -54,13 +56,13 @@ public class RocksdbFailStore extends AbstractFailStore {
     }
 
     public RocksdbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat("rocksdb").concat("/").concat(identity)));
+        this(new File(storePath.concat(name).concat("/").concat(identity)));
         getLock(dbPath.getPath());
     }
 
     @Override
     protected String getName() {
-        return "rocksdb";
+        return name;
     }
 
     @Override

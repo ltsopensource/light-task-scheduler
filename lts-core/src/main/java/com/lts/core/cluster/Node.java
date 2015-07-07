@@ -19,7 +19,7 @@ public class Node {
     private String ip;
     private Integer port;
     private String group;
-    private Long createTime = SystemClock.instance().now();
+    private Long createTime = SystemClock.now();
     // 线程个数
     private Integer threads;
     // 唯一标识

@@ -29,8 +29,10 @@ public class LeveldbFailStore extends AbstractFailStore {
     // 保证同时只有一个线程修改
     private ReentrantLock lock = new ReentrantLock();
 
+    public static final String name = "leveldb";
+
     public LeveldbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat("leveldb").concat("/").concat(identity)));
+        this(new File(storePath.concat(name).concat("/").concat(identity)));
         getLock(dbPath.getPath());
     }
 
@@ -46,7 +48,7 @@ public class LeveldbFailStore extends AbstractFailStore {
     }
 
     protected String getName() {
-        return "leveldb";
+        return name;
     }
 
     @Override
