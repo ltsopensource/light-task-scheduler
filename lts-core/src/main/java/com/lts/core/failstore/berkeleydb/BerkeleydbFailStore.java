@@ -32,6 +32,8 @@ public class BerkeleydbFailStore extends AbstractFailStore {
         super(dbPath);
     }
 
+    public static final String name = "berkeleydb";
+
     @Override
     protected void init() {
         try {
@@ -55,7 +57,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     }
 
     public BerkeleydbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat("berkeleydb").concat("/").concat(identity)));
+        this(new File(storePath.concat(name).concat("/").concat(identity)));
         getLock(dbPath.getPath());
     }
 
@@ -175,6 +177,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
 
     @Override
     protected String getName() {
-        return "berkeleydb";
+        return name;
     }
 }

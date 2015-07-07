@@ -132,7 +132,7 @@
         ];
 
         var store = new Data.Store({
-            url: '/api/job-logger/job-logger-get',
+            url: '../api/job-logger/job-logger-get',
             autoLoad: false,
             pageSize: 10,
             remoteSort: false

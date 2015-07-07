@@ -121,7 +121,7 @@
                                     return;
                                 }
                                 $.ajax({
-                                    url: '/api/node/node-cluster-register',
+                                    url: '../api/node/node-cluster-register',
                                     type: 'POST',
                                     dataType: 'json',
                                     data: {clusterName: clusterName},
@@ -200,7 +200,7 @@
         ];
 
         var store = new Data.Store({
-            url: '/api/node/node-list-get',
+            url: '../api/node/node-list-get',
             autoLoad: true,
             pageSize: 20,
             remoteSort: false

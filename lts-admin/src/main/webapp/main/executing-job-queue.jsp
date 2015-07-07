@@ -114,14 +114,14 @@
             },
             {
                 title: '操作', dataIndex: '', width: 40, sortable: false, renderer: function (value, obj) {
-                var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
+                var logUrl = "../job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
                 return '<a target="_blank" href="'+ logUrl +'">日志</a>&nbsp;';
             }
             }
         ];
 
         var store = new Data.Store({
-            url: '/api/job-queue/executing-job-get',
+            url: '../api/job-queue/executing-job-get',
             autoLoad: false,
             pageSize: 10,
             remoteSort: true

@@ -97,10 +97,10 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay
                         (new CheckSelfRunner(), 10, 30, TimeUnit.SECONDS);
-                LOGGER.info("Start {} retry scheduler success.", name);
+                LOGGER.info("Start {} RetryScheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} retry scheduler failed.", name, t);
+            LOGGER.error("Start {} RetryScheduler failed.", name, t);
         }
     }
 
@@ -110,10 +110,10 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
                         scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 30, 60, TimeUnit.SECONDS);
-                LOGGER.info("Start {} master retry scheduler success.", name);
+                LOGGER.info("Start {} master RetryScheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} master retry scheduler failed.", name, t);
+            LOGGER.error("Start {} master RetryScheduler failed.", name, t);
         }
     }
 
@@ -122,10 +122,10 @@ public abstract class RetryScheduler<T> {
             if (masterCheckStart.compareAndSet(true, false)) {
                 masterScheduledFuture.cancel(true);
                 MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} master retry scheduler success.", name);
+                LOGGER.info("Stop {} master RetryScheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} master retry scheduler failed.", name, t);
+            LOGGER.error("Stop {} master RetryScheduler failed.", name, t);
         }
     }
 
@@ -134,10 +134,10 @@ public abstract class RetryScheduler<T> {
             if (selfCheckStart.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} retry scheduler success.", name);
+                LOGGER.info("Stop {} RetryScheduler success.", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} retry scheduler failed.", name, t);
+            LOGGER.error("Stop {} RetryScheduler failed.", name, t);
         }
     }
 
@@ -146,7 +146,7 @@ public abstract class RetryScheduler<T> {
             stop();
             failStore.destroy();
         } catch (FailStoreException e) {
-            LOGGER.error("destroy {} retry schedule failed.", name, e);
+            LOGGER.error("destroy {} RetryScheduler failed.", name, e);
         }
     }
 
@@ -181,7 +181,7 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("{} local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
+                            LOGGER.info("{} RetryScheduler, local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
                             failStore.delete(keys);
                         } else {
                             break;
@@ -192,7 +192,7 @@ public abstract class RetryScheduler<T> {
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
             } catch (Throwable e) {
-                LOGGER.error("Run {} retry scheduler error.", name, e);
+                LOGGER.error("Run {} RetryScheduler error.", name, e);
             }
         }
     }
@@ -221,7 +221,7 @@ public abstract class RetryScheduler<T> {
                             List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
                             if (CollectionUtils.isEmpty(kvPairs)) {
                                 store.destroy();
-                                LOGGER.info("{} , delete store dir[{}] success.", name, store.getPath());
+                                LOGGER.info("{} RetryScheduler, delete store dir[{}] success.", name, store.getPath());
                                 break;
                             }
                             List<T> values = new ArrayList<T>(kvPairs.size());
@@ -231,7 +231,7 @@ public abstract class RetryScheduler<T> {
                                 values.add(kvPair.getValue());
                             }
                             if (retry(values)) {
-                                LOGGER.info("{} dead local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
+                                LOGGER.info("{} RetryScheduler, dead local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
                                 store.delete(keys);
                             } else {
                                 break;
@@ -244,7 +244,7 @@ public abstract class RetryScheduler<T> {
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error("Run {} master retry scheduler error.", name, e);
+                LOGGER.error("Run {} master RetryScheduler error.", name, e);
             }
         }
     }
@@ -254,12 +254,12 @@ public abstract class RetryScheduler<T> {
             failStore.open();
             try {
                 failStore.put(key, value);
-                LOGGER.info("{}  local files save success, {}", name, JSONUtils.toJSONString(value));
+                LOGGER.info("{} RetryScheduler, local files save success, {}", name, JSONUtils.toJSONString(value));
             } finally {
                 failStore.close();
             }
         } catch (FailStoreException e) {
-            LOGGER.error("{} in schedule error. ", e);
+            LOGGER.error("{} RetryScheduler in schedule error. ", name, e);
         }
     }
 

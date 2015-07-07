@@ -165,7 +165,7 @@
             },
             {
                 title: '操作', dataIndex: '', width: 90, sortable: false, renderer: function (value, obj) {
-                var logUrl = "/job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
+                var logUrl = "../job-logger/job-logger.htm?taskId=" + obj.taskId + "&taskTrackerNodeGroup=" + obj.taskTrackerNodeGroup;
                 return '<a target="_blank" href="' + logUrl + '">日志</a>&nbsp;' +
                         '<a href="javascript:;" class="job-edit-btn">编辑<span class="hidden">' + JSON.stringify(obj) + '</span></a>&nbsp;' +
                         '<a href="javascript:;" class="job-del-btn" cronExpression="' + obj.cronExpression + '" jobId="' + obj.jobId + '" taskTrackerNodeGroup="' + obj.taskTrackerNodeGroup + '">删除</a>';
@@ -174,7 +174,7 @@
         ];
 
         var store = new Data.Store({
-            url: '/api/job-queue/executable-job-get',
+            url: '../api/job-queue/executable-job-get',
             autoLoad: false,
             pageSize: 10,
             remoteSort: true
@@ -281,7 +281,7 @@
                 if (modified) {
                     // 请求修改数据
                     $.ajax({
-                        url: '/api/job-queue/executable-job-update',
+                        url: '../api/job-queue/executable-job-update',
                         type: 'POST',
                         dataType: 'json',
                         data: updateJSON,
@@ -327,7 +327,7 @@
             var that = $(this);
             BUI.Message.Confirm(msg, function () {
                 $.ajax({
-                    url: '/api/job-queue/executable-job-delete',
+                    url: '../api/job-queue/executable-job-delete',
                     type: 'POST',
                     dataType: 'json',
                     data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup},
