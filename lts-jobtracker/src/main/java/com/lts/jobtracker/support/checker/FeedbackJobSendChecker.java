@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/25/14.
@@ -26,8 +28,9 @@ public class FeedbackJobSendChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackJobSendChecker.class);
 
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
-    private volatile boolean start = false;
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture scheduledFuture;
+    private AtomicBoolean start = new AtomicBoolean(false);
     private ClientNotifier clientNotifier;
     private JobTrackerApplication application;
 
@@ -37,7 +40,7 @@ public class FeedbackJobSendChecker {
      * @return
      */
     private boolean isStart() {
-        return start;
+        return start.get();
     }
 
     public FeedbackJobSendChecker(final JobTrackerApplication application) {
@@ -64,11 +67,9 @@ public class FeedbackJobSendChecker {
      */
     public void start() {
         try {
-            if (!start) {
-                RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-                RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
                         , 30, 30, TimeUnit.SECONDS);
-                start = true;
             }
             LOGGER.info("feedback job checker started!");
 
@@ -82,10 +83,9 @@ public class FeedbackJobSendChecker {
      */
     public void stop() {
         try {
-            if (start) {
+            if (start.compareAndSet(true, false)) {
+                scheduledFuture.cancel(true);
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                RETRY_EXECUTOR_SERVICE = null;
-                start = false;
                 LOGGER.info("feedback job checker stopped!");
             }
         } catch (Throwable t) {

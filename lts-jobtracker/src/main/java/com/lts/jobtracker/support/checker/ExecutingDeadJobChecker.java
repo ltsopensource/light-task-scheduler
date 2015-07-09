@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
@@ -55,27 +56,23 @@ public class ExecutingDeadJobChecker {
         this.application = application;
     }
 
-    private volatile boolean start;
+    private AtomicBoolean start = new AtomicBoolean(false);
     private ScheduledFuture<?> scheduledFuture;
 
     public void start() {
         try {
-            if (start) {
-                return;
-            }
-            start = true;
-
-            scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        fix();
-                    } catch (Throwable t) {
-                        LOGGER.error(t.getMessage(), t);
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            fix();
+                        } catch (Throwable t) {
+                            LOGGER.error(t.getMessage(), t);
+                        }
                     }
-                }
-            }, 30, 60, TimeUnit.SECONDS);// 1分钟执行一次
-
+                }, 30, 60, TimeUnit.SECONDS);// 1分钟执行一次
+            }
             LOGGER.info("Executing dead job checker started!");
         } catch (Throwable e) {
             LOGGER.error("Executing dead job checker start failed!", e);
@@ -205,8 +202,7 @@ public class ExecutingDeadJobChecker {
 
     public void stop() {
         try {
-            if (start) {
-                start = false;
+            if (start.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 FIXED_EXECUTOR_SERVICE.shutdown();
             }

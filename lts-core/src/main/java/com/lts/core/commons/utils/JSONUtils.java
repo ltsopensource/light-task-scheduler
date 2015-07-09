@@ -16,7 +16,7 @@ public class JSONUtils {
         if (StringUtils.isEmpty(json)) {
             return null;
         }
-        return (T) JSONObject.parseObject(json, type);
+        return JSONObject.parseObject(json, type);
     }
 
     public static <T> T parse(String json, TypeReference<T> type) {
