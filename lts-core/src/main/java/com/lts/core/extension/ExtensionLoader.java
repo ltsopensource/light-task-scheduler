@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 /**
- * Dubbo使用的扩展点获取。<p>
+ * LTS使用的扩展点获取。<p>
  * <ul>
  * <li>自动注入关联扩展点。</li>
  * <li>自动Wrap上扩展点的Wrap类。</li>

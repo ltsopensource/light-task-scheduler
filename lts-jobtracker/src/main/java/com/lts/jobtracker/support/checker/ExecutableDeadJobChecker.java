@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * to fix the executable dead job
@@ -35,26 +36,23 @@ public class ExecutableDeadJobChecker {
         this.application = application;
     }
 
-    private volatile boolean start;
+    private AtomicBoolean start = new AtomicBoolean(false);
     private ScheduledFuture<?> scheduledFuture;
 
     public void start() {
         try {
-            if (start) {
-                return;
-            }
-            scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        fix();
-                    } catch (Throwable t) {
-                        LOGGER.error(t.getMessage(), t);
+            if (start.compareAndSet(false, true)) {
+                scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            fix();
+                        } catch (Throwable t) {
+                            LOGGER.error(t.getMessage(), t);
+                        }
                     }
-                }
-            }, 30, 60, TimeUnit.SECONDS);// 3分钟执行一次
-            start = true;
-
+                }, 30, 60, TimeUnit.SECONDS);// 3分钟执行一次
+            }
             LOGGER.info("Executable dead job checker started!");
         } catch (Throwable t) {
             LOGGER.info("Executable dead job checker start failed!");
@@ -82,8 +80,7 @@ public class ExecutableDeadJobChecker {
 
     public void stop() {
         try {
-            if (start) {
-                start = false;
+            if (start.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 FIXED_EXECUTOR_SERVICE.shutdown();
             }
