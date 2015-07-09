@@ -20,13 +20,7 @@ public class TestJobRunner implements JobRunner {
     @Override
     public Result run(Job job) throws Throwable {
         try {
-            LOGGER.info("我要执行：" + job);
-
             Thread.sleep(1000L);
-
-            BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
-            // 会发送到 LTS (JobTracker上)
-            bizLogger.info("测试，业务日志啊啊啊啊啊");
 
             if (job.getRetryTimes() > 5) {
                 return new Result(Action.EXECUTE_FAILED, "重试次数超过5次了，放过你吧!");
@@ -35,6 +29,12 @@ public class TestJobRunner implements JobRunner {
             if (SystemClock.now() % 2 == 1) {
                 return new Result(Action.EXECUTE_LATER, "稍后执行");
             }
+
+            // TODO 业务逻辑
+            LOGGER.info("我要执行：" + job);
+            BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
+            // 会发送到 LTS (JobTracker上)
+            bizLogger.info("测试，业务日志啊啊啊啊啊");
 
         } catch (Exception e) {
             LOGGER.info("Run job failed!", e);
