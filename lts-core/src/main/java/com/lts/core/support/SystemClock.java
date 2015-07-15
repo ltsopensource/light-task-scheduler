@@ -24,7 +24,7 @@ public class SystemClock {
     }
 
     private static class InstanceHolder {
-        public static SystemClock INSTANCE = new SystemClock(1);
+        public static final SystemClock INSTANCE = new SystemClock(1);
     }
 
     public static SystemClock instance() {
