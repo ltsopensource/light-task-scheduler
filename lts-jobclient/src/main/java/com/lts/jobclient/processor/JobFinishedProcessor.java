@@ -31,7 +31,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
         JobFinishedRequest requestBody = request.getBody();
         try {
-            jobFinishedHandler.handle(requestBody.getJobResults());
+            if (jobFinishedHandler != null) {
+                jobFinishedHandler.handle(requestBody.getJobResults());
+            }
         } catch (Exception t) {
             LOGGER.error(t.getMessage(), t);
         }
