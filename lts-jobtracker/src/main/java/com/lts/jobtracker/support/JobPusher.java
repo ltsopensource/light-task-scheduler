@@ -60,6 +60,9 @@ public class JobPusher {
                             getTaskTrackerNode(nodeGroup, identity);
 
                     if (taskTrackerNode == null) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , didn't have node.", nodeGroup, identity);
+                        }
                         return;
                     }
 
@@ -96,13 +99,16 @@ public class JobPusher {
      */
     private PushResult sendJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
 
-        String nodeGroup = taskTrackerNode.getNodeGroup();
-        String identity = taskTrackerNode.getIdentity();
+        final String nodeGroup = taskTrackerNode.getNodeGroup();
+        final String identity = taskTrackerNode.getIdentity();
 
         // 从mongo 中取一个可运行的job
-        JobPo jobPo = application.getExecutableJobQueue().take(nodeGroup, identity);
+        final JobPo jobPo = application.getExecutableJobQueue().take(nodeGroup, identity);
 
         if (jobPo == null) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Job push failed: no job! nodeGroup=" + nodeGroup + ", identity=" + identity);
+            }
             return PushResult.NO_JOB;
         }
 
@@ -125,6 +131,9 @@ public class JobPusher {
                             return;
                         }
                         if (responseCommand.getCode() == JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code()) {
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Job push success! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + jobPo);
+                            }
                             pushSuccess.set(true);
                         }
                     } finally {
