@@ -95,6 +95,9 @@ public class JobPullMachine {
      */
     private void sendRequest() throws RemotingCommandFieldCheckException {
         int availableThreads = application.getRunnerPool().getAvailablePoolSize();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("current availableThreads:{}", availableThreads);
+        }
         if (availableThreads == 0) {
             return;
         }

@@ -5,6 +5,7 @@ import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
+import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
@@ -42,6 +43,7 @@ public class JobRunnerDelegate implements Runnable {
             LtsLoggerFactory.setLogger(logger);
 
             while (jobWrapper != null) {
+                long startTime = SystemClock.now();
                 // 设置当前context中的jobId
                 logger.setId(jobWrapper.getJobId(), jobWrapper.getJob().getTaskId());
                 Response response = new Response();
@@ -59,13 +61,13 @@ public class JobRunnerDelegate implements Runnable {
                         response.setAction(action);
                         response.setMsg(result.getMsg());
                     }
-                    LOGGER.info("Job execute finished : {}", jobWrapper);
+                    LOGGER.info("Job execute finished : {}, time:{} ms.", jobWrapper, SystemClock.now() - startTime);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setAction(Action.EXECUTE_EXCEPTION);
                     response.setMsg(sw.toString());
-                    LOGGER.info("Job execute error : {} {}", jobWrapper, t.getMessage(), t);
+                    LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, SystemClock.now() - startTime, t.getMessage(), t);
                 } finally {
                     logger.removeId();
                     application.getRunnerPool().getRunningJobManager().out(jobWrapper.getJobId());
