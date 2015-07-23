@@ -67,8 +67,13 @@ public class JobPusher {
                     }
 
                     int availableThreads = taskTrackerNode.getAvailableThread().get();
-
+                    if (availableThreads == 0) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:0", nodeGroup, identity);
+                        }
+                    }
                     while (availableThreads > 0) {
+                        LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:{}", nodeGroup, identity, availableThreads);
                         // 推送任务
                         PushResult result = sendJob(remotingServer, taskTrackerNode);
                         if (result == PushResult.SUCCESS) {
