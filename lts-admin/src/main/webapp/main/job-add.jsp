@@ -128,7 +128,7 @@
                         BUI.Message.Alert("添加成功");
                         $("#resetBtn").trigger("click");
                     } else {
-                        BUI.Message.Alert("删除失败, " + json.msg);
+                        BUI.Message.Alert("添加失败, " + json.msg);
                     }
                 }
             });
