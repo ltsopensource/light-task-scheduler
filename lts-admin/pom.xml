@@ -5,14 +5,13 @@
     <parent>
         <artifactId>lts-parent</artifactId>
         <groupId>com.lts</groupId>
-        <version>1.5-SNAPSHOT</version>
+        <version>1.5.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
     <artifactId>lts-admin</artifactId>
 
     <properties>
-        <springframework.version>4.1.6.RELEASE</springframework.version>
         <jackson.version>1.9.13</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
         <jackson-2-version>2.2.3</jackson-2-version>

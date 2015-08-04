@@ -81,7 +81,7 @@ public class RunnerPool {
 
     public void setMaximumPoolSize(int maximumPoolSize) {
         if (maximumPoolSize == 0) {
-            throw new IllegalArgumentException("maximumPoolSize can not be zore!");
+            throw new IllegalArgumentException("maximumPoolSize can not be zero!");
         }
 
         int corePollSize = threadPoolExecutor.getCorePoolSize();

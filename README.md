@@ -115,4 +115,9 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
     Response response = jobClient.submitJob(job);
 ```
 
+##更新
+1.5.4:
+    1. 增加 lts-spring 工程对spring的支持
+    2. 对于TaskTracker 同时支持 JobRunner 中 注解注入bean 和xml注入的方式
+
 

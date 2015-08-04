@@ -7,6 +7,7 @@ import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.domain.TaskTrackerNode;
 import com.lts.tasktracker.processor.RemotingDispatcher;
 import com.lts.tasktracker.runner.JobRunner;
+import com.lts.tasktracker.runner.RunnerFactory;
 import com.lts.tasktracker.runner.RunnerPool;
 import com.lts.tasktracker.support.JobPullMachine;
 
@@ -43,12 +44,17 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     /**
      * 设置业务日志记录级别
-     *
-     * @param level
      */
     public void setBizLoggerLevel(Level level) {
         if (level != null) {
             application.setBizLogLevel(level);
         }
+    }
+
+    /**
+     * 设置JobRunner工场类，一般用户不用调用
+     */
+    public void setRunnerFactory(RunnerFactory factory) {
+        application.setRunnerFactory(factory);
     }
 }

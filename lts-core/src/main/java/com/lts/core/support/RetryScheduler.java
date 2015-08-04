@@ -63,7 +63,7 @@ public abstract class RetryScheduler<T> {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
                         Boolean isMaster = (Boolean) eventInfo.getParam("isMaster");
-                        if (isMaster) {
+                        if (isMaster != null && isMaster) {
                             startMasterCheck();
                         } else {
                             stopMasterCheck();
