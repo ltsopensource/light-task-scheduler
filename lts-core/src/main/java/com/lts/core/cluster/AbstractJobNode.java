@@ -18,6 +18,7 @@ import com.lts.ec.EventCenterFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/15/14.
@@ -34,6 +35,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     private List<NodeChangeListener> nodeChangeListeners;
     private List<MasterChangeListener> masterChangeListeners;
     private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     public AbstractJobNode() {
         application = getApplication();
@@ -43,22 +45,22 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         masterChangeListeners = new ArrayList<MasterChangeListener>();
     }
 
-
     final public void start() {
         try {
-            // 初始化配置
-            initConfig();
+            if (started.compareAndSet(false, true)) {
+                // 初始化配置
+                initConfig();
 
-            innerStart();
+                innerStart();
 
-            remotingStart();
+                remotingStart();
 
-            initRegistry();
+                initRegistry();
 
-            registry.register(node);
+                registry.register(node);
 
-            LOGGER.info("Start success!");
-
+                LOGGER.info("Start success!");
+            }
         } catch (Throwable e) {
             LOGGER.error("Start failed!", e);
         }
@@ -66,12 +68,14 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     final public void stop() {
         try {
-            registry.unregister(node);
+            if (started.compareAndSet(true, false)) {
+                registry.unregister(node);
 
-            innerStop();
-            remotingStop();
+                innerStop();
+                remotingStop();
 
-            LOGGER.info("Stop success!");
+                LOGGER.info("Stop success!");
+            }
         } catch (Throwable e) {
             LOGGER.error("Stop failed!", e);
         }
