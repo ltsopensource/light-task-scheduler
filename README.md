@@ -13,7 +13,7 @@ LTS 轻量级分布式任务调度框架(Light Task Scheduler)
 * 也支持定时任务 (如：3天之后执行)
 * CronExpression (如:0 0/1 * * * ?) 
 
-感兴趣，请加QQ群：109500214 一起探讨、完善。并且记得star一下哈，3Q
+感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得star哈。
 
 github地址:[https://github.com/qq254963746/light-task-scheduler](https://github.com/qq254963746/light-task-scheduler) 
 
