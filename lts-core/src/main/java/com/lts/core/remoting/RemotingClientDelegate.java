@@ -42,12 +42,20 @@ public class RemotingClientDelegate {
         this.jobTrackers = new CopyOnWriteArrayList<Node>();
     }
 
-    public Node getJobTrackerNode() throws JobTrackerNotFoundException {
-        if (jobTrackers.size() == 0) {
-            throw new JobTrackerNotFoundException("no available jobTracker!");
+    private Node getJobTrackerNode() throws JobTrackerNotFoundException {
+        try {
+            if (jobTrackers.size() == 0) {
+                throw new JobTrackerNotFoundException("no available jobTracker!");
+            }
+            return loadBalance.select(application.getConfig(), jobTrackers,
+                    application.getConfig().getIdentity());
+        } catch (JobTrackerNotFoundException e) {
+            this.serverEnable = false;
+            // publish msg
+            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
+            application.getEventCenter().publishAsync(eventInfo);
+            throw e;
         }
-        return loadBalance.select(application.getConfig(), jobTrackers,
-                application.getConfig().getIdentity());
     }
 
     public void start() {
@@ -74,16 +82,7 @@ public class RemotingClientDelegate {
     public RemotingCommand invokeSync(RemotingCommand request)
             throws JobTrackerNotFoundException {
 
-        Node jobTracker = null;
-        try {
-            jobTracker = getJobTrackerNode();
-        } catch (JobTrackerNotFoundException e) {
-            this.serverEnable = false;
-            // publish msg
-            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
-            application.getEventCenter().publishAsync(eventInfo);
-            throw e;
-        }
+        Node jobTracker = getJobTrackerNode();
 
         try {
             RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(),
@@ -109,16 +108,7 @@ public class RemotingClientDelegate {
     public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback)
             throws JobTrackerNotFoundException {
 
-        Node jobTracker = null;
-        try {
-            jobTracker = getJobTrackerNode();
-        } catch (JobTrackerNotFoundException e) {
-            this.serverEnable = false;
-            // publish msg
-            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
-            application.getEventCenter().publishAsync(eventInfo);
-            throw e;
-        }
+        Node jobTracker = getJobTrackerNode();
 
         try {
             remotingClient.invokeAsync(jobTracker.getAddress(), request,
@@ -142,16 +132,8 @@ public class RemotingClientDelegate {
      */
     public void invokeOneway(RemotingCommand request)
             throws JobTrackerNotFoundException {
-        Node jobTracker = null;
-        try {
-            jobTracker = getJobTrackerNode();
-        } catch (JobTrackerNotFoundException e) {
-            this.serverEnable = false;
-            // publish msg
-            EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
-            application.getEventCenter().publishAsync(eventInfo);
-            throw e;
-        }
+
+        Node jobTracker = getJobTrackerNode();
 
         try {
             remotingClient.invokeOneway(jobTracker.getAddress(), request,

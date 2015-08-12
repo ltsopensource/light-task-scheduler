@@ -20,7 +20,7 @@ public class BatchUtils {
     public static <E> List<E> getBatchList(Integer index, int batchSize, Collection<E> collection) {
         List<E> list = null;
         if (collection instanceof List) {
-            list = (List) collection;
+            list = (List<E>) collection;
         } else {
             list = new ArrayList<E>(collection);
         }
