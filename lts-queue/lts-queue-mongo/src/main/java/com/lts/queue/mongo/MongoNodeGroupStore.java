@@ -28,7 +28,7 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
         DBCollection dbCollection = template.getCollection();
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
         // create index if not exist
-        if (CollectionUtils.isEmpty(indexInfo)) {
+        if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_nodeType_name", "nodeType,name", true, true);
         }
     }

@@ -29,7 +29,7 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
         DBCollection dbCollection = template.getCollection();
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
         // create index if not exist
-        if (CollectionUtils.isEmpty(indexInfo)) {
+        if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
         }

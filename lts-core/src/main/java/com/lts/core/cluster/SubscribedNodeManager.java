@@ -4,9 +4,11 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.ListUtils;
+import com.lts.core.constant.EcTopic;
 import com.lts.core.listener.NodeChangeListener;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.ec.EventInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,9 @@ public class SubscribedNodeManager implements NodeChangeListener {
             }
         }
         nodeList.add(node);
+        EventInfo eventInfo = new EventInfo(EcTopic.NODE_ADD);
+        eventInfo.setParam("node", node);
+        application.getEventCenter().publishSync(eventInfo);
         LOGGER.info("Add {}", node);
     }
 
@@ -94,6 +99,9 @@ public class SubscribedNodeManager implements NodeChangeListener {
             for (Node node : nodeList) {
                 if (node.getIdentity().equals(delNode.getIdentity())) {
                     nodeList.remove(node);
+                    EventInfo eventInfo = new EventInfo(EcTopic.NODE_REMOVE);
+                    eventInfo.setParam("node", node);
+                    application.getEventCenter().publishSync(eventInfo);
                     LOGGER.info("Remove {}", node);
                 }
             }

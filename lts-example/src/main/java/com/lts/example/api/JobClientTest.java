@@ -21,8 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
-        console();
-//        testProtector();
+//        console();
+        testProtector();
     }
 
     public static void console() throws IOException {
@@ -82,6 +82,7 @@ public class JobClientTest extends BaseJobClientTest {
                         job.setTaskId(StringUtils.generateUUID());
                         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
                         job.setParam("shopId", "111");
+                        job.setNeedFeedback(false);
                         try {
                             Response response = jobClient.submitJob(job);
                             System.out.print(" " + num.incrementAndGet());

@@ -36,7 +36,7 @@ public class MongoJobFeedbackQueue extends MongoRepository implements JobFeedbac
         DBCollection dbCollection = template.getCollection(tableName);
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
         // create index if not exist
-        if (CollectionUtils.isEmpty(indexInfo)) {
+        if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex(tableName, "idx_gmtCreated", "gmtCreated");
             LOGGER.info("create queue " + tableName);
         }

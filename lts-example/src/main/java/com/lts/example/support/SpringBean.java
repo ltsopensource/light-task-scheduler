@@ -2,7 +2,7 @@ package com.lts.example.support;
 
 /**
  * 测试bean 注入
- * Created by hugui on 8/4/15.
+ * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class SpringBean {
 

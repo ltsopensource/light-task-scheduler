@@ -1,6 +1,7 @@
 package com.lts.queue.mongo;
 
 import com.lts.core.cluster.Config;
+import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
@@ -18,6 +19,7 @@ import com.mongodb.DuplicateKeyException;
 import com.mongodb.WriteResult;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
 
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -36,7 +38,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
 
     public MongoExecutableJobQueue(Config config) {
         super(config);
-        int permits = config.getParameter(Constants.JOB_TAKE_PARALLEL_SIZE, 50);
+        int permits = config.getParameter(Constants.JOB_TAKE_PARALLEL_SIZE, 10000);
         if (permits <= 10) {
             permits = Constants.DEFAULT_JOB_TAKE_PARALLEL_SIZE;
         }
@@ -52,13 +54,15 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
         return JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
     }
 
+    private ConcurrentHashSet<String> EXIST_TABLE = new ConcurrentHashSet<String>();
+
     @Override
     public boolean createQueue(String taskTrackerNodeGroup) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         DBCollection dbCollection = template.getCollection(tableName);
         List<DBObject> indexInfo = dbCollection.getIndexInfo();
         // create index if not exist
-        if (CollectionUtils.isEmpty(indexInfo)) {
+        if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex(tableName, "idx_jobId", "jobId", true, true);
             template.ensureIndex(tableName, "idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
@@ -66,13 +70,18 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
             LOGGER.info("create queue " + tableName);
         }
+        EXIST_TABLE.add(tableName);
         return true;
     }
 
     @Override
     public boolean add(JobPo jobPo) {
         try {
+            // TODO 这里后面改掉，所有的nodeGroup 需要先在lts-admin中申请,就不用判断了
             String tableName = JobQueueUtils.getExecutableQueueName(jobPo.getTaskTrackerNodeGroup());
+            if (!EXIST_TABLE.contains(tableName)) {
+                createQueue(jobPo.getTaskTrackerNodeGroup());
+            }
             jobPo.setGmtCreated(SystemClock.now());
             jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(tableName, jobPo);
@@ -96,18 +105,34 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             LOGGER.warn("Try to take job failed.", e);
         }
         try {
-            String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
-            Query<JobPo> query = template.createQuery(tableName, JobPo.class);
-            query.field("isRunning").equal(false)
-                    .filter("triggerTime < ", SystemClock.now())
-                    .order(" triggerTime, priority , gmtCreated");
+            while (true) {
+                String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+                Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+                query.field("isRunning").equal(false)
+                        .filter("triggerTime < ", SystemClock.now())
+                        .order(" triggerTime, priority , gmtCreated");
 
-            UpdateOperations<JobPo> operations =
-                    template.createUpdateOperations(JobPo.class)
-                            .set("isRunning", true)
-                            .set("taskTrackerIdentity", taskTrackerIdentity)
-                            .set("gmtModified", SystemClock.now());
-            return template.findAndModify(query, operations, false);
+                JobPo jobPo = query.get();
+                if (jobPo == null) {
+                    return null;
+                }
+                UpdateOperations<JobPo> operations =
+                        template.createUpdateOperations(JobPo.class)
+                                .set("isRunning", true)
+                                .set("taskTrackerIdentity", taskTrackerIdentity)
+                                .set("gmtModified", SystemClock.now());
+                Query<JobPo> updateQuery = template.createQuery(tableName, JobPo.class);
+                updateQuery.field("jobId").equal(jobPo.getJobId())
+                        .field("isRunning").equal(false);
+                UpdateResults updateResult = template.update(updateQuery, operations);
+                if (updateResult.getUpdatedCount() == 1) {
+                    return jobPo;
+                }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
+                }
+            }
         } finally {
             if (acquire) {
                 semaphore.release();

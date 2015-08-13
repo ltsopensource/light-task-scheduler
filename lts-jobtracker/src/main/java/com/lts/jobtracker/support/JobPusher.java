@@ -7,6 +7,7 @@ import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.exception.RequestTimeoutException;
+import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -17,6 +18,8 @@ import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.TaskTrackerNode;
+import com.lts.queue.PreLoader;
+import com.lts.queue.PreLoaderFactory;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 import com.lts.remoting.InvokeCallback;
@@ -37,11 +40,15 @@ public class JobPusher {
     private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
     private JobTrackerApplication application;
     private final ExecutorService executorService;
+    private PreLoader preLoader;
+
 
     public JobPusher(JobTrackerApplication application) {
         this.application = application;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
                 new NamedThreadFactory(JobPusher.class.getSimpleName()));
+
+        preLoader = ExtensionLoader.getExtensionLoader(PreLoaderFactory.class).getAdaptiveExtension().getPreLoader(application.getConfig(), application);
     }
 
     public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
@@ -108,8 +115,7 @@ public class JobPusher {
         final String identity = taskTrackerNode.getIdentity();
 
         // 从mongo 中取一个可运行的job
-        final JobPo jobPo = application.getExecutableJobQueue().take(nodeGroup, identity);
-
+        final JobPo jobPo = preLoader.take(nodeGroup, identity);
         if (jobPo == null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Job push failed: no job! nodeGroup=" + nodeGroup + ", identity=" + identity);
