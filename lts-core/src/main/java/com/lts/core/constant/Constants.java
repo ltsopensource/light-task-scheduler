@@ -70,7 +70,7 @@ public interface Constants {
     public static final String JOB_QUEUE_KEY = "job.queue";
     // 客户端提交并发请求size
     public static final String JOB_SUBMIT_CONCURRENCY_SIZE = "job.submit.concurrency.size";
-    public static final int DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE = Constants.AVAILABLE_PROCESSOR * 4;
+    public static final int DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE = 100;
 
     public static final String PROCESSOR_THREAD = "job.processor.thread";
     public static final int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;

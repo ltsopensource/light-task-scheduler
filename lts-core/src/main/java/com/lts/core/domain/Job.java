@@ -30,7 +30,7 @@ public class Job {
 
     private Map<String, String> extParams;
     // 是否要反馈给客户端
-    private boolean needFeedback = true;
+    private boolean needFeedback = false;
     // 重试次数
     private int retryTimes = 0;
     /**
