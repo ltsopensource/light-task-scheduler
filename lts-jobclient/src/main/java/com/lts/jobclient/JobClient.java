@@ -51,7 +51,9 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     private JobFinishedHandler jobFinishedHandler;
 
-    public JobClient() {
+    @Override
+    protected void innerStart() {
+        super.innerStart();
         int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
                 Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
