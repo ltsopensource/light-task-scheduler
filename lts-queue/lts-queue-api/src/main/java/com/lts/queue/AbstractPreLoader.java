@@ -55,6 +55,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                                 JOB_MAP.get(loadTaskTrackerNodeGroup).addAll(loads);
                             }
                         }
+                        LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
                     }
                 }
             }, 3, 1, TimeUnit.SECONDS);
