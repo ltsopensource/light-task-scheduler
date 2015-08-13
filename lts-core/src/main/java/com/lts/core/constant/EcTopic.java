@@ -18,4 +18,9 @@ public interface EcTopic {
     String JOB_TRACKER_AVAILABLE = "JOB_TRACKER_AVAILABLE";
     // master 节点改变了
     String MASTER_CHANGED = "MASTER_CHANGED";
+
+    String NODE_ADD = "NODE_ADD";
+
+    String NODE_REMOVE = "NODE_REMOVE";
+
 }
