@@ -46,6 +46,16 @@ public class JobTrackerApplication extends Application {
     // job id generator
     private IdGenerator idGenerator;
 
+    private PreLoader preLoader;
+
+    public PreLoader getPreLoader() {
+        return preLoader;
+    }
+
+    public void setPreLoader(PreLoader preLoader) {
+        this.preLoader = preLoader;
+    }
+
     public JobLogger getJobLogger() {
         return jobLogger;
     }

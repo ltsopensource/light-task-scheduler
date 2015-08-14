@@ -27,22 +27,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements ExecutableJobQueue {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlExecutableJobQueue.class);
-
-    // 这里做一下流控, 尽量减小 mysql dead lock 的概率
-    private Semaphore semaphore;
-    private long acquireTimeout = 2000; // 2s
     // 用来缓存SQL，不用每次去生成，可以重用
     private final ConcurrentHashMap<String, String> SQL_CACHE_MAP = new ConcurrentHashMap<String, String>();
 
     public MysqlExecutableJobQueue(Config config) {
         super(config);
-        int permits = config.getParameter(Constants.JOB_TAKE_PARALLEL_SIZE, Constants.DEFAULT_JOB_TAKE_PARALLEL_SIZE);
-        if (permits <= 10) {
-            permits = Constants.DEFAULT_JOB_TAKE_PARALLEL_SIZE;
-        }
-        this.acquireTimeout = config.getParameter(Constants.JOB_TAKE_ACQUIRE_TIMEOUT, acquireTimeout);
-        this.semaphore = new Semaphore(permits);
     }
 
     @Override
@@ -94,75 +83,6 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
             }
         }
         return true;
-    }
-
-    private String takeSelectSQL = "SELECT *" +
-            " FROM `{tableName}` " +
-            " WHERE is_running = ? " +
-            " AND `trigger_time` < ? " +
-            " ORDER BY `trigger_time` ASC, `priority` ASC, `gmt_created` ASC " +
-            " LIMIT 0, 1";
-
-    private String taskUpdateSQL = "UPDATE `{tableName}` SET " +
-            "`is_running` = ?, " +
-            "`task_tracker_identity` = ?, " +
-            "`gmt_modified` = ?" +
-            " WHERE job_id = ? AND is_running = ?";
-
-    @Override
-    public JobPo take(final String taskTrackerNodeGroup, final String taskTrackerIdentity) {
-        boolean acquire = false;
-        try {
-            acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
-            if (!acquire) {
-                // 直接返回null
-                return null;
-            }
-        } catch (InterruptedException e) {
-            LOGGER.warn("Try to take job failed.", e);
-        }
-        try {
-            /**
-             * 这里从SELECT FOR UPDATE 优化为 CAS 乐观锁
-             */
-            Long now = SystemClock.now();
-            Object[] selectParams = new Object[]{false, now};
-
-            JobPo jobPo = getSqlTemplate().query(getRealSql(takeSelectSQL, taskTrackerNodeGroup),
-                    ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, selectParams);
-            if (jobPo == null) {
-                return null;
-            }
-
-            Object[] params = new Object[]{
-                    true, taskTrackerIdentity, now, jobPo.getJobId(), false
-            };
-            // 返回影响的行数
-            int affectedRow = 0;
-            try {
-                affectedRow = getSqlTemplate().update(getRealSql(taskUpdateSQL, taskTrackerNodeGroup), params);
-            } catch (SQLException e) {
-                //  dead lock ignore
-                if (e.getMessage().contains("Deadlock found when trying to get lock")) {
-                    return null;
-                }
-                throw e;
-            }
-            if (affectedRow == 0) {
-                return take(taskTrackerNodeGroup, taskTrackerIdentity);
-            } else {
-                jobPo.setIsRunning(true);
-                jobPo.setTaskTrackerIdentity(taskTrackerIdentity);
-                jobPo.setGmtModified(now);
-                return jobPo;
-            }
-        } catch (SQLException e) {
-            throw new JobQueueException(e);
-        } finally {
-            if(acquire){
-                semaphore.release();
-            }
-        }
     }
 
     private String removeSQL = "DELETE FROM `{tableName}` WHERE job_id = ?";
