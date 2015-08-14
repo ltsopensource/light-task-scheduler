@@ -235,7 +235,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
      */
     private JobPushRequest getNewJob(String taskTrackerNodeGroup, String taskTrackerIdentity) {
 
-        JobPo jobPo = application.getExecutableJobQueue().take(taskTrackerNodeGroup, taskTrackerIdentity);
+        JobPo jobPo = application.getPreLoader().take(taskTrackerNodeGroup, taskTrackerIdentity);
         if (jobPo == null) {
             return null;
         }

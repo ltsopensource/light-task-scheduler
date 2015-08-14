@@ -4,7 +4,6 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.JobQueueUtils;
@@ -19,11 +18,8 @@ import com.mongodb.DuplicateKeyException;
 import com.mongodb.WriteResult;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
-import org.mongodb.morphia.query.UpdateResults;
 
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
@@ -32,18 +28,8 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoExecutableJobQueue.class);
 
-    // 这里做一下流控
-    private Semaphore semaphore;
-    private long acquireTimeout = 2000; // 2s
-
     public MongoExecutableJobQueue(Config config) {
         super(config);
-        int permits = config.getParameter(Constants.JOB_TAKE_PARALLEL_SIZE, 10000);
-        if (permits <= 10) {
-            permits = Constants.DEFAULT_JOB_TAKE_PARALLEL_SIZE;
-        }
-        this.acquireTimeout = config.getParameter(Constants.JOB_TAKE_ACQUIRE_TIMEOUT, acquireTimeout);
-        this.semaphore = new Semaphore(permits);
     }
 
     @Override
@@ -90,54 +76,6 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             throw new DuplicateJobException(e);
         }
         return true;
-    }
-
-    @Override
-    public JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity) {
-        boolean acquire = false;
-        try {
-            acquire = semaphore.tryAcquire(acquireTimeout, TimeUnit.MILLISECONDS);
-            if (!acquire) {
-                // 直接返回null
-                return null;
-            }
-        } catch (InterruptedException e) {
-            LOGGER.warn("Try to take job failed.", e);
-        }
-        try {
-            while (true) {
-                String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
-                Query<JobPo> query = template.createQuery(tableName, JobPo.class);
-                query.field("isRunning").equal(false)
-                        .filter("triggerTime < ", SystemClock.now())
-                        .order(" triggerTime, priority , gmtCreated");
-
-                JobPo jobPo = query.get();
-                if (jobPo == null) {
-                    return null;
-                }
-                UpdateOperations<JobPo> operations =
-                        template.createUpdateOperations(JobPo.class)
-                                .set("isRunning", true)
-                                .set("taskTrackerIdentity", taskTrackerIdentity)
-                                .set("gmtModified", SystemClock.now());
-                Query<JobPo> updateQuery = template.createQuery(tableName, JobPo.class);
-                updateQuery.field("jobId").equal(jobPo.getJobId())
-                        .field("isRunning").equal(false);
-                UpdateResults updateResult = template.update(updateQuery, operations);
-                if (updateResult.getUpdatedCount() == 1) {
-                    return jobPo;
-                }
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        } finally {
-            if (acquire) {
-                semaphore.release();
-            }
-        }
     }
 
     @Override

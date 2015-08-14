@@ -28,6 +28,8 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     private JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
     private NodeGroupStoreFactory nodeGroupStoreFactory = ExtensionLoader.getExtensionLoader(NodeGroupStoreFactory.class).getAdaptiveExtension();
 
+    private PreLoaderFactory preLoaderFactory = ExtensionLoader.getExtensionLoader(PreLoaderFactory.class).getAdaptiveExtension();
+
     public JobTracker() {
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
@@ -50,7 +52,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
         application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
-
+        application.setPreLoader(preLoaderFactory.getPreLoader(config, application));
         application.getChannelManager().start();
     }
 

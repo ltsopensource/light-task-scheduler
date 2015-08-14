@@ -22,11 +22,6 @@ public interface ExecutableJobQueue extends JobQueue{
     boolean add(JobPo jobPo);
 
     /**
-     * 从队列中取一个元素，并锁住这个元素
-     */
-    JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity);
-
-    /**
      * 出队列
      */
     boolean remove(String taskTrackerNodeGroup, String jobId);
