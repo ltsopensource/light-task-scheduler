@@ -115,7 +115,7 @@ public class HeartBeatMonitor {
                                         ping();
                                     }
                                 }
-                            }, 1, 2, TimeUnit.MILLISECONDS);
+                            }, 1, 1, TimeUnit.MILLISECONDS);
                 }
                 LOGGER.info("Start fast ping success.");
             } catch (Throwable t) {

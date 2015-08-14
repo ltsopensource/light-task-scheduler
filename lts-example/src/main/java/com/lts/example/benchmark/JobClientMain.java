@@ -1,15 +1,16 @@
 package com.lts.example.benchmark;
 
+import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.example.support.JobFinishedHandlerImpl;
 import com.lts.example.support.MasterChangeListenerImpl;
+import com.lts.example.support.MemoryStatus;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.RetryJobClient;
 import com.lts.jobclient.domain.Response;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -37,19 +38,24 @@ public class JobClientMain {
 
         try {
             // 休息1s 等待 连上JobTracker
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
+        MemoryStatus.print();
+
         final AtomicLong num = new AtomicLong();
-        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-        // 假设分了 20 个 partition
+        final long start = System.currentTimeMillis();
 
+        // 假设分了 100 个 partition
         final int partition = 100;
 
-        for (int i = 0; i < 100; i++) {
+        final int totalSize = 1000000;
+
+        final AtomicInteger thread = new AtomicInteger(100);
+        for (int i = 0; i < thread.get(); i++) {
 
             new Thread(new Runnable() {
                 @Override
@@ -65,7 +71,13 @@ public class JobClientMain {
                         if (!response.isSuccess()) {
                             System.out.println(response.getMsg());
                         } else {
-                            num.incrementAndGet();
+                            if (num.incrementAndGet() > totalSize) {
+                                if (thread.decrementAndGet() == 0) {
+                                    MemoryStatus.print();
+                                    System.out.println("totalSize : " + totalSize + " , time: " + (System.currentTimeMillis() - start) + "ms");
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -75,7 +87,7 @@ public class JobClientMain {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
+                while (true) {
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
