@@ -55,6 +55,8 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 * 实现LTS的分布式队列存储
 
 ###LTS Admin
+后台首页 [http://localhost:8080/main.html](http://localhost:8080/main.html)
+
 ![Aaron Swartz](https://raw.githubusercontent.com/qq254963746/light-task-scheduler/master/doc/LTS_Admin.png)
 ###调用示例
 下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-scheduler/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
