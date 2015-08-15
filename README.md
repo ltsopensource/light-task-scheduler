@@ -32,6 +32,7 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 * 3. TaskTracker收到JobTracker分发来的任务之后，然后从线程池中拿到一个线程去执行。执行完毕之后，再反馈任务执行结果给JobTracker（成功or 失败[失败有失败错误信息]），如果发现JobTacker不可用，那么存储本地FailStore，等待TaskTracker可用的时候再反馈。反馈结果的同时，询问JobTacker有没有新的任务要执行。
 * 4. JobTacker收到TaskTracker节点的任务结果信息。根据任务信息决定要不要反馈给客户端。不需要反馈的直接删除,需要反馈的,直接反馈,反馈失败进入FeedbackQueue, 等待重新反馈。
 * 5. JobClient收到任务执行结果，进行自己想要的逻辑处理。
+* 详细请查看 [流程图](https://raw.githubusercontent.com/qq254963746/light-task-scheduler/master/doc/LTS_progress.png)
 
 ###特性
 * 负载均衡:
