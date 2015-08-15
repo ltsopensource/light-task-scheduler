@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class NoopJobRunner implements JobRunner {
 
-    static long start = 0;
+    static volatile long start = 0;
     static AtomicInteger num = new AtomicInteger(0);
 
     public NoopJobRunner() {

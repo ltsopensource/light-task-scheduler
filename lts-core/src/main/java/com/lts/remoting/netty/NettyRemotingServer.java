@@ -251,8 +251,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             super.channelActive(ctx);
 
             if (NettyRemotingServer.this.channelEventListener != null) {
-                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.CONNECT, remoteAddress
-                        .toString(), ctx.channel()));
+                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.CONNECT, remoteAddress, ctx.channel()));
             }
         }
 
@@ -263,8 +262,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             super.channelInactive(ctx);
 
             if (NettyRemotingServer.this.channelEventListener != null) {
-                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.CLOSE, remoteAddress
-                        .toString(), ctx.channel()));
+                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.CLOSE, remoteAddress, ctx.channel()));
             }
         }
 
@@ -284,7 +282,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
                 if (NettyRemotingServer.this.channelEventListener != null) {
                     NettyEventType nettyEventType = NettyEventType.valueOf(event.state().name());
                     NettyRemotingServer.this.putNettyEvent(new NettyEvent(nettyEventType,
-                            remoteAddress.toString(), ctx.channel()));
+                            remoteAddress, ctx.channel()));
                 }
             }
 
@@ -299,8 +297,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             log.warn("NETTY SERVER PIPELINE: exceptionCaught exception.", cause);
 
             if (NettyRemotingServer.this.channelEventListener != null) {
-                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.EXCEPTION, remoteAddress
-                        .toString(), ctx.channel()));
+                NettyRemotingServer.this.putNettyEvent(new NettyEvent(NettyEventType.EXCEPTION, remoteAddress, ctx.channel()));
             }
 
             RemotingUtil.closeChannel(ctx.channel());
