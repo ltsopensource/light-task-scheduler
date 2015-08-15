@@ -18,7 +18,6 @@
         <module>lts-example</module>
         <module>lts-admin</module>
         <module>lts-spring</module>
-        <!--<module>lts-file-system</module>-->
     </modules>
 
     <properties>
