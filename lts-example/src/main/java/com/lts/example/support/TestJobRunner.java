@@ -20,15 +20,15 @@ public class TestJobRunner implements JobRunner {
     @Override
     public Result run(Job job) throws Throwable {
         try {
-            Thread.sleep(1000L);
-
-            if (job.getRetryTimes() > 5) {
-                return new Result(Action.EXECUTE_FAILED, "重试次数超过5次了，放过你吧!");
-            }
-
-            if (SystemClock.now() % 2 == 1) {
-                return new Result(Action.EXECUTE_LATER, "稍后执行");
-            }
+//            Thread.sleep(1000L);
+//
+//            if (job.getRetryTimes() > 5) {
+//                return new Result(Action.EXECUTE_FAILED, "重试次数超过5次了，放过你吧!");
+//            }
+//
+//            if (SystemClock.now() % 2 == 1) {
+//                return new Result(Action.EXECUTE_LATER, "稍后执行");
+//            }
 
             // TODO 业务逻辑
             LOGGER.info("我要执行：" + job);

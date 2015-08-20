@@ -58,6 +58,8 @@ public class NodeRegistryUtils {
                 node.setCreateTime(Long.valueOf(value));
             } else if ("isAvailable".equals(key)) {
                 node.setAvailable(Boolean.valueOf(value));
+            } else if("hostName".equals(key)){
+                node.setHostName(value);
             }
         }
         return node;
@@ -93,7 +95,9 @@ public class NodeRegistryUtils {
                 .append("&createTime=")
                 .append(node.getCreateTime())
                 .append("&isAvailable=")
-                .append(node.isAvailable());
+                .append(node.isAvailable())
+                .append("&hostName=")
+                .append(node.getHostName());
 
         return path.toString();
     }

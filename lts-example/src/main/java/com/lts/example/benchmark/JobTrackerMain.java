@@ -1,6 +1,7 @@
 package com.lts.example.benchmark;
 
 import com.lts.example.support.MasterChangeListenerImpl;
+import com.lts.example.support.MemoryStatus;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
 
@@ -48,13 +49,14 @@ public class JobTrackerMain {
         jobTracker.addConfig("job.queue", "mongo");
         // mongo 配置
         jobTracker.addConfig("mongo.addresses", "127.0.0.1:27017");     // 多个地址用逗号分割
-        jobTracker.addConfig("mongo.database", "lts2");
+        jobTracker.addConfig("mongo.database", "lts3");
         // 这个是对于 返回给客户端 任务的 老数据删除策略
         jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient(默认), curator
         jobTracker.addConfig("zk.client", "zkclient");
         // 启动节点
         jobTracker.start();
+        MemoryStatus.print();
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {

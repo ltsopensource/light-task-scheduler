@@ -167,11 +167,11 @@
             }
             },
             {
-                title: 'IP', dataIndex: 'ip', width: 140, renderer: function (v, obj) {
+                title: '机器', dataIndex: 'ip', width: 140, renderer: function (v, obj) {
                 if (obj['nodeType'] == 'JOB_TRACKER') {
-                    return obj['ip'] + ":" + obj['port'];
+                    return obj['hostName'] + "<br/>(" + obj['ip'] + ":" + obj['port'] + ")";
                 }
-                return obj['ip'];
+                return obj['hostName'] + "<br/>("  + obj['ip'] + ")";
             }
             },
             {
