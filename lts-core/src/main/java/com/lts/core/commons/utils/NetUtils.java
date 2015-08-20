@@ -127,6 +127,14 @@ public class NetUtils {
         return address == null ? LOCALHOST : address.getHostAddress();
     }
 
+    public static String getLocalHostName(){
+        InetAddress address = getLocalAddress();
+        if(address == null){
+            return "localhost";
+        }
+        return address.getHostName();
+    }
+
     /**
      * 遍历本地网卡，返回第一个合理的IP。
      *

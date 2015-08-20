@@ -30,8 +30,9 @@ public class NodeMemoryDB extends MemoryDB {
             "  port, " +
             "  nodeGroup, " +
             "  createTime, " +
-            "  threads)" +
-            " VALUES (?,?,?,?,?,?,?,?,?)";
+            "  threads," +
+            "  hostName)" +
+            " VALUES (?,?,?,?,?,?,?,?,?,?)";
 
     private String deleteSQL = "DELETE FROM lts_node where identity = ?";
 
@@ -50,6 +51,7 @@ public class NodeMemoryDB extends MemoryDB {
                 "  nodeGroup varchar(64) ," +
                 "  createTime bigint ," +
                 "  threads int ," +
+                "  hostName varchar(64) ," +
                 "  PRIMARY KEY (identity))";
 
         try {
@@ -78,7 +80,8 @@ public class NodeMemoryDB extends MemoryDB {
                         node.getPort(),
                         node.getGroup(),
                         node.getCreateTime(),
-                        node.getThreads()
+                        node.getThreads(),
+                        node.getHostName()
                 );
             } catch (Exception e) {
                 LOGGER.error("Insert {} error!", node, e);
@@ -139,6 +142,7 @@ public class NodeMemoryDB extends MemoryDB {
                 node.setCreateTime(rs.getLong("createTime"));
                 node.setThreads(rs.getInt("threads"));
                 node.setAvailable(rs.getInt("available") == 1);
+                node.setHostName(rs.getString("hostName"));
                 nodes.add(node);
             }
             return nodes;

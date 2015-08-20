@@ -18,6 +18,7 @@ public class Node {
     private NodeType nodeType;
     private String ip;
     private Integer port;
+    private String hostName;
     private String group;
     private Long createTime = SystemClock.now();
     // 线程个数
@@ -29,6 +30,14 @@ public class Node {
     private List<NodeType> listenNodeTypes;
 
     private String fullString;
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
 
     public boolean isAvailable() {
         return available;
