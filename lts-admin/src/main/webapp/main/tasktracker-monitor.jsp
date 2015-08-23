@@ -23,7 +23,7 @@
                     </div>
                 </div>
                 <div class="control-group span8">
-                    <label class="control-label">执行节标识：</label>
+                    <label class="control-label">执行节点标识：</label>
 
                     <div class="controls">
                         <select name="taskTrackerIdentity">

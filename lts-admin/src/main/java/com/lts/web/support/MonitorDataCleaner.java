@@ -41,7 +41,7 @@ public class MonitorDataCleaner implements InitializingBean {
                         LOGGER.error("Clean monitor data error ", t);
                     }
                 }
-            }, 1, 24, TimeUnit.SECONDS);
+            }, 1, 24, TimeUnit.HOURS);
         }
     }
 
