@@ -180,11 +180,7 @@ public class Monitor {
     }
 
     private boolean send(Map<String, String> params) throws IOException {
-        String monitorUrl = config.getParameter("lts.monitor.url");
-        if (StringUtils.isEmpty(monitorUrl)) {
-            return false;
-        }
-        String result = WebUtils.doPost(monitorUrl + Constants.TASK_TRACKER_MONITOR_INFO_ADD_URL, params, 3000, 6000);
+        String result = WebUtils.doPost(monitorURL + Constants.TASK_TRACKER_MONITOR_INFO_ADD_URL, params, 3000, 6000);
         if (StringUtils.isNotEmpty(result)) {
             try {
                 JSONObject json = JSONUtils.parseObject(result);
