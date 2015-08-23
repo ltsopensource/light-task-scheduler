@@ -2,7 +2,7 @@ package com.lts.biz.logger;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.core.domain.PageResponse;
+import com.lts.web.response.PageResponse;
 import com.lts.core.extension.SPI;
 
 import java.util.List;

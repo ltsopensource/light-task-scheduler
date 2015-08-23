@@ -18,7 +18,7 @@ import java.util.Properties;
 
 /**
  * JobTracker Spring Bean 工厂类
- * Created by Robert HG (254963746@qq.com) on 8/4/15.
+ * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
         InitializingBean, DisposableBean {

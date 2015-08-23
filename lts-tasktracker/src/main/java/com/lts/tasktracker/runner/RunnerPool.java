@@ -72,8 +72,6 @@ public class RunnerPool {
 
     /**
      * 得到当前可用的线程数
-     *
-     * @return
      */
     public int getAvailablePoolSize() {
         return threadPoolExecutor.getMaximumPoolSize() - threadPoolExecutor.getActiveCount();
@@ -95,8 +93,6 @@ public class RunnerPool {
 
     /**
      * 得到最大线程数
-     *
-     * @return
      */
     public int getMaximumPoolSize() {
         return threadPoolExecutor.getMaximumPoolSize();
@@ -110,29 +106,28 @@ public class RunnerPool {
      * 用来管理正在执行的任务
      */
     public class RunningJobManager {
-        private final Set<String> RUNNING_JOB_ID_SET = new ConcurrentHashSet<String>();
+
+        private final Set<String> JOB_SET = new ConcurrentHashSet<String>();
 
         public void in(String jobId) {
-            RUNNING_JOB_ID_SET.add(jobId);
+            JOB_SET.add(jobId);
         }
 
         public void out(String jobId) {
-            RUNNING_JOB_ID_SET.remove(jobId);
+            JOB_SET.remove(jobId);
         }
 
         public boolean running(String jobId) {
-            return RUNNING_JOB_ID_SET.contains(jobId);
+            return JOB_SET.contains(jobId);
         }
 
         /**
          * 返回给定list中不存在的jobId
-         *
-         * @param jobIds
-         * @return
          */
         public List<String> getNotExists(List<String> jobIds) {
+
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Running jobs ：" + RUNNING_JOB_ID_SET);
+                LOGGER.debug("Running jobs ：" + JOB_SET);
                 LOGGER.debug("Ask jobs:" + jobIds);
             }
             List<String> notExistList = new ArrayList<String>();

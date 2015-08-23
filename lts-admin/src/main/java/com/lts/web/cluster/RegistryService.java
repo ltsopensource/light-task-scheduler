@@ -11,7 +11,7 @@ import com.lts.core.registry.Registry;
 import com.lts.core.registry.RegistryFactory;
 import com.lts.web.request.NodeRequest;
 import com.lts.web.support.AppConfigurer;
-import com.lts.web.support.memorydb.NodeMemoryDB;
+import com.lts.web.repository.NodeMemoryRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +27,7 @@ import java.util.List;
 public class RegistryService implements InitializingBean {
 
     private final ConcurrentHashSet<String/*clusterName*/> MAP = new ConcurrentHashSet<String>();
-    private NodeMemoryDB nodeMemDB = new NodeMemoryDB();
+    private NodeMemoryRepository repo = new NodeMemoryRepository();
 
     @Autowired
     @Qualifier("application")
@@ -52,10 +52,10 @@ public class RegistryService implements InitializingBean {
                 }
                 switch (event) {
                     case ADD:
-                        nodeMemDB.addNode(nodes);
+                        repo.addNode(nodes);
                         break;
                     case REMOVE:
-                        nodeMemDB.removeNode(nodes);
+                        repo.removeNode(nodes);
                         break;
                 }
             }
@@ -69,7 +69,7 @@ public class RegistryService implements InitializingBean {
     }
 
     public List<Node> getNodes(NodeRequest request) {
-        return nodeMemDB.search(request);
+        return repo.search(request);
     }
 
     @Override

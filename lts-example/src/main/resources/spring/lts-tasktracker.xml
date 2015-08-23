@@ -28,7 +28,7 @@
         </property>
         <property name="configs">
             <props>
-                <prop key="job.fail.store">rocksdb</prop>
+                <prop key="job.fail.store">leveldb</prop>
             </props>
         </property>
     </bean>
@@ -49,7 +49,7 @@
         </property>
         <property name="configs">
             <props>
-                <prop key="job.fail.store">rocksdb</prop>
+                <prop key="job.fail.store">leveldb</prop>
             </props>
         </property>
         <lookup-method name="createJobRunner" bean="jobRunner"/>

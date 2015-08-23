@@ -4,7 +4,7 @@ import com.lts.biz.logger.JobLogger;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.commons.utils.JSONUtils;
-import com.lts.core.domain.PageResponse;
+import com.lts.web.response.PageResponse;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 

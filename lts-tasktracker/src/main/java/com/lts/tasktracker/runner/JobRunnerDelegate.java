@@ -49,8 +49,10 @@ public class JobRunnerDelegate implements Runnable {
                 Response response = new Response();
                 response.setJobWrapper(jobWrapper);
                 try {
-                    application.getRunnerPool().getRunningJobManager().in(jobWrapper.getJobId());
-                    Result result = application.getRunnerPool().getRunnerFactory().newRunner().run(jobWrapper.getJob());
+                    application.getRunnerPool().getRunningJobManager()
+                            .in(jobWrapper.getJobId());
+                    Result result = application.getRunnerPool().getRunnerFactory()
+                            .newRunner().run(jobWrapper.getJob());
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
                     } else {
@@ -61,17 +63,33 @@ public class JobRunnerDelegate implements Runnable {
                         response.setAction(action);
                         response.setMsg(result.getMsg());
                     }
-                    LOGGER.info("Job execute finished : {}, time:{} ms.", jobWrapper, SystemClock.now() - startTime);
+                    long time = SystemClock.now() - startTime;
+                    LOGGER.info("Job execute finished : {}, time:{} ms."
+                            , jobWrapper, time);
+
+                    // stat monitor
+                    application.getMonitor().addRunningTime(time);
+                    application.getMonitor().increaseSuccessNum();
+
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setAction(Action.EXECUTE_EXCEPTION);
                     response.setMsg(sw.toString());
-                    LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, SystemClock.now() - startTime, t.getMessage(), t);
+                    long time = SystemClock.now() - startTime;
+                    LOGGER.info("Job execute error : {}, time: {}, {}",
+                            jobWrapper, SystemClock.now() - startTime, t.getMessage(), t);
+
+                    // stat monitor
+                    application.getMonitor().addRunningTime(time);
+                    application.getMonitor().increaseFailedNum();
+
                 } finally {
                     logger.removeId();
-                    application.getRunnerPool().getRunningJobManager().out(jobWrapper.getJobId());
+                    application.getRunnerPool().getRunningJobManager()
+                            .out(jobWrapper.getJobId());
                 }
+
                 jobWrapper = callback.runComplete(response);
             }
         } finally {

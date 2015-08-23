@@ -19,7 +19,7 @@ import java.util.Properties;
 /**
  * TaskTracker Spring Bean 工厂类
  * 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过xml的方式注入
- * Created by Robert HG (254963746@qq.com) on 8/4/15.
+ * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTracker>,
         InitializingBean, DisposableBean {

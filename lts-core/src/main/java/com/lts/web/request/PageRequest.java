@@ -1,4 +1,4 @@
-package com.lts.core.domain;
+package com.lts.web.request;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.

@@ -15,7 +15,7 @@ import java.util.Properties;
 
 /**
  * JobClient Spring Bean 工厂类
- * Created by Robert HG (254963746@qq.com) on 8/4/15.
+ * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class JobClientFactoryBean implements FactoryBean<JobClient>,
         InitializingBean, DisposableBean {

@@ -1,13 +1,9 @@
 package com.lts.queue.mysql;
 
 import com.lts.core.cluster.Config;
-import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Constants;
-import com.lts.core.domain.JobQueueRequest;
-import com.lts.core.logger.Logger;
-import com.lts.core.logger.LoggerFactory;
+import com.lts.web.request.JobQueueRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
@@ -19,8 +15,6 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/31/15.

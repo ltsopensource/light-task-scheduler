@@ -27,7 +27,7 @@ public class SystemClock {
         public static final SystemClock INSTANCE = new SystemClock(1);
     }
 
-    public static SystemClock instance() {
+    private static SystemClock instance() {
         return InstanceHolder.INSTANCE;
     }
 
