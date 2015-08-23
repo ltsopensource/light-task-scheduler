@@ -1,8 +1,9 @@
-package com.lts.web.support.memorydb;
+package com.lts.web.repository;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.exception.DaoException;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.store.jdbc.SqlBuilder;
@@ -17,9 +18,9 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
-public class NodeMemoryDB extends MemoryDB {
+public class NodeMemoryRepository extends MemoryRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMemoryDB.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeMemoryRepository.class);
 
     private String insertSQL = "INSERT INTO lts_node " +
             "( identity, " +
@@ -36,7 +37,7 @@ public class NodeMemoryDB extends MemoryDB {
 
     private String deleteSQL = "DELETE FROM lts_node where identity = ?";
 
-    public NodeMemoryDB() {
+    public NodeMemoryRepository() {
         createTable();
     }
 
@@ -122,7 +123,7 @@ public class NodeMemoryDB extends MemoryDB {
             return getSqlTemplate().query(sql.getSQL(), NODE_LIST_RESULT_SET_HANDLER, sql.getParams().toArray());
         } catch (Exception e) {
             LOGGER.error("Search node error!", e);
-            throw new RuntimeException(e);
+            throw new DaoException(e);
         }
     }
 

@@ -69,7 +69,8 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 5, 5, TimeUnit.SECONDS);        // 5s 检查一次是否有空余线程
+                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 3, 3, TimeUnit.SECONDS);
+                           // 5s 检查一次是否有空余线程
                 }
                 LOGGER.info("Start job pull machine success!");
             }

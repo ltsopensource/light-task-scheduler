@@ -11,7 +11,7 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.constant.Level;
-import com.lts.core.domain.PageResponse;
+import com.lts.web.response.PageResponse;
 import com.lts.store.jdbc.JdbcRepository;
 import com.lts.store.jdbc.SqlBuilder;
 import org.apache.commons.dbutils.ResultSetHandler;

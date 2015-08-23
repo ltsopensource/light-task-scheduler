@@ -4,8 +4,8 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CharacterUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.JobQueueRequest;
-import com.lts.core.domain.PageResponse;
+import com.lts.web.request.JobQueueRequest;
+import com.lts.web.response.PageResponse;
 import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -124,29 +124,15 @@ public abstract class AbstractMysqlJobQueue extends JdbcRepository implements Jo
     }
 
     private SqlBuilder addCondition(SqlBuilder sql, JobQueueRequest request) {
-
         sql.addCondition("job_id", request.getJobId());
         sql.addCondition("task_id", request.getTaskId());
         sql.addCondition("task_tracker_node_group", request.getTaskTrackerNodeGroup());
         sql.addCondition("submit_node_group", request.getSubmitNodeGroup());
         sql.addCondition("need_feedback", request.getNeedFeedback());
-        sql.addCondition("gmt_created",
-                request.getStartGmtCreated() == null ? null : request.getStartGmtCreated(),
-                ">="
-        );
-        sql.addCondition("gmt_created",
-                request.getEndGmtCreated() == null ? null : request.getEndGmtCreated(),
-                "<="
-        );
-
-        sql.addCondition("gmt_modified",
-                request.getStartGmtModified() == null ? null : request.getStartGmtModified(),
-                ">="
-        );
-        sql.addCondition("gmt_modified",
-                request.getEndGmtModified() == null ? null : request.getEndGmtModified(),
-                "<="
-        );
+        sql.addCondition("gmt_created", request.getStartGmtCreated() == null ? null : request.getStartGmtCreated(), ">=");
+        sql.addCondition("gmt_created", request.getEndGmtCreated() == null ? null : request.getEndGmtCreated(), "<=");
+        sql.addCondition("gmt_modified", request.getStartGmtModified() == null ? null : request.getStartGmtModified(), ">=");
+        sql.addCondition("gmt_modified", request.getEndGmtModified() == null ? null : request.getEndGmtModified(), "<=");
         return sql;
     }
 

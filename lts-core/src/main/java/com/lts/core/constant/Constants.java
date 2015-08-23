@@ -82,4 +82,6 @@ public interface Constants {
     int DEFAULT_JOB_MAX_RETRY_TIMES = 10;
 
     Charset UTF_8 = Charset.forName("UTF-8");
+
+    String TASK_TRACKER_MONITOR_INFO_ADD_URL = "/api/monitor/tasktracker-mi-add.do";
 }

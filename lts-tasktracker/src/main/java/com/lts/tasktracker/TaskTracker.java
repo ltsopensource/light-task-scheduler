@@ -5,6 +5,7 @@ import com.lts.core.constant.Level;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.domain.TaskTrackerNode;
+import com.lts.tasktracker.monitor.Monitor;
 import com.lts.tasktracker.processor.RemotingDispatcher;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
@@ -22,6 +23,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
         // 设置 线程池
         application.setRunnerPool(new RunnerPool(application));
         application.setJobPullMachine(new JobPullMachine(application));
+        application.setMonitor(new Monitor(application));
     }
 
     @Override

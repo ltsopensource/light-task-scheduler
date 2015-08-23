@@ -164,5 +164,5 @@
     }
 
 </script>
-<body>
+</body>
 </html>

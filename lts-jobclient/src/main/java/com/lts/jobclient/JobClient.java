@@ -181,8 +181,8 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
         Response response = new Response();
         response.setSuccess(true);
-
-        for (int i = 0; i <= jobs.size() / BATCH_SIZE; i++) {
+        int size = jobs.size();
+        for (int i = 0; i <= size / BATCH_SIZE; i++) {
             List<Job> subJobs = BatchUtils.getBatchList(i, BATCH_SIZE, jobs);
 
             if (CollectionUtils.isNotEmpty(subJobs)) {

@@ -1,5 +1,6 @@
 package com.lts.core.cluster;
 
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.core.support.SystemClock;
 
@@ -155,17 +156,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" +
-                "identity='" + identity + '\'' +
-                ", clusterName='" + clusterName + '\'' +
-                ", nodeType=" + nodeType +
-                ", ip='" + ip + '\'' +
-                ", port=" + port +
-                ", group='" + group + '\'' +
-                ", createTime=" + createTime +
-                ", threads=" + threads +
-                ", isAvailable=" + available +
-                ", listenNodeTypes=" + listenNodeTypes +
-                '}';
+        return JSONUtils.toJSONString(this);
     }
 }

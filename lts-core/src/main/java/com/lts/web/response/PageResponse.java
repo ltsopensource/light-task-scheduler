@@ -1,4 +1,4 @@
-package com.lts.core.domain;
+package com.lts.web.response;
 
 import java.util.ArrayList;
 import java.util.List;

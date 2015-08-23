@@ -241,5 +241,5 @@
     }
 
 </script>
-<body>
+</body>
 </html>

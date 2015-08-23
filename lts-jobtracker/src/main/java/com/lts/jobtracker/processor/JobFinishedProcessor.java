@@ -294,10 +294,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                         cronJobPo.setGmtModified(SystemClock.now());
                         application.getExecutableJobQueue().add(cronJobPo);
-                    } catch (DuplicateJobException e) {
-                        if (LOGGER.isWarnEnabled()) {
-                            LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
-                        }
+                    } catch (DuplicateJobException ignore) {
                     }
                 }
             }
@@ -335,10 +332,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                                 cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 cronJobPo.setGmtModified(SystemClock.now());
                                 application.getExecutableJobQueue().add(cronJobPo);
-                            } catch (DuplicateJobException e) {
-                                if (LOGGER.isWarnEnabled()) {
-                                    LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
-                                }
+                            } catch (DuplicateJobException ignore) {
                             }
                             needAdd = false;
                         }
@@ -350,7 +344,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     jobPo.setTaskTrackerIdentity(null);
                     // 延迟重试时间就等于重试次数(分钟)
                     jobPo.setTriggerTime(nextRetryTriggerTime);
-                    application.getExecutableJobQueue().add(jobPo);
+                    try {
+                        application.getExecutableJobQueue().add(jobPo);
+                    } catch (DuplicateJobException ignore) {
+                    }
                 }
                 // 从正在执行的队列中移除
                 application.getExecutingJobQueue().remove(jobPo.getJobId());

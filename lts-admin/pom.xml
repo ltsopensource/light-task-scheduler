@@ -14,7 +14,7 @@
     <properties>
         <jackson.version>1.9.13</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
-        <jackson-2-version>2.2.3</jackson-2-version>
+        <jackson2.version>2.2.3</jackson2.version>
     </properties>
 
     <build>
@@ -123,38 +123,38 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
 
         <!-- databinding; ObjectMapper, JsonNode and related classes are here -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
 
         <!-- smile (binary JSON). Other artifacts in this group do other formats. -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-smile</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
         <!-- JAX-RS provider -->
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
         <!-- Support for JAX-B annotations as additional configuration -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-jaxb-annotations</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>${jackson-2-version}</version>
+            <version>${jackson2.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-dbutils</groupId>

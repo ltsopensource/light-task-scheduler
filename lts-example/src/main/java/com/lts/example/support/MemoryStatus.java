@@ -1,12 +1,12 @@
 package com.lts.example.support;
 
 /**
- * Created by hugui on 8/14/15.
+ * @author Robert HG (254963746@qq.com) on 8/14/15.
  */
 public class MemoryStatus {
 
     public static void print() {
-        Runtime runtime = Runtime.getRuntime();
+            Runtime runtime = Runtime.getRuntime();
         long freeMemory = runtime.freeMemory();
         long totalMemory = runtime.totalMemory();
         long maxMemory = runtime.maxMemory();

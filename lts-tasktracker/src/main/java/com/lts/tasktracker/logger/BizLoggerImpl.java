@@ -18,6 +18,7 @@ import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -97,7 +98,7 @@ public class BizLoggerImpl implements BizLogger {
         bizLog.setMsg(msg);
         bizLog.setLevel(level);
 
-        requestBody.setBizLogs(Arrays.asList(bizLog));
+        requestBody.setBizLogs(Collections.singletonList(bizLog));
 
         if (!remotingClient.isServerEnable()) {
             retryScheduler.inSchedule(StringUtils.generateUUID(), bizLog);

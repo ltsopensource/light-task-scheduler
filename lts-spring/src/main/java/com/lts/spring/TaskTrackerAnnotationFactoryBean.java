@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * TaskTracker Spring Bean 工厂类
  * 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过注解的方式注入
- * Created by Robert HG (254963746@qq.com) on 8/4/15.
+ * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker>, ApplicationContextAware,
         InitializingBean, DisposableBean {

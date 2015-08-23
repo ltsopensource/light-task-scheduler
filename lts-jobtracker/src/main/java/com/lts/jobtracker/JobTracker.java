@@ -46,6 +46,8 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     @Override
     protected void innerStart() {
 
+        super.innerStart();
+
         application.setJobLogger(jobLoggerFactory.getJobLogger(config));
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));

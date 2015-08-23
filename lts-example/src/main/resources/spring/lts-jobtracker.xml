@@ -19,7 +19,6 @@
         </property>
         <property name="configs">
             <props>
-                <prop key="job.fail.store">rocksdb</prop>
                 <prop key="job.logger">mongo</prop>
                 <prop key="job.queue">mongo</prop>
                 <prop key="mongo.addresses">127.0.0.1:27017</prop>

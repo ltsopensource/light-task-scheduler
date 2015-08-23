@@ -184,7 +184,7 @@ public class ExecutingDeadJobChecker {
             // 1. add to executable queue
             try {
                 application.getExecutableJobQueue().add(jobPo);
-            } catch (DuplicateJobException e) {
+            } catch (DuplicateJobException ignore) {
                 // ignore
             }
             // 2. remove from executing queue
