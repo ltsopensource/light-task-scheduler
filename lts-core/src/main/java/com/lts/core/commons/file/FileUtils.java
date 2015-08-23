@@ -39,7 +39,7 @@ public class FileUtils {
     }
 
     public static String read(InputStream is) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
         StringBuilder createTableSql = new StringBuilder();
         String data = null;
         while ((data = br.readLine()) != null) {
