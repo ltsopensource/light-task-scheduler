@@ -38,7 +38,7 @@ public class TestJobRunner implements JobRunner {
 
         } catch (Exception e) {
             LOGGER.info("Run job failed!", e);
-            return new Result(Action.EXECUTE_LATER, e.getMessage());
+            return new Result(Action.EXECUTE_FAILED, e.getMessage());
         }
         return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
     }
