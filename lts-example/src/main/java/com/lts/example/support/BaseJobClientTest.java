@@ -84,7 +84,7 @@ public class BaseJobClientTest {
         // 是否接收执行反馈消息 jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl()); 中接受
         job.setNeedFeedback(true);
         // 这个是 cron expression 和 quartz 一样，可选
-        // job.setCronExpression(cronExpression);
+         job.setCronExpression(cronExpression);
         // 这个是指定执行时间，可选
         // job.setTriggerTime(new Date());
         // 当 cronExpression 和 triggerTime 都不设置的时候，默认是立即执行任务
