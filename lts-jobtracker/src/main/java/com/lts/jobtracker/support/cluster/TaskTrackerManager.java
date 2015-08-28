@@ -126,8 +126,7 @@ public class TaskTrackerManager {
 
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             for (TaskTrackerNode trackerNode : taskTrackerNodes) {
-                if (trackerNode.getIdentity().equals(identity)
-                        && trackerNode.getTimestamp() <= timestamp) {
+                if (trackerNode.getIdentity().equals(identity) && (trackerNode.getTimestamp() == null || trackerNode.getTimestamp() <= timestamp)) {
                     trackerNode.setAvailableThread(availableThreads);
                     trackerNode.setTimestamp(timestamp);
                     if (LOGGER.isDebugEnabled()) {
