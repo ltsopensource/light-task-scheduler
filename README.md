@@ -29,7 +29,7 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 ###工作流程:
 * 1. JobClient 提交一个 任务 给 JobTracker, 这里我提供了两种客户端API, 一种是如果JobTracker 不存在或者提交失败，直接返回提交失败。另一种客户端是重试客户端, 如果提交失败，先存储到本地FailStore(可以使用NFS来达到同个节点组共享leveldb文件的目的,多线程访问,已经做了文件锁处理)，返回给客户端提交成功的信息，待JobTracker可用的时候，再将任务提交。
 * 2. JobTracker收到JobClient提交来的任务,将任务存入任务队列。JobTracker等待TaskTracker的Pull请求，然后将任务Push给TaskTracker去执行。
-* 3. TaskTracker收到JobTracker分发来的任务之后，然后从线程池中拿到一个线程去执行。执行完毕之后，再反馈任务执行结果给JobTracker（成功or 失败[失败有失败错误信息]），如果发现JobTacker不可用，那么存储本地FailStore，等待TaskTracker可用的时候再反馈。反馈结果的同时，询问JobTacker有没有新的任务要执行。
+* 3. TaskTracker收到JobTracker分发来的任务之后，然后从线程池中拿到一个线程去执行。执行完毕之后，再反馈任务执行结果给JobTracker（成功or 失败[失败有失败错误信息]），如果发现JobTacker不可用，那么存储本地FailStore，等待JobTracker可用的时候再反馈。反馈结果的同时，询问JobTacker有没有新的任务要执行。
 * 4. JobTacker收到TaskTracker节点的任务结果信息。根据任务信息决定要不要反馈给客户端。不需要反馈的直接删除,需要反馈的,直接反馈,反馈失败进入FeedbackQueue, 等待重新反馈。
 * 5. JobClient收到任务执行结果，进行自己想要的逻辑处理。
 * 详细请查看 [流程图](https://raw.githubusercontent.com/qq254963746/light-task-scheduler/master/docs/LTS_progress.png)
@@ -119,6 +119,8 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 ```
 
 ##更新
+1.5.4.1 
+* 增加TaskTracker的监控数据，LTS-admin可以查看
 1.5.4:
 * 1. 增加 lts-spring 工程对spring的支持 (见lts-example 中spring文件夹下的例子)
 * 2. 对于TaskTracker 同时支持 JobRunner 中 注解注入bean 和xml注入的方式
