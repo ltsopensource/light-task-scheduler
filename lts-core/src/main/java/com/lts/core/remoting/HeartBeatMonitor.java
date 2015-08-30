@@ -39,12 +39,13 @@ public class HeartBeatMonitor {
 
     private RemotingClientDelegate remotingClient;
     private Application application;
-    private EventSubscriber eventSubscriber;
+    private EventSubscriber jobTrackerUnavailableEventSubscriber;
 
     public HeartBeatMonitor(RemotingClientDelegate remotingClient, Application application) {
         this.remotingClient = remotingClient;
         this.application = application;
-        this.eventSubscriber = new EventSubscriber("PING_" + application.getConfig().getIdentity(),
+        this.jobTrackerUnavailableEventSubscriber = new EventSubscriber(HeartBeatMonitor.class.getName()
+                + "_PING_" + application.getConfig().getIdentity(),
                 new Observer() {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
@@ -52,6 +53,20 @@ public class HeartBeatMonitor {
                         stopPing();
                     }
                 });
+        application.getEventCenter().subscribe(new EventSubscriber(HeartBeatMonitor.class.getName()
+                + "_NODE_ADD_" + application.getConfig().getIdentity(), new Observer() {
+            @Override
+            public void onObserved(EventInfo eventInfo) {
+                Node node = (Node) eventInfo.getParam("node");
+                if (node == null || NodeType.JOB_TRACKER != node.getNodeType()) {
+                    return;
+                }
+                try {
+                    check(node);
+                } catch (Throwable ignore) {
+                }
+            }
+        }), EcTopic.NODE_ADD);
     }
 
     private AtomicBoolean pingStart = new AtomicBoolean(false);
@@ -70,7 +85,7 @@ public class HeartBeatMonitor {
         try {
             if (pingStart.compareAndSet(false, true)) {
                 // 用来监听 JobTracker不可用的消息，然后马上启动 快速检查定时器
-                application.getEventCenter().subscribe(eventSubscriber, EcTopic.NO_JOB_TRACKER_AVAILABLE);
+                application.getEventCenter().subscribe(jobTrackerUnavailableEventSubscriber, EcTopic.NO_JOB_TRACKER_AVAILABLE);
                 if (pingScheduledFuture == null) {
                     pingScheduledFuture = PING_EXECUTOR_SERVICE.scheduleWithFixedDelay(
                             new Runnable() {
@@ -94,7 +109,7 @@ public class HeartBeatMonitor {
             if (pingStart.compareAndSet(true, false)) {
 //                pingScheduledFuture.cancel(true);
 //                PING_EXECUTOR_SERVICE.shutdown();
-                application.getEventCenter().unSubscribe(EcTopic.NO_JOB_TRACKER_AVAILABLE, eventSubscriber);
+                application.getEventCenter().unSubscribe(EcTopic.NO_JOB_TRACKER_AVAILABLE, jobTrackerUnavailableEventSubscriber);
                 LOGGER.info("Stop slow ping success.");
             }
         } catch (Throwable t) {
@@ -159,20 +174,24 @@ public class HeartBeatMonitor {
             return;
         }
         for (Node jobTracker : jobTrackers) {
-            // 每个JobTracker 都要发送心跳
-            if (beat(remotingClient, jobTracker.getAddress())) {
-                remotingClient.addJobTracker(jobTracker);
-                if (!remotingClient.isServerEnable()) {
-                    remotingClient.setServerEnable(true);
-                    application.getEventCenter().publishAsync(new EventInfo(EcTopic.JOB_TRACKER_AVAILABLE));
-                } else {
-                    remotingClient.setServerEnable(true);
-                }
-                stopFastPing();
-                startPing();
+            check(jobTracker);
+        }
+    }
+
+    private void check(Node jobTracker) {
+        // 每个JobTracker 都要发送心跳
+        if (beat(remotingClient, jobTracker.getAddress())) {
+            remotingClient.addJobTracker(jobTracker);
+            if (!remotingClient.isServerEnable()) {
+                remotingClient.setServerEnable(true);
+                application.getEventCenter().publishAsync(new EventInfo(EcTopic.JOB_TRACKER_AVAILABLE));
             } else {
-                remotingClient.removeJobTracker(jobTracker);
+                remotingClient.setServerEnable(true);
             }
+            stopFastPing();
+            startPing();
+        } else {
+            remotingClient.removeJobTracker(jobTracker);
         }
     }
 
