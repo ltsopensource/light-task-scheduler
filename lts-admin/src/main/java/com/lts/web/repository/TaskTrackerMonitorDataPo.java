@@ -3,7 +3,7 @@ package com.lts.web.repository;
 /**
  * @author Robert HG (254963746@qq.com) on 8/22/15.
  */
-public class TaskTrackerMonitorDataPo extends MonitorDataPo{
+public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
 
     /**
      * TaskTracker NodeGroup

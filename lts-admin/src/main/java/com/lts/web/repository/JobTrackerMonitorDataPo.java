@@ -3,7 +3,7 @@ package com.lts.web.repository;
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
-public class JobTrackerMonitorDataPo extends MonitorDataPo{
+public class JobTrackerMonitorDataPo extends AbstractMonitorDataPo {
 
     /**
      * 接受的任务数

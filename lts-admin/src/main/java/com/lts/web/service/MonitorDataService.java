@@ -52,7 +52,7 @@ public class MonitorDataService {
         taskTrackerMonitorDataRepository.insert(pos);
     }
 
-    public List<? extends MonitorDataPo> queryMonitorDataSum(MonitorDataRequest request){
+    public List<? extends AbstractMonitorDataPo> queryMonitorDataSum(MonitorDataRequest request){
         switch (request.getNodeType()){
             case JOB_CLIENT:
                 return null;
