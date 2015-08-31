@@ -18,6 +18,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.TaskTrackerNode;
+import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -51,9 +52,11 @@ public class ExecutingDeadJobChecker {
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
     private JobTrackerApplication application;
+    private JobTrackerMonitor monitor;
 
     public ExecutingDeadJobChecker(JobTrackerApplication application) {
         this.application = application;
+        this.monitor = (JobTrackerMonitor) application.getMonitor();
     }
 
     private AtomicBoolean start = new AtomicBoolean(false);
@@ -194,6 +197,9 @@ public class ExecutingDeadJobChecker {
             jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
             application.getJobLogger().log(jobLogPo);
+
+            monitor.incFixExecutingJobNum();
+
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }

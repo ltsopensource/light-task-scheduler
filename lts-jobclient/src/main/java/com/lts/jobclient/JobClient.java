@@ -31,6 +31,7 @@ import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -52,19 +53,14 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     private JobFinishedHandler jobFinishedHandler;
 
     @Override
-    protected void innerStart() {
-        super.innerStart();
+    protected void preRemotingStart() {
         int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
                 Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
     }
 
-    /**
-     * @param job
-     * @return
-     */
     public Response submitJob(Job job) throws JobSubmitException {
-        return protectSubmit(Arrays.asList(job));
+        return protectSubmit(Collections.singletonList(job));
     }
 
     private Response protectSubmit(List<Job> jobs) throws JobSubmitException {
@@ -173,10 +169,6 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         submitCallback.call(remotingClient.invokeSync(requestCommand));
     }
 
-    /**
-     * @param jobs
-     * @return
-     */
     public Response submitJob(List<Job> jobs) throws JobSubmitException {
 
         Response response = new Response();
@@ -205,8 +197,6 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     /**
      * 设置任务完成接收器
-     *
-     * @param jobFinishedHandler
      */
     public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
         this.jobFinishedHandler = jobFinishedHandler;

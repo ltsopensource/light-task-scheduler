@@ -4,7 +4,8 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.web.cluster.AdminApplication;
-import com.lts.web.repository.TaskTrackerMIRepository;
+import com.lts.web.repository.JobTrackerMonitorDataRepository;
+import com.lts.web.repository.TaskTrackerMonitorDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,9 +22,11 @@ import java.util.Map;
 public class MonitorUIController {
 
     @Autowired
-    AdminApplication application;
+    private AdminApplication application;
     @Autowired
-    TaskTrackerMIRepository repository;
+    private TaskTrackerMonitorDataRepository taskTrackerMonitorDataRepository;
+    @Autowired
+    private JobTrackerMonitorDataRepository jobTrackerMonitorDataRepository;
 
     @RequestMapping("monitor/tasktracker-monitor")
     public String taskTrackerMonitor(Model model) {
@@ -34,10 +37,25 @@ public class MonitorUIController {
         model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
         model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
 
-        Map<String, List<String>> taskTrackerMap = repository.getTaskTrackerMap();
+        Map<String, List<String>> taskTrackerMap = taskTrackerMonitorDataRepository.getTaskTrackerMap();
         model.addAttribute("taskTrackerMap", taskTrackerMap);
 
         return "tasktracker-monitor";
+    }
+
+    @RequestMapping("monitor/jobtracker-monitor")
+    public String jobTrackerMonitor(Model model) {
+
+        List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_TRACKER);
+        model.addAttribute("jobTrackerNodeGroups", taskTrackerNodeGroups);
+
+        model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
+        model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
+
+        List<String> taskTrackers = jobTrackerMonitorDataRepository.getJobTrackers();
+        model.addAttribute("jobTrackers", taskTrackers);
+
+        return "jobtracker-monitor";
     }
 
 }

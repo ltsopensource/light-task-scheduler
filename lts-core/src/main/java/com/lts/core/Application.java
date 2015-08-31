@@ -3,6 +3,7 @@ package com.lts.core;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
+import com.lts.core.monitor.Monitor;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.ec.EventCenter;
 
@@ -22,6 +23,16 @@ public abstract class Application {
     private CommandBodyWrapper commandBodyWrapper;
     // 事件中心
     private EventCenter eventCenter;
+    // 监控中心
+    private Monitor monitor;
+
+    public Monitor getMonitor() {
+        return monitor;
+    }
+
+    public void setMonitor(Monitor monitor) {
+        this.monitor = monitor;
+    }
 
     public EventCenter getEventCenter() {
         return eventCenter;

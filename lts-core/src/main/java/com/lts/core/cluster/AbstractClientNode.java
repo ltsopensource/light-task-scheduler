@@ -35,11 +35,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
                     Executors.newFixedThreadPool(processorSize,
                             new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
         }
-        injectRemotingClient();
-    }
-
-    protected void injectRemotingClient() {
-
     }
 
     /**

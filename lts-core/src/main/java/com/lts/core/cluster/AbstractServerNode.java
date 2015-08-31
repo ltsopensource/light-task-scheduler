@@ -34,11 +34,6 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
             remotingServer.registerDefaultProcessor(defaultProcessor,
                     Executors.newFixedThreadPool(processorSize, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
         }
-        injectRemotingServer();
-    }
-
-    protected void injectRemotingServer(){
-
     }
 
     public void setListenPort(int listenPort) {

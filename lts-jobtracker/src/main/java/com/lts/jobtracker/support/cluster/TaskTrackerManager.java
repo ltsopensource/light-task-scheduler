@@ -30,8 +30,6 @@ public class TaskTrackerManager {
 
     /**
      * get all connected node group
-     *
-     * @return
      */
     public Set<String> getNodeGroups() {
         return NODE_MAP.keySet();
@@ -39,8 +37,6 @@ public class TaskTrackerManager {
 
     /**
      * 添加节点
-     *
-     * @param node
      */
     public void addNode(Node node) {
         //  channel 可能为 null

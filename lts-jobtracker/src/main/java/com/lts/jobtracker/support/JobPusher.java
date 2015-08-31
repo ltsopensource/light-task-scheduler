@@ -17,6 +17,7 @@ import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.TaskTrackerNode;
+import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 import com.lts.remoting.InvokeCallback;
@@ -37,11 +38,13 @@ public class JobPusher {
     private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
     private JobTrackerApplication application;
     private final ExecutorService executorService;
+    private JobTrackerMonitor monitor;
 
     public JobPusher(JobTrackerApplication application) {
         this.application = application;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
                 new NamedThreadFactory(JobPusher.class.getSimpleName()));
+        this.monitor = (JobTrackerMonitor) application.getMonitor();
     }
 
     public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
@@ -73,11 +76,14 @@ public class JobPusher {
                         }
                     }
                     while (availableThreads > 0) {
-                        LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:{}", nodeGroup, identity, availableThreads);
+                        if(LOGGER.isDebugEnabled()){
+                            LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:{}", nodeGroup, identity, availableThreads);
+                        }
                         // 推送任务
                         PushResult result = sendJob(remotingServer, taskTrackerNode);
                         if (result == PushResult.SUCCESS) {
                             availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
+                            monitor.incPushJobNum();
                         } else {
                             break;
                         }
@@ -97,10 +103,6 @@ public class JobPusher {
 
     /**
      * 是否推送成功
-     *
-     * @param remotingServer
-     * @param taskTrackerNode
-     * @return
      */
     private PushResult sendJob(RemotingServerDelegate remotingServer, TaskTrackerNode taskTrackerNode) {
 
