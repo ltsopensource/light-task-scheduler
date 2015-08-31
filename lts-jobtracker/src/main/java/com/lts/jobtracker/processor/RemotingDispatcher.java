@@ -54,9 +54,6 @@ public class RemotingDispatcher extends AbstractProcessor {
     /**
      * 1. 将 channel 纳入管理中(不存在就加入)
      * 2. 更新 TaskTracker 节点信息(可用线程数)
-     *
-     * @param ctx
-     * @param request
      */
     private void commonHandler(ChannelHandlerContext ctx, RemotingCommand request) {
         AbstractCommandBody commandBody = request.getBody();

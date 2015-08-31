@@ -5,7 +5,7 @@ import com.lts.core.constant.Level;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.domain.TaskTrackerNode;
-import com.lts.tasktracker.monitor.Monitor;
+import com.lts.tasktracker.monitor.TaskTrackerMonitor;
 import com.lts.tasktracker.processor.RemotingDispatcher;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
@@ -18,17 +18,26 @@ import com.lts.tasktracker.support.JobPullMachine;
  */
 public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerApplication> {
 
-    @Override
-    protected void innerStart() {
-        // 设置 线程池
-        application.setRunnerPool(new RunnerPool(application));
-        application.setJobPullMachine(new JobPullMachine(application));
-        application.setMonitor(new Monitor(application));
+    public TaskTracker() {
+        application.setMonitor(new TaskTrackerMonitor(application));
     }
 
     @Override
-    protected void injectRemotingClient() {
+    protected void preRemotingStart() {
+        // 设置 线程池
+        application.setRunnerPool(new RunnerPool(application));
+        application.setJobPullMachine(new JobPullMachine(application));
+    }
+
+    @Override
+    protected void afterRemotingStart() {
         application.setRemotingClient(remotingClient);
+        application.getMonitor().start();
+    }
+
+    @Override
+    protected void afterRemotingStop() {
+        application.getMonitor().stop();
     }
 
     @Override

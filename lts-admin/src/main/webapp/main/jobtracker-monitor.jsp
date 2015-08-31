@@ -11,27 +11,13 @@
         <form id="searchForm" class="form-horizontal span24">
             <div class="row">
                 <div class="control-group span8">
-                    <label class="control-label">执行节点组：</label>
-
-                    <div class="controls">
-                        <select name="nodeGroup">
-                            <option value="">不限</option>
-                            <c:forEach items="${taskTrackerMap}" var="map">
-                                <option value="${map.key}">${map.key}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
-                <div class="control-group span8">
-                    <label class="control-label">执行节点标识：</label>
+                    <label class="control-label">JobTracker标识：</label>
 
                     <div class="controls">
                         <select name="identity">
                             <option value="">不限</option>
-                            <c:forEach items="${taskTrackerMap}" var="map">
-                                <c:forEach items="${map.value}" var="identity">
-                                    <option value="${identity}">${identity}(${map.key})</option>
-                                </c:forEach>
+                            <c:forEach items="${jobTrackers}" var="jobTracker">
+                                    <option value="${jobTracker}">${jobTracker}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -53,10 +39,14 @@
         </form>
     </div>
     <div class="search-grid-container" id="chatContainer">
-        <div id="successNumContainer" data-title="执行成功任务数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="receiveJobNumContainer" data-title="接受的任务数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="pushJobNumContainer" data-title="分发出去的任务数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="exeSuccessNumContainer" data-title="执行成功个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="exeFailedNumContainer" data-title="执行失败个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="exeLaterNumContainer" data-title="延迟执行个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="exeExceptionNumContainer" data-title="执行异常个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="fixExecutingJobNumContainer" data-title="修复死任务数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="totalFreeMemoryContainer" data-title="空闲内存" data-yTitle="内存" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="failedNumContainer" data-title="执行失败任务数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="failStoreSizeContainer" data-title="FailStore占用空间大小" data-yTitle="空间" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     </div>
 </div>
 <script type="text/javascript" src="../assets/js/highcharts-4.1.8.js"></script>
@@ -86,7 +76,7 @@
                 param.pageIndex = 0;
                 param.field = "timestamp";
                 param.direction = "ASC";
-                param.nodeType = "TASK_TRACKER";
+                param.nodeType = "JOB_TRACKER";
                 console.log(param);
                 $.ajax({
                     url: '/api/monitor/monitor-data-get.do',
@@ -127,7 +117,6 @@
                 yTitle: _this.attr("data-yTitle")
             };
         });
-        console.log(config);
 
         $.each(config, function(key, v){
             var rows = json.rows;

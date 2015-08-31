@@ -3,13 +3,8 @@ package com.lts.web.repository;
 /**
  * @author Robert HG (254963746@qq.com) on 8/22/15.
  */
-public class TaskTrackerMIPo {
+public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
 
-    private String id;
-    /**
-     * 创建时间
-     */
-    private Long gmtCreated;
     /**
      * TaskTracker NodeGroup
      */
@@ -32,32 +27,6 @@ public class TaskTrackerMIPo {
     private Long totalRunningTime;
     // FailStore 占用空间
     private Long failStoreSize;
-
-    private Long timestamp;
-    // 最大内存
-    private Long maxMemory;
-    // 已分配内存
-    private Long allocatedMemory;
-    // 已分配内存中的剩余内存
-    private Long freeMemory;
-    // 总的空闲内存
-    private Long totalFreeMemory;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Long getGmtCreated() {
-        return gmtCreated;
-    }
-
-    public void setGmtCreated(Long gmtCreated) {
-        this.gmtCreated = gmtCreated;
-    }
 
     public String getTaskTrackerNodeGroup() {
         return taskTrackerNodeGroup;
@@ -107,43 +76,4 @@ public class TaskTrackerMIPo {
         this.failStoreSize = failStoreSize;
     }
 
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Long getMaxMemory() {
-        return maxMemory;
-    }
-
-    public void setMaxMemory(Long maxMemory) {
-        this.maxMemory = maxMemory;
-    }
-
-    public Long getAllocatedMemory() {
-        return allocatedMemory;
-    }
-
-    public void setAllocatedMemory(Long allocatedMemory) {
-        this.allocatedMemory = allocatedMemory;
-    }
-
-    public Long getFreeMemory() {
-        return freeMemory;
-    }
-
-    public void setFreeMemory(Long freeMemory) {
-        this.freeMemory = freeMemory;
-    }
-
-    public Long getTotalFreeMemory() {
-        return totalFreeMemory;
-    }
-
-    public void setTotalFreeMemory(Long totalFreeMemory) {
-        this.totalFreeMemory = totalFreeMemory;
-    }
 }

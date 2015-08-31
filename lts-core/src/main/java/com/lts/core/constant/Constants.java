@@ -83,5 +83,5 @@ public interface Constants {
 
     Charset UTF_8 = Charset.forName("UTF-8");
 
-    String TASK_TRACKER_MONITOR_INFO_ADD_URL = "/api/monitor/tasktracker-mi-add.do";
+    String MONITOR_DATA_ADD_URL = "/api/monitor/monitor-data-add.do";
 }

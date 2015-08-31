@@ -51,9 +51,11 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 // 初始化配置
                 initConfig();
 
-                innerStart();
+                preRemotingStart();
 
                 remotingStart();
+
+                afterRemotingStart();
 
                 initRegistry();
 
@@ -69,10 +71,14 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     final public void stop() {
         try {
             if (started.compareAndSet(true, false)) {
+
                 registry.unregister(node);
 
-                innerStop();
+                preRemotingStop();
+
                 remotingStop();
+
+                afterRemotingStop();
 
                 LOGGER.info("Stop success!");
             }
@@ -154,10 +160,16 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     protected abstract void remotingStop();
 
-    protected void innerStart() {
+    protected void preRemotingStart() {
     }
 
-    protected void innerStop() {
+    protected void afterRemotingStart() {
+    }
+
+    protected void preRemotingStop() {
+    }
+
+    protected void afterRemotingStop() {
     }
 
     @SuppressWarnings("unchecked")
@@ -182,8 +194,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 设置zookeeper注册中心地址
-     *
-     * @param registryAddress
      */
     public void setRegistryAddress(String registryAddress) {
         config.setRegistryAddress(registryAddress);
@@ -191,8 +201,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 设置远程调用超时时间
-     *
-     * @param invokeTimeoutMillis
      */
     public void setInvokeTimeoutMillis(int invokeTimeoutMillis) {
         config.setInvokeTimeoutMillis(invokeTimeoutMillis);
@@ -200,8 +208,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 设置集群名字
-     *
-     * @param clusterName
      */
     public void setClusterName(String clusterName) {
         config.setClusterName(clusterName);
@@ -209,8 +215,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 添加节点监听器
-     *
-     * @param notifyListener
      */
     public void addNodeChangeListener(NodeChangeListener notifyListener) {
         if (notifyListener != null) {
@@ -220,8 +224,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 添加 master 节点变化监听器
-     *
-     * @param masterChangeListener
      */
     public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
         if (masterChangeListener != null) {
@@ -231,9 +233,6 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     /**
      * 设置额外的配置参数
-     *
-     * @param key
-     * @param value
      */
     public void addConfig(String key, String value) {
         config.setParameter(key, value);

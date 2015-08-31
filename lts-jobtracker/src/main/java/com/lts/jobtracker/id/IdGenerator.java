@@ -13,8 +13,6 @@ public interface IdGenerator {
 
     /**
      * 生成ID
-     * @param jobPo
-     * @return
      */
     @Adaptive("id.generator")
     public String generate(Config config, JobPo jobPo);

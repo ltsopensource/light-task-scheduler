@@ -21,7 +21,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
     private RetryScheduler retryScheduler;
 
     @Override
-    protected void innerStart() {
+    protected void preRemotingStart() {
 
         retryScheduler = new RetryScheduler<Job>(application, 30) {
             @Override
@@ -41,13 +41,13 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
             }
         };
         retryScheduler.setName(RetryJobClient.class.getSimpleName());
-        super.innerStart();
+        super.preRemotingStart();
         retryScheduler.start();
     }
 
     @Override
-    protected void innerStop() {
-        super.innerStop();
+    protected void preRemotingStop() {
+        super.preRemotingStop();
         retryScheduler.stop();
     }
 

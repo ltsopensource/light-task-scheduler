@@ -1,23 +1,18 @@
 package com.lts.web.controller.api;
 
-import com.alibaba.fastjson.TypeReference;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
-import com.lts.core.commons.utils.Md5Encrypt;
-import com.lts.core.domain.TaskTrackerMI;
-import com.lts.core.support.SystemClock;
 import com.lts.web.controller.AbstractController;
-import com.lts.web.repository.TaskTrackerMIPo;
-import com.lts.web.repository.TaskTrackerMIRepository;
-import com.lts.web.request.TaskTrackerMIAddRequest;
-import com.lts.web.request.TaskTrackerMIRequest;
+import com.lts.web.repository.AbstractMonitorDataPo;
+import com.lts.web.request.MonitorDataAddRequest;
+import com.lts.web.request.MonitorDataRequest;
+import com.lts.web.service.MonitorDataService;
 import com.lts.web.vo.RestfulResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,44 +22,25 @@ import java.util.List;
 public class MonitorApiController extends AbstractController {
 
     @Autowired
-    TaskTrackerMIRepository monitorRepository;
+    private MonitorDataService monitorDataService;
 
-    @RequestMapping("/monitor/tasktracker-mi-add")
-    public RestfulResponse taskTrackerMonitorInfoAdd(TaskTrackerMIAddRequest request) {
+    @RequestMapping("/monitor/monitor-data-add")
+    public RestfulResponse taskTrackerMonitorInfoAdd(MonitorDataAddRequest request) {
         RestfulResponse response = new RestfulResponse();
 
         try {
+            Assert.notNull(request.getNodeType(), "nodeType can not be null");
             Assert.hasText(request.getIdentity(), "identity can not be null");
             Assert.hasText(request.getNodeGroup(), "nodeGroup can not be null");
-            Assert.hasText(request.getMis(), "mis can not be null");
+            Assert.hasText(request.getMonitorData(), "monitorData can not be null");
 
-            List<TaskTrackerMI> mis = JSONUtils.parse(request.getMis(), new TypeReference<List<TaskTrackerMI>>() {
-            });
-            if (CollectionUtils.isEmpty(mis)) {
-                response.setSuccess(false);
-                response.setMsg("mis can not be null");
-                return response;
+            if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
+                monitorDataService.addTaskTrackerMonitorData(request);
+            } else if (NodeType.JOB_TRACKER.equals(request.getNodeType())) {
+                monitorDataService.addJobTrackerMonitorData(request);
+            }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
+                monitorDataService.addJobClientMonitorData(request);
             }
-
-            List<TaskTrackerMIPo> pos = new ArrayList<TaskTrackerMIPo>(mis.size());
-            for (TaskTrackerMI mi : mis) {
-                TaskTrackerMIPo po = new TaskTrackerMIPo();
-                po.setTaskTrackerIdentity(request.getIdentity());
-                po.setTaskTrackerNodeGroup(request.getNodeGroup());
-                po.setTimestamp(mi.getTimestamp());
-                po.setId(Md5Encrypt.md5(po.getTaskTrackerIdentity() + mi.getTimestamp()));
-                po.setTotalRunningTime(mi.getTotalRunningTime());
-                po.setSuccessNum(mi.getSuccessNum());
-                po.setFailedNum(mi.getFailedNum());
-                po.setFailStoreSize(mi.getFailStoreSize());
-                po.setGmtCreated(SystemClock.now());
-                po.setMaxMemory(mi.getMaxMemory());
-                po.setFreeMemory(mi.getFreeMemory());
-                po.setAllocatedMemory(mi.getAllocatedMemory());
-                po.setTotalFreeMemory(mi.getTotalFreeMemory());
-                pos.add(po);
-            }
-            monitorRepository.insert(pos);
             response.setSuccess(true);
             return response;
 
@@ -75,19 +51,23 @@ public class MonitorApiController extends AbstractController {
         }
     }
 
-    @RequestMapping("/monitor/tasktracker-mi-get")
-    public RestfulResponse taskTrackerMonitorInfoGet(TaskTrackerMIRequest request) {
+    @RequestMapping("/monitor/monitor-data-get")
+    public RestfulResponse taskTrackerMonitorInfoGet(MonitorDataRequest request) {
         RestfulResponse response = new RestfulResponse();
+        if(request.getNodeType() == null){
+            response.setSuccess(false);
+            response.setMsg("nodeTyope can not be null.");
+            return response;
+        }
         if (request.getStartTime() == null || request.getEndTime() == null) {
             response.setSuccess(false);
             response.setMsg("Search time range must be input.");
             return response;
         }
-
-        List<TaskTrackerMIPo> taskTrackerMIPos = monitorRepository.querySum(request);
+        List<? extends AbstractMonitorDataPo> rows = monitorDataService.queryMonitorDataSum(request);
         response.setSuccess(true);
-        response.setRows(taskTrackerMIPos);
-        response.setResults(CollectionUtils.sizeOf(taskTrackerMIPos));
+        response.setRows(rows);
+        response.setResults(CollectionUtils.sizeOf(rows));
         return response;
     }
 

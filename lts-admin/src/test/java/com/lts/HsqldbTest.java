@@ -1,12 +1,10 @@
 package com.lts;
 
 import com.lts.core.cluster.Config;
-import com.lts.core.cluster.Node;
-import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.store.jdbc.DataSourceProviderFactory;
 import com.lts.store.jdbc.SqlTemplate;
-import com.lts.web.repository.TaskTrackerMIPo;
+import com.lts.web.repository.TaskTrackerMonitorDataPo;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +86,7 @@ public class HsqldbTest {
                 "freeMemory," +
                 "totalFreeMemory" +
                 ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        TaskTrackerMIPo po = new TaskTrackerMIPo();
+        TaskTrackerMonitorDataPo po = new TaskTrackerMonitorDataPo();
         po.setId("231321");
         po.setFreeMemory(321312L);
 
@@ -98,19 +96,19 @@ public class HsqldbTest {
     public void select() throws SQLException {
         String selectSQL = "select distinct taskTrackerIdentity,taskTrackerNodeGroup  from taskTrackerMonitor";
 
-        List<TaskTrackerMIPo> nodes = sqlTemplate.query(selectSQL, NODE_LIST_RESULT_SET_HANDLER, null);
-        for (TaskTrackerMIPo node : nodes) {
+        List<TaskTrackerMonitorDataPo> nodes = sqlTemplate.query(selectSQL, NODE_LIST_RESULT_SET_HANDLER, null);
+        for (TaskTrackerMonitorDataPo node : nodes) {
             System.out.println(JSONUtils.toJSONString(node));
         }
     }
 
-    private ResultSetHandler<List<TaskTrackerMIPo>> NODE_LIST_RESULT_SET_HANDLER = new ResultSetHandler<List<TaskTrackerMIPo>>() {
+    private ResultSetHandler<List<TaskTrackerMonitorDataPo>> NODE_LIST_RESULT_SET_HANDLER = new ResultSetHandler<List<TaskTrackerMonitorDataPo>>() {
         @Override
-        public List<TaskTrackerMIPo> handle(ResultSet rs) throws SQLException {
-            List<TaskTrackerMIPo> pos = new ArrayList<TaskTrackerMIPo>();
+        public List<TaskTrackerMonitorDataPo> handle(ResultSet rs) throws SQLException {
+            List<TaskTrackerMonitorDataPo> pos = new ArrayList<TaskTrackerMonitorDataPo>();
 
             while (rs.next()) {
-                TaskTrackerMIPo po = new TaskTrackerMIPo();
+                TaskTrackerMonitorDataPo po = new TaskTrackerMonitorDataPo();
 //                po.setId(rs.getString("id"));
 //                po.setGmtCreated(rs.getLong("gmtCreated"));
                 po.setTaskTrackerNodeGroup(rs.getString("taskTrackerNodeGroup"));

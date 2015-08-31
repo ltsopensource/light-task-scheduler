@@ -79,6 +79,9 @@ public class JobTrackerTest {
         jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "zkclient");
+
+        jobTracker.addConfig("lts.monitor.url", "http://localhost:8080/");
+
         // 启动节点
         jobTracker.start();
 

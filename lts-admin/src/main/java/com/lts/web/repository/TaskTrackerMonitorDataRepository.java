@@ -3,10 +3,8 @@ package com.lts.web.repository;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.exception.DaoException;
-import com.lts.core.logger.Logger;
-import com.lts.core.logger.LoggerFactory;
 import com.lts.store.jdbc.SqlBuilder;
-import com.lts.web.request.TaskTrackerMIRequest;
+import com.lts.web.request.MonitorDataRequest;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.springframework.stereotype.Repository;
 
@@ -21,11 +19,9 @@ import java.util.Map;
  * @author Robert HG (254963746@qq.com) on 8/22/15.
  */
 @Repository
-public class TaskTrackerMIRepository extends HsqlRepository {
+public class TaskTrackerMonitorDataRepository extends HsqlRepository {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TaskTrackerMIRepository.class);
-
-    public TaskTrackerMIRepository() {
+    public TaskTrackerMonitorDataRepository() {
         createTable();
     }
 
@@ -87,11 +83,11 @@ public class TaskTrackerMIRepository extends HsqlRepository {
             "totalFreeMemory" +
             ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    public void insert(List<TaskTrackerMIPo> pos) {
+    public void insert(List<TaskTrackerMonitorDataPo> pos) {
         if (CollectionUtils.isEmpty(pos)) {
             return;
         }
-        for (TaskTrackerMIPo po : pos) {
+        for (TaskTrackerMonitorDataPo po : pos) {
             try {
                 getSqlTemplate().update(insertSQL,
                         po.getId(),
@@ -118,7 +114,7 @@ public class TaskTrackerMIRepository extends HsqlRepository {
         }
     }
 
-    public List<TaskTrackerMIPo> querySum(TaskTrackerMIRequest request) {
+    public List<TaskTrackerMonitorDataPo> querySum(MonitorDataRequest request) {
 
         String sql = "SELECT " +
                 "timestamp," +
@@ -134,13 +130,13 @@ public class TaskTrackerMIRepository extends HsqlRepository {
                 " WHERE ";
         StringBuilder whereSQL = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
-        if (StringUtils.isNotEmpty(request.getTaskTrackerIdentity())) {
+        if (StringUtils.isNotEmpty(request.getIdentity())) {
             whereSQL.append("AND taskTrackerIdentity=?");
-            params.add(request.getTaskTrackerIdentity());
+            params.add(request.getIdentity());
         }
-        if (StringUtils.isNotEmpty(request.getTaskTrackerNodeGroup())) {
+        if (StringUtils.isNotEmpty(request.getNodeGroup())) {
             whereSQL.append("AND taskTrackerNodeGroup=?");
-            params.add(request.getTaskTrackerNodeGroup());
+            params.add(request.getNodeGroup());
         }
         whereSQL.append("AND timestamp >= ? AND timestamp <= ?");
         params.add(request.getStartTime());
@@ -156,12 +152,12 @@ public class TaskTrackerMIRepository extends HsqlRepository {
         }
     }
 
-    public List<TaskTrackerMIPo> search(TaskTrackerMIRequest request) {
+    public List<TaskTrackerMonitorDataPo> search(MonitorDataRequest request) {
         try {
             SqlBuilder sql = new SqlBuilder("SELECT * FROM taskTrackerMonitor");
             sql.addCondition("id", request.getId())
-                    .addCondition("taskTrackerIdentity", request.getTaskTrackerIdentity())
-                    .addCondition("taskTrackerNodeGroup", request.getTaskTrackerNodeGroup())
+                    .addCondition("taskTrackerIdentity", request.getIdentity())
+                    .addCondition("taskTrackerNodeGroup", request.getNodeGroup())
                     .addCondition("timestamp", request.getStartTime(), ">=")
                     .addCondition("timestamp", request.getEndTime(), "<=")
                     .addOrderBy(request.getField(), request.getDirection())
@@ -173,11 +169,11 @@ public class TaskTrackerMIRepository extends HsqlRepository {
         }
     }
 
-    public void delete(TaskTrackerMIRequest request) {
+    public void delete(MonitorDataRequest request) {
         SqlBuilder sql = new SqlBuilder("DELETE FROM taskTrackerMonitor ");
                 sql.addCondition("id", request.getId())
-                .addCondition("taskTrackerIdentity", request.getTaskTrackerIdentity())
-                .addCondition("taskTrackerNodeGroup", request.getTaskTrackerNodeGroup())
+                .addCondition("taskTrackerIdentity", request.getIdentity())
+                .addCondition("taskTrackerNodeGroup", request.getNodeGroup())
                 .addCondition("timestamp", request.getStartTime(), ">=")
                 .addCondition("timestamp", request.getEndTime(), "<=");
         try {
@@ -196,13 +192,13 @@ public class TaskTrackerMIRepository extends HsqlRepository {
         }
     }
 
-    private ResultSetHandler<List<TaskTrackerMIPo>> RESULT_SET_HANDLER = new ResultSetHandler<List<TaskTrackerMIPo>>() {
+    private ResultSetHandler<List<TaskTrackerMonitorDataPo>> RESULT_SET_HANDLER = new ResultSetHandler<List<TaskTrackerMonitorDataPo>>() {
         @Override
-        public List<TaskTrackerMIPo> handle(ResultSet rs) throws SQLException {
-            List<TaskTrackerMIPo> pos = new ArrayList<TaskTrackerMIPo>();
+        public List<TaskTrackerMonitorDataPo> handle(ResultSet rs) throws SQLException {
+            List<TaskTrackerMonitorDataPo> pos = new ArrayList<TaskTrackerMonitorDataPo>();
 
             while (rs.next()) {
-                TaskTrackerMIPo po = new TaskTrackerMIPo();
+                TaskTrackerMonitorDataPo po = new TaskTrackerMonitorDataPo();
 //                po.setId(rs.getString("id"));
 //                po.setGmtCreated(rs.getLong("gmtCreated"));
 //                po.setTaskTrackerNodeGroup(rs.getString("taskTrackerNodeGroup"));
