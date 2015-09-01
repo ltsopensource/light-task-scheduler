@@ -29,13 +29,15 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
      * 创建表
      */
     private void createTable() {
-        String tableSQL = "CREATE TABLE IF NOT EXISTS taskTrackerMonitor(" +
+        String tableSQL = "CREATE TABLE IF NOT EXISTS taskTrackerMonitorData(" +
                 " id varchar(64)," +
                 " gmtCreated bigint," +
                 " taskTrackerNodeGroup varchar(64)," +
                 " taskTrackerIdentity varchar(64)," +
-                " successNum bigint," +
-                " failedNum bigint," +
+                " exeSuccessNum bigint," +
+                " exeFailedNum bigint," +
+                " exeLaterNum bigint," +
+                " exeExceptionNum bigint," +
                 " totalRunningTime bigint," +
                 " failStoreSize bigint," +
                 " timestamp bigint," +
@@ -48,9 +50,9 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
             getSqlTemplate().update(tableSQL);
 
             // HSQLDB 不能在创建表的时候创建索引... see http://www.hsqldb.org/doc/guide/ch09.html#create_table-section
-            String timestampIndex = "CREATE INDEX t_timestamp ON taskTrackerMonitor (timestamp ASC)";
-            String taskTrackerIdentityIndex = "CREATE INDEX t_taskTrackerIdentity ON taskTrackerMonitor (taskTrackerIdentity ASC)";
-            String taskTrackerNodeGroupIndex = "CREATE INDEX t_taskTrackerNodeGroup ON taskTrackerMonitor (taskTrackerNodeGroup ASC)";
+            String timestampIndex = "CREATE INDEX t_timestamp ON taskTrackerMonitorData (timestamp ASC)";
+            String taskTrackerIdentityIndex = "CREATE INDEX t_taskTrackerIdentity ON taskTrackerMonitorData (taskTrackerIdentity ASC)";
+            String taskTrackerNodeGroupIndex = "CREATE INDEX t_taskTrackerNodeGroup ON taskTrackerMonitorData (taskTrackerNodeGroup ASC)";
             createIndex(timestampIndex);
             createIndex(taskTrackerIdentityIndex);
             createIndex(taskTrackerNodeGroupIndex);
@@ -67,13 +69,15 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
         }
     }
 
-    private String insertSQL = "INSERT INTO taskTrackerMonitor (" +
+    private String insertSQL = "INSERT INTO taskTrackerMonitorData (" +
             "id," +
             "gmtCreated," +
             "taskTrackerNodeGroup," +
             "taskTrackerIdentity," +
-            "successNum," +
-            "failedNum," +
+            "exeSuccessNum," +
+            "exeFailedNum," +
+            "exeLaterNum," +
+            "exeExceptionNum," +
             "totalRunningTime," +
             "failStoreSize," +
             "timestamp," +
@@ -81,7 +85,7 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
             "allocatedMemory," +
             "freeMemory," +
             "totalFreeMemory" +
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     public void insert(List<TaskTrackerMonitorDataPo> pos) {
         if (CollectionUtils.isEmpty(pos)) {
@@ -94,8 +98,10 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
                         po.getGmtCreated(),
                         po.getTaskTrackerNodeGroup(),
                         po.getTaskTrackerIdentity(),
-                        po.getSuccessNum(),
-                        po.getFailedNum(),
+                        po.getExeSuccessNum(),
+                        po.getExeFailedNum(),
+                        po.getExeLaterNum(),
+                        po.getExeExceptionNum(),
                         po.getTotalRunningTime(),
                         po.getFailStoreSize(),
                         po.getTimestamp(),
@@ -118,15 +124,17 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
 
         String sql = "SELECT " +
                 "timestamp," +
-                "SUM(successNum) AS successNum, " +
-                "SUM(failedNum) AS failedNum," +
+                "SUM(exeSuccessNum) AS exeSuccessNum," +
+                "SUM(exeFailedNum) AS exeFailedNum," +
+                "SUM(exeLaterNum) AS exeLaterNum," +
+                "SUM(exeExceptionNum) AS exeExceptionNum," +
                 "SUM(totalRunningTime) AS totalRunningTime," +
                 "SUM(failStoreSize) AS failStoreSize," +
                 "SUM(maxMemory) AS maxMemory," +
                 "SUM(allocatedMemory) AS allocatedMemory," +
                 "SUM(freeMemory) AS freeMemory," +
                 "SUM(totalFreeMemory) AS totalFreeMemory" +
-                " FROM taskTrackerMonitor" +
+                " FROM taskTrackerMonitorData" +
                 " WHERE ";
         StringBuilder whereSQL = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
@@ -154,7 +162,7 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
 
     public List<TaskTrackerMonitorDataPo> search(MonitorDataRequest request) {
         try {
-            SqlBuilder sql = new SqlBuilder("SELECT * FROM taskTrackerMonitor");
+            SqlBuilder sql = new SqlBuilder("SELECT * FROM taskTrackerMonitorData");
             sql.addCondition("id", request.getId())
                     .addCondition("taskTrackerIdentity", request.getIdentity())
                     .addCondition("taskTrackerNodeGroup", request.getNodeGroup())
@@ -170,7 +178,7 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
     }
 
     public void delete(MonitorDataRequest request) {
-        SqlBuilder sql = new SqlBuilder("DELETE FROM taskTrackerMonitor ");
+        SqlBuilder sql = new SqlBuilder("DELETE FROM taskTrackerMonitorData ");
                 sql.addCondition("id", request.getId())
                 .addCondition("taskTrackerIdentity", request.getIdentity())
                 .addCondition("taskTrackerNodeGroup", request.getNodeGroup())
@@ -184,7 +192,7 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
     }
 
     public Map<String, List<String>> getTaskTrackerMap() {
-        String selectSQL = "select distinct taskTrackerIdentity,taskTrackerNodeGroup  from taskTrackerMonitor";
+        String selectSQL = "select distinct taskTrackerIdentity,taskTrackerNodeGroup  from taskTrackerMonitorData";
         try {
             return getSqlTemplate().query(selectSQL, TT_RESULT_SET_HANDLER);
         } catch (Exception e) {
@@ -199,12 +207,10 @@ public class TaskTrackerMonitorDataRepository extends HsqlRepository {
 
             while (rs.next()) {
                 TaskTrackerMonitorDataPo po = new TaskTrackerMonitorDataPo();
-//                po.setId(rs.getString("id"));
-//                po.setGmtCreated(rs.getLong("gmtCreated"));
-//                po.setTaskTrackerNodeGroup(rs.getString("taskTrackerNodeGroup"));
-//                po.setTaskTrackerIdentity(rs.getString("taskTrackerIdentity"));
-                po.setSuccessNum(rs.getLong("successNum"));
-                po.setFailedNum(rs.getLong("failedNum"));
+                po.setExeSuccessNum(rs.getLong("exeSuccessNum"));
+                po.setExeFailedNum(rs.getLong("exeFailedNum"));
+                po.setExeLaterNum(rs.getLong("exeLaterNum"));
+                po.setExeExceptionNum(rs.getLong("exeExceptionNum"));
                 po.setTotalRunningTime(rs.getLong("totalRunningTime"));
                 po.setFailStoreSize(rs.getLong("failStoreSize"));
                 po.setTimestamp(rs.getLong("timestamp"));

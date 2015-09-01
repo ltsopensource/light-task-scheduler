@@ -47,7 +47,7 @@ public abstract class AbstractMonitor implements Monitor {
     private final List<MonitorData> mis = new ArrayList<MonitorData>();
     private List<MonitorData> toSendMis = new ArrayList<MonitorData>();
     private final int MAX_RETRY_RETAIN = 500;
-    private final int BATCH_REPORT_SIZE = 10;
+    private final int BATCH_REPORT_SIZE = 20;
 
     public AbstractMonitor(Application application) {
         config = application.getConfig();

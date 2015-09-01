@@ -14,13 +14,21 @@ public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
      */
     private String taskTrackerIdentity;
     /**
-     * 执行成功的个数
+     * 执行成功个数
      */
-    private Long successNum;
+    private Long exeSuccessNum;
     /**
-     * 执行失败的个数
+     * 执行失败个数
      */
-    private Long failedNum;
+    private Long exeFailedNum;
+    /**
+     * 延迟执行个数
+     */
+    private Long exeLaterNum;
+    /**
+     * 执行异常个数
+     */
+    private Long exeExceptionNum;
     /**
      * 总的运行时间
      */
@@ -44,20 +52,36 @@ public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
         this.taskTrackerIdentity = taskTrackerIdentity;
     }
 
-    public Long getSuccessNum() {
-        return successNum;
+    public Long getExeSuccessNum() {
+        return exeSuccessNum;
     }
 
-    public void setSuccessNum(Long successNum) {
-        this.successNum = successNum;
+    public void setExeSuccessNum(Long exeSuccessNum) {
+        this.exeSuccessNum = exeSuccessNum;
     }
 
-    public Long getFailedNum() {
-        return failedNum;
+    public Long getExeFailedNum() {
+        return exeFailedNum;
     }
 
-    public void setFailedNum(Long failedNum) {
-        this.failedNum = failedNum;
+    public void setExeFailedNum(Long exeFailedNum) {
+        this.exeFailedNum = exeFailedNum;
+    }
+
+    public Long getExeLaterNum() {
+        return exeLaterNum;
+    }
+
+    public void setExeLaterNum(Long exeLaterNum) {
+        this.exeLaterNum = exeLaterNum;
+    }
+
+    public Long getExeExceptionNum() {
+        return exeExceptionNum;
+    }
+
+    public void setExeExceptionNum(Long exeExceptionNum) {
+        this.exeExceptionNum = exeExceptionNum;
     }
 
     public Long getTotalRunningTime() {
@@ -75,5 +99,4 @@ public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
     public void setFailStoreSize(Long failStoreSize) {
         this.failStoreSize = failStoreSize;
     }
-
 }

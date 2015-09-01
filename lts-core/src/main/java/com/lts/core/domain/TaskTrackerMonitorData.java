@@ -8,14 +8,11 @@ import com.lts.core.monitor.MonitorData;
  * @author Robert HG (254963746@qq.com) on 8/21/15.
  */
 public class TaskTrackerMonitorData extends MonitorData{
-    /**
-     * 执行成功的个数
-     */
-    private Long successNum;
-    /**
-     * 执行失败的个数
-     */
-    private Long failedNum;
+
+    private Long exeSuccessNum;
+    private Long exeFailedNum;
+    private Long exeLaterNum ;
+    private Long exeExceptionNum;
     /**
      * 总的运行时间
      */
@@ -31,20 +28,36 @@ public class TaskTrackerMonitorData extends MonitorData{
         this.failStoreSize = failStoreSize;
     }
 
-    public Long getSuccessNum() {
-        return successNum;
+    public Long getExeSuccessNum() {
+        return exeSuccessNum;
     }
 
-    public void setSuccessNum(Long successNum) {
-        this.successNum = successNum;
+    public void setExeSuccessNum(Long exeSuccessNum) {
+        this.exeSuccessNum = exeSuccessNum;
     }
 
-    public Long getFailedNum() {
-        return failedNum;
+    public Long getExeFailedNum() {
+        return exeFailedNum;
     }
 
-    public void setFailedNum(Long failedNum) {
-        this.failedNum = failedNum;
+    public void setExeFailedNum(Long exeFailedNum) {
+        this.exeFailedNum = exeFailedNum;
+    }
+
+    public Long getExeLaterNum() {
+        return exeLaterNum;
+    }
+
+    public void setExeLaterNum(Long exeLaterNum) {
+        this.exeLaterNum = exeLaterNum;
+    }
+
+    public Long getExeExceptionNum() {
+        return exeExceptionNum;
+    }
+
+    public void setExeExceptionNum(Long exeExceptionNum) {
+        this.exeExceptionNum = exeExceptionNum;
     }
 
     public Long getTotalRunningTime() {
