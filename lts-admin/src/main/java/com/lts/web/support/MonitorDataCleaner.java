@@ -3,6 +3,7 @@ package com.lts.web.support;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.web.repository.JobTrackerMonitorDataRepository;
 import com.lts.web.repository.TaskTrackerMonitorDataRepository;
 import com.lts.web.request.MonitorDataRequest;
 import org.springframework.beans.factory.InitializingBean;
@@ -26,6 +27,8 @@ public class MonitorDataCleaner implements InitializingBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(MonitorDataCleaner.class);
     @Autowired
     private TaskTrackerMonitorDataRepository taskTrackerMonitorDataRepository;
+    @Autowired
+    private JobTrackerMonitorDataRepository jobTrackerMonitorDataRepository;
     private ScheduledExecutorService cleanExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private AtomicBoolean start = new AtomicBoolean(false);
@@ -46,11 +49,13 @@ public class MonitorDataCleaner implements InitializingBean {
     }
 
     private void clean() {
-        //  1. 清除TaskTracker的统计数据(5天之前的)
+        //  1. 清除TaskTracker JobTracker的统计数据(5天之前的)
         Long endTime = DateUtils.addDay(new Date(), -5).getTime();
         MonitorDataRequest request = new MonitorDataRequest();
         request.setEndTime(endTime);
         taskTrackerMonitorDataRepository.delete(request);
+        jobTrackerMonitorDataRepository.delete(request);
+
         LOGGER.info("Clean monitor data before {} succeed ", DateUtils.formatYMD_HMS(new Date(endTime)));
     }
 
