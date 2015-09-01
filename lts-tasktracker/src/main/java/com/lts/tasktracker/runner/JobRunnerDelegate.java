@@ -37,7 +37,7 @@ public class JobRunnerDelegate implements Runnable {
         this.logger = (BizLoggerImpl) BizLoggerFactory.getLogger(
                 application.getBizLogLevel(),
                 application.getRemotingClient(), application);
-        monitor = (TaskTrackerMonitor)application.getMonitor();
+        monitor = (TaskTrackerMonitor) application.getMonitor();
     }
 
     @Override
@@ -59,44 +59,57 @@ public class JobRunnerDelegate implements Runnable {
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
                     } else {
-                        Action action = result.getAction();
                         if (result.getAction() == null) {
-                            action = Action.EXECUTE_SUCCESS;
+                            response.setAction(Action.EXECUTE_SUCCESS);
+                        }else{
+                            response.setAction(Action.EXECUTE_SUCCESS);
                         }
-                        response.setAction(action);
                         response.setMsg(result.getMsg());
                     }
                     long time = SystemClock.now() - startTime;
-                    LOGGER.info("Job execute finished : {}, time:{} ms."
-                            , jobWrapper, time);
-
-                    // stat monitor
                     monitor.addRunningTime(time);
-                    monitor.increaseSuccessNum();
-
+                    LOGGER.info("Job execute finished : {}, time:{} ms.", jobWrapper, time);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
                     response.setAction(Action.EXECUTE_EXCEPTION);
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
-                    LOGGER.info("Job execute error : {}, time: {}, {}",
-                            jobWrapper, SystemClock.now() - startTime, t.getMessage(), t);
-
-                    // stat monitor
                     monitor.addRunningTime(time);
-                    monitor.increaseFailedNum();
-
+                    LOGGER.info("Job execute error : {}, time: {}, {}",
+                            jobWrapper, time, t.getMessage(), t);
                 } finally {
                     logger.removeId();
                     application.getRunnerPool().getRunningJobManager()
                             .out(jobWrapper.getJobId());
                 }
+                // 统计数据
+                monitor(response.getAction());
 
                 jobWrapper = callback.runComplete(response);
             }
         } finally {
             LtsLoggerFactory.remove();
+        }
+    }
+
+    private void monitor(Action action) {
+        if (action == null) {
+            return;
+        }
+        switch (action) {
+            case EXECUTE_SUCCESS:
+                monitor.incSuccessNum();
+                break;
+            case EXECUTE_FAILED:
+                monitor.incFailedNum();
+                break;
+            case EXECUTE_LATER:
+                monitor.incExeLaterNum();
+                break;
+            case EXECUTE_EXCEPTION:
+                monitor.incExeExceptionNum();
+                break;
         }
     }
 

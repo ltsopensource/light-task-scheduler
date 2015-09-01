@@ -17,6 +17,9 @@
                 <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
+        <property name="jobFinishedHandler">
+            <bean class="com.lts.example.support.JobFinishedHandlerImpl"/>
+        </property>
         <property name="configs">
             <props>
                 <prop key="job.fail.store">leveldb</prop>

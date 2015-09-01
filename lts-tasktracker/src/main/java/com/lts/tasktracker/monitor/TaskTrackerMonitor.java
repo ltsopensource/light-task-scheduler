@@ -19,10 +19,14 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TaskTrackerMonitor extends AbstractMonitor {
 
-    // 执行成功的个数
-    private AtomicLong successNum = new AtomicLong(0);
-    // 执行失败的个数
-    private AtomicLong failedNum = new AtomicLong(0);
+    // 执行成功个数
+    private AtomicLong exeSuccessNum = new AtomicLong(0);
+    // 执行失败个数
+    private AtomicLong exeFailedNum = new AtomicLong(0);
+    // 延迟执行个数
+    private AtomicLong exeLaterNum = new AtomicLong(0);
+    // 执行异常个数
+    private AtomicLong exeExceptionNum = new AtomicLong(0);
     // 总的运行时间
     private AtomicLong totalRunningTime = new AtomicLong(0);
 
@@ -30,12 +34,20 @@ public class TaskTrackerMonitor extends AbstractMonitor {
         super(application);
     }
 
-    public void increaseSuccessNum() {
-        successNum.incrementAndGet();
+    public void incSuccessNum() {
+        exeSuccessNum.incrementAndGet();
     }
 
-    public void increaseFailedNum() {
-        failedNum.incrementAndGet();
+    public void incFailedNum() {
+        exeFailedNum.incrementAndGet();
+    }
+
+    public void incExeLaterNum() {
+        exeLaterNum.incrementAndGet();
+    }
+
+    public void incExeExceptionNum() {
+        exeExceptionNum.incrementAndGet();
     }
 
     public void addRunningTime(Long time) {
@@ -45,8 +57,10 @@ public class TaskTrackerMonitor extends AbstractMonitor {
     @Override
     protected MonitorData collectMonitorData() {
         TaskTrackerMonitorData monitorData = new TaskTrackerMonitorData();
-        monitorData.setSuccessNum(successNum.getAndSet(0));
-        monitorData.setFailedNum(failedNum.getAndSet(0));
+        monitorData.setExeSuccessNum(exeSuccessNum.getAndSet(0));
+        monitorData.setExeFailedNum(exeFailedNum.getAndSet(0));
+        monitorData.setExeLaterNum(exeLaterNum.getAndSet(0));
+        monitorData.setExeExceptionNum(exeExceptionNum.getAndSet(0));
         monitorData.setTotalRunningTime(totalRunningTime.getAndSet(0));
         monitorData.setFailStoreSize(getFailStoreSize());
         return monitorData;

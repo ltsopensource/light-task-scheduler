@@ -29,7 +29,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
      * 创建表
      */
     private void createTable() {
-        String tableSQL = "CREATE TABLE IF NOT EXISTS jobTrackerMonitor(" +
+        String tableSQL = "CREATE TABLE IF NOT EXISTS jobTrackerMonitorData(" +
                 " id varchar(64)," +
                 " gmtCreated bigint," +
                 " jobTrackerIdentity varchar(64)," +
@@ -50,8 +50,8 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
             getSqlTemplate().update(tableSQL);
 
             // HSQLDB 不能在创建表的时候创建索引... see http://www.hsqldb.org/doc/guide/ch09.html#create_table-section
-            String timestampIndex = "CREATE INDEX t_timestamp ON jobTrackerMonitor (timestamp ASC)";
-            String jobTrackerIdentityIndex = "CREATE INDEX t_jobTrackerIdentity ON taskTrackerMonitor (jobTrackerIdentity ASC)";
+            String timestampIndex = "CREATE INDEX t_timestamp ON jobTrackerMonitorData (timestamp ASC)";
+            String jobTrackerIdentityIndex = "CREATE INDEX t_jobTrackerIdentity ON jobTrackerMonitorData (jobTrackerIdentity ASC)";
             createIndex(timestampIndex);
             createIndex(jobTrackerIdentityIndex);
         } catch (SQLException e) {
@@ -67,7 +67,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
         }
     }
 
-    private String insertSQL = "INSERT INTO jobTrackerMonitor (" +
+    private String insertSQL = "INSERT INTO jobTrackerMonitorData (" +
             "id," +
             "gmtCreated," +
             "jobTrackerIdentity," +
@@ -133,7 +133,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
                 "SUM(allocatedMemory) AS allocatedMemory," +
                 "SUM(freeMemory) AS freeMemory," +
                 "SUM(totalFreeMemory) AS totalFreeMemory" +
-                " FROM jobTrackerMonitor" +
+                " FROM jobTrackerMonitorData" +
                 " WHERE ";
         StringBuilder whereSQL = new StringBuilder();
         List<Object> params = new ArrayList<Object>();
@@ -157,7 +157,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
 
     public List<JobTrackerMonitorDataPo> search(MonitorDataRequest request) {
         try {
-            SqlBuilder sql = new SqlBuilder("SELECT * FROM jobTrackerMonitor");
+            SqlBuilder sql = new SqlBuilder("SELECT * FROM jobTrackerMonitorData");
             sql.addCondition("id", request.getId())
                     .addCondition("jobTrackerIdentity", request.getIdentity())
                     .addCondition("timestamp", request.getStartTime(), ">=")
@@ -172,7 +172,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
     }
 
     public void delete(MonitorDataRequest request) {
-        SqlBuilder sql = new SqlBuilder("DELETE FROM jobTrackerMonitor ");
+        SqlBuilder sql = new SqlBuilder("DELETE FROM jobTrackerMonitorData ");
                 sql.addCondition("id", request.getId())
                 .addCondition("jobTrackerIdentity", request.getIdentity())
                 .addCondition("timestamp", request.getStartTime(), ">=")
@@ -185,7 +185,7 @@ public class JobTrackerMonitorDataRepository extends HsqlRepository {
     }
 
     public List<String> getJobTrackers() {
-        String selectSQL = "select distinct jobTrackerIdentity from jobTrackerMonitor";
+        String selectSQL = "select distinct jobTrackerIdentity from jobTrackerMonitorData";
         try {
             return getSqlTemplate().query(selectSQL, TT_RESULT_SET_HANDLER);
         } catch (Exception e) {
