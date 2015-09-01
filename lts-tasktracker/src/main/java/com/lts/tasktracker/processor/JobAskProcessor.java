@@ -17,23 +17,27 @@ import java.util.List;
  */
 public class JobAskProcessor extends AbstractProcessor {
 
-    protected JobAskProcessor(RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+    protected JobAskProcessor(RemotingClientDelegate remotingClient,
+                              TaskTrackerApplication application) {
         super(remotingClient, application);
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(ChannelHandlerContext ctx,
+                                          RemotingCommand request) throws RemotingCommandException {
 
         JobAskRequest requestBody = request.getBody();
 
         List<String> jobIds = requestBody.getJobIds();
 
-        List<String> notExistJobIds = application.getRunnerPool().getRunningJobManager().getNotExists(jobIds);
+        List<String> notExistJobIds = application.getRunnerPool()
+                .getRunningJobManager().getNotExists(jobIds);
 
         JobAskResponse responseBody = CommandBodyWrapper.wrapper(application, new JobAskResponse());
 
         responseBody.setJobIds(notExistJobIds);
 
-        return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code(), "查询成功", responseBody);
+        return RemotingCommand.createResponseCommand(
+                RemotingProtos.ResponseCode.SUCCESS.code(), "查询成功", responseBody);
     }
 }

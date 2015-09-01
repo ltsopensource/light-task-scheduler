@@ -95,4 +95,25 @@ public class FileUtils {
             }
         }
     }
+
+    /**
+     * 得到文件或者文件夹的大小(包含所有子文件)
+     */
+    public static long getSize(File file) {
+        if (file.exists()) {
+            if (!file.isFile()) {
+                long size = 0;
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    for (File f : files) {
+                        size += getSize(f);
+                    }
+                }
+                return size;
+            } else {
+                return file.length();
+            }
+        }
+        return 0;
+    }
 }

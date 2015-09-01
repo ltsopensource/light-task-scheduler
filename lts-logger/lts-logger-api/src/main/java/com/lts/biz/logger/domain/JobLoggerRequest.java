@@ -1,6 +1,6 @@
 package com.lts.biz.logger.domain;
 
-import com.lts.core.domain.PageRequest;
+import com.lts.web.request.PageRequest;
 
 import java.util.Date;
 

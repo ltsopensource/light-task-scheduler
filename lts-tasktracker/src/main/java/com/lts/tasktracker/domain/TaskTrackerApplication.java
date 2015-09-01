@@ -13,13 +13,11 @@ import com.lts.tasktracker.support.JobPullMachine;
 public class TaskTrackerApplication extends Application{
 
     private RemotingClientDelegate remotingClient;
-    /**
-     * runner 线程池
-     */
+    // runner 线程池
     private RunnerPool runnerPool;
-
+    //
     private RunnerFactory runnerFactory;
-
+    // Pull Job Machine
     private JobPullMachine jobPullMachine;
     /**
      * 业务日志记录级别

@@ -13,7 +13,6 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.
@@ -22,7 +21,6 @@ public class RocksdbFailStore extends AbstractFailStore {
 
     private RocksDB db = null;
     private Options options;
-    private ReentrantLock lock = new ReentrantLock();
 
     public RocksdbFailStore(File dbPath) {
         super(dbPath);
@@ -68,7 +66,6 @@ public class RocksdbFailStore extends AbstractFailStore {
     @Override
     public void open() throws FailStoreException {
         try {
-            lock.lock();
             db = RocksDB.open(options, dbPath.getPath());
         } catch (Exception e) {
             throw new FailStoreException(e);
@@ -143,10 +140,6 @@ public class RocksdbFailStore extends AbstractFailStore {
             }
         } catch (Exception e) {
             throw new FailStoreException(e);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
         }
     }
 

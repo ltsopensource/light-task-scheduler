@@ -15,7 +15,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Only a single process (possibly multi-threaded) can access a particular database at a time
@@ -26,8 +25,6 @@ public class LeveldbFailStore extends AbstractFailStore {
     private DB db;
 
     private Options options;
-    // 保证同时只有一个线程修改
-    private ReentrantLock lock = new ReentrantLock();
 
     public static final String name = "leveldb";
 
@@ -54,7 +51,6 @@ public class LeveldbFailStore extends AbstractFailStore {
     @Override
     public void open() throws FailStoreException {
         try {
-            lock.lock();
             JniDBFactory.factory.repair(dbPath, options);
             db = JniDBFactory.factory.open(dbPath, options);
         } catch (IOException e) {
@@ -153,10 +149,6 @@ public class LeveldbFailStore extends AbstractFailStore {
             }
         } catch (IOException e) {
             throw new FailStoreException(e);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
         }
     }
 

@@ -22,8 +22,16 @@ public final class StringUtils {
         return s == null || s.trim().equals("");
     }
 
-    public static boolean isNotEmpty(String s) {
-        return !isEmpty(s);
+    public static boolean isNotEmpty(String... strs) {
+        if (strs != null) {
+            for (String s : strs) {
+                if (isEmpty(s)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public static String generateUUID() {
@@ -119,7 +127,7 @@ public final class StringUtils {
         }
     }
 
-    public static String concat(String ... strings) {
+    public static String concat(String... strings) {
         if (strings == null) {
             return null;
         }

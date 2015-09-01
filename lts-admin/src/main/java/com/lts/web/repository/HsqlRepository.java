@@ -1,26 +1,29 @@
-package com.lts.web.support.memorydb;
+package com.lts.web.repository;
 
 import com.lts.core.cluster.Config;
+import com.lts.core.constant.Constants;
 import com.lts.store.jdbc.DataSourceProviderFactory;
 import com.lts.store.jdbc.SqlTemplate;
+import com.lts.web.support.AppConfigurer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Memory-Only Databases , HSQLDB
- *
- * @author Robert HG (254963746@qq.com) on 6/6/15.
+ * @author Robert HG (254963746@qq.com) on 8/22/15.
  */
-public abstract class MemoryDB {
+public class HsqlRepository {
 
     private SqlTemplate sqlTemplate;
     private AtomicBoolean init = new AtomicBoolean(false);
 
-    public MemoryDB() {
+    public HsqlRepository() {
+        String monitorDBPath = AppConfigurer.getProperties("monitor.db.path", Constants.USER_HOME)
+                + "/.lts/hsqldb/lts-admin";
+
         if (init.compareAndSet(false, true)) {
             Config config = new Config();
             config.setParameter("jdbc.datasource.provider", "hsqldb");
-            config.setParameter("jdbc.url", "jdbc:hsqldb:mem:lts");
+            config.setParameter("jdbc.url", "jdbc:hsqldb:file:" + monitorDBPath);
             config.setParameter("jdbc.username", "sa");
             config.setParameter("jdbc.password", "");
             sqlTemplate = new SqlTemplate(
@@ -32,4 +35,5 @@ public abstract class MemoryDB {
     public SqlTemplate getSqlTemplate() {
         return sqlTemplate;
     }
+
 }

@@ -6,7 +6,7 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.PageResponse;
+import com.lts.web.response.PageResponse;
 import com.lts.store.mongo.MongoRepository;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;

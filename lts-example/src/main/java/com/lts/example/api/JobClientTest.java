@@ -62,7 +62,6 @@ public class JobClientTest extends BaseJobClientTest {
 //                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
 //        jobClient.addConfig("job.fail.store", "berkeleydb");
 //        jobClient.addConfig("job.fail.store", "rocksdb");
-        jobClient.addConfig("job.submit.concurrency.size", "20");
         jobClient.start();
 
         fastSubmit(jobClient);

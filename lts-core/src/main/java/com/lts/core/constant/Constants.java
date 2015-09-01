@@ -82,4 +82,6 @@ public interface Constants {
     int DEFAULT_JOB_MAX_RETRY_TIMES = 10;
 
     Charset UTF_8 = Charset.forName("UTF-8");
+
+    String MONITOR_DATA_ADD_URL = "/api/monitor/monitor-data-add.do";
 }

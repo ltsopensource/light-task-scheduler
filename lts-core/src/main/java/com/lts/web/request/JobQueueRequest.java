@@ -1,4 +1,4 @@
-package com.lts.core.domain;
+package com.lts.web.request;
 
 import java.util.Date;
 import java.util.Map;

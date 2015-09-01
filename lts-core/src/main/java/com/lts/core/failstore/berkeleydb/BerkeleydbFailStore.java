@@ -14,7 +14,6 @@ import java.io.File;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Robert HG (254963746@qq.com) on 5/26/15.
@@ -25,7 +24,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     private Environment environment;
     private Database db;
     private EnvironmentConfig envConfig;
-    private ReentrantLock lock = new ReentrantLock();
     private DatabaseConfig dbConfig;
 
     public BerkeleydbFailStore(File dbPath) {
@@ -64,7 +62,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     @Override
     public void open() throws FailStoreException {
         try {
-            lock.lock();
             environment = new Environment(dbPath, envConfig);
             db = environment.openDatabase(null, "lts", dbConfig);
         } catch (Exception e) {
@@ -151,10 +148,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
             }
         } catch (Exception e) {
             throw new FailStoreException(e);
-        } finally {
-            if (lock.isHeldByCurrentThread()) {
-                lock.unlock();
-            }
         }
     }
 

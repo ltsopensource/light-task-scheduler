@@ -2,7 +2,7 @@ package com.lts.queue.mysql;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.domain.JobQueueRequest;
+import com.lts.web.request.JobQueueRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutingJobQueue;

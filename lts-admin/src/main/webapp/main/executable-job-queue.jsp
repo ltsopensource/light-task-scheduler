@@ -345,5 +345,5 @@
     }
 
 </script>
-<body>
+</body>
 </html>

@@ -24,6 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
@@ -49,6 +50,8 @@ public abstract class RetryScheduler<T> {
     // 批量发送的消息数
     private int batchSize = 5;
 
+    private ReentrantLock lock = new ReentrantLock();
+
     public RetryScheduler(Application application) {
         this(application, application.getConfig().getFailStorePath());
     }
@@ -56,7 +59,11 @@ public abstract class RetryScheduler<T> {
     public RetryScheduler(Application application, String storePath) {
         FailStoreFactory failStoreFactory = ExtensionLoader.getExtensionLoader(FailStoreFactory.class).getAdaptiveExtension();
         failStore = failStoreFactory.getFailStore(application.getConfig(), storePath);
-
+        try {
+            failStore.open();
+        } catch (FailStoreException e) {
+            throw new RuntimeException(e);
+        }
         EventSubscriber subscriber = new EventSubscriber(RetryScheduler.class.getSimpleName()
                 .concat(application.getConfig().getIdentity()),
                 new Observer() {
@@ -133,6 +140,7 @@ public abstract class RetryScheduler<T> {
         try {
             if (selfCheckStart.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
+                failStore.close();
                 RETRY_EXECUTOR_SERVICE.shutdown();
                 LOGGER.info("Stop {} RetryScheduler success.", name);
             }
@@ -166,8 +174,7 @@ public abstract class RetryScheduler<T> {
                 List<KVPair<String, T>> kvPairs = null;
                 do {
                     try {
-                        failStore.open();
-
+                        lock.tryLock(1000, TimeUnit.MILLISECONDS);
                         kvPairs = failStore.fetchTop(batchSize, type);
 
                         if (CollectionUtils.isEmpty(kvPairs)) {
@@ -186,8 +193,10 @@ public abstract class RetryScheduler<T> {
                         } else {
                             break;
                         }
-                    } finally {
-                        failStore.close();
+                    }finally {
+                        if(lock.isHeldByCurrentThread()){
+                            lock.unlock();
+                        }
                     }
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
@@ -251,17 +260,18 @@ public abstract class RetryScheduler<T> {
 
     public void inSchedule(String key, T value) {
         try {
-            failStore.open();
-            try {
-                failStore.put(key, value);
-                LOGGER.info("{} RetryScheduler, local files save success, {}", name, JSONUtils.toJSONString(value));
-            } finally {
-                failStore.close();
-            }
+            lock.tryLock();
+            failStore.put(key, value);
+            LOGGER.info("{} RetryScheduler, local files save success, {}", name, JSONUtils.toJSONString(value));
         } catch (FailStoreException e) {
             LOGGER.error("{} RetryScheduler in schedule error. ", name, e);
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
         }
     }
+
 
     /**
      * 远程连接是否可用

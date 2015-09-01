@@ -40,7 +40,8 @@ public class JobPushProcessor extends AbstractProcessor {
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
 
-    protected JobPushProcessor(final RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+    protected JobPushProcessor(final RemotingClientDelegate remotingClient,
+                               TaskTrackerApplication application) {
         super(remotingClient, application);
         retryScheduler = new RetryScheduler<TaskTrackerJobResult>(application, 3) {
             @Override
@@ -61,7 +62,8 @@ public class JobPushProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, final RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(ChannelHandlerContext ctx,
+                                          final RemotingCommand request) throws RemotingCommandException {
 
         JobPushRequest requestBody = request.getBody();
 
@@ -77,7 +79,8 @@ public class JobPushProcessor extends AbstractProcessor {
         }
 
         // 任务推送成功
-        return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.JOB_PUSH_SUCCESS.code(), "job push success!");
+        return RemotingCommand.createResponseCommand(JobProtos
+                .ResponseCode.JOB_PUSH_SUCCESS.code(), "job push success!");
     }
 
     /**

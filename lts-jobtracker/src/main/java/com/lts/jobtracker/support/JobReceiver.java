@@ -10,6 +10,7 @@ import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.support.LoggerName;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.id.IdGenerator;
+import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 
@@ -26,17 +27,16 @@ public class JobReceiver {
 
     private JobTrackerApplication application;
     private IdGenerator idGenerator;
+    private JobTrackerMonitor monitor;
 
     public JobReceiver(JobTrackerApplication application) {
         this.application = application;
+        this.monitor = (JobTrackerMonitor) application.getMonitor();
         this.idGenerator = ExtensionLoader.getExtensionLoader(IdGenerator.class).getAdaptiveExtension();
     }
 
     /**
      * jobTracker 接受任务
-     *
-     * @param request
-     * @return
      */
     public void receive(JobSubmitRequest request) throws JobReceiveException {
 
@@ -91,7 +91,10 @@ public class JobReceiver {
         } catch (DuplicateJobException e) {
             // already exist, ignore
             LOGGER.info("Job already exist. nodeGroup={}, {}", request.getNodeGroup(), job);
+        } finally {
+            monitor.incReceiveJobNum();
         }
+
         return jobPo;
     }
 

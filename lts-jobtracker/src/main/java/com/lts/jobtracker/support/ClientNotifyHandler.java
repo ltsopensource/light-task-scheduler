@@ -11,15 +11,11 @@ public interface ClientNotifyHandler<T extends TaskTrackerJobResult> {
 
     /**
      * 通知成功的处理
-     *
-     * @param jobResults
      */
     public void handleSuccess(List<T> jobResults);
 
     /**
      * 通知失败的处理
-     *
-     * @param jobResults
      */
     public void handleFailed(List<T> jobResults);
 

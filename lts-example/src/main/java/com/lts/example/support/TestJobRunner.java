@@ -16,6 +16,7 @@ import com.lts.tasktracker.runner.LtsLoggerFactory;
 public class TestJobRunner implements JobRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestJobRunner.class);
+    private final static BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
 
     @Override
     public Result run(Job job) throws Throwable {
@@ -32,13 +33,12 @@ public class TestJobRunner implements JobRunner {
 
             // TODO 业务逻辑
             LOGGER.info("我要执行：" + job);
-            BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
             // 会发送到 LTS (JobTracker上)
             bizLogger.info("测试，业务日志啊啊啊啊啊");
 
         } catch (Exception e) {
             LOGGER.info("Run job failed!", e);
-            return new Result(Action.EXECUTE_LATER, e.getMessage());
+            return new Result(Action.EXECUTE_FAILED, e.getMessage());
         }
         return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
     }

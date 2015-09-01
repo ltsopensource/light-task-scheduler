@@ -1,7 +1,6 @@
 package com.lts.web.request;
 
 import com.lts.core.cluster.NodeType;
-import com.lts.core.domain.PageRequest;
 
 import java.util.Date;
 

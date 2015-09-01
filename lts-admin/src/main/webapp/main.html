@@ -6,6 +6,8 @@
     <link href="assets/css/dpl-min.css" rel="stylesheet" type="text/css"/>
     <link href="assets/css/bui-min.css" rel="stylesheet" type="text/css"/>
     <link href="assets/css/main-min.css" rel="stylesheet" type="text/css"/>
+    <!--<link href="assets/css/bs3/dpl-min.css" rel="stylesheet">-->
+    <!--<link href="assets/css/bs3/bui-min.css" rel="stylesheet">-->
     <link href="assets/css/lts.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
@@ -54,13 +56,14 @@
             },{
                 text: '日志管理',
                 items: [
-                    {id: 'job-logger', text: '日志', href: 'job-logger/job-logger.htm'},
+                    {id: 'job-logger', text: '日志', href: 'job-logger/job-logger.htm'}
                 ]
-//            },{
-//                text: '监控报警',
-//                items: [
-//                    {id: 'operation', text: '监控报警', href: 'main/operation.html'},
-//                ]
+            },{
+                text: '监控报警',
+                items: [
+                    {id: 'tasktracker-monitor', text: 'TaskTracker节点监控', href: 'monitor/tasktracker-monitor.htm'},
+                    {id: 'jobtracker-monitor', text: 'JobTracker节点监控', href: 'monitor/jobtracker-monitor.htm'}
+                ]
             }]
         }];
         new PageUtil.MainPage({

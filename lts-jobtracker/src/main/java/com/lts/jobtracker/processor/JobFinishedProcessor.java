@@ -18,6 +18,7 @@ import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
 import com.lts.jobtracker.support.CronExpressionUtils;
@@ -41,6 +42,7 @@ import java.util.List;
 public class JobFinishedProcessor extends AbstractProcessor {
 
     private ClientNotifier clientNotifier;
+    private JobTrackerMonitor monitor;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
     // 任务的最大重试次数
@@ -48,6 +50,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     public JobFinishedProcessor(RemotingServerDelegate remotingServer, final JobTrackerApplication application) {
         super(remotingServer, application);
+        this.monitor = (JobTrackerMonitor) application.getMonitor();
         this.maxRetryTimes = application.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
                 Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
 
@@ -95,11 +98,38 @@ public class JobFinishedProcessor extends AbstractProcessor {
         // 2. log info
         log(requestBody.isReSend(), requestBody.getIdentity(), results);
 
+        // 3. monitor
+        monitor(results);
+
         LOGGER.info("Job execute finished : {}", results);
 
-        // 3. process
+        // 4. process
         return process(requestBody.isReceiveNewJob(), requestBody.getNodeGroup(),
                 requestBody.getIdentity(), results);
+    }
+
+    /**
+     * 监控数据统计
+     */
+    private void monitor(List<TaskTrackerJobResult> results) {
+        for (TaskTrackerJobResult result : results) {
+            if (result.getAction() != null) {
+                switch (result.getAction()) {
+                    case EXECUTE_SUCCESS:
+                        monitor.incExeSuccessNum();
+                        break;
+                    case EXECUTE_FAILED:
+                        monitor.incExeFailedNum();
+                        break;
+                    case EXECUTE_LATER:
+                        monitor.incExeLaterNum();
+                        break;
+                    case EXECUTE_EXCEPTION:
+                        monitor.incExeExceptionNum();
+                        break;
+                }
+            }
+        }
     }
 
     /**
@@ -257,6 +287,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
         jobLogPo.setLevel(Level.INFO);
         jobLogPo.setLogTime(SystemClock.now());
         application.getJobLogger().log(jobLogPo);
+
+        monitor.incPushJobNum();
+
         return jobPushRequest;
     }
 
@@ -294,10 +327,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                         cronJobPo.setGmtModified(SystemClock.now());
                         application.getExecutableJobQueue().add(cronJobPo);
-                    } catch (DuplicateJobException e) {
-                        if (LOGGER.isWarnEnabled()) {
-                            LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
-                        }
+                    } catch (DuplicateJobException ignore) {
                     }
                 }
             }
@@ -335,10 +365,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                                 cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 cronJobPo.setGmtModified(SystemClock.now());
                                 application.getExecutableJobQueue().add(cronJobPo);
-                            } catch (DuplicateJobException e) {
-                                if (LOGGER.isWarnEnabled()) {
-                                    LOGGER.warn("Cron job :{}  is duplicate !", cronJobPo, e);
-                                }
+                            } catch (DuplicateJobException ignore) {
                             }
                             needAdd = false;
                         }
@@ -350,7 +377,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     jobPo.setTaskTrackerIdentity(null);
                     // 延迟重试时间就等于重试次数(分钟)
                     jobPo.setTriggerTime(nextRetryTriggerTime);
-                    application.getExecutableJobQueue().add(jobPo);
+                    try {
+                        application.getExecutableJobQueue().add(jobPo);
+                    } catch (DuplicateJobException ignore) {
+                    }
                 }
                 // 从正在执行的队列中移除
                 application.getExecutingJobQueue().remove(jobPo.getJobId());

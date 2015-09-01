@@ -30,8 +30,6 @@ public class TaskTrackerManager {
 
     /**
      * get all connected node group
-     *
-     * @return
      */
     public Set<String> getNodeGroups() {
         return NODE_MAP.keySet();
@@ -39,8 +37,6 @@ public class TaskTrackerManager {
 
     /**
      * 添加节点
-     *
-     * @param node
      */
     public void addNode(Node node) {
         //  channel 可能为 null
@@ -126,8 +122,7 @@ public class TaskTrackerManager {
 
         if (taskTrackerNodes != null && taskTrackerNodes.size() != 0) {
             for (TaskTrackerNode trackerNode : taskTrackerNodes) {
-                if (trackerNode.getIdentity().equals(identity)
-                        && trackerNode.getTimestamp() <= timestamp) {
+                if (trackerNode.getIdentity().equals(identity) && (trackerNode.getTimestamp() == null || trackerNode.getTimestamp() <= timestamp)) {
                     trackerNode.setAvailableThread(availableThreads);
                     trackerNode.setTimestamp(timestamp);
                     if (LOGGER.isDebugEnabled()) {

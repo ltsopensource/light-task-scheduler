@@ -1,5 +1,6 @@
 package com.lts.web.cluster;
 
+import com.lts.core.support.SystemClock;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,6 +17,13 @@ public class RegistryServiceTest {
 
         registryService.register("test_cluster");
 
+    }
+
+    @Test
+    public void testTime(){
+        Long time = SystemClock.now();
+        System.out.println(time);
+        System.out.println(time / 1000);
     }
 
 }
