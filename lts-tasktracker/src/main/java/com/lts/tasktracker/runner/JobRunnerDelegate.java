@@ -62,7 +62,7 @@ public class JobRunnerDelegate implements Runnable {
                         if (result.getAction() == null) {
                             response.setAction(Action.EXECUTE_SUCCESS);
                         }else{
-                            response.setAction(Action.EXECUTE_SUCCESS);
+                            response.setAction(result.getAction());
                         }
                         response.setMsg(result.getMsg());
                     }
