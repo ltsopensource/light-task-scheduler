@@ -60,12 +60,12 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         Config config = new Config();
         config.setIdentity(node.getIdentity());
         config.setNodeType(node.getNodeType());
-        config.setRegistryAddress(AppConfigurer.getProperties("registry.address"));
+        config.setRegistryAddress(AppConfigurer.getProperties("registryAddress"));
 
         for (Map.Entry<String, String> entry : AppConfigurer.allConfig().entrySet()) {
             // 将 config. 开头的配置都加入到config中
-            if (entry.getKey().startsWith("config.")) {
-                config.setParameter(entry.getKey().replace("config.", ""), entry.getValue());
+            if (entry.getKey().startsWith("configs.")) {
+                config.setParameter(entry.getKey().replace("configs.", ""), entry.getValue());
             }
         }
 

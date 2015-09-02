@@ -1,6 +1,14 @@
 package com.lts.web.support;
 
-import java.util.*;
+import com.lts.core.commons.utils.StringUtils;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/11/15.
@@ -8,26 +16,31 @@ import java.util.*;
 public class AppConfigurer {
 
     private static final Map<String, String> CONFIG = new HashMap<String, String>();
+    private static final String CONF_NAME = "lts-admin.conf";
 
-    static {
+    private static AtomicBoolean load = new AtomicBoolean(false);
+
+    public static void load(String confPath) {
         try {
-            List<String> configList = new ArrayList<String>(2);
-            configList.add("lts-admin-config");
-            Locale locale = Locale.getDefault();
-            for (String config : configList) {
-                try {
-                    ResourceBundle localResource = ResourceBundle.getBundle(config, locale);
-                    for (Object o : localResource.keySet()) {
-                        String key = o.toString();
-                        String value = localResource.getString(key);
-                        CONFIG.put(key, value);
-                    }
-                } catch (MissingResourceException e) {
-                    // ignore
+            if (load.compareAndSet(false, true)) {
+                Properties conf = new Properties();
+
+                if (StringUtils.isNotEmpty(confPath)) {
+                    InputStream is = new FileInputStream(new File(confPath + "/" + CONF_NAME));
+                    conf.load(is);
+                } else {
+                    InputStream is = AppConfigurer.class.getClassLoader().getResourceAsStream(CONF_NAME);
+                    conf.load(is);
+                }
+
+                for (Map.Entry<Object, Object> entry : conf.entrySet()) {
+                    String key = entry.getKey().toString();
+                    String value = entry.getValue() == null ? null : entry.getValue().toString();
+                    CONFIG.put(key, value);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

@@ -27,7 +27,7 @@ public class TaskTrackerTest {
         taskTracker.addMasterChangeListener(new MasterChangeListenerImpl());
         // 业务日志级别
         // taskTracker.setBizLoggerLevel(Level.INFO);
-        // 可选址  leveldb(默认), rocksdb, bekeleydb
+        // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
         taskTracker.addConfig("lts.monitor.url", "http://localhost:8080/");
         taskTracker.start();

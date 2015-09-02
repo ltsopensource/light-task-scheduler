@@ -171,7 +171,8 @@ public abstract class AbstractMonitor implements Monitor {
     }
 
     private boolean send(Map<String, String> params) throws IOException {
-        String result = WebUtils.doPost(monitorSite + Constants.MONITOR_DATA_ADD_URL, params, 3000, 6000);
+        String url = monitorSite + Constants.MONITOR_DATA_ADD_URL;
+        String result = WebUtils.doPost(url, params, 3000, 6000);
         if (StringUtils.isNotEmpty(result)) {
             try {
                 JSONObject json = JSONUtils.parseObject(result);
@@ -179,7 +180,7 @@ public abstract class AbstractMonitor implements Monitor {
                     return true;
                 }
             } catch (JSONException e) {
-                LOGGER.error("Monitor report result : \n" + result);
+                LOGGER.error("Monitor("+ url +") report result : \n" + result);
             }
         }
         return false;

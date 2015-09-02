@@ -71,10 +71,10 @@ public class FeedbackJobSendChecker {
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
                         , 30, 30, TimeUnit.SECONDS);
             }
-            LOGGER.info("feedback job checker started!");
+            LOGGER.info("Feedback job checker started!");
 
         } catch (Throwable t) {
-            LOGGER.error("feedback job checker start failed!", t);
+            LOGGER.error("Feedback job checker start failed!", t);
         }
     }
 
@@ -86,10 +86,10 @@ public class FeedbackJobSendChecker {
             if (start.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("feedback job checker stopped!");
+                LOGGER.info("Feedback job checker stopped!");
             }
         } catch (Throwable t) {
-            LOGGER.error("feedback job checker stop failed!", t);
+            LOGGER.error("Feedback job checker stop failed!", t);
         }
     }
 
@@ -154,7 +154,7 @@ public class FeedbackJobSendChecker {
                 // 返回发送成功的个数
                 int sentSize = clientNotifier.send(jobResults);
 
-                LOGGER.info("send to client: {} success, {} failed.", sentSize, jobResults.size() - sentSize);
+                LOGGER.info("Send to client: {} success, {} failed.", sentSize, jobResults.size() - sentSize);
             } while (jobFeedbackPos.size() > 0);
         }
     }

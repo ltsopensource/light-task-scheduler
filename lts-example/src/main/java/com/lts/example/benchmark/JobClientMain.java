@@ -31,7 +31,7 @@ public class JobClientMain {
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-        // 可选址  leveldb(默认), rocksdb, bekeleydb
+        // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
         jobClient.addConfig("job.submit.concurrency.size", "100");
         jobClient.start();
