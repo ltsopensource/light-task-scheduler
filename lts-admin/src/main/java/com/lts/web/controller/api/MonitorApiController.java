@@ -56,7 +56,7 @@ public class MonitorApiController extends AbstractController {
         RestfulResponse response = new RestfulResponse();
         if(request.getNodeType() == null){
             response.setSuccess(false);
-            response.setMsg("nodeTyope can not be null.");
+            response.setMsg("nodeType can not be null.");
             return response;
         }
         if (request.getStartTime() == null || request.getEndTime() == null) {

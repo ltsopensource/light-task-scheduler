@@ -119,8 +119,12 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 ```
 
 ##更新
+1.5.5
+1. 添加自动编译打包, LTS-Admin和JobTracker的shell脚本运行
+
 1.5.4.1 
 * 增加TaskTracker的监控数据，LTS-admin可以查看
+
 1.5.4:
 * 1. 增加 lts-spring 工程对spring的支持 (见lts-example 中spring文件夹下的例子)
 * 2. 对于TaskTracker 同时支持 JobRunner 中 注解注入bean 和xml注入的方式

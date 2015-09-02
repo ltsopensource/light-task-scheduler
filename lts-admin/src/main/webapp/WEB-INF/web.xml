@@ -33,6 +33,10 @@
     </servlet-mapping>
 
     <listener>
+        <listener-class>com.lts.web.support.SystemInitListener</listener-class>
+    </listener>
+
+    <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 

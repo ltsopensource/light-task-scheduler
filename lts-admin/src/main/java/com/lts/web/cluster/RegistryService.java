@@ -4,14 +4,13 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.registry.Registry;
 import com.lts.core.registry.RegistryFactory;
+import com.lts.web.repository.NodeMemoryRepository;
 import com.lts.web.request.NodeRequest;
 import com.lts.web.support.AppConfigurer;
-import com.lts.web.repository.NodeMemoryRepository;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -74,12 +73,7 @@ public class RegistryService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String clusterNames = AppConfigurer.getProperties("clusterNames");
-        if (StringUtils.isNotEmpty(clusterNames)) {
-            String[] clusters = clusterNames.split(",");
-            for (String cluster : clusters) {
-                register(cluster.trim());
-            }
-        }
+        String clusterName = AppConfigurer.getProperties("clusterName");
+        register(clusterName.trim());
     }
 }
