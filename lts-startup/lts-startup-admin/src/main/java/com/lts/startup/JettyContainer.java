@@ -3,6 +3,13 @@ package com.lts.startup;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.webapp.WebAppContext;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
@@ -11,13 +18,23 @@ public class JettyContainer {
     public static void main(String[] args) {
         try {
             String confPath = args[0];
-            Integer port = Integer.parseInt(args[1]);
 
-            System.setProperty("lts.admin.config.path", confPath + "/conf");
+            confPath = confPath.trim();
 
-            Server server = new Server(port);
+            Properties conf = new Properties();
+            InputStream is = new FileInputStream(new File(confPath + "/conf/lts-admin.cfg"));
+            conf.load(is);
+            String port = conf.getProperty("port");
+            if (port == null || port.trim().equals("")) {
+                port = "8080";
+            }
+
+            Server server = new Server(Integer.parseInt(port));
             WebAppContext webapp = new WebAppContext();
             webapp.setWar(confPath + "/lts-admin.war");
+            Map<String, String> initParams = new HashMap<String, String>();
+            initParams.put("lts.admin.config.path", confPath + "/conf");
+            webapp.setInitParams(initParams);
             server.setHandler(webapp);
             server.setStopAtShutdown(true);
             server.start();

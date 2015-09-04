@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AppConfigurer {
 
     private static final Map<String, String> CONFIG = new HashMap<String, String>();
-    private static final String CONF_NAME = "lts-admin.conf";
+    private static final String CONF_NAME = "lts-admin.cfg";
 
     private static AtomicBoolean load = new AtomicBoolean(false);
 

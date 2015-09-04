@@ -33,12 +33,6 @@ LTS_MAIN="com.lts.startup.JettyContainer"
 
 LTS_PID_FILE="$LTS_ADMIN_HOME/../pid/lts-admin.pid"
 
-# 得到Jetty端口
-PORT="$(grep "^[[:space:]]*port" "$CONF_HOME/conf/lts-admin.conf" | sed -e 's/.*=//')"
-if [ -z "$PORT" ]; then
-    PORT=8080
-fi
-
 case $1 in
 start)
     echo "Starting LTS LTS-Admin ... "
@@ -48,7 +42,7 @@ start)
          exit 0
       fi
     fi
-    nohup "$JAVA" -cp "$CLASSPATH" $JVMFLAGS $LTS_MAIN "$CONF_HOME" "$PORT"> "$_LTS_DAEMON_OUT" 2>&1 < /dev/null &
+    nohup "$JAVA" -cp "$CLASSPATH" $JVMFLAGS $LTS_MAIN "$CONF_HOME" > "$_LTS_DAEMON_OUT" 2>&1 < /dev/null &
 
 	if [ $? -eq 0 ]
     then

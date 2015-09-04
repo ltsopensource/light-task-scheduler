@@ -141,7 +141,9 @@ public abstract class AbstractMonitor implements Monitor {
                     try {
                         if (send(params)) {
                             toIndex = toIndex + CollectionUtils.sizeOf(monitorDataList);
-                            LOGGER.info("Report monitor data success ");
+                            if(LOGGER.isDebugEnabled()){
+                                LOGGER.debug("Report monitor data success ");
+                            }
                         } else {
                             LOGGER.warn("Report monitor data failed, send later ,please check the LTS-Admin is available");
                             break;
