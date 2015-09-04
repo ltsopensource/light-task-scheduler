@@ -97,7 +97,7 @@ public class HeartBeatMonitor {
                                 }
                             }, 30, 30, TimeUnit.SECONDS);      // 30s 一次心跳
                 }
-                LOGGER.info("Start slow ping success.");
+                LOGGER.debug("Start slow ping success.");
             }
         } catch (Throwable t) {
             LOGGER.error("Start slow ping failed.", t);
@@ -110,7 +110,7 @@ public class HeartBeatMonitor {
 //                pingScheduledFuture.cancel(true);
 //                PING_EXECUTOR_SERVICE.shutdown();
                 application.getEventCenter().unSubscribe(EcTopic.NO_JOB_TRACKER_AVAILABLE, jobTrackerUnavailableEventSubscriber);
-                LOGGER.info("Stop slow ping success.");
+                LOGGER.debug("Stop slow ping success.");
             }
         } catch (Throwable t) {
             LOGGER.error("Stop slow ping failed.", t);
@@ -132,7 +132,7 @@ public class HeartBeatMonitor {
                                 }
                             }, 1, 1, TimeUnit.MILLISECONDS);
                 }
-                LOGGER.info("Start fast ping success.");
+                LOGGER.debug("Start fast ping success.");
             } catch (Throwable t) {
                 LOGGER.error("Start fast ping failed.", t);
             }
@@ -144,7 +144,7 @@ public class HeartBeatMonitor {
             if (fastPingStart.compareAndSet(true, false)) {
 //                fastPingScheduledFuture.cancel(true);
 //                FAST_PING_EXECUTOR.shutdown();
-                LOGGER.info("Stop fast ping success.");
+                LOGGER.debug("Stop fast ping success.");
             }
         } catch (Throwable t) {
             LOGGER.error("Stop fast ping failed.", t);
