@@ -276,6 +276,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |mongo.addresses|可选|无|JobTracker|addConfig("mongo.addresses", "xxx")|mongo连接URL,当job.queue为mongo的时候起作用|
 |mongo.database|可选|无|JobTracker|addConfig("mongo.database", "xxx")|mongo数据库名,当job.queue为mongo的时候起作用|
 |zk.client|可选|zkclient|JobClient,JobTracker,TaskTracker|addConfig("zk.client", "xxx")|zookeeper客户端,可选值zkclient, curator|
+|job.pull.frequency|可选|3|TaskTracker|addConfig("job.pull.frequency", "xx")|TaskTracker去向JobTracker Pull任务的频率，针对不同的场景可以做相应的调整，单位秒|
 
 
 

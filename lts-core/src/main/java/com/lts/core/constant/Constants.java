@@ -84,4 +84,7 @@ public interface Constants {
     Charset UTF_8 = Charset.forName("UTF-8");
 
     String MONITOR_DATA_ADD_URL = "/api/monitor/monitor-data-add.do";
+
+    String JOB_PULL_FREQUENCY = "job.pull.frequency";
+    int DEFAULT_JOB_PULL_FREQUENCY = 3;
 }
