@@ -6,7 +6,6 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.BizLog;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
-import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -20,8 +19,8 @@ import java.util.List;
  */
 public class JobBizLogProcessor extends AbstractProcessor {
 
-    public JobBizLogProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
-        super(remotingServer, application);
+    public JobBizLogProcessor(JobTrackerApplication application) {
+        super(application);
     }
 
     @Override

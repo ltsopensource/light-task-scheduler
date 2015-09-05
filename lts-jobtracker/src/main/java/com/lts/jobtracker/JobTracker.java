@@ -53,6 +53,9 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected void preRemotingStart() {
+        super.preRemotingStart();
+        // injectRemotingServer
+        application.setRemotingServer(remotingServer);
         application.setJobLogger(jobLoggerFactory.getJobLogger(config));
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
@@ -64,8 +67,6 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected void afterRemotingStart() {
-        // injectRemotingServer
-        application.setRemotingServer(remotingServer);
         application.getChannelManager().start();
         application.getMonitor().start();
     }
@@ -78,7 +79,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected NettyRequestProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(remotingServer, application);
+        return new RemotingDispatcher(application);
     }
 
     /**

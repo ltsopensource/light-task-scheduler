@@ -1,7 +1,6 @@
 package com.lts.tasktracker.processor;
 
 import com.lts.core.protocol.JobProtos;
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -20,10 +19,10 @@ public class RemotingDispatcher extends AbstractProcessor {
 
     private final Map<JobProtos.RequestCode, NettyRequestProcessor> processors = new HashMap<JobProtos.RequestCode, NettyRequestProcessor>();
 
-    public RemotingDispatcher(RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
-        super(remotingClient, application);
-        processors.put(JobProtos.RequestCode.PUSH_JOB, new JobPushProcessor(remotingClient, application));
-        processors.put(JobProtos.RequestCode.JOB_ASK, new JobAskProcessor(remotingClient, application));
+    public RemotingDispatcher(TaskTrackerApplication application) {
+        super(application);
+        processors.put(JobProtos.RequestCode.PUSH_JOB, new JobPushProcessor(application));
+        processors.put(JobProtos.RequestCode.JOB_ASK, new JobAskProcessor(application));
     }
 
     @Override

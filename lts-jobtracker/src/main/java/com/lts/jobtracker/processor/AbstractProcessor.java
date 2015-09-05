@@ -1,6 +1,5 @@
 package com.lts.jobtracker.processor;
 
-import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.remoting.netty.NettyRequestProcessor;
 
@@ -9,11 +8,9 @@ import com.lts.remoting.netty.NettyRequestProcessor;
  */
 public abstract class AbstractProcessor implements NettyRequestProcessor{
 
-    protected RemotingServerDelegate remotingServer;
     protected JobTrackerApplication application;
 
-    public AbstractProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
-        this.remotingServer = remotingServer;
+    public AbstractProcessor(JobTrackerApplication application) {
         this.application = application;
     }
 

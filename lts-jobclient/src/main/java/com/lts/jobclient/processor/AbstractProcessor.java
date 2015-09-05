@@ -1,6 +1,5 @@
 package com.lts.jobclient.processor;
 
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.remoting.netty.NettyRequestProcessor;
 
 /**
@@ -8,9 +7,4 @@ import com.lts.remoting.netty.NettyRequestProcessor;
  */
 public abstract class AbstractProcessor implements NettyRequestProcessor{
 
-    protected RemotingClientDelegate remotingClient;
-
-    protected AbstractProcessor(RemotingClientDelegate remotingClient) {
-        this.remotingClient = remotingClient;
-    }
 }

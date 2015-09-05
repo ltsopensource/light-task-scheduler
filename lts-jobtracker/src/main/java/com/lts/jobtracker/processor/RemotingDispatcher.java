@@ -25,12 +25,12 @@ public class RemotingDispatcher extends AbstractProcessor {
 
     private final Map<RequestCode, NettyRequestProcessor> processors = new HashMap<RequestCode, NettyRequestProcessor>();
 
-    public RemotingDispatcher(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
-        super(remotingServer, application);
-        processors.put(RequestCode.SUBMIT_JOB, new JobSubmitProcessor(remotingServer, application));
-        processors.put(RequestCode.JOB_FINISHED, new JobFinishedProcessor(remotingServer, application));
-        processors.put(RequestCode.JOB_PULL, new JobPullProcessor(remotingServer, application));
-        processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(remotingServer, application));
+    public RemotingDispatcher(JobTrackerApplication application) {
+        super(application);
+        processors.put(RequestCode.SUBMIT_JOB, new JobSubmitProcessor(application));
+        processors.put(RequestCode.JOB_FINISHED, new JobFinishedProcessor(application));
+        processors.put(RequestCode.JOB_PULL, new JobPullProcessor(application));
+        processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(application));
     }
 
     @Override

@@ -39,15 +39,17 @@ public class JobPusher {
     private JobTrackerApplication application;
     private final ExecutorService executorService;
     private JobTrackerMonitor monitor;
+    private RemotingServerDelegate remotingServer;
 
     public JobPusher(JobTrackerApplication application) {
         this.application = application;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
                 new NamedThreadFactory(JobPusher.class.getSimpleName()));
         this.monitor = (JobTrackerMonitor) application.getMonitor();
+        this.remotingServer = application.getRemotingServer();
     }
 
-    public void push(final RemotingServerDelegate remotingServer, final JobPullRequest request) {
+    public void push(final JobPullRequest request) {
 
         this.executorService.submit(new Runnable() {
             @Override

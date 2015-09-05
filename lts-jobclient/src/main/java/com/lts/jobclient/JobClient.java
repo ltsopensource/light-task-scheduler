@@ -54,6 +54,8 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     @Override
     protected void preRemotingStart() {
+        super.preRemotingStart();
+        application.setRemotingClient(remotingClient);
         int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
                 Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
@@ -192,7 +194,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     @Override
     protected NettyRequestProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(remotingClient, jobFinishedHandler);
+        return new RemotingDispatcher(jobFinishedHandler);
     }
 
     /**

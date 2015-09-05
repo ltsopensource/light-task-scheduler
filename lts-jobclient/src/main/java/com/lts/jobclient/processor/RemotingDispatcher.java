@@ -1,7 +1,6 @@
 package com.lts.jobclient.processor;
 
 import com.lts.core.protocol.JobProtos;
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.netty.NettyRequestProcessor;
@@ -23,9 +22,8 @@ public class RemotingDispatcher extends AbstractProcessor {
 
     private final Map<JobProtos.RequestCode, NettyRequestProcessor> processors = new HashMap<JobProtos.RequestCode, NettyRequestProcessor>();
 
-    public RemotingDispatcher(RemotingClientDelegate remotingClient, JobFinishedHandler jobFinishedHandler) {
-        super(remotingClient);
-        processors.put(JOB_FINISHED, new JobFinishedProcessor(remotingClient, jobFinishedHandler));
+    public RemotingDispatcher(JobFinishedHandler jobFinishedHandler) {
+        processors.put(JOB_FINISHED, new JobFinishedProcessor(jobFinishedHandler));
     }
 
     @Override

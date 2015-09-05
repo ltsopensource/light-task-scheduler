@@ -3,7 +3,6 @@ package com.lts.tasktracker.processor;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.protocol.command.JobAskRequest;
 import com.lts.core.protocol.command.JobAskResponse;
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
@@ -17,9 +16,8 @@ import java.util.List;
  */
 public class JobAskProcessor extends AbstractProcessor {
 
-    protected JobAskProcessor(RemotingClientDelegate remotingClient,
-                              TaskTrackerApplication application) {
-        super(remotingClient, application);
+    protected JobAskProcessor(TaskTrackerApplication application) {
+        super(application);
     }
 
     @Override

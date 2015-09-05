@@ -14,7 +14,6 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.protocol.command.TtJobFinishedRequest;
-import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
@@ -48,8 +47,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
     // 任务的最大重试次数
     private final Integer maxRetryTimes;
 
-    public JobFinishedProcessor(RemotingServerDelegate remotingServer, final JobTrackerApplication application) {
-        super(remotingServer, application);
+    public JobFinishedProcessor(final JobTrackerApplication application) {
+        super(application);
         this.monitor = (JobTrackerMonitor) application.getMonitor();
         this.maxRetryTimes = application.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
                 Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
