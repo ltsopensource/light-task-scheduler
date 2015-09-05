@@ -44,6 +44,15 @@ public class MongoJobFeedbackQueue extends MongoRepository implements JobFeedbac
     }
 
     @Override
+    public boolean removeQueue(String jobClientNodeGroup) {
+        String tableName = JobQueueUtils.getFeedbackQueueName(jobClientNodeGroup);
+        DBCollection dbCollection = template.getCollection(tableName);
+        dbCollection.drop();
+        LOGGER.info("drop queue " + tableName);
+        return true;
+    }
+
+    @Override
     public boolean add(List<JobFeedbackPo> jobFeedbackPos) {
         if (CollectionUtils.isEmpty(jobFeedbackPos)) {
             return true;

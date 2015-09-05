@@ -108,7 +108,6 @@ public class NodeMemoryRepository extends MemoryRepository {
         try {
             SqlBuilder sql = new SqlBuilder("SELECT * FROM lts_node");
             sql.addCondition("identity", request.getIdentity())
-                    .addCondition("clusterName", request.getClusterName())
                     .addCondition("nodeGroup", request.getNodeGroup())
                     .addCondition("nodeType", request.getNodeType() == null ? null : request.getNodeType().name())
                     .addCondition("ip", request.getIp())

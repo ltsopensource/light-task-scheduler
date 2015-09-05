@@ -2,8 +2,8 @@ package com.lts.web.cluster;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
-import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.registry.Registry;
@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,7 +24,6 @@ import java.util.List;
 @Component
 public class RegistryService implements InitializingBean {
 
-    private final ConcurrentHashSet<String/*clusterName*/> MAP = new ConcurrentHashSet<String>();
     private NodeMemoryRepository repo = new NodeMemoryRepository();
 
     @Autowired
@@ -33,10 +31,6 @@ public class RegistryService implements InitializingBean {
     AdminApplication application;
 
     public synchronized void register(String clusterName) {
-
-        if (MAP.contains(clusterName)) {
-            return;
-        }
 
         Config config = application.getConfig();
         config.setClusterName(clusterName);
@@ -59,12 +53,6 @@ public class RegistryService implements InitializingBean {
                 }
             }
         });
-
-        MAP.add(clusterName);
-    }
-
-    public List<String> getAllClusterNames() {
-        return new ArrayList<String>(MAP.list());
     }
 
     public List<Node> getNodes(NodeRequest request) {
@@ -74,6 +62,9 @@ public class RegistryService implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         String clusterName = AppConfigurer.getProperties("clusterName");
+        if (StringUtils.isEmpty(clusterName)) {
+            throw new IllegalArgumentException("clusterName in lts-admin.cfg can not be null.");
+        }
         register(clusterName.trim());
     }
 }

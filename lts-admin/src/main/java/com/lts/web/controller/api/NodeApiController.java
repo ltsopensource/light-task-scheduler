@@ -1,11 +1,16 @@
 package com.lts.web.controller.api;
 
 import com.lts.core.cluster.Node;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.domain.NodeGroupGetRequest;
+import com.lts.queue.domain.NodeGroupPo;
+import com.lts.web.cluster.AdminApplication;
 import com.lts.web.cluster.RegistryService;
 import com.lts.web.controller.AbstractController;
+import com.lts.web.request.NodeGroupRequest;
 import com.lts.web.request.NodeRequest;
+import com.lts.web.response.PageResponse;
 import com.lts.web.vo.RestfulResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +27,8 @@ public class NodeApiController extends AbstractController {
 
     @Autowired
     RegistryService registryService;
+    @Autowired
+    AdminApplication application;
 
     @RequestMapping("node-list-get")
     public RestfulResponse getNodeList(NodeRequest request) {
@@ -36,28 +43,43 @@ public class NodeApiController extends AbstractController {
         return response;
     }
 
-    @RequestMapping("node-cluster-register")
-    public RestfulResponse registerClusterNameSub(NodeRequest request) {
+    @RequestMapping("node-group-get")
+    public RestfulResponse getNodeGroup(NodeGroupRequest request){
         RestfulResponse response = new RestfulResponse();
+        NodeGroupGetRequest nodeGroupGetRequest = new NodeGroupGetRequest();
+        nodeGroupGetRequest.setNodeGroup(request.getNodeGroup());
+        nodeGroupGetRequest.setNodeType(request.getNodeType());
+        PageResponse<NodeGroupPo> pageResponse = application.getNodeGroupStore().getNodeGroup(nodeGroupGetRequest);
 
-        if (StringUtils.isEmpty(request.getClusterName())) {
-            response.setSuccess(false);
-            response.setMsg("clusterName can not be null");
-            return response;
+        response.setResults(pageResponse.getResults());
+        response.setRows(pageResponse.getRows());
+        response.setSuccess(true);
+        return response;
+    }
+
+    @RequestMapping("node-group-add")
+    public RestfulResponse addNodeGroup(NodeGroupRequest request) {
+        RestfulResponse response = new RestfulResponse();
+        application.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup());
+        if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
+            application.getExecutableJobQueue().createQueue(request.getNodeGroup());
+        }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
+            application.getJobFeedbackQueue().createQueue(request.getNodeGroup());
         }
-        registryService.register(request.getClusterName());
         response.setSuccess(true);
         return response;
     }
 
-    @RequestMapping("node-cluster-register-get")
-    public RestfulResponse getAllRegisterClusterName() {
+    @RequestMapping("node-group-del")
+    public RestfulResponse delNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
-        List<String> clusterNames = registryService.getAllClusterNames();
+        application.getNodeGroupStore().removeNodeGroup(request.getNodeType(), request.getNodeGroup());
+        if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
+            application.getExecutableJobQueue().removeQueue(request.getNodeGroup());
+        }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
+            application.getJobFeedbackQueue().removeQueue(request.getNodeGroup());
+        }
         response.setSuccess(true);
-        response.setResults(CollectionUtils.sizeOf(clusterNames));
-        response.setRows(clusterNames);
         return response;
     }
-
 }

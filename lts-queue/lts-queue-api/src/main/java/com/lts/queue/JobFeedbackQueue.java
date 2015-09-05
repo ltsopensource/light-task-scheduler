@@ -18,9 +18,12 @@ public interface JobFeedbackQueue {
     boolean createQueue(String jobClientNodeGroup);
 
     /**
+     * 删除
+     */
+    boolean removeQueue(String jobClientNodeGroup);
+
+    /**
      * 入队列
-     *
-     * @param jobFeedbackPos
      */
     public boolean add(List<JobFeedbackPo> jobFeedbackPos);
 

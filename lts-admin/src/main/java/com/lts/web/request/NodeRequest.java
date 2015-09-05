@@ -9,7 +9,6 @@ import java.util.Date;
  */
 public class NodeRequest extends PageRequest {
 
-    private String clusterName;
     private String identity;
     private String ip;
     private String nodeGroup;
@@ -24,14 +23,6 @@ public class NodeRequest extends PageRequest {
 
     public void setNodeGroup(String nodeGroup) {
         this.nodeGroup = nodeGroup;
-    }
-
-    public String getClusterName() {
-        return clusterName;
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
     }
 
     public String getIdentity() {

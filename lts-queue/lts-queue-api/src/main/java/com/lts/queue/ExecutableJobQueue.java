@@ -17,6 +17,11 @@ public interface ExecutableJobQueue extends JobQueue{
     boolean createQueue(String taskTrackerNodeGroup);
 
     /**
+     * 删除
+     */
+    boolean removeQueue(String taskTrackerNodeGroup);
+
+    /**
      * 入队列
      */
     boolean add(JobPo jobPo);

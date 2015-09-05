@@ -32,7 +32,7 @@
     BUI.use('common/main', function () {
         var config = [{
             id: 'menu',
-            homePage: 'node',
+            homePage: 'node-manager',
             menu: [
 //                {
 //                text: '概况',
@@ -43,7 +43,8 @@
             {
                 text: '节点管理',
                 items: [
-                    {id: 'node', text: '节点管理', href: 'node/node-manager.htm'}
+                    {id: 'node-manager', text: '节点管理', href: 'node/node-manager.htm'},
+                    {id: 'node-group-manager', text: '节点组管理', href: 'node/node-group-manager.htm'}
                 ]
             }, {
                 text: '任务队列管理',

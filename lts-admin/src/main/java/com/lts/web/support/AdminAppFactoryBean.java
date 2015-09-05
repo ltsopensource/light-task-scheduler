@@ -6,10 +6,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.extension.ExtensionLoader;
-import com.lts.queue.CronJobQueueFactory;
-import com.lts.queue.ExecutableJobQueueFactory;
-import com.lts.queue.ExecutingJobQueueFactory;
-import com.lts.queue.NodeGroupStoreFactory;
+import com.lts.queue.*;
 import com.lts.web.cluster.AdminApplication;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -31,6 +28,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
             NodeGroupStoreFactory.class).getAdaptiveExtension();
     JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(
             JobLoggerFactory.class).getAdaptiveExtension();
+    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(
+            JobFeedbackQueueFactory.class).getAdaptiveExtension();
 
     private AdminApplication application;
 
@@ -72,6 +71,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         application = new AdminApplication();
         application.setConfig(config);
         application.setNode(node);
+        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
         application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));

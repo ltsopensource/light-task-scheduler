@@ -3,13 +3,13 @@ package com.lts.queue.mysql;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.web.request.JobQueueRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
 import com.lts.queue.mysql.support.ResultSetHandlerHolder;
+import com.lts.web.request.JobQueueRequest;
 
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -46,6 +46,18 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
             return true;
         } catch (Exception e) {
             throw new JobQueueException("create table error!", e);
+        }
+    }
+
+    private String delTable = "DROP TABLE IF EXISTS {tableName};";
+
+    @Override
+    public boolean removeQueue(String taskTrackerNodeGroup) {
+        try {
+            getSqlTemplate().update(delTable.replace("{tableName}", JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup)));
+            return true;
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
         }
     }
 
