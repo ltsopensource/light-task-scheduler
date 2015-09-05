@@ -25,10 +25,13 @@ public class UIController {
     AdminApplication application;
 
     @RequestMapping("node/node-manager")
-    public String nodeManagerUI(Model model) {
-        List<String> clusterNames = registryService.getAllClusterNames();
-        model.addAttribute("clusterNames", clusterNames);
+    public String nodeManagerUI() {
         return "node-manager";
+    }
+
+    @RequestMapping("node/node-group-manager")
+    public String nodeGroupManagerUI() {
+        return "node-group-manager";
     }
 
     @RequestMapping("job-queue/job-add-ui")

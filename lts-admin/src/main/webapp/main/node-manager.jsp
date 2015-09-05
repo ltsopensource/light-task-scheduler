@@ -11,22 +11,6 @@
         <form id="searchForm" class="form-horizontal span24">
             <div class="row">
                 <div class="control-group span8">
-                    <label class="control-label">集群名称：</label>
-
-                    <div class="controls">
-                        <select name="clusterName">
-                            <option value="">所有</option>
-                            <c:forEach items="${clusterNames}" var="clusterName">
-                                <option value="${clusterName}">${clusterName}</option>
-                            </c:forEach>
-                        </select>
-
-                        <div>
-                            <a href="javascript:;" id="clusterNameAdd">添加集群监听</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="control-group span8">
                     <label class="control-label">节点标识：</label>
 
                     <div class="controls">
@@ -95,64 +79,6 @@
 <script type="text/javascript">
 
     BUI.use(['bui/common', 'bui/grid', 'bui/form', 'bui/data', 'bui/overlay','common/date-util'], buiInit);
-
-    $(document).ready(function () {
-
-        $(document).on("click", "#clusterNameAdd", function () {
-            BUI.use('bui/overlay', function (Overlay) {
-
-                var html = $("#clusterNameAddDlg").html();
-
-                var dialog = new Overlay.Dialog({
-                    title: '添加集群监听',
-                    width: 250,
-                    height: 100,
-                    mask: false,
-                    buttons: [
-                        {
-                            text: '添加',
-                            elCls: 'button button-primary',
-                            handler: function () {
-                                var that = this;
-                                // submit
-                                var clusterName = $("#clusterNameAddInput").val();
-                                if (!clusterName) {
-                                    BUI.Message.Alert("集群名称不能为空!");
-                                    return;
-                                }
-                                $.ajax({
-                                    url: '../api/node/node-cluster-register',
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: {clusterName: clusterName},
-                                    success: function () {
-                                        BUI.Message.Alert("添加成功,点击确认刷新页面!", function () {
-                                            location.reload();
-                                        });
-                                    }
-                                });
-                            }
-                        }, {
-                            text: '关闭',
-                            elCls: 'button',
-                            handler: function () {
-                                this.close();
-                            }
-                        }
-                    ],
-
-                    bodyContent: ['<div class="control-group span8">',
-                        '<label class="control-label">集群名称：</label>',
-                        '<div class="controls">',
-                        '<input type="text" class="control-text" id="clusterNameAddInput" name="clusterName">',
-                        '</div>',
-                        '</div>'].join("")
-                });
-                dialog.show();
-            });
-        });
-
-    });
 
     function buiInit(BUI, Grid, Form, Data, Overlay, DateUtil) {
 

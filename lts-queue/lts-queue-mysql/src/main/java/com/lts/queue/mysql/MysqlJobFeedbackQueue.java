@@ -45,6 +45,19 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         return false;
     }
 
+
+    private String delTable = "DROP TABLE IF EXISTS {tableName};";
+
+    @Override
+    public boolean removeQueue(String jobClientNodeGroup) {
+        try {
+            getSqlTemplate().update(delTable.replace("{tableName}", JobQueueUtils.getFeedbackQueueName(jobClientNodeGroup)));
+            return true;
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+    }
+
     private String getTableName(String jobClientNodeGroup) {
         return JobQueueUtils.getFeedbackQueueName(jobClientNodeGroup);
     }

@@ -3,11 +3,14 @@ package com.lts.queue.mongo;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.domain.NodeGroupGetRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.store.mongo.MongoRepository;
+import com.lts.web.response.PageResponse;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -58,5 +61,26 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
         Query<NodeGroupPo> query = template.createQuery(NodeGroupPo.class);
         query.field("nodeType").equal(nodeType);
         return query.asList();
+    }
+
+    @Override
+    public PageResponse<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request) {
+        Query<NodeGroupPo> query = template.createQuery(NodeGroupPo.class);
+        if (request.getNodeType() != null) {
+            query.field("nodeType").equal(request.getNodeType());
+        }
+        if (StringUtils.isNotEmpty(request.getNodeGroup())) {
+            query.field("name").equal(request.getNodeGroup());
+        }
+        PageResponse<NodeGroupPo> response = new PageResponse<NodeGroupPo>();
+        Long results = template.getCount(query);
+        response.setResults(results.intValue());
+        if (results == 0) {
+            return response;
+        }
+        query.order("-gmtCreated").offset(request.getStart()).limit(request.getLimit());
+
+        response.setRows(query.asList());
+        return response;
     }
 }

@@ -26,7 +26,7 @@ public class JettyContainer {
             conf.load(is);
             String port = conf.getProperty("port");
             if (port == null || port.trim().equals("")) {
-                port = "8080";
+                port = "8081";
             }
 
             Server server = new Server(Integer.parseInt(port));

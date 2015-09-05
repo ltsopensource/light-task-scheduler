@@ -72,7 +72,7 @@ public class JobTrackerTest {
         // 任务队列用mysql
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置
-         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts3");
+         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
          jobTracker.addConfig("jdbc.username", "root");
          jobTracker.addConfig("jdbc.password", "root");
 
@@ -80,7 +80,7 @@ public class JobTrackerTest {
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "zkclient");
 
-        jobTracker.addConfig("lts.monitor.url", "http://localhost:8080/");
+        jobTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
 
         // 启动节点
         jobTracker.start();

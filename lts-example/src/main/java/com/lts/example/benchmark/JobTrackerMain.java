@@ -49,7 +49,7 @@ public class JobTrackerMain {
         jobTracker.addConfig("job.queue", "mongo");
         // mongo 配置
         jobTracker.addConfig("mongo.addresses", "127.0.0.1:27017");     // 多个地址用逗号分割
-        jobTracker.addConfig("mongo.database", "lts3");
+        jobTracker.addConfig("mongo.database", "lts");
         // 这个是对于 返回给客户端 任务的 老数据删除策略
         jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient(默认), curator

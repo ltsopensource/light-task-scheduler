@@ -1,7 +1,9 @@
 package com.lts.queue;
 
 import com.lts.core.cluster.NodeType;
+import com.lts.core.domain.NodeGroupGetRequest;
 import com.lts.queue.domain.NodeGroupPo;
+import com.lts.web.response.PageResponse;
 
 import java.util.List;
 
@@ -34,4 +36,8 @@ public interface NodeGroupStore {
      */
     List<NodeGroupPo> getNodeGroup(NodeType nodeType);
 
+    /**
+     * 分页查询
+     */
+    PageResponse<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request);
 }

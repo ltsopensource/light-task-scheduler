@@ -25,7 +25,7 @@
                 <version>2.2</version>
                 <configuration>
                     <path>/</path>
-                    <port>8080</port>
+                    <port>8081</port>
                     <server>tomcat</server>
                     <warFile>lts-admin.war</warFile>
                     <uriEncoding>utf-8</uriEncoding>
