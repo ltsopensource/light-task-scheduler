@@ -1,5 +1,6 @@
 package com.lts.tasktracker.support;
 
+import com.lts.core.constant.Constants;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.logger.Logger;
@@ -33,9 +34,11 @@ public class JobPullMachine {
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerApplication application;
     private Runnable runnable;
+    private int jobPullFrequency;
 
     public JobPullMachine(final TaskTrackerApplication application) {
         this.application = application;
+        this.jobPullFrequency = application.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
 
         application.getEventCenter().subscribe(
                 new EventSubscriber(JobPullMachine.class.getSimpleName().concat(application.getConfig().getIdentity()),
@@ -69,8 +72,8 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 3, 3, TimeUnit.SECONDS);
-                           // 5s 检查一次是否有空余线程
+                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 1, jobPullFrequency, TimeUnit.SECONDS);
+                    // 5s 检查一次是否有空余线程
                 }
                 LOGGER.info("Start job pull machine success!");
             }
