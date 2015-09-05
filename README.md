@@ -277,6 +277,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |mongo.database|可选|无|JobTracker|addConfig("mongo.database", "xxx")|mongo数据库名,当job.queue为mongo的时候起作用|
 |zk.client|可选|zkclient|JobClient,JobTracker,TaskTracker|addConfig("zk.client", "xxx")|zookeeper客户端,可选值zkclient, curator|
 |job.pull.frequency|可选|3|TaskTracker|addConfig("job.pull.frequency", "xx")|TaskTracker去向JobTracker Pull任务的频率，针对不同的场景可以做相应的调整，单位秒|
+|job.max.retry.times|可选|10|JobTracker|addConfig("job.max.retry.times", "xx")|任务的最大重试次数|
+|lts.monitor.url|可选|无|JobTracker,TaskTracker|addConfig("lts.monitor.url", "xx")|监控中心地址，也就是LTS-Admin地址，如 http://localhost:8081|
 
 
 
@@ -334,6 +336,9 @@ class JobRunnerB implements JobRunner {
 实现方式和LTS-Logger扩展类似，具体参考`lts-queue-mysql`或`lts-queue-mongo`模块的实现
 ##和其它解决方案比较
 ###和MQ比较
+见docs/LTS业务场景说明.pdf
 ###和Quartz比较
+见docs/LTS业务场景说明.pdf
+
 
 
