@@ -4,7 +4,6 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobFinishedRequest;
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -19,9 +18,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
     private JobFinishedHandler jobFinishedHandler;
 
-    public JobFinishedProcessor(RemotingClientDelegate remotingClient,
-                                JobFinishedHandler jobFinishedHandler) {
-        super(remotingClient);
+    public JobFinishedProcessor(JobFinishedHandler jobFinishedHandler) {
         this.jobFinishedHandler = jobFinishedHandler;
     }
 

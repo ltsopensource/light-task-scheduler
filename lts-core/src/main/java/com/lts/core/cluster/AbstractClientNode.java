@@ -21,10 +21,14 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     protected RemotingClientDelegate remotingClient;
     private HeartBeatMonitor heartBeatMonitor;
 
-    protected void remotingStart() {
+    @Override
+    protected void preRemotingStart() {
+        super.preRemotingStart();
         this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
         this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
+    }
 
+    protected void remotingStart() {
         remotingClient.start();
         heartBeatMonitor.start();
 

@@ -100,6 +100,7 @@ public class BaseJobClientTest {
         job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+        job.setNeedFeedback(true);
         if (triggerTime != null && !"".equals(triggerTime.trim())) {
             job.setTriggerTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(triggerTime).getTime());
         }

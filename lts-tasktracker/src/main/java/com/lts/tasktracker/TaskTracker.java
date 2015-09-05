@@ -24,6 +24,8 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void preRemotingStart() {
+        super.preRemotingStart();
+        application.setRemotingClient(remotingClient);
         // 设置 线程池
         application.setRunnerPool(new RunnerPool(application));
         application.setJobPullMachine(new JobPullMachine(application));
@@ -31,7 +33,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void afterRemotingStart() {
-        application.setRemotingClient(remotingClient);
         application.getMonitor().start();
     }
 
@@ -42,7 +43,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected NettyRequestProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(remotingClient, application);
+        return new RemotingDispatcher(application);
     }
 
     public <JRC extends JobRunner> void setJobRunnerClass(Class<JRC> clazz) {

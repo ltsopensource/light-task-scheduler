@@ -18,13 +18,18 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
 
     protected RemotingServerDelegate remotingServer;
 
-    protected void remotingStart() {
 
+    @Override
+    protected void preRemotingStart() {
+        super.preRemotingStart();
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         // config 配置
         nettyServerConfig.setListenPort(config.getListenPort());
 
         remotingServer = new RemotingServerDelegate(new NettyRemotingServer(nettyServerConfig), application);
+    }
+
+    protected void remotingStart() {
 
         remotingServer.start();
 

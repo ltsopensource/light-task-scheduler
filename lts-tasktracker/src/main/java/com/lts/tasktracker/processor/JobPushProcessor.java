@@ -39,10 +39,11 @@ public class JobPushProcessor extends AbstractProcessor {
 
     private RetryScheduler retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
+    private RemotingClientDelegate remotingClient;
 
-    protected JobPushProcessor(final RemotingClientDelegate remotingClient,
-                               TaskTrackerApplication application) {
-        super(remotingClient, application);
+    protected JobPushProcessor(TaskTrackerApplication application) {
+        super(application);
+        this.remotingClient = application.getRemotingClient();
         retryScheduler = new RetryScheduler<TaskTrackerJobResult>(application, 3) {
             @Override
             protected boolean isRemotingEnable() {

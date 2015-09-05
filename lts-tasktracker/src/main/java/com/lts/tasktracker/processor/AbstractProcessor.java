@@ -1,6 +1,5 @@
 package com.lts.tasktracker.processor;
 
-import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 
@@ -9,11 +8,9 @@ import com.lts.tasktracker.domain.TaskTrackerApplication;
  */
 public abstract class AbstractProcessor implements NettyRequestProcessor {
 
-    protected RemotingClientDelegate remotingClient;
     protected TaskTrackerApplication application;
 
-    protected AbstractProcessor(RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
-        this.remotingClient = remotingClient;
+    protected AbstractProcessor(TaskTrackerApplication application) {
         this.application = application;
     }
 }

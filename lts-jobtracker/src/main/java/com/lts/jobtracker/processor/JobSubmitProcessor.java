@@ -6,7 +6,6 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
-import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.JobReceiver;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -23,8 +22,8 @@ public class JobSubmitProcessor extends AbstractProcessor {
 
     private JobReceiver jobReceiver;
 
-    public JobSubmitProcessor(RemotingServerDelegate remotingServer, JobTrackerApplication application) {
-        super(remotingServer, application);
+    public JobSubmitProcessor(JobTrackerApplication application) {
+        super(application);
         this.jobReceiver = new JobReceiver(application);
     }
 
