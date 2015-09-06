@@ -31,8 +31,8 @@ public abstract class AbstractPreLoader implements PreLoader {
     // 预取阀值
     private double factor = 0.8;
 
-    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, List<JobPo>>
-            JOB_MAP = new ConcurrentHashMap<String, List<JobPo>>();
+    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, BlockingQueue<JobPo>>
+            JOB_MAP = new ConcurrentHashMap<String, BlockingQueue<JobPo>>();
 
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
@@ -58,7 +58,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                         LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
                     }
                 }
-            }, 3, 1, TimeUnit.SECONDS);
+            }, 500, 500, TimeUnit.MILLISECONDS);
         }
 
         application.getEventCenter().subscribe(new EventSubscriber(application.getConfig().getIdentity() + "_preLoader", new Observer() {
@@ -117,10 +117,23 @@ public abstract class AbstractPreLoader implements PreLoader {
     protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int offset);
 
     private JobPo get(String taskTrackerNodeGroup) {
-        List<JobPo> jobPos = JOB_MAP.get(taskTrackerNodeGroup);
+        BlockingQueue<JobPo> jobPos = JOB_MAP.get(taskTrackerNodeGroup);
         if (jobPos == null) {
-            jobPos = new CopyOnWriteArrayList<JobPo>();
-            List<JobPo> oldJobPos = JOB_MAP.putIfAbsent(taskTrackerNodeGroup, jobPos);
+            jobPos = new PriorityBlockingQueue<JobPo>(step, new Comparator<JobPo>() {
+                @Override
+                public int compare(JobPo left, JobPo right) {
+                    int compare = left.getTriggerTime().compareTo(right.getTriggerTime());
+                    if (compare != 0) {
+                        return compare;
+                    }
+                    compare = left.getPriority().compareTo(left.getPriority());
+                    if (compare != 0) {
+                        return compare;
+                    }
+                    return left.getGmtCreated().compareTo(right.getGmtCreated());
+                }
+            });
+            BlockingQueue<JobPo> oldJobPos = JOB_MAP.putIfAbsent(taskTrackerNodeGroup, jobPos);
             if (oldJobPos != null) {
                 jobPos = oldJobPos;
             }
@@ -132,13 +145,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                 LOAD_SIGNAL.add(taskTrackerNodeGroup);
             }
         }
-        if (jobPos.size() > 0) {
-            try {
-                return jobPos.remove(0);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
-        }
-        return null;
+        return jobPos.poll();
     }
+
 }
