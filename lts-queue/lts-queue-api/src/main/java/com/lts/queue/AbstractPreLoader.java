@@ -31,8 +31,7 @@ public abstract class AbstractPreLoader implements PreLoader {
     // 预取阀值
     private double factor = 0.8;
 
-    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, BlockingQueue<JobPo>>
-            JOB_MAP = new ConcurrentHashMap<String, BlockingQueue<JobPo>>();
+    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, BlockingQueue<JobPo>> JOB_MAP = new ConcurrentHashMap<String, BlockingQueue<JobPo>>();
 
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
@@ -47,12 +46,13 @@ public abstract class AbstractPreLoader implements PreLoader {
                 public void run() {
 
                     for (String loadTaskTrackerNodeGroup : LOAD_SIGNAL) {
-                        if (JOB_MAP.get(loadTaskTrackerNodeGroup).size() / step < factor) {
+                        BlockingQueue<JobPo> queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
+                        if (queue.size() / step < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, curSequence * step);
                             // 加入到内存中
                             if (CollectionUtils.isNotEmpty(loads)) {
-                                JOB_MAP.get(loadTaskTrackerNodeGroup).addAll(loads);
+                                queue.addAll(loads);
                             }
                         }
                         LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
@@ -106,14 +106,20 @@ public abstract class AbstractPreLoader implements PreLoader {
                 return null;
             }
             // update jobPo
-            if (lockJob(taskTrackerNodeGroup, jobPo.getJobId(), taskTrackerIdentity)) {
+            if (lockJob(taskTrackerNodeGroup, jobPo.getJobId(), taskTrackerIdentity, jobPo.getTriggerTime())) {
                 return jobPo;
             }
         }
     }
 
-    protected abstract boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity);
+    /**
+     * 锁定任务
+     */
+    protected abstract boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime);
 
+    /**
+     * 加载任务
+     */
     protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int offset);
 
     private JobPo get(String taskTrackerNodeGroup) {
