@@ -27,7 +27,7 @@ public class MongoPreLoader extends AbstractPreLoader {
                 (AdvancedDatastore) DataStoreProvider.getDataStore(application.getConfig()));
     }
 
-    protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity) {
+    protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime) {
         UpdateOperations<JobPo> operations =
                 template.createUpdateOperations(JobPo.class)
                         .set("isRunning", true)
@@ -38,7 +38,8 @@ public class MongoPreLoader extends AbstractPreLoader {
 
         Query<JobPo> updateQuery = template.createQuery(tableName, JobPo.class);
         updateQuery.field("jobId").equal(jobId)
-                .field("isRunning").equal(false);
+                .field("isRunning").equal(false)
+                .field("triggerTime").equal(triggerTime);
         UpdateResults updateResult = template.update(updateQuery, operations);
         return updateResult.getUpdatedCount() == 1;
     }

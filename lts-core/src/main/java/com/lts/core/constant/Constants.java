@@ -86,5 +86,5 @@ public interface Constants {
     String MONITOR_DATA_ADD_URL = "/api/monitor/monitor-data-add.do";
 
     String JOB_PULL_FREQUENCY = "job.pull.frequency";
-    int DEFAULT_JOB_PULL_FREQUENCY = 3;
+    int DEFAULT_JOB_PULL_FREQUENCY = 1;
 }
