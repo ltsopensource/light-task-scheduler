@@ -32,7 +32,7 @@ public class EventInfo {
 
     public Object getParam(String key) {
         if (params != null) {
-            return params.remove(key);
+            return params.get(key);
         }
         return null;
     }
