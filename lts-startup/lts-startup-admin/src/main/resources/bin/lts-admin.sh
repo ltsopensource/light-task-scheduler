@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # JVMFLAGS JVM参数可以在这里设置
+JVMFLAGS=-Dfile.encoding=UTF-8
 
 LTS_ADMIN_HOME="${BASH_SOURCE-$0}"
 LTS_ADMIN_HOME="$(dirname "${LTS_ADMIN_HOME}")"

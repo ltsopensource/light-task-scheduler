@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # JVMFLAGS JVM参数可以在这里设置
+JVMFLAGS=-Dfile.encoding=UTF-8
 
 JOB_TRACKER_HOME="${BASH_SOURCE-$0}"
 JOB_TRACKER_HOME="$(dirname "${JOB_TRACKER_HOME}")"
