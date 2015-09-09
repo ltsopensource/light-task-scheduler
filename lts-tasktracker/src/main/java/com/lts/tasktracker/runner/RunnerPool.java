@@ -36,12 +36,8 @@ public class RunnerPool {
     public RunnerPool(final TaskTrackerApplication application) {
         this.application = application;
         this.runningJobManager = new RunningJobManager();
-        int maxSize = application.getConfig().getWorkThreads();
-        int minSize = 4 > maxSize ? maxSize : 4;
 
-        threadPoolExecutor = new ThreadPoolExecutor(minSize, maxSize, 30, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
-                new ThreadPoolExecutor.AbortPolicy());      // A handler for rejected tasks that throws a
+        threadPoolExecutor = initThreadPoolExecutor();
 
         runnerFactory = application.getRunnerFactory();
         if (runnerFactory == null) {
@@ -55,6 +51,15 @@ public class RunnerPool {
                         setMaximumPoolSize(application.getConfig().getWorkThreads());
                     }
                 }), EcTopic.WORK_THREAD_CHANGE);
+    }
+
+    private ThreadPoolExecutor initThreadPoolExecutor() {
+        int maxSize = application.getConfig().getWorkThreads();
+        int minSize = 4 > maxSize ? maxSize : 4;
+
+        return new ThreadPoolExecutor(minSize, maxSize, 30, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
+                new ThreadPoolExecutor.AbortPolicy());
     }
 
     public void execute(JobWrapper jobWrapper, RunnerCallback callback) throws NoAvailableJobRunnerException {
@@ -100,6 +105,23 @@ public class RunnerPool {
 
     public RunnerFactory getRunnerFactory() {
         return runnerFactory;
+    }
+
+    /**
+     * 执行该方法，线程池的状态立刻变成STOP状态，并试图停止所有正在执行的线程，不再处理还在池队列中等待的任务，当然，它会返回那些未执行的任务。
+     * 它试图终止线程的方法是通过调用Thread.interrupt()方法来实现的，但是大家知道，这种方法的作用有限，
+     * 如果线程中没有sleep 、wait、Condition、定时锁等应用, interrupt()方法是无法中断当前的线程的。
+     * 所以，ShutdownNow()并不代表线程池就一定立即就能退出，它可能必须要等待所有正在执行的任务都执行完成了才能退出。
+     */
+    public void stopWorking() {
+        try {
+            threadPoolExecutor.shutdownNow();
+            Thread.sleep(1000);
+            threadPoolExecutor = initThreadPoolExecutor();
+            LOGGER.error("stop working succeed ");
+        } catch (Throwable t) {
+            LOGGER.error("stop working failed ", t);
+        }
     }
 
     /**

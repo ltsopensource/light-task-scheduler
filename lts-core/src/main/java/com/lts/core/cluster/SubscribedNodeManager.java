@@ -2,6 +2,7 @@ package com.lts.core.cluster;
 
 
 import com.lts.core.Application;
+import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.ListUtils;
 import com.lts.core.constant.EcTopic;
@@ -10,11 +11,9 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.ec.EventInfo;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.
@@ -23,7 +22,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SubscribedNodeManager implements NodeChangeListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscribedNodeManager.class);
-    private final ConcurrentHashMap<NodeType, List<Node>> NODES = new ConcurrentHashMap<NodeType, List<Node>>();
+    private final ConcurrentHashMap<NodeType, Set<Node>> NODES = new ConcurrentHashMap<NodeType, Set<Node>>();
 
     private Application application;
 
@@ -33,8 +32,6 @@ public class SubscribedNodeManager implements NodeChangeListener {
 
     /**
      * 添加监听的节点
-     *
-     * @param node
      */
     private void addNode(Node node) {
         if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
@@ -51,15 +48,15 @@ public class SubscribedNodeManager implements NodeChangeListener {
     }
 
     private void _addNode(Node node) {
-        List<Node> nodeList = NODES.get(node.getNodeType());
-        if (CollectionUtils.isEmpty(nodeList)) {
-            nodeList = new CopyOnWriteArrayList<Node>();
-            List<Node> oldNodeList = NODES.putIfAbsent(node.getNodeType(), nodeList);
+        Set<Node> nodeSet = NODES.get(node.getNodeType());
+        if (CollectionUtils.isEmpty(nodeSet)) {
+            nodeSet = new ConcurrentHashSet<Node>();
+            Set<Node> oldNodeList = NODES.putIfAbsent(node.getNodeType(), nodeSet);
             if (oldNodeList != null) {
-                nodeList = oldNodeList;
+                nodeSet = oldNodeList;
             }
         }
-        nodeList.add(node);
+        nodeSet.add(node);
         EventInfo eventInfo = new EventInfo(EcTopic.NODE_ADD);
         eventInfo.setParam("node", node);
         application.getEventCenter().publishSync(eventInfo);
@@ -68,9 +65,9 @@ public class SubscribedNodeManager implements NodeChangeListener {
 
     public List<Node> getNodeList(final NodeType nodeType, final String nodeGroup) {
 
-        List<Node> nodes = NODES.get(nodeType);
+        Set<Node> nodes = NODES.get(nodeType);
 
-        return ListUtils.filter(nodes, new ListUtils.Filter<Node>() {
+        return ListUtils.filter(CollectionUtils.setToList(nodes), new ListUtils.Filter<Node>() {
             @Override
             public boolean filter(Node node) {
                 return node.getGroup().equals(nodeGroup);
@@ -79,26 +76,16 @@ public class SubscribedNodeManager implements NodeChangeListener {
     }
 
     public List<Node> getNodeList(NodeType nodeType) {
-        return NODES.get(nodeType);
-    }
-
-    public List<Node> getNodeList() {
-        List<Node> nodes = new ArrayList<Node>();
-
-        for (Map.Entry<NodeType, List<Node>> entry : NODES.entrySet()) {
-            if (CollectionUtils.isNotEmpty(entry.getValue())) {
-                nodes.addAll(entry.getValue());
-            }
-        }
-        return nodes;
+        return CollectionUtils.setToList(NODES.get(nodeType));
     }
 
     private void removeNode(Node delNode) {
-        List<Node> nodeList = NODES.get(delNode.getNodeType());
-        if (CollectionUtils.isNotEmpty(nodeList)) {
-            for (Node node : nodeList) {
+        Set<Node> nodeSet = NODES.get(delNode.getNodeType());
+
+        if (CollectionUtils.isNotEmpty(nodeSet)) {
+            for (Node node : nodeSet) {
                 if (node.getIdentity().equals(delNode.getIdentity())) {
-                    nodeList.remove(node);
+                    nodeSet.remove(node);
                     EventInfo eventInfo = new EventInfo(EcTopic.NODE_REMOVE);
                     eventInfo.setParam("node", node);
                     application.getEventCenter().publishSync(eventInfo);

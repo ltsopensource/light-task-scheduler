@@ -1,16 +1,13 @@
 package com.lts.web.cluster;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.registry.Registry;
 import com.lts.core.registry.RegistryFactory;
 import com.lts.web.repository.NodeMemoryRepository;
 import com.lts.web.request.NodeRequest;
-import com.lts.web.support.AppConfigurer;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,12 +27,8 @@ public class RegistryService implements InitializingBean {
     @Qualifier("application")
     AdminApplication application;
 
-    public synchronized void register(String clusterName) {
-
-        Config config = application.getConfig();
-        config.setClusterName(clusterName);
-
-        Registry registry = RegistryFactory.getRegistry(config);
+    private void register() {
+        Registry registry = RegistryFactory.getRegistry(application);
 
         registry.subscribe(application.getNode(), new NotifyListener() {
             @Override
@@ -61,10 +54,6 @@ public class RegistryService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String clusterName = AppConfigurer.getProperties("clusterName");
-        if (StringUtils.isEmpty(clusterName)) {
-            throw new IllegalArgumentException("clusterName in lts-admin.cfg can not be null.");
-        }
-        register(clusterName.trim());
+        register();
     }
 }

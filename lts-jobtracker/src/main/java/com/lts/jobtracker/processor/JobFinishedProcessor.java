@@ -307,7 +307,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
             // 移除
             application.getExecutingJobQueue().remove(jobWrapper.getJobId());
 
-
             if (jobWrapper.getJob().isSchedule()) {
 
                 JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
@@ -374,6 +373,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     // 加入到队列, 重试
                     jobPo.setIsRunning(false);
                     jobPo.setTaskTrackerIdentity(null);
+                    jobPo.setGmtModified(SystemClock.now());
                     // 延迟重试时间就等于重试次数(分钟)
                     jobPo.setTriggerTime(nextRetryTriggerTime);
                     try {

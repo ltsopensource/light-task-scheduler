@@ -18,7 +18,7 @@ public class Node {
     private String clusterName;
     private NodeType nodeType;
     private String ip;
-    private Integer port;
+    private Integer port = 0;
     private String hostName;
     private String group;
     private Long createTime = SystemClock.now();

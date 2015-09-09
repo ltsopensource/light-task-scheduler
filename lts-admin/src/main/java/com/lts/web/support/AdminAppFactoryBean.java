@@ -5,7 +5,11 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.registry.RegistryStatMonitor;
+import com.lts.ec.EventCenter;
+import com.lts.ec.EventCenterFactory;
 import com.lts.queue.*;
 import com.lts.web.cluster.AdminApplication;
 import org.springframework.beans.factory.FactoryBean;
@@ -30,6 +34,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
             JobLoggerFactory.class).getAdaptiveExtension();
     JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(
             JobFeedbackQueueFactory.class).getAdaptiveExtension();
+    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
 
     private AdminApplication application;
 
@@ -51,7 +56,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         final Node node = new Node();
-        node.setIdentity("LTS_admin_" + StringUtils.generateUUID());
+        node.setIdentity(Constants.ADMIN_ID_PREFIX + StringUtils.generateUUID());
         node.addListenNodeType(NodeType.JOB_CLIENT);
         node.addListenNodeType(NodeType.TASK_TRACKER);
         node.addListenNodeType(NodeType.JOB_TRACKER);
@@ -60,6 +65,11 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         config.setIdentity(node.getIdentity());
         config.setNodeType(node.getNodeType());
         config.setRegistryAddress(AppConfigurer.getProperties("registryAddress"));
+        String clusterName = AppConfigurer.getProperties("clusterName");
+        if (StringUtils.isEmpty(clusterName)) {
+            throw new IllegalArgumentException("clusterName in lts-admin.cfg can not be null.");
+        }
+        config.setClusterName(clusterName);
 
         for (Map.Entry<String, String> entry : AppConfigurer.allConfig().entrySet()) {
             // 将 config. 开头的配置都加入到config中
@@ -77,6 +87,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
         application.setJobLogger(jobLoggerFactory.getJobLogger(config));
+        application.setEventCenter(eventCenterFactory.getEventCenter(config));
+        application.setRegistryStatMonitor(new RegistryStatMonitor(application));
     }
 
 }

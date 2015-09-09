@@ -24,6 +24,9 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
         super.preRemotingStart();
         NettyServerConfig nettyServerConfig = new NettyServerConfig();
         // config 配置
+        if(config.getListenPort() == 0){
+            config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
+        }
         nettyServerConfig.setListenPort(config.getListenPort());
 
         remotingServer = new RemotingServerDelegate(new NettyRemotingServer(nettyServerConfig), application);

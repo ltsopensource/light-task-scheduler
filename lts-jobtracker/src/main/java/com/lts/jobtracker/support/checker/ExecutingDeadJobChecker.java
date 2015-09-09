@@ -2,10 +2,10 @@ package com.lts.jobtracker.support.checker;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
-import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.logger.Logger;
@@ -17,7 +17,6 @@ import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobTrackerApplication;
-import com.lts.jobtracker.domain.TaskTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
@@ -26,8 +25,12 @@ import com.lts.remoting.InvokeCallback;
 import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
+import io.netty.channel.Channel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,10 +47,8 @@ public class ExecutingDeadJobChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutingDeadJobChecker.class);
 
-    // 2 分钟没有收到反馈信息 (并且该节点不存在了)，表示这个任务已经死掉了
+    // 2 分钟没有收到反馈信息，需要去检查这个任务是否还在执行
     private static final long MAX_DEAD_CHECK_TIME = 2 * 60 * 1000;
-    // 1 分钟没有收到反馈信息 并且该节点存在, 那么主动去询问taskTracker 这个任务是否在执行, 如果没有，则表示这个任务已经死掉了
-    private static final long MAX_TIME_OUT = 60 * 1000;
 
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
@@ -69,9 +70,13 @@ public class ExecutingDeadJobChecker {
                     @Override
                     public void run() {
                         try {
+                            // 判断注册中心是否可用，如果不可用，那么直接返回，不进行处理
+                            if (!application.getRegistryStatMonitor().isAvailable()) {
+                                return;
+                            }
                             fix();
                         } catch (Throwable t) {
-                            LOGGER.error(t.getMessage(), t);
+                            LOGGER.error("Check executing dead job error ", t);
                         }
                     }
                 }, 30, 60, TimeUnit.SECONDS);// 1分钟执行一次
@@ -85,73 +90,36 @@ public class ExecutingDeadJobChecker {
     private void fix() throws RemotingSendException {
         // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
         // 一般来说这个是没有多大的，我就不分页去查询了
-        List<JobPo> jobPos = application.getExecutingJobQueue().getDeadJobs(
+        List<JobPo> maybeDeadJobPos = application.getExecutingJobQueue().getDeadJobs(
                 SystemClock.now() - MAX_DEAD_CHECK_TIME);
-        if (jobPos != null && jobPos.size() > 0) {
-            List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.TASK_TRACKER);
-            HashSet<String/*identity*/> identities = new HashSet<String>();
-            if (CollectionUtils.isNotEmpty(nodes)) {
-                for (Node node : nodes) {
-                    identities.add(node.getIdentity());
+        if (CollectionUtils.isNotEmpty(maybeDeadJobPos)) {
+
+            Map<String/*taskTrackerIdentity*/, List<JobPo>> jobMap = new HashMap<String, List<JobPo>>();
+            for (JobPo jobPo : maybeDeadJobPos) {
+                List<JobPo> jobPos = jobMap.get(jobPo.getTaskTrackerIdentity());
+                if (jobPos == null) {
+                    jobPos = new ArrayList<JobPo>();
+                    jobMap.put(jobPo.getTaskTrackerIdentity(), jobPos);
                 }
+                jobPos.add(jobPo);
             }
 
-            Map<TaskTrackerNode/*执行的TaskTracker节点 identity*/, List<JobPo/*jobId*/>> timeoutMap = new HashMap<TaskTrackerNode, List<JobPo>>();
-            for (JobPo jobPo : jobPos) {
-                if (!identities.contains(jobPo.getTaskTrackerIdentity())) {
-                    fixedDeadJob(jobPo);
-                } else {
-                    // 如果节点存在，并且超时了, 那么去主动询问taskTracker 这个任务是否在执行中
-                    if (SystemClock.now() - jobPo.getGmtModified() > MAX_TIME_OUT) {
-                        TaskTrackerNode taskTrackerNode = new TaskTrackerNode(jobPo.getTaskTrackerIdentity(), jobPo.getTaskTrackerNodeGroup());
-                        List<JobPo> jobPosList = timeoutMap.get(taskTrackerNode);
-                        if (jobPosList == null) {
-                            jobPosList = new ArrayList<JobPo>();
-                            timeoutMap.put(taskTrackerNode, jobPosList);
-                        }
-                        jobPosList.add(jobPo);
+            for (Map.Entry<String, List<JobPo>> entry : jobMap.entrySet()) {
+                String taskTrackerNodeGroup = entry.getValue().get(0).getTaskTrackerNodeGroup();
+                String taskTrackerIdentity = entry.getKey();
+                // 去查看这个TaskTrackerIdentity是否存活
+                ChannelWrapper channelWrapper = application.getChannelManager().getChannel(taskTrackerNodeGroup, NodeType.TASK_TRACKER, taskTrackerIdentity);
+                if (channelWrapper == null) {
+                    Long offlineTimestamp = application.getChannelManager().getOfflineTimestamp(taskTrackerIdentity);
+                    // 已经离线太久，直接修复
+                    if (offlineTimestamp == null || SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
+                        // fixDeadJob
+                        fixDeadJob(entry.getValue());
                     }
-                }
-            }
-
-            if (CollectionUtils.isNotEmpty(timeoutMap)) {
-                RemotingServerDelegate remotingServer = application.getRemotingServer();
-                for (Map.Entry<TaskTrackerNode, List<JobPo>> entry : timeoutMap.entrySet()) {
-                    TaskTrackerNode taskTrackerNode = entry.getKey();
-                    ChannelWrapper channelWrapper = application.getChannelManager().getChannel(taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
-                    if (channelWrapper != null && channelWrapper.getChannel() != null && channelWrapper.isOpen()) {
-                        JobAskRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobAskRequest());
-
-                        final List<JobPo> jobPoList = entry.getValue();
-                        List<String> jobIds = new ArrayList<String>(jobPoList.size());
-                        for (JobPo jobPo : jobPoList) {
-                            jobIds.add(jobPo.getJobId());
-                        }
-                        requestBody.setJobIds(jobIds);
-                        RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
-                        remotingServer.invokeAsync(channelWrapper.getChannel(), request, new InvokeCallback() {
-                            @Override
-                            public void operationComplete(ResponseFuture responseFuture) {
-                                RemotingCommand response = responseFuture.getResponseCommand();
-                                if (response != null && RemotingProtos.ResponseCode.SUCCESS.code() == response.getCode()) {
-                                    JobAskResponse responseBody = response.getBody();
-                                    List<String> deadJobIds = responseBody.getJobIds();
-                                    if (CollectionUtils.isNotEmpty(deadJobIds)) {
-                                        try {
-                                            Thread.sleep(1000L);     // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace();
-                                        }
-                                        for (JobPo jobPo : jobPoList) {
-                                            if (deadJobIds.contains(jobPo.getJobId())) {
-                                                fixedDeadJob(jobPo);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-
+                } else {
+                    // 去询问是否在执行该任务
+                    if (channelWrapper.getChannel() != null && channelWrapper.isOpen()) {
+                        askTimeoutJob(channelWrapper.getChannel(), entry.getValue());
                     }
                 }
             }
@@ -159,30 +127,56 @@ public class ExecutingDeadJobChecker {
     }
 
     /**
-     * 根据停止的节点修复死锁
-     *
-     * @param node
+     * 向taskTracker询问执行中的任务
      */
-    public void fixedDeadNodeJob(Node node) {
+    private void askTimeoutJob(Channel channel, final List<JobPo> jobPos) {
         try {
-            // 1. 判断这个节点的channel是否存在
-            ChannelWrapper channelWrapper = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
-            if (channelWrapper == null || channelWrapper.getChannel() == null
-                    || channelWrapper.isClosed()) {
-                List<JobPo> jobPos = application.getExecutingJobQueue().getJobs(node.getIdentity());
-                if (CollectionUtils.isNotEmpty(jobPos)) {
-                    for (JobPo jobPo : jobPos) {
-                        fixedDeadJob(jobPo);
+            RemotingServerDelegate remotingServer = application.getRemotingServer();
+            List<String> jobIds = new ArrayList<String>(jobPos.size());
+            for (JobPo jobPo : jobPos) {
+                jobIds.add(jobPo.getJobId());
+            }
+            JobAskRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobAskRequest());
+            requestBody.setJobIds(jobIds);
+            RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
+            remotingServer.invokeAsync(channel, request, new InvokeCallback() {
+                @Override
+                public void operationComplete(ResponseFuture responseFuture) {
+                    RemotingCommand response = responseFuture.getResponseCommand();
+                    if (response != null && RemotingProtos.ResponseCode.SUCCESS.code() == response.getCode()) {
+                        JobAskResponse responseBody = response.getBody();
+                        List<String> deadJobIds = responseBody.getJobIds();
+                        if (CollectionUtils.isNotEmpty(deadJobIds)) {
+                            try {
+                                // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
+                                Thread.sleep(1000L);
+                            } catch (InterruptedException ignored) {
+                            }
+                            for (JobPo jobPo : jobPos) {
+                                if (deadJobIds.contains(jobPo.getJobId())) {
+                                    fixDeadJob(jobPo);
+                                }
+                            }
+                        }
                     }
                 }
-            }
-        } catch (Exception t) {
-            LOGGER.error(t.getMessage(), t);
+            });
+        } catch (RemotingSendException e) {
+            LOGGER.error("Ask timeout Job error, ", e);
+        }
+
+    }
+
+    private void fixDeadJob(List<JobPo> jobPos) {
+        for (JobPo jobPo : jobPos) {
+            fixDeadJob(jobPo);
         }
     }
 
-    private void fixedDeadJob(JobPo jobPo) {
+    private void fixDeadJob(JobPo jobPo) {
         try {
+            jobPo.setGmtModified(SystemClock.now());
+            jobPo.setTaskTrackerIdentity(null);
             jobPo.setIsRunning(false);
             // 1. add to executable queue
             try {

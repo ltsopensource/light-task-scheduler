@@ -67,12 +67,14 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected void afterRemotingStart() {
+        super.afterRemotingStart();
         application.getChannelManager().start();
         application.getMonitor().start();
     }
 
     @Override
     protected void afterRemotingStop() {
+        super.afterRemotingStop();
         application.getChannelManager().stop();
         application.getMonitor().stop();
     }

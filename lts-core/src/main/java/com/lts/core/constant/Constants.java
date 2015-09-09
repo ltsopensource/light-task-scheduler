@@ -20,13 +20,6 @@ public interface Constants {
     // 默认集群名字
     String DEFAULT_CLUSTER_NAME = "defaultCluster";
 
-    // 默认JobTracker节点组
-    String DEFAULT_NODE_JOB_TRACKER_GROUP = "jobTrackerGroup";
-    // 默认JobClient节点组
-    String DEFAULT_NODE_JOB_CLIENT_GROUP = "jobClientGroup";
-    // 默认TaskTracker节点组
-    String DEFAULT_NODE_TASK_TRACKER_GROUP = "taskTrackerGroup";
-
     String CHARSET = "utf-8";
 
     int DEFAULT_TIMEOUT = 1000;
@@ -68,6 +61,7 @@ public interface Constants {
     String JOB_LOGGER_KEY = "job.logger";
 
     String JOB_QUEUE_KEY = "job.queue";
+
     // 客户端提交并发请求size
     String JOB_SUBMIT_CONCURRENCY_SIZE = "job.submit.concurrency.size";
     int DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE = 100;
@@ -87,4 +81,13 @@ public interface Constants {
 
     String JOB_PULL_FREQUENCY = "job.pull.frequency";
     int DEFAULT_JOB_PULL_FREQUENCY = 1;
+
+    // TaskTracker 离线(网络隔离)时间 2 分钟，超过两分钟，自动停止当前执行任务
+    long TASK_TRACKER_OFFLINE_LIMIT_MILLIS = 2 * 60 * 1000;
+    // TaskTracker超过一定时间断线JobTracker，自动停止当前的所有任务
+    String TASK_TRACKER_STOP_WORKING_SWITCH = "stop.working";
+
+    String ADMIN_ID_PREFIX = "LTS_admin_";
+
+
 }

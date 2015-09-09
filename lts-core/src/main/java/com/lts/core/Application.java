@@ -5,6 +5,7 @@ import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
 import com.lts.core.monitor.Monitor;
 import com.lts.core.protocol.command.CommandBodyWrapper;
+import com.lts.core.registry.RegistryStatMonitor;
 import com.lts.ec.EventCenter;
 
 /**
@@ -25,6 +26,8 @@ public abstract class Application {
     private EventCenter eventCenter;
     // 监控中心
     private Monitor monitor;
+    // 注册中心状态监控
+    private RegistryStatMonitor registryStatMonitor;
 
     public Monitor getMonitor() {
         return monitor;
@@ -74,4 +77,11 @@ public abstract class Application {
         this.masterElector = masterElector;
     }
 
+    public RegistryStatMonitor getRegistryStatMonitor() {
+        return registryStatMonitor;
+    }
+
+    public void setRegistryStatMonitor(RegistryStatMonitor registryStatMonitor) {
+        this.registryStatMonitor = registryStatMonitor;
+    }
 }

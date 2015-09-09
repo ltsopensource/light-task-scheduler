@@ -47,6 +47,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
                         CuratorZookeeperClient.this.stateChanged(StateListener.CONNECTED);
                     } else if (state == ConnectionState.RECONNECTED) {
                         CuratorZookeeperClient.this.stateChanged(StateListener.RECONNECTED);
+                    } else if(state == ConnectionState.SUSPENDED){
+                        CuratorZookeeperClient.this.stateChanged(StateListener.DISCONNECTED);
                     }
                 }
             });
@@ -232,6 +234,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         }
 
         public void process(WatchedEvent event) throws Exception {
+            if(event.getPath() == null){
+                return ;
+            }
             if (listener != null) {
                 listener.childChanged(event.getPath(), client.getChildren().usingWatcher(this).forPath(event.getPath()));
             }

@@ -1,5 +1,6 @@
 package com.lts.core.registry.redis;
 
+import com.lts.core.Application;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
@@ -14,14 +15,13 @@ import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.support.SystemClock;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisPubSub;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/17/15.
@@ -40,12 +40,15 @@ public class RedisRegistry extends FailbackRegistry {
     private boolean replicate;
     private final int reconnectPeriod;
     private final ConcurrentMap<String, Notifier> notifiers = new ConcurrentHashMap<String, Notifier>();
+    private RedisLock lock;
 
-    public RedisRegistry(Config config) {
-        super(config);
+    public RedisRegistry(Application application) {
+        super(application);
+        Config config = application.getConfig();
         this.clusterName = config.getClusterName();
+        this.lock = new RedisLock("LTS_CLEAN_LOCK_KEY", config.getIdentity(), 2 * 60);  // 锁两分钟过期
 
-        GenericObjectPool.Config redisConfig = new GenericObjectPool.Config();
+        JedisPoolConfig redisConfig = new JedisPoolConfig();
         // TODO 可以设置n多参数
         String address = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
 
@@ -57,11 +60,14 @@ public class RedisRegistry extends FailbackRegistry {
 
         this.reconnectPeriod = config.getParameter(Constants.REGISTRY_RECONNECT_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RECONNECT_PERIOD);
 
-        int i = address.indexOf(':');
-        String host = address.substring(0, i);
-        int port = Integer.parseInt(address.substring(i + 1));
-        this.jedisPools.put(address, new JedisPool(redisConfig, host, port,
-                Constants.DEFAULT_TIMEOUT));
+        String[] addrs = address.split(",");
+        for (String addr : addrs) {
+            int i = addr.indexOf(':');
+            String host = addr.substring(0, i);
+            int port = Integer.parseInt(addr.substring(i + 1));
+            this.jedisPools.put(addr, new JedisPool(redisConfig, host, port,
+                    Constants.DEFAULT_TIMEOUT));
+        }
 
         this.expirePeriod = config.getParameter(Constants.SESSION_TIMEOUT_KEY, Constants.DEFAULT_SESSION_TIMEOUT);
 
@@ -88,11 +94,14 @@ public class RedisRegistry extends FailbackRegistry {
                             jedis.publish(key, Constants.REGISTER);
                         }
                     }
+                    if (lock.acquire(jedis)) {
+                        clean(jedis);
+                    }
                     if (!replicate) {
                         break;//  如果服务器端已同步数据，只需写入单台机器
                     }
                 } finally {
-                    jedisPool.returnResource(jedis);
+                    jedis.close();
                 }
             } catch (Throwable t) {
                 LOGGER.warn("Failed to write provider heartbeat to redis registry. registry: " + entry.getKey() + ", cause: " + t.getMessage(), t);
@@ -100,6 +109,39 @@ public class RedisRegistry extends FailbackRegistry {
         }
     }
 
+    private void clean(Jedis jedis) {
+        // /LTS/{集群名字}/NODES/
+        Set<String> nodeTypePaths = jedis.keys(NodeRegistryUtils.getRootPath(application.getConfig().getClusterName()) + "/*");
+        if (CollectionUtils.isNotEmpty(nodeTypePaths)) {
+            for (String nodeTypePath : nodeTypePaths) {
+                // /LTS/{集群名字}/NODES/JOB_TRACKER
+                Set<String> nodePaths = jedis.keys(nodeTypePath);
+                if (CollectionUtils.isNotEmpty(nodePaths)) {
+                    for (String nodePath : nodePaths) {
+                        Map<String, String> nodes = jedis.hgetAll(nodePath);
+                        if (CollectionUtils.isNotEmpty(nodes)) {
+                            boolean delete = false;
+                            long now = SystemClock.now();
+                            for (Map.Entry<String, String> entry : nodes.entrySet()) {
+                                String key = entry.getKey();
+                                long expire = Long.parseLong(entry.getValue());
+                                if (expire < now) {
+                                    jedis.hdel(nodePath, key);
+                                    delete = true;
+                                    if (LOGGER.isWarnEnabled()) {
+                                        LOGGER.warn("Delete expired key: " + nodePath + " -> value: " + entry.getKey() + ", expire: " + new Date(expire) + ", now: " + new Date(now));
+                                    }
+                                }
+                            }
+                            if (delete) {
+                                jedis.publish(nodePath, Constants.UNREGISTER);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     protected void doRegister(Node node) {
@@ -119,7 +161,7 @@ public class RedisRegistry extends FailbackRegistry {
                         break; //  如果服务器端已同步数据，只需写入单台机器
                     }
                 } finally {
-                    jedisPool.returnResource(jedis);
+                    jedis.close();
                 }
             } catch (Throwable t) {
                 exception = new NodeRegistryException("Failed to register node to redis registry. registry: " + entry.getKey() + ", node: " + node + ", cause: " + t.getMessage(), t);
@@ -151,7 +193,7 @@ public class RedisRegistry extends FailbackRegistry {
                         break; //  如果服务器端已同步数据，只需写入单台机器
                     }
                 } finally {
-                    jedisPool.returnResource(jedis);
+                    jedis.close();
                 }
             } catch (Throwable t) {
                 exception = new NodeRegistryException("Failed to unregister node to redis registry. registry: " + entry.getKey() + ", node: " + node + ", cause: " + t.getMessage(), t);
@@ -193,12 +235,12 @@ public class RedisRegistry extends FailbackRegistry {
                 try {
                     Jedis jedis = jedisPool.getResource();
                     try {
-                        doNotify(jedis, jedis.keys(listenNodePath), Arrays.asList(listener), NotifyEvent.ADD);
+                        doNotify(jedis, Collections.singletonList(listenNodePath), Collections.singletonList(listener));
                         success = true;
                         break; // 只需读一个服务器的数据
 
                     } finally {
-                        jedisPool.returnResource(jedis);
+                        jedis.close();
                     }
                 } catch (Throwable t) {
                     exception = new NodeRegistryException("Failed to unregister node to redis registry. registry: " + entry.getKey() + ", node: " + node + ", cause: " + t.getMessage(), t);
@@ -244,34 +286,52 @@ public class RedisRegistry extends FailbackRegistry {
         }
     }
 
-    private void doNotify(Jedis jedis, Collection<String> keys, Collection<NotifyListener> listeners, NotifyEvent event) {
-        if (keys == null || keys.size() == 0
-                || listeners == null || listeners.size() == 0) {
+    private ConcurrentHashMap<String/*key*/, List<String>> cachedNodeMap = new ConcurrentHashMap<String, List<String>>();
+
+    private void doNotify(Jedis jedis, Collection<String> keys, Collection<NotifyListener> listeners) {
+        if (CollectionUtils.isEmpty(keys)
+                && CollectionUtils.isEmpty(listeners)) {
             return;
         }
-        List<Node> result = new ArrayList<Node>();
+
         for (String key : keys) {
 
             Map<String, String> values = jedis.hgetAll(key);
-            if (values != null && values.size() > 0) {
-                for (Map.Entry<String, String> entry : values.entrySet()) {
-                    Node node = NodeRegistryUtils.parse(entry.getKey());
-                    result.add(node);
+            List<String> currentChildren = values == null ? new ArrayList<String>(0) : new ArrayList<String>(values.keySet());
+            List<String> oldChildren = cachedNodeMap.get(key);
+
+            // 1. 找出增加的 节点
+            List<String> addChildren = CollectionUtils.getLeftDiff(currentChildren, oldChildren);
+            // 2. 找出减少的 节点
+            List<String> decChildren = CollectionUtils.getLeftDiff(oldChildren, currentChildren);
+
+            if (CollectionUtils.isNotEmpty(addChildren)) {
+                List<Node> nodes = new ArrayList<Node>(addChildren.size());
+                for (String child : addChildren) {
+                    Node node = NodeRegistryUtils.parse(child);
+                    nodes.add(node);
+                }
+                for (NotifyListener listener : listeners) {
+                    notify(NotifyEvent.ADD, nodes, listener);
                 }
             }
+            if (CollectionUtils.isNotEmpty(decChildren)) {
+                List<Node> nodes = new ArrayList<Node>(decChildren.size());
+                for (String child : decChildren) {
+                    Node node = NodeRegistryUtils.parse(child);
+                    nodes.add(node);
+                }
+                for (NotifyListener listener : listeners) {
+                    notify(NotifyEvent.REMOVE, nodes, listener);
+                }
+            }
+            cachedNodeMap.put(key, currentChildren);
         }
-        if (result == null || result.size() == 0) {
-            return;
-        }
-        for (NotifyListener listener : listeners) {
-            notify(event, result, listener);
-        }
-
     }
 
-    private void doNotify(Jedis jedis, String key, NotifyEvent event) {
+    private void doNotify(Jedis jedis, String key) {
         for (Map.Entry<Node, Set<NotifyListener>> entry : new HashMap<Node, Set<NotifyListener>>(getSubscribed()).entrySet()) {
-            doNotify(jedis, Arrays.asList(key), new HashSet<NotifyListener>(entry.getValue()), event);
+            doNotify(jedis, Collections.singletonList(key), new HashSet<NotifyListener>(entry.getValue()));
         }
     }
 
@@ -293,39 +353,20 @@ public class RedisRegistry extends FailbackRegistry {
                 try {
                     Jedis jedis = jedisPool.getResource();
                     try {
-                        NotifyEvent event = msg.equals(Constants.REGISTER) ? NotifyEvent.ADD : NotifyEvent.REMOVE;
-                        doNotify(jedis, key, event);
+                        doNotify(jedis, key);
                     } finally {
-                        jedisPool.returnResource(jedis);
+                        jedis.close();
                     }
-                } catch (Throwable t) { // TODO 通知失败没有恢复机制保障
+                } catch (Throwable t) {
                     LOGGER.error(t.getMessage(), t);
                 }
             }
         }
-
-        @Override
-        public void onPMessage(String pattern, String key, String msg) {
-            onMessage(key, msg);
-        }
-
-        @Override
-        public void onSubscribe(String key, int num) {
-        }
-
-        @Override
-        public void onPSubscribe(String pattern, int num) {
-        }
-
-        @Override
-        public void onUnsubscribe(String key, int num) {
-        }
-
-        @Override
-        public void onPUnsubscribe(String pattern, int num) {
-        }
-
     }
+
+    // 用这个线程来监控redis是否可用
+    private volatile String monitorId;
+    private volatile boolean redisAvailable = false;
 
     private class Notifier extends Thread {
 
@@ -335,67 +376,50 @@ public class RedisRegistry extends FailbackRegistry {
 
         private volatile boolean running = true;
 
-        private final AtomicInteger connectSkip = new AtomicInteger();
-
-        private final AtomicInteger connectSkiped = new AtomicInteger();
-
-        private final Random random = new Random();
-
-        private volatile int connectRandom;
-
-        private boolean isSkip() {
-            int skip = connectSkip.get(); // 跳过次数增长
-            if (skip >= 10) { // 如果跳过次数增长超过10，取随机数
-                if (connectRandom == 0) {
-                    connectRandom = random.nextInt(10);
-                }
-                skip = 10 + connectRandom;
-            }
-            if (connectSkiped.getAndIncrement() < skip) { // 检查跳过次数
-                return true;
-            }
-            connectSkip.incrementAndGet();
-            connectSkiped.set(0);
-            connectRandom = 0;
-            return false;
-        }
-
         public Notifier(String listenNodePath) {
             super.setDaemon(true);
             super.setName("LTSRedisSubscribe");
             this.listenNodePath = listenNodePath;
+            if (monitorId == null) {
+                monitorId = listenNodePath;
+            }
         }
 
         @Override
         public void run() {
-            while (running) {
-                try {
-                    if (!isSkip()) {
+            try {
+                while (running) {
+                    int retryTimes = 0;
+                    for (Map.Entry<String, JedisPool> entry : jedisPools.entrySet()) {
                         try {
-                            for (Map.Entry<String, JedisPool> entry : jedisPools.entrySet()) {
-                                JedisPool jedisPool = entry.getValue();
-                                try {
-                                    jedis = jedisPool.getResource();
-                                    try {
-                                        jedis.psubscribe(new NotifySub(jedisPool), listenNodePath); // 阻塞
-                                        break;
-                                    } finally {
-                                        jedisPool.returnBrokenResource(jedis);
-                                    }
-                                } catch (Throwable t) { // 重试另一台
-                                    LOGGER.warn("Failed to subscribe node from redis registry. registry: " + entry.getKey() + ", cause: " + t.getMessage(), t);
-                                    // 如果在单台redis的情况下，需要休息一会，避免空转占用过多cpu资源
-                                    sleep(reconnectPeriod);
+                            JedisPool jedisPool = entry.getValue();
+                            jedis = jedisPool.getResource();
+                            if (listenNodePath.equals(monitorId) && !redisAvailable) {
+                                redisAvailable = true;
+                                application.getRegistryStatMonitor().setAvailable(redisAvailable);
+                            }
+                            try {
+                                retryTimes = 0;
+                                jedis.subscribe(new NotifySub(jedisPool), listenNodePath); // 阻塞
+                                break;
+                            } finally {
+                                jedis.close();
+                            }
+                        } catch (Throwable t) { // 重试另一台
+                            LOGGER.warn("Failed to subscribe node from redis registry. registry: " + entry.getKey(), t);
+                            if (++retryTimes % jedisPools.size() == 0) {
+                                // 如果在所有redis都不可用，需要休息一会，避免空转占用过多cpu资源
+                                sleep(reconnectPeriod);
+                                if (listenNodePath.equals(monitorId) && redisAvailable) {
+                                    redisAvailable = false;
+                                    application.getRegistryStatMonitor().setAvailable(redisAvailable);
                                 }
                             }
-                        } catch (Throwable t) {
-                            LOGGER.error(t.getMessage(), t);
-                            sleep(reconnectPeriod);
                         }
                     }
-                } catch (Throwable t) {
-                    LOGGER.error(t.getMessage(), t);
                 }
+            } catch (Throwable t) {
+                LOGGER.error(t.getMessage(), t);
             }
         }
 
@@ -407,6 +431,6 @@ public class RedisRegistry extends FailbackRegistry {
                 LOGGER.warn(t.getMessage(), t);
             }
         }
-
     }
+
 }

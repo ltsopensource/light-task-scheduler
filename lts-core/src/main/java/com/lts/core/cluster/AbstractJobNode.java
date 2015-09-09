@@ -3,6 +3,7 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -98,16 +99,17 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     protected void initConfig() {
+        application.setEventCenter(eventCenterFactory.getEventCenter(config));
+
         application.setCommandBodyWrapper(new CommandBodyWrapper(config));
         application.setMasterElector(new MasterElector(application));
         application.getMasterElector().addMasterChangeListener(masterChangeListeners);
+        application.setRegistryStatMonitor(new RegistryStatMonitor(application));
 
         node = NodeFactory.create(getNodeClass(), config);
         config.setNodeType(node.getNodeType());
 
         LOGGER.info("Current node config :{}", config);
-
-        application.setEventCenter(eventCenterFactory.getEventCenter(config));
 
         // 订阅的node管理
         SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
@@ -120,7 +122,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     private void initRegistry() {
-        registry = RegistryFactory.getRegistry(config);
+        registry = RegistryFactory.getRegistry(application);
         if (registry instanceof AbstractRegistry) {
             ((AbstractRegistry) registry).setNode(node);
         }
@@ -138,7 +140,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                             try {
                                 listener.addNodes(nodes);
                             } catch (Throwable t) {
-                                NOTIFY_LOGGER.error("{} add nodes failed , cause: {}", listener.getClass(), t.getMessage(), t);
+                                NOTIFY_LOGGER.error("{} add nodes failed , cause: {}", listener.getClass().getName(), t.getMessage(), t);
                             }
                         }
                         break;
@@ -147,7 +149,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                             try {
                                 listener.removeNodes(nodes);
                             } catch (Throwable t) {
-                                NOTIFY_LOGGER.error("{} remove nodes failed , cause: {}", listener.getClass(), t.getMessage(), t);
+                                NOTIFY_LOGGER.error("{} remove nodes failed , cause: {}", listener.getClass().getName(), t.getMessage(), t);
                             }
                         }
                         break;
