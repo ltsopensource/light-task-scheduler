@@ -22,13 +22,12 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
 
     @Override
     protected void preRemotingStart() {
-
+        super.preRemotingStart();
         retryScheduler = new RetryScheduler<Job>(application, 30) {
             @Override
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
-
             @Override
             protected boolean retry(List<Job> jobs) {
                 try {
@@ -41,7 +40,6 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
             }
         };
         retryScheduler.setName(RetryJobClient.class.getSimpleName());
-        super.preRemotingStart();
         retryScheduler.start();
     }
 

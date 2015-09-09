@@ -23,4 +23,9 @@ public interface EcTopic {
 
     String NODE_REMOVE = "NODE_REMOVE";
 
+    // 注册中心可用
+    String REGISTRY_AVAILABLE = "REGISTRY_AVAILABLE";
+    // 注册中心不可用
+    String REGISTRY_UN_AVAILABLE = "REGISTRY_UN_AVAILABLE";
+
 }

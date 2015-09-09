@@ -6,6 +6,7 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.EcTopic;
+import com.lts.core.support.SystemClock;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
@@ -107,6 +108,9 @@ public abstract class AbstractPreLoader implements PreLoader {
             }
             // update jobPo
             if (lockJob(taskTrackerNodeGroup, jobPo.getJobId(), taskTrackerIdentity, jobPo.getTriggerTime())) {
+                jobPo.setTaskTrackerIdentity(taskTrackerIdentity);
+                jobPo.setIsRunning(true);
+                jobPo.setGmtModified(SystemClock.now());
                 return jobPo;
             }
         }

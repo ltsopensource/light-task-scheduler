@@ -1,6 +1,6 @@
 package com.lts.core.registry.zookeeper;
 
-import com.lts.core.cluster.Config;
+import com.lts.core.Application;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -33,18 +33,27 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private String clusterName;
 
-    public ZookeeperRegistry(Config config) {
-        super(config);
-        this.clusterName = config.getClusterName();
+    public ZookeeperRegistry(final Application application) {
+        super(application);
+        this.clusterName = application.getConfig().getClusterName();
         this.cachedChildrenNodeMap = new ConcurrentHashMap<String, List<String>>();
         ZookeeperTransporter zookeeperTransporter = ExtensionLoader.getExtensionLoader(ZookeeperTransporter.class).getAdaptiveExtension();
-        this.zkClient = zookeeperTransporter.connect(config);
+        this.zkClient = zookeeperTransporter.connect(application.getConfig());
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
+        // 默认是连成功的(用zkclient时候，第一次不会有state changed时间暴露给用户，
+        // 他居然在new ZkClient的时候就直接连接了，给个提供listener的构造函数或者把启动改为start方法都ok呀，蛋疼)
+        application.getRegistryStatMonitor().setAvailable(true);
+
         zkClient.addStateListener(new StateListener() {
             @Override
             public void stateChanged(int state) {
-                if (state == RECONNECTED) {
+                if (state == DISCONNECTED) {
+                    application.getRegistryStatMonitor().setAvailable(false);
+                } else if (state == CONNECTED) {
+                    application.getRegistryStatMonitor().setAvailable(true);
+                } else if (state == RECONNECTED) {
                     try {
+                        application.getRegistryStatMonitor().setAvailable(true);
                         recover();
                     } catch (Exception e) {
                         LOGGER.error(e.getMessage(), e);
@@ -124,37 +133,37 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
             listeners.putIfAbsent(listener, new ChildListener() {
 
-                public void childChanged(String parentPath, List<String> currentChilds) {
+                public void childChanged(String parentPath, List<String> currentChildren) {
 
-                    if (CollectionUtils.isEmpty(currentChilds)) {
-                        currentChilds = new ArrayList<String>(0);
+                    if (CollectionUtils.isEmpty(currentChildren)) {
+                        currentChildren = new ArrayList<String>(0);
                     }
 
-                    List<String> oldChilds = cachedChildrenNodeMap.get(parentPath);
+                    List<String> oldChildren = cachedChildrenNodeMap.get(parentPath);
                     // 1. 找出增加的 节点
-                    List<String> addChilds = CollectionUtils.getLeftDiff(currentChilds, oldChilds);
+                    List<String> addChildren = CollectionUtils.getLeftDiff(currentChildren, oldChildren);
                     // 2. 找出减少的 节点
-                    List<String> decChilds = CollectionUtils.getLeftDiff(oldChilds, currentChilds);
+                    List<String> decChildren = CollectionUtils.getLeftDiff(oldChildren, currentChildren);
 
-                    if (CollectionUtils.isNotEmpty(addChilds)) {
+                    if (CollectionUtils.isNotEmpty(addChildren)) {
 
-                        List<Node> nodes = new ArrayList<Node>(addChilds.size());
-                        for (String child : addChilds) {
+                        List<Node> nodes = new ArrayList<Node>(addChildren.size());
+                        for (String child : addChildren) {
                             Node node = NodeRegistryUtils.parse(parentPath + "/" + child);
                             nodes.add(node);
                         }
                         ZookeeperRegistry.this.notify(NotifyEvent.ADD, nodes, listener);
                     }
 
-                    if (CollectionUtils.isNotEmpty(decChilds)) {
-                        List<Node> nodes = new ArrayList<Node>(addChilds.size());
-                        for (String child : decChilds) {
+                    if (CollectionUtils.isNotEmpty(decChildren)) {
+                        List<Node> nodes = new ArrayList<Node>(addChildren.size());
+                        for (String child : decChildren) {
                             Node node = NodeRegistryUtils.parse(parentPath + "/" + child);
                             nodes.add(node);
                         }
                         ZookeeperRegistry.this.notify(NotifyEvent.REMOVE, nodes, listener);
                     }
-                    cachedChildrenNodeMap.put(parentPath, currentChilds);
+                    cachedChildrenNodeMap.put(parentPath, currentChildren);
                 }
             });
             zkListener = listeners.get(listener);

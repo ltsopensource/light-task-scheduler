@@ -46,6 +46,10 @@ public class ExecutableDeadJobChecker {
                     @Override
                     public void run() {
                         try {
+                            // 判断注册中心是否可用，如果不可用，那么直接返回，不进行处理
+                            if (!application.getRegistryStatMonitor().isAvailable()) {
+                                return;
+                            }
                             fix();
                         } catch (Throwable t) {
                             LOGGER.error(t.getMessage(), t);

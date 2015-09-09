@@ -1,8 +1,10 @@
 package com.lts.jobtracker.channel;
 
 import com.lts.core.cluster.NodeType;
+import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.SystemClock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,13 @@ public class ChannelManager {
     private final ConcurrentHashMap<String/*taskTrackerNodeGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 用来定时检查已经关闭的channel
     private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
-
     private ScheduledFuture scheduledFuture;
+    // 存储离线一定时间内的节点信息
+    private final ConcurrentHashMap<String/*identity*/, Long> offlineTaskTrackerMap = new ConcurrentHashMap<String, Long>();
+    // 用来清理离线时间很长的信息
+    private final ScheduledExecutorService offlineTaskTrackerCheckExecutorService = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture offlineTaskTrackerScheduledFuture;
+
     private AtomicBoolean start = new AtomicBoolean(false);
 
     public void start() {
@@ -33,17 +40,39 @@ public class ChannelManager {
                 scheduledFuture = channelCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
-                        checkCloseChannel(clientChannelMap);
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
+                        try {
+                            checkCloseChannel(NodeType.JOB_CLIENT, clientChannelMap);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("JobClient Channel Pool " + clientChannelMap);
+                            }
+                            checkCloseChannel(NodeType.TASK_TRACKER, taskTrackerChannelMap);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
+                            }
+                        } catch (Throwable t) {
+                            LOGGER.error("Check channel error!", t);
                         }
-                        checkCloseChannel(taskTrackerChannelMap);
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("TaskTracker Channel Pool " + taskTrackerChannelMap);
-                        }
-
                     }
                 }, 10, 10, TimeUnit.SECONDS);
+
+                offlineTaskTrackerScheduledFuture = offlineTaskTrackerCheckExecutorService.scheduleWithFixedDelay(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (offlineTaskTrackerMap.size() > 0) {
+                                for (Map.Entry<String, Long> entry : offlineTaskTrackerMap.entrySet()) {
+                                    // 清除离线超过一定时间的信息
+                                    if (SystemClock.now() - entry.getValue() > 2 * Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
+                                        offlineTaskTrackerMap.remove(entry.getKey());
+                                    }
+                                }
+                            }
+                        } catch (Throwable t) {
+                            LOGGER.error("Check offline channel error!", t);
+                        }
+                    }
+                }, 1, 1, TimeUnit.MINUTES);     // 1分钟检查一次
+
             }
             LOGGER.info("Start channel manager success!");
         } catch (Throwable t) {
@@ -56,6 +85,8 @@ public class ChannelManager {
             if (start.compareAndSet(true, false)) {
                 scheduledFuture.cancel(true);
                 channelCheckExecutorService.shutdown();
+                offlineTaskTrackerScheduledFuture.cancel(true);
+                offlineTaskTrackerCheckExecutorService.shutdown();
             }
             LOGGER.info("Stop channel manager success!");
         } catch (Throwable t) {
@@ -65,10 +96,8 @@ public class ChannelManager {
 
     /**
      * 检查 关闭的channel
-     *
-     * @param channelMap
      */
-    private void checkCloseChannel(ConcurrentHashMap<String, List<ChannelWrapper>> channelMap) {
+    private void checkCloseChannel(NodeType nodeType, ConcurrentHashMap<String, List<ChannelWrapper>> channelMap) {
         for (Map.Entry<String, List<ChannelWrapper>> entry : channelMap.entrySet()) {
             List<ChannelWrapper> channels = entry.getValue();
             List<ChannelWrapper> removeList = new ArrayList<ChannelWrapper>();
@@ -79,6 +108,12 @@ public class ChannelManager {
                 }
             }
             channels.removeAll(removeList);
+            // 加入到离线列表中
+            if (nodeType == NodeType.TASK_TRACKER) {
+                for (ChannelWrapper channelWrapper : removeList) {
+                    offlineTaskTrackerMap.put(channelWrapper.getIdentity(), SystemClock.now());
+                }
+            }
         }
     }
 
@@ -93,11 +128,6 @@ public class ChannelManager {
 
     /**
      * 根据 节点唯一编号得到 channel
-     *
-     * @param nodeGroup
-     * @param nodeType
-     * @param identity
-     * @return
      */
     public ChannelWrapper getChannel(String nodeGroup, NodeType nodeType, String identity) {
         List<ChannelWrapper> channelWrappers = getChannels(nodeGroup, nodeType);
@@ -113,8 +143,6 @@ public class ChannelManager {
 
     /**
      * 添加channel
-     *
-     * @param channel
      */
     public void offerChannel(ChannelWrapper channel) {
         String nodeGroup = channel.getNodeGroup();
@@ -126,6 +154,10 @@ public class ChannelManager {
                 clientChannelMap.put(nodeGroup, channels);
             } else if (nodeType == NodeType.TASK_TRACKER) {
                 taskTrackerChannelMap.put(nodeGroup, channels);
+                // 如果在离线列表中，那么移除
+                if (offlineTaskTrackerMap.containsKey(channel.getIdentity())) {
+                    offlineTaskTrackerMap.remove(channel.getIdentity());
+                }
             }
             channels.add(channel);
             LOGGER.info("new connected channel={}", channel);
@@ -136,6 +168,12 @@ public class ChannelManager {
             }
         }
     }
+
+    public Long getOfflineTimestamp(String identity) {
+        return offlineTaskTrackerMap.get(identity);
+    }
+
+
 
     public void removeChannel(ChannelWrapper channel) {
         String nodeGroup = channel.getNodeGroup();

@@ -22,7 +22,7 @@
     </modules>
 
     <properties>
-        <jedis.version>2.1.0</jedis.version>
+        <jedis.version>2.7.3</jedis.version>
         <fastjson.version>1.1.41</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
         <curator.version>1.1.10</curator.version>

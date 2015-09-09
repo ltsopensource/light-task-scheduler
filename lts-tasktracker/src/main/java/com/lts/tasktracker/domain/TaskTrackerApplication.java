@@ -3,6 +3,7 @@ package com.lts.tasktracker.domain;
 import com.lts.core.Application;
 import com.lts.core.constant.Level;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.tasktracker.monitor.StopWorkingMonitor;
 import com.lts.tasktracker.runner.RunnerFactory;
 import com.lts.tasktracker.runner.RunnerPool;
 import com.lts.tasktracker.support.JobPullMachine;
@@ -19,6 +20,8 @@ public class TaskTrackerApplication extends Application{
     private RunnerFactory runnerFactory;
     // Pull Job Machine
     private JobPullMachine jobPullMachine;
+
+    private StopWorkingMonitor stopWorkingMonitor;
     /**
      * 业务日志记录级别
      */
@@ -27,6 +30,14 @@ public class TaskTrackerApplication extends Application{
      * 执行任务的class
      */
     private Class jobRunnerClass;
+
+    public StopWorkingMonitor getStopWorkingMonitor() {
+        return stopWorkingMonitor;
+    }
+
+    public void setStopWorkingMonitor(StopWorkingMonitor stopWorkingMonitor) {
+        this.stopWorkingMonitor = stopWorkingMonitor;
+    }
 
     public RunnerPool getRunnerPool() {
         return runnerPool;

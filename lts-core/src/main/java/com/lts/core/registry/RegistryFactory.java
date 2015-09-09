@@ -1,5 +1,6 @@
 package com.lts.core.registry;
 
+import com.lts.core.Application;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.redis.RedisRegistry;
@@ -10,16 +11,16 @@ import com.lts.core.registry.zookeeper.ZookeeperRegistry;
  */
 public class RegistryFactory {
 
-    public static Registry getRegistry(Config config) {
+    public static Registry getRegistry(Application application) {
 
-        String address = config.getRegistryAddress();
+        String address = application.getConfig().getRegistryAddress();
         if (StringUtils.isEmpty(address)) {
             throw new IllegalArgumentException("address is null！");
         }
         if (address.startsWith("zookeeper://")) {
-            return new ZookeeperRegistry(config);
+            return new ZookeeperRegistry(application);
         } else if (address.startsWith("redis://")) {
-            return new RedisRegistry(config);
+            return new RedisRegistry(application);
         } else if (address.startsWith("multicast://")) {
 //            return new MulticastRegistry(config);
         }

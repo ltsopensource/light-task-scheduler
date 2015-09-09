@@ -1,9 +1,6 @@
 package com.lts.core.commons.utils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/23/14.
@@ -56,5 +53,12 @@ public class CollectionUtils {
             }
         }
         return list;
+    }
+
+    public static <T> List<T> setToList(Set<T> set){
+        if(set == null){
+            return null;
+        }
+        return new ArrayList<T>(set);
     }
 }
