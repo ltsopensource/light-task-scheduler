@@ -4,6 +4,7 @@ import com.lts.biz.logger.JobLoggerFactory;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
+import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
@@ -56,6 +57,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         final Node node = new Node();
+        node.setIp(NetUtils.getLocalHost());
+        node.setHostName(NetUtils.getLocalHostName());
         node.setIdentity(Constants.ADMIN_ID_PREFIX + StringUtils.generateUUID());
         node.addListenNodeType(NodeType.JOB_CLIENT);
         node.addListenNodeType(NodeType.TASK_TRACKER);

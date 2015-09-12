@@ -14,6 +14,7 @@
     <modules>
         <module>lts-startup-jobtracker</module>
         <module>lts-startup-admin</module>
+        <module>lts-startup-tasktracker</module>
     </modules>
 
 </project>
