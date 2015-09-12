@@ -171,7 +171,9 @@ public class JobPusher {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            throw e;
+            LOGGER.warn(e.getMessage(), e);
+            application.getExecutableJobQueue().resume(jobPo);
+            return PushResult.FAILED;
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 

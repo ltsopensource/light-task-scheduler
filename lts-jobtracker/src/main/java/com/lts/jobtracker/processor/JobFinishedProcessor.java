@@ -168,13 +168,15 @@ public class JobFinishedProcessor extends AbstractProcessor {
 
         // 判断是否接受新任务
         if (receiveNewJob) {
-            // 查看有没有其他可以执行的任务
-            JobPushRequest jobPushRequest = getNewJob(taskTrackerNodeGroup, taskTrackerIdentity);
-            // 返回 新的任务
-            return RemotingCommand.createResponseCommand(RemotingProtos
-                    .ResponseCode.SUCCESS.code(), jobPushRequest);
+            try {
+                // 查看有没有其他可以执行的任务
+                JobPushRequest jobPushRequest = getNewJob(taskTrackerNodeGroup, taskTrackerIdentity);
+                // 返回 新的任务
+                return RemotingCommand.createResponseCommand(RemotingProtos
+                        .ResponseCode.SUCCESS.code(), jobPushRequest);
+            } catch (Exception ignored) {
+            }
         }
-
         // 返回给 任务执行端
         return RemotingCommand.createResponseCommand(RemotingProtos
                 .ResponseCode.SUCCESS.code());
@@ -276,7 +278,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            throw e;
+            LOGGER.warn(e.getMessage(), e);
+            application.getExecutableJobQueue().resume(jobPo);
+            return null;
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
@@ -304,9 +308,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
         for (TaskTrackerJobResult result : results) {
 
             JobWrapper jobWrapper = result.getJobWrapper();
-            // 从正在执行的队列中移除 TODO 如果在这个时候down机了，数据丢失了
-            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
-
             if (jobWrapper.getJob().isSchedule()) {
 
                 JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
@@ -330,6 +331,9 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            // 从正在执行的队列中移除
+            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
+
         }
     }
 
@@ -346,9 +350,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
             // 1. 加入到重试队列
             JobPo jobPo = application.getExecutingJobQueue().get(jobWrapper.getJobId());
             if (jobPo != null) {
-
-                // 从正在执行的队列中移除 TODO 如果在这个时候down机了，数据丢失了
-                application.getExecutingJobQueue().remove(jobPo.getJobId());
 
                 // 重试次数+1
                 jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
@@ -389,6 +390,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         LOGGER.error(e.getMessage(), e);
                     }
                 }
+
+                // 从正在执行的队列中移除
+                application.getExecutingJobQueue().remove(jobPo.getJobId());
+
             }
         }
     }

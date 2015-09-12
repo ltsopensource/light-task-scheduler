@@ -176,19 +176,19 @@ public class ExecutingDeadJobChecker {
     private void fixDeadJob(JobPo jobPo) {
         try {
 
-            // 1. remove from executing queue TODO 如果在这个时候down机了，数据丢失了
-            application.getExecutingJobQueue().remove(jobPo.getJobId());
-
             jobPo.setGmtModified(SystemClock.now());
             jobPo.setTaskTrackerIdentity(null);
             jobPo.setIsRunning(false);
-            // 2. add to executable queue
+            // 1. add to executable queue
             try {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
                 // ignore
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
+
+            // 2. remove from executing queue
+            application.getExecutingJobQueue().remove(jobPo.getJobId());
 
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setSuccess(true);
