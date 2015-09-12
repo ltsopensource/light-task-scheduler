@@ -1,8 +1,6 @@
 package com.lts.example.api;
 
-import com.lts.core.constant.Constants;
 import com.lts.example.support.MasterChangeListenerImpl;
-import com.lts.example.support.NoopJobRunner;
 import com.lts.example.support.TestJobRunner;
 import com.lts.tasktracker.TaskTracker;
 

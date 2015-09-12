@@ -97,8 +97,7 @@ public class LeveldbFailStore extends AbstractFailStore {
         } finally {
             try {
                 batch.close();
-            } catch (IOException e) {
-                throw new FailStoreException(e);
+            } catch (IOException ignored) {
             }
         }
     }
@@ -129,14 +128,12 @@ public class LeveldbFailStore extends AbstractFailStore {
             if (iterator != null) {
                 try {
                     iterator.close();
-                } catch (IOException e) {
-                    throw new FailStoreException(e);
+                } catch (IOException ignored) {
                 }
             }
             try {
                 snapshot.close();
-            } catch (IOException e) {
-                throw new FailStoreException(e);
+            } catch (IOException ignored) {
             }
         }
     }

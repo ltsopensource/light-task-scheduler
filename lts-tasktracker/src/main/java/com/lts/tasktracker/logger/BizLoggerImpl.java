@@ -139,7 +139,7 @@ public class BizLoggerImpl implements BizLogger {
                 // success
                 return true;
             }
-        } catch (JobTrackerNotFoundException e) {
+        } catch (JobTrackerNotFoundException ignored) {
         }
         return false;
     }

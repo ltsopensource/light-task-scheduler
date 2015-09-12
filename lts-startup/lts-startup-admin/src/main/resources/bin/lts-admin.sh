@@ -13,8 +13,8 @@ else
   JAVA=java
 fi
 
-#把war/lib下的所有jar都加入到classpath中
-for i in "$LTS_ADMIN_HOME"/../war/lib/*.jar
+#把lts-admin/lib下的所有jar都加入到classpath中
+for i in "$LTS_ADMIN_HOME"/../lts-admin/lib/*.jar
 do
 	CLASSPATH="$i:$CLASSPATH"
 done
@@ -25,7 +25,7 @@ mkdir -p $LTS_ADMIN_HOME/../logs
 mkdir -p $LTS_ADMIN_HOME/../pid
 
 # 转化为绝对路径
-CONF_HOME="$LTS_ADMIN_HOME/../war/conf"
+CONF_HOME="$LTS_ADMIN_HOME/../lts-admin/conf"
 CONF_HOME=$(cd "$(dirname "$CONF_HOME")"; pwd)
 # echo $CONF_HOME
 
@@ -69,7 +69,7 @@ stop)
     echo "Stopping LTS LTS-Admin  ... "
     if [ ! -f "$LTS_PID_FILE" ]
     then
-      echo "no LTS-Admin to stop (could not find file $LTS_PID_FILE)"
+      echo "no LTS-Admin to started (could not find file $LTS_PID_FILE)"
     else
       kill -9 $(cat "$LTS_PID_FILE")
       rm "$LTS_PID_FILE"

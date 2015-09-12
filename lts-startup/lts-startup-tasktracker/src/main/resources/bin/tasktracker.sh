@@ -3,9 +3,9 @@
 # JVMFLAGS JVM参数可以在这里设置
 JVMFLAGS=-Dfile.encoding=UTF-8
 
-JOB_TRACKER_HOME="${BASH_SOURCE-$0}"
-JOB_TRACKER_HOME="$(dirname "${JOB_TRACKER_HOME}")"
-JOB_TRACKER_HOME="$(cd "${JOB_TRACKER_HOME}"; pwd)"
+TASK_TRACKER_HOME="${BASH_SOURCE-$0}"
+TASK_TRACKER_HOME="$(dirname "${TASK_TRACKER_HOME}")"
+TASK_TRACKER_HOME="$(cd "${TASK_TRACKER_HOME}"; pwd)"
 
 if [ "$JAVA_HOME" != "" ]; then
   JAVA="$JAVA_HOME/bin/java"
@@ -13,11 +13,11 @@ else
   JAVA=java
 fi
 
-mkdir -p $JOB_TRACKER_HOME/../logs
-mkdir -p $JOB_TRACKER_HOME/../pid
+mkdir -p $TASK_TRACKER_HOME/../logs
+mkdir -p $TASK_TRACKER_HOME/../pid
 
 #把lib下的所有jar都加入到classpath中
-for i in "$JOB_TRACKER_HOME"/../jobtracker/lib/*.jar
+for i in "$TASK_TRACKER_HOME"/../lib/*.jar
 do
 	CLASSPATH="$i:$CLASSPATH"
 done
@@ -27,19 +27,19 @@ done
 NODE_NAME="$1"  # zoo
 
 # 转化为绝对路径
-CONF_HOME="$JOB_TRACKER_HOME/../jobtracker"
+CONF_HOME="$TASK_TRACKER_HOME/../conf"
 CONF_HOME=$(cd "$(dirname "$CONF_HOME")"; pwd)
-CONF_HOME="$CONF_HOME/jobtracker/conf/$NODE_NAME"
+CONF_HOME="$CONF_HOME/conf/$NODE_NAME"
 # echo $CONF_HOME
 
-_LTS_DAEMON_OUT="$JOB_TRACKER_HOME/../logs/jobtracker-$NODE_NAME.out"
-LTS_MAIN="com.lts.startup.JobTrackerStartup"
+_LTS_DAEMON_OUT="$TASK_TRACKER_HOME/../logs/tasktracker-$NODE_NAME.out"
+LTS_MAIN="com.lts.startup.TaskTrackerStartup"
 
-LTS_PID_FILE="$JOB_TRACKER_HOME/../pid/jobtracker-$NODE_NAME.pid"
+LTS_PID_FILE="$TASK_TRACKER_HOME/../pid/tasktracker-$NODE_NAME.pid"
 
 case $2 in
 start)
-    echo "Starting LTS JOB_TRACKER [$NODE_NAME] ... "
+    echo "Starting LTS TASK_TRACKER [$NODE_NAME] ... "
     if [ -f "$LTS_PID_FILE" ]; then
       if kill -0 `cat "$LTS_PID_FILE"` > /dev/null 2>&1; then
          echo $command already running as process `cat "$LTS_PID_FILE"`. 
@@ -59,7 +59,7 @@ start)
         exit 1
       fi
     else
-      echo "JOB_TRACKER DID NOT START"
+      echo "TASK_TRACKER DID NOT START"
       exit 1
     fi
 ;;
@@ -69,10 +69,10 @@ restart)
     sh $0 $1 start
 ;;
 stop)
-    echo "Stopping LTS JOB_TRACKER [$NODE_NAME] ... "
+    echo "Stopping LTS TASK_TRACKER [$NODE_NAME] ... "
     if [ ! -f "$LTS_PID_FILE" ]
     then
-      echo "no jobtracker to started (could not find file $LTS_PID_FILE)"
+      echo "no tasktracker to started (could not find file $LTS_PID_FILE)"
     else
       kill -9 $(cat "$LTS_PID_FILE")
       rm "$LTS_PID_FILE"

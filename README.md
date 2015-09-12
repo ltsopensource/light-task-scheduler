@@ -91,7 +91,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
 
 1、运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
-2、下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`conf`目录是JobTracker的配置文件，lib是JobTracker需要使用到的jar包，`war`是LTS-Admin相关的war包和配置文件。
+2、下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
 lts-{version}-bin的文件结构
 
 ```java
@@ -100,21 +100,32 @@ lts-{version}-bin的文件结构
 │   ├── jobtracker.sh
 │   ├── lts-admin.cmd
 │   └── lts-admin.sh
-├── conf
-│   └── zoo
-│       ├── jobtracker.cfg
-│       └── log4j.properties
-├── lib
-└── war
+├── jobtracker
+│   ├── conf
+│   │   └── zoo
+│   │       ├── jobtracker.cfg
+│   │       └── log4j.properties
+│   └── lib
+│       └── *.jar
+├── lts-admin
+│   ├── conf
+│   │   ├── log4j.properties
+│   │   └── lts-admin.cfg
+│   ├── lib
+│   │   └── *.jar
+│   └── lts-admin.war
+└── tasktracker
+    ├── bin
+    │   └── tasktracker.sh
     ├── conf
     │   ├── log4j.properties
-    │   └── lts-admin.cfg
-    ├── lib
-    └── lts-admin.war
+    │   └── tasktracker.cfg
+    └── lib
+        └── *.jar
 ```	    
         
 3、JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。        
-4、LTS-Admin启动.修改`war/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+4、LTS-Admin启动.修改`lts-admin/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
 ##JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。

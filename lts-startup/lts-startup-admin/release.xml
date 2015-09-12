@@ -8,7 +8,7 @@
     <fileSets>
         <fileSet>
             <directory>${project.basedir}/src/main/resources/conf</directory>
-            <outputDirectory>war/conf</outputDirectory>
+            <outputDirectory>lts-admin/conf</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/resources/bin</directory>
@@ -19,7 +19,7 @@
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>
-            <outputDirectory>war/lib</outputDirectory>
+            <outputDirectory>lts-admin/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

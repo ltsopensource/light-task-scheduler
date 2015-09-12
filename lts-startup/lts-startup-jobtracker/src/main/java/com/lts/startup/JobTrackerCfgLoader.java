@@ -41,7 +41,7 @@ public class JobTrackerCfgLoader {
         cfg.setRegistryAddress(registryAddress);
 
         String clusterName = conf.getProperty("clusterName");
-        if (StringUtils.isEmpty(registryAddress)) {
+        if (StringUtils.isEmpty(clusterName)) {
             throw new CfgException("clusterName can not be null.");
         }
         cfg.setClusterName(clusterName);

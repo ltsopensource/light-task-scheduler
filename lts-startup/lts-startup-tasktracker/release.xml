@@ -8,18 +8,18 @@
     <fileSets>
         <fileSet>
             <directory>${project.basedir}/src/main/resources/conf</directory>
-            <outputDirectory>jobtracker/conf</outputDirectory>
+            <outputDirectory>tasktracker/conf</outputDirectory>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/resources/bin</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>tasktracker/bin</outputDirectory>
         </fileSet>
     </fileSets>
 
     <dependencySets>
         <dependencySet>
             <useProjectArtifact>true</useProjectArtifact>
-            <outputDirectory>jobtracker/lib</outputDirectory>
+            <outputDirectory>tasktracker/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>
