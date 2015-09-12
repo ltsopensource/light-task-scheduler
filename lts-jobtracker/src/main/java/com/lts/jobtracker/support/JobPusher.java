@@ -171,6 +171,7 @@ public class JobPusher {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
             // ignore
+            LOGGER.error(e.getMessage(), e);
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
         // 记录日志

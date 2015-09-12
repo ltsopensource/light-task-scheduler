@@ -277,6 +277,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
             // ignore
+            LOGGER.error(e.getMessage(), e);
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
@@ -304,20 +305,20 @@ public class JobFinishedProcessor extends AbstractProcessor {
         for (TaskTrackerJobResult result : results) {
 
             JobWrapper jobWrapper = result.getJobWrapper();
-            // 移除
-            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
 
-            if (jobWrapper.getJob().isSchedule()) {
+            try {
+                if (jobWrapper.getJob().isSchedule()) {
 
-                JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
-                if (cronJobPo == null) {
-                    // 可能任务队列中改条记录被删除了
-                    return;
-                }
-                Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
-                if (nextTriggerTime == null) {
-                    application.getCronJobQueue().remove(jobWrapper.getJobId());
-                } else {
+                    JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
+                    if (cronJobPo == null) {
+                        // 可能任务队列中改条记录被删除了
+                        return;
+                    }
+                    Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
+                    if (nextTriggerTime == null) {
+                        application.getCronJobQueue().remove(jobWrapper.getJobId());
+                        return;
+                    }
                     // 表示下次还要执行
                     try {
                         cronJobPo.setTaskTrackerIdentity(null);
@@ -325,9 +326,13 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                         cronJobPo.setGmtModified(SystemClock.now());
                         application.getExecutableJobQueue().add(cronJobPo);
-                    } catch (DuplicateJobException ignore) {
+                    } catch (DuplicateJobException e) {
+                        LOGGER.error(e.getMessage(), e);
                     }
                 }
+            } finally {
+                // 移除
+                application.getExecutingJobQueue().remove(jobWrapper.getJobId());
             }
         }
     }
@@ -335,6 +340,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
     /**
      * 将任务加入重试队列
      */
+
     private void retryProcess(List<TaskTrackerJobResult> results) {
         if (CollectionUtils.isEmpty(results)) {
             return;
@@ -363,7 +369,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
                                 cronJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 cronJobPo.setGmtModified(SystemClock.now());
                                 application.getExecutableJobQueue().add(cronJobPo);
-                            } catch (DuplicateJobException ignore) {
+                            } catch (DuplicateJobException e) {
+                                LOGGER.error(e.getMessage(), e);
                             }
                             needAdd = false;
                         }
@@ -378,7 +385,8 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     jobPo.setTriggerTime(nextRetryTriggerTime);
                     try {
                         application.getExecutableJobQueue().add(jobPo);
-                    } catch (DuplicateJobException ignore) {
+                    } catch (DuplicateJobException e) {
+                        LOGGER.error(e.getMessage(), e);
                     }
                 }
                 // 从正在执行的队列中移除
