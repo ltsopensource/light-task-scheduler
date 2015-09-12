@@ -5,7 +5,7 @@ JVMFLAGS=-Dfile.encoding=UTF-8
 
 TASK_TRACKER_HOME="${BASH_SOURCE-$0}"
 TASK_TRACKER_HOME="$(dirname "${TASK_TRACKER_HOME}")"
-TASK_TRACKER_HOME="$(cd "${TASK_TRACKER_HOME}"; pwd)"
+TASK_TRACKER_HOME="$(cd "${TASK_TRACKER_HOME}/../"; pwd)"
 
 if [ "$JAVA_HOME" != "" ]; then
   JAVA="$JAVA_HOME/bin/java"
@@ -13,33 +13,29 @@ else
   JAVA=java
 fi
 
-mkdir -p $TASK_TRACKER_HOME/../logs
-mkdir -p $TASK_TRACKER_HOME/../pid
+mkdir -p $TASK_TRACKER_HOME/logs
+mkdir -p $TASK_TRACKER_HOME/pid
 
 #把lib下的所有jar都加入到classpath中
-for i in "$TASK_TRACKER_HOME"/../lib/*.jar
+for i in "$TASK_TRACKER_HOME"/lib/*.jar
 do
 	CLASSPATH="$i:$CLASSPATH"
 done
 
 # echo $CLASSPATH
 
-NODE_NAME="$1"  # zoo
-
 # 转化为绝对路径
-CONF_HOME="$TASK_TRACKER_HOME/../conf"
-CONF_HOME=$(cd "$(dirname "$CONF_HOME")"; pwd)
-CONF_HOME="$CONF_HOME/conf/$NODE_NAME"
+CONF_HOME="$TASK_TRACKER_HOME/conf/"
 # echo $CONF_HOME
 
-_LTS_DAEMON_OUT="$TASK_TRACKER_HOME/../logs/tasktracker-$NODE_NAME.out"
+_LTS_DAEMON_OUT="$TASK_TRACKER_HOME/logs/tasktracker.out"
 LTS_MAIN="com.lts.startup.TaskTrackerStartup"
 
-LTS_PID_FILE="$TASK_TRACKER_HOME/../pid/tasktracker-$NODE_NAME.pid"
+LTS_PID_FILE="$TASK_TRACKER_HOME/pid/tasktracker.pid"
 
-case $2 in
+case $1 in
 start)
-    echo "Starting LTS TASK_TRACKER [$NODE_NAME] ... "
+    echo "Starting LTS TASK_TRACKER ... "
     if [ -f "$LTS_PID_FILE" ]; then
       if kill -0 `cat "$LTS_PID_FILE"` > /dev/null 2>&1; then
          echo $command already running as process `cat "$LTS_PID_FILE"`. 
@@ -69,10 +65,10 @@ restart)
     sh $0 $1 start
 ;;
 stop)
-    echo "Stopping LTS TASK_TRACKER [$NODE_NAME] ... "
+    echo "Stopping LTS TASK_TRACKER ... "
     if [ ! -f "$LTS_PID_FILE" ]
     then
-      echo "no tasktracker to started (could not find file $LTS_PID_FILE)"
+      echo "no tasktracker to stop (could not find file $LTS_PID_FILE)"
     else
       kill -9 $(cat "$LTS_PID_FILE")
       rm "$LTS_PID_FILE"
@@ -81,7 +77,7 @@ stop)
     exit 0
 ;;
 *)
-    echo "Usage: $0 {nodeName} {start|stop|restart}" >&2
+    echo "Usage: $0 {start|stop|restart}" >&2
 esac
 
 
