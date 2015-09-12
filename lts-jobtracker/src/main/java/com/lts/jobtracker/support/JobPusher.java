@@ -167,15 +167,15 @@ public class JobPusher {
             application.getExecutableJobQueue().resume(jobPo);
             return PushResult.FAILED;
         }
+
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            // ignore
-            LOGGER.error(e.getMessage(), e);
+            throw e;
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
-        // 记录日志
 
+        // 记录日志
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.SENT);

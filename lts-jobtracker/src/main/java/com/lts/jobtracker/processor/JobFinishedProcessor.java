@@ -276,8 +276,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            // ignore
-            LOGGER.error(e.getMessage(), e);
+            throw e;
         }
         application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
@@ -305,34 +304,31 @@ public class JobFinishedProcessor extends AbstractProcessor {
         for (TaskTrackerJobResult result : results) {
 
             JobWrapper jobWrapper = result.getJobWrapper();
+            // 从正在执行的队列中移除 TODO 如果在这个时候down机了，数据丢失了
+            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
 
-            try {
-                if (jobWrapper.getJob().isSchedule()) {
+            if (jobWrapper.getJob().isSchedule()) {
 
-                    JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
-                    if (cronJobPo == null) {
-                        // 可能任务队列中改条记录被删除了
-                        return;
-                    }
-                    Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
-                    if (nextTriggerTime == null) {
-                        application.getCronJobQueue().remove(jobWrapper.getJobId());
-                        return;
-                    }
-                    // 表示下次还要执行
-                    try {
-                        cronJobPo.setTaskTrackerIdentity(null);
-                        cronJobPo.setIsRunning(false);
-                        cronJobPo.setTriggerTime(nextTriggerTime.getTime());
-                        cronJobPo.setGmtModified(SystemClock.now());
-                        application.getExecutableJobQueue().add(cronJobPo);
-                    } catch (DuplicateJobException e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
+                JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
+                if (cronJobPo == null) {
+                    // 可能任务队列中改条记录被删除了
+                    return;
                 }
-            } finally {
-                // 移除
-                application.getExecutingJobQueue().remove(jobWrapper.getJobId());
+                Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
+                if (nextTriggerTime == null) {
+                    application.getCronJobQueue().remove(jobWrapper.getJobId());
+                    return;
+                }
+                // 表示下次还要执行
+                try {
+                    cronJobPo.setTaskTrackerIdentity(null);
+                    cronJobPo.setIsRunning(false);
+                    cronJobPo.setTriggerTime(nextTriggerTime.getTime());
+                    cronJobPo.setGmtModified(SystemClock.now());
+                    application.getExecutableJobQueue().add(cronJobPo);
+                } catch (DuplicateJobException e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
             }
         }
     }
@@ -350,6 +346,10 @@ public class JobFinishedProcessor extends AbstractProcessor {
             // 1. 加入到重试队列
             JobPo jobPo = application.getExecutingJobQueue().get(jobWrapper.getJobId());
             if (jobPo != null) {
+
+                // 从正在执行的队列中移除 TODO 如果在这个时候down机了，数据丢失了
+                application.getExecutingJobQueue().remove(jobPo.getJobId());
+
                 // 重试次数+1
                 jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
                 Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), jobPo.getRetryTimes()).getTime();
@@ -389,8 +389,6 @@ public class JobFinishedProcessor extends AbstractProcessor {
                         LOGGER.error(e.getMessage(), e);
                     }
                 }
-                // 从正在执行的队列中移除
-                application.getExecutingJobQueue().remove(jobPo.getJobId());
             }
         }
     }
