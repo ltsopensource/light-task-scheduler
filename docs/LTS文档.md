@@ -7,7 +7,7 @@ github地址:
 [https://github.com/qq254963746/light-task-scheduler](https://github.com/qq254963746/light-task-scheduler)
 
 oschina地址:
-[git.oschina.net/hugui/light-task-scheduler](git.oschina.net/hugui/light-task-scheduler)
+[http://git.oschina.net/hugui/light-task-scheduler](http://git.oschina.net/hugui/light-task-scheduler)
 
 这两个地址都会同步更新。感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
@@ -91,7 +91,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
 
 1、运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
-2、下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`conf`目录是JobTracker的配置文件，lib是JobTracker需要使用到的jar包，`war`是LTS-Admin相关的war包和配置文件。
+2、下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
 lts-{version}-bin的文件结构
 
 ```java
@@ -100,21 +100,32 @@ lts-{version}-bin的文件结构
 │   ├── jobtracker.sh
 │   ├── lts-admin.cmd
 │   └── lts-admin.sh
-├── conf
-│   └── zoo
-│       ├── jobtracker.cfg
-│       └── log4j.properties
-├── lib
-└── war
+├── jobtracker
+│   ├── conf
+│   │   └── zoo
+│   │       ├── jobtracker.cfg
+│   │       └── log4j.properties
+│   └── lib
+│       └── *.jar
+├── lts-admin
+│   ├── conf
+│   │   ├── log4j.properties
+│   │   └── lts-admin.cfg
+│   ├── lib
+│   │   └── *.jar
+│   └── lts-admin.war
+└── tasktracker
+    ├── bin
+    │   └── tasktracker.sh
     ├── conf
     │   ├── log4j.properties
-    │   └── lts-admin.cfg
-    ├── lib
-    └── lts-admin.war
+    │   └── tasktracker.cfg
+    └── lib
+        └── *.jar
 ```	    
         
 3、JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。        
-4、LTS-Admin启动.修改`war/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+4、LTS-Admin启动.修改`lts-admin/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
 ##JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
@@ -276,6 +287,10 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |mongo.addresses|可选|无|JobTracker|addConfig("mongo.addresses", "xxx")|mongo连接URL,当job.queue为mongo的时候起作用|
 |mongo.database|可选|无|JobTracker|addConfig("mongo.database", "xxx")|mongo数据库名,当job.queue为mongo的时候起作用|
 |zk.client|可选|zkclient|JobClient,JobTracker,TaskTracker|addConfig("zk.client", "xxx")|zookeeper客户端,可选值zkclient, curator|
+|job.pull.frequency|可选|3|TaskTracker|addConfig("job.pull.frequency", "xx")|TaskTracker去向JobTracker Pull任务的频率，针对不同的场景可以做相应的调整，单位秒|
+|job.max.retry.times|可选|10|JobTracker|addConfig("job.max.retry.times", "xx")|任务的最大重试次数|
+|lts.monitor.url|可选|无|JobTracker,TaskTracker|addConfig("lts.monitor.url", "xx")|监控中心地址，也就是LTS-Admin地址，如 http://localhost:8081|
+|stop.working|可选|false|TaskTracker|addConfig("stop.working", "true")|主要用于当TaskTracker与JobTracker出现网络隔离的时候，超过一定时间隔离之后，TaskTracker自动停止当前正在运行的任务|
 
 
 
@@ -333,6 +348,9 @@ class JobRunnerB implements JobRunner {
 实现方式和LTS-Logger扩展类似，具体参考`lts-queue-mysql`或`lts-queue-mongo`模块的实现
 ##和其它解决方案比较
 ###和MQ比较
+见docs/LTS业务场景说明.pdf
 ###和Quartz比较
+见docs/LTS业务场景说明.pdf
+
 
 
