@@ -17,7 +17,7 @@ public class HsqlRepository {
     private AtomicBoolean init = new AtomicBoolean(false);
 
     public HsqlRepository() {
-        String monitorDBPath = AppConfigurer.getProperties("monitor.db.path", Constants.USER_HOME)
+        String monitorDBPath = AppConfigurer.getProperties("lts.admin.data.path", Constants.USER_HOME)
                 + "/.lts/hsqldb/lts-admin";
 
         if (init.compareAndSet(false, true)) {
