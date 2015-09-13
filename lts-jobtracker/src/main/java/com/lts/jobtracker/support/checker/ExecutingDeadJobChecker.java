@@ -175,17 +175,21 @@ public class ExecutingDeadJobChecker {
 
     private void fixDeadJob(JobPo jobPo) {
         try {
+
             jobPo.setGmtModified(SystemClock.now());
             jobPo.setTaskTrackerIdentity(null);
             jobPo.setIsRunning(false);
             // 1. add to executable queue
             try {
                 application.getExecutableJobQueue().add(jobPo);
-            } catch (DuplicateJobException ignore) {
+            } catch (DuplicateJobException e) {
                 // ignore
+                LOGGER.warn(e.getMessage(), e);
             }
+
             // 2. remove from executing queue
             application.getExecutingJobQueue().remove(jobPo.getJobId());
+
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setSuccess(true);
             jobLogPo.setLevel(Level.WARN);
