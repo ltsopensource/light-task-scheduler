@@ -328,12 +328,11 @@ public class JobFinishedProcessor extends AbstractProcessor {
                     cronJobPo.setGmtModified(SystemClock.now());
                     application.getExecutableJobQueue().add(cronJobPo);
                 } catch (DuplicateJobException e) {
-                    LOGGER.error(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
             // 从正在执行的队列中移除
             application.getExecutingJobQueue().remove(jobWrapper.getJobId());
-
         }
     }
 

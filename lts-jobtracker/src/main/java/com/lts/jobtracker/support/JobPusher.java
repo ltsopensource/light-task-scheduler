@@ -78,16 +78,25 @@ public class JobPusher {
                         }
                     }
                     while (availableThreads > 0) {
-                        if(LOGGER.isDebugEnabled()){
+                        if (LOGGER.isDebugEnabled()) {
                             LOGGER.debug("taskTrackerNodeGroup:{}, taskTrackerIdentity:{} , availableThreads:{}", nodeGroup, identity, availableThreads);
                         }
                         // 推送任务
                         PushResult result = sendJob(remotingServer, taskTrackerNode);
-                        if (result == PushResult.SUCCESS) {
-                            availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
-                            monitor.incPushJobNum();
-                        } else {
-                            break;
+                        switch (result) {
+                            case SUCCESS:
+                                availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
+                                monitor.incPushJobNum();
+                                break;
+                            case FAILED:
+                                // 还是要继续发送
+                                break;
+                            case NO_JOB:
+                                // 没有任务了
+                                return;
+                            case SENT_ERROR:
+                                // TaskTracker链接失败
+                                return;
                         }
                     }
                 } catch (Exception e) {
@@ -100,7 +109,8 @@ public class JobPusher {
     private enum PushResult {
         NO_JOB, // 没有任务可执行
         SUCCESS, //推送成功
-        FAILED      //推送失败
+        FAILED,      //推送失败
+        SENT_ERROR
     }
 
     /**
@@ -120,6 +130,17 @@ public class JobPusher {
             return PushResult.NO_JOB;
         }
 
+        // IMPORTANT: 这里要先切换队列
+        try {
+            application.getExecutingJobQueue().add(jobPo);
+        } catch (DuplicateJobException e) {
+            LOGGER.warn(e.getMessage(), e);
+            application.getExecutableJobQueue().resume(jobPo);
+            return PushResult.FAILED;
+        }
+        application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
+
+        // 发送给TaskTracker执行
         JobPushRequest body = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
         body.setJobWrapper(JobDomainConverter.convert(jobPo));
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
@@ -152,6 +173,7 @@ public class JobPusher {
 
         } catch (RemotingSendException e) {
             LOGGER.error(e.getMessage(), e);
+            return PushResult.SENT_ERROR;
         }
 
         try {
@@ -164,18 +186,21 @@ public class JobPusher {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Job push failed! nodeGroup=" + nodeGroup + ", identity=" + identity + ", job=" + jobPo);
             }
-            application.getExecutableJobQueue().resume(jobPo);
-            return PushResult.FAILED;
+            // 队列切回来
+            boolean needResume = true;
+            try {
+                jobPo.setIsRunning(true);
+                application.getExecutableJobQueue().add(jobPo);
+            } catch (DuplicateJobException e) {
+                LOGGER.warn(e.getMessage(), e);
+                needResume = false;
+            }
+            application.getExecutingJobQueue().remove(jobPo.getJobId());
+            if (needResume) {
+                application.getExecutableJobQueue().resume(jobPo);
+            }
+            return PushResult.SENT_ERROR;
         }
-
-        try {
-            application.getExecutingJobQueue().add(jobPo);
-        } catch (DuplicateJobException e) {
-            LOGGER.warn(e.getMessage(), e);
-            application.getExecutableJobQueue().resume(jobPo);
-            return PushResult.FAILED;
-        }
-        application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
         // 记录日志
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
