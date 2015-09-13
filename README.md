@@ -337,6 +337,34 @@ class JobRunnerB implements JobRunner {
     }
 }
 ```
+##TaskTracker的JobRunner测试
+一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.lts.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如`lts-example`中的例子：
+
+```java
+public class TestJobRunnerTester extends JobRunnerTester {
+	
+    public static void main(String[] args) throws Throwable {
+        //  1. Mock Job 数据
+        Job job = new Job();
+        job.setTaskId("2313213");
+        // 2. 运行测试
+        TestJobRunnerTester tester = new TestJobRunnerTester();
+        Result result = tester.run(job);
+        System.out.println(JSONUtils.toJSONString(result));
+    }
+	
+    @Override
+    protected void initContext() {
+        // TODO 初始化Spring容器等
+    }
+	
+    @Override
+    protected JobRunner newJobRunner() {
+        return new TestJobRunner();
+    }
+}
+```
+
 ##SPI扩展说明
 ###LTS-Logger扩展
 1. 引入`lts-logger-api-{version}.jar`

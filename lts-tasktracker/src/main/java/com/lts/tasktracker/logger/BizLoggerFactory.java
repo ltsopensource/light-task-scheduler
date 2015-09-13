@@ -19,6 +19,12 @@ public class BizLoggerFactory {
      * 保证一个TaskTracker只能有一个Logger, 因为一个jvm可以有多个TaskTracker
      */
     public static BizLogger getLogger(Level level, RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+
+        // 单元测试的时候返回 Mock
+        if (Environment.UNIT_TEST == LTSConfig.getEnvironment()) {
+            return new MockBizLogger(level);
+        }
+
         String key = application.getConfig().getIdentity();
         BizLogger logger = BIZ_LOGGER_CONCURRENT_HASH_MAP.get(key);
         if (logger == null) {
@@ -27,22 +33,12 @@ public class BizLoggerFactory {
                 if (logger != null) {
                     return logger;
                 }
-                logger = create(level, remotingClient, application);
+                logger = new BizLoggerImpl(level, remotingClient, application);
 
                 BIZ_LOGGER_CONCURRENT_HASH_MAP.put(key, logger);
             }
         }
         return logger;
-    }
-
-    /**
-     * 单元测试的时候返回 Mock
-     */
-    private static BizLogger create(Level level, RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
-        if (Environment.UNIT_TEST == LTSConfig.getEnvironment()) {
-            return new MockBizLogger(level);
-        }
-        return new BizLoggerImpl(level, remotingClient, application);
     }
 
 }

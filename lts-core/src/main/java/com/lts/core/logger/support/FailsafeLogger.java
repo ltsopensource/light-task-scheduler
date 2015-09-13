@@ -27,105 +27,105 @@ public class FailsafeLogger extends AbstractLogger implements Logger {
     public void trace(String msg, Throwable e) {
         try {
             logger.trace(appendContextMessage(msg), e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void trace(Throwable e) {
         try {
             logger.trace(e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void trace(String msg) {
         try {
             logger.trace(appendContextMessage(msg));
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void debug(String msg, Throwable e) {
         try {
             logger.debug(appendContextMessage(msg), e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void debug(Throwable e) {
         try {
             logger.debug(e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void debug(String msg) {
         try {
             logger.debug(appendContextMessage(msg));
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void info(String msg, Throwable e) {
         try {
             logger.info(appendContextMessage(msg), e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void info(String msg) {
         try {
             logger.info(appendContextMessage(msg));
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void warn(String msg, Throwable e) {
         try {
             logger.warn(appendContextMessage(msg), e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void warn(String msg) {
         try {
             logger.warn(appendContextMessage(msg));
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void error(String msg, Throwable e) {
         try {
             logger.error(appendContextMessage(msg), e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void error(String msg) {
         try {
             logger.error(appendContextMessage(msg));
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void error(Throwable e) {
         try {
             logger.error(e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void info(Throwable e) {
         try {
             logger.info(e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
     public void warn(Throwable e) {
         try {
             logger.warn(e);
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
     }
 
