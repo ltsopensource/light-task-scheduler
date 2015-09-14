@@ -29,5 +29,5 @@ echo "LTS: mvn assembly:assembly -DskipTests"
 echo "LTS: After sub window finished, close it , and press any key to continue" & pause>nul
 
 xcopy /e /y "%LTS_ADMIN_START_UP_DIR%\target\lts-bin\lts" "%LTS_BIN_DIR%"
-xcopy /e /y "%BASE_HOME%\lts-admin\target\lts-admin-%VERSION%.war" "%LTS_BIN_DIR%\war\lts-admin.war"
+xcopy /e /y "%BASE_HOME%\lts-admin\target\lts-admin-%VERSION%.war" "%LTS_BIN_DIR%\lts-admin\lts-admin.war"
 cd ..\..\
