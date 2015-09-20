@@ -42,6 +42,7 @@ public class LeveldbFailStore extends AbstractFailStore {
         options = new Options();
         options.createIfMissing(true);
         options.cacheSize(100 * 1024 * 1024);   // 100M
+        options.maxOpenFiles(400);
     }
 
     protected String getName() {
