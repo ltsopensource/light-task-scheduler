@@ -36,6 +36,7 @@ public class FileLock {
      * 获得锁
      */
     public boolean tryLock() {
+        boolean success = false;
         try {
             Path path = Paths.get(file.getPath());
             if (channel != null && channel.isOpen()) {
@@ -44,17 +45,20 @@ public class FileLock {
             channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.READ);
             lock = channel.tryLock();
             if (lock != null) {
+                success = true;
                 return true;
             }
-        } catch (IOException e) {
-            if (channel != null) {
-                try {
-                    channel.close();
-                } catch (IOException e1) {
-                    LOGGER.error("file channel close failed.", e1);
+        } catch (Exception e) {
+            return false;
+        } finally {
+            if (!success) {
+                if (channel != null) {
+                    try {
+                        channel.close();
+                    } catch (IOException ignored) {
+                    }
                 }
             }
-            return false;
         }
         return false;
     }

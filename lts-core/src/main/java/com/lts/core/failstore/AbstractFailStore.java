@@ -62,6 +62,7 @@ public abstract class AbstractFailStore implements FailStore {
                     }
                 } catch (Exception e) {
                     // ignore
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }

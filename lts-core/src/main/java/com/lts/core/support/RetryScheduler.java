@@ -243,11 +243,12 @@ public abstract class RetryScheduler<T> {
                                 LOGGER.info("{} RetryScheduler, dead local files send success, size: {}, {}", name, values.size(), JSONUtils.toJSONString(values));
                                 store.delete(keys);
                             } else {
+                                store.close();
                                 break;
                             }
                             try {
                                 Thread.sleep(500);
-                            } catch (Exception e) {
+                            } catch (Exception ignored) {
                             }
                         }
                     }
