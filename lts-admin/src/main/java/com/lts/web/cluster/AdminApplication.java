@@ -11,11 +11,17 @@ import com.lts.queue.*;
 public class AdminApplication extends Application {
 
     private CronJobQueue cronJobQueue;
+
     private ExecutableJobQueue executableJobQueue;
+
     private ExecutingJobQueue executingJobQueue;
+
     private JobFeedbackQueue jobFeedbackQueue;
+
     private NodeGroupStore nodeGroupStore;
+
     private JobLogger jobLogger;
+
     private Node node;
 
     public Node getNode() {

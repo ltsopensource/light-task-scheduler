@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.TaskTrackerMonitorRepository">
+
+    <insert id="executeSQL" parameterType="java.lang.String">
+      ${sql}
+    </insert>
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO lts_admin_task_tracker_monitor_data (
+        gmt_created,
+        task_tracker_node_group,
+        task_tracker_identity,
+        exe_success_num,
+        exe_failed_num,
+        exe_later_num,
+        exe_exception_num,
+        total_running_time,
+        fail_store_size,
+        timestamp,
+        max_memory,
+        allocated_memory,
+        free_memory,
+        total_free_memory
+        ) VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        (
+        #{item.gmtCreated},
+        #{item.taskTrackerNodeGroup},
+        #{item.taskTrackerIdentity},
+        #{item.exeSuccessNum},
+        #{item.exeFailedNum},
+        #{item.exeLaterNum},
+        #{item.exeExceptionNum},
+        #{item.totalRunningTime},
+        #{item.failStoreSize},
+        #{item.timestamp},
+        #{item.maxMemory},
+        #{item.allocatedMemory},
+        #{item.freeMemory},
+        #{item.totalFreeMemory}
+        )
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="identity != null and identity != ''">
+                AND task_tracker_identity = #{identity}
+            </if>
+            <if test="nodeGroup != null and nodeGroup != ''">
+                AND task_tracker_node_group = #{nodeGroup}
+            </if>
+            <![CDATA[ AND timestamp >= #{startTime} AND timestamp <= #{endTime} ]]>
+        </where>
+    </sql>
+
+    <select id="querySum" resultType="com.lts.web.repository.domain.TaskTrackerMonitorDataPo"
+            parameterType="com.lts.web.request.MonitorDataRequest">
+        SELECT
+        timestamp,
+        SUM(exe_success_num) AS exeSuccessNum,
+        SUM(exe_failed_num) AS exeFailedNum,
+        SUM(exe_later_num) AS exeLaterNum,
+        SUM(exe_exception_num) AS exeExceptionNum,
+        SUM(total_running_time) AS totalRunningTime,
+        SUM(fail_store_size) AS failStoreSize,
+        SUM(max_memory) AS maxMemory,
+        SUM(allocated_memory) AS allocatedMemory,
+        SUM(free_memory) AS freeMemory,
+        SUM(total_free_memory) AS totalFreeMemory
+        FROM lts_admin_task_tracker_monitor_data
+        <include refid="whereCondition"/>
+        GROUP BY timestamp ORDER BY timestamp ASC limit #{start},#{limit}
+    </select>
+
+    <delete id="delete" parameterType="com.lts.web.request.MonitorDataRequest">
+        DELETE FROM lts_admin_task_tracker_monitor_data
+        <include refid="whereCondition"/>
+    </delete>
+
+    <resultMap id="hashMapResult" type="java.util.HashMap">
+        <result property="key" column="task_tracker_identity"/>
+        <result property="value" column="task_tracker_node_group"/>
+    </resultMap>
+
+    <select id="getTaskTrackerMap" resultMap="hashMapResult">
+        select distinct task_tracker_identity,task_tracker_node_group  from lts_admin_task_tracker_monitor_data
+    </select>
+
+</mapper>

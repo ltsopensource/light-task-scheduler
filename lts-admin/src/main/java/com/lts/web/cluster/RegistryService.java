@@ -6,11 +6,10 @@ import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.registry.Registry;
 import com.lts.core.registry.RegistryFactory;
-import com.lts.web.repository.NodeMemoryRepository;
+import com.lts.web.repository.memory.NodeMemoryDatabase;
 import com.lts.web.request.NodeRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,14 +20,14 @@ import java.util.List;
 @Component
 public class RegistryService implements InitializingBean {
 
-    private NodeMemoryRepository repo = new NodeMemoryRepository();
+    private NodeMemoryDatabase repo = new NodeMemoryDatabase();
 
     @Autowired
-    @Qualifier("application")
-    AdminApplication application;
+    private AdminApplication application;
+
+    private Registry registry;
 
     private void register() {
-        Registry registry = RegistryFactory.getRegistry(application);
 
         registry.subscribe(application.getNode(), new NotifyListener() {
             @Override
@@ -54,6 +53,9 @@ public class RegistryService implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
+
+        registry = RegistryFactory.getRegistry(application);
+        
         register();
     }
 }

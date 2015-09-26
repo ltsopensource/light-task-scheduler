@@ -1,7 +1,7 @@
 package com.lts.web.controller;
 
-import com.lts.web.support.DateEditor;
-import com.lts.web.support.MapEditor;
+import com.lts.web.support.spring.DateEditor;
+import com.lts.web.support.spring.MapEditor;
 import org.springframework.web.bind.ServletRequestDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 

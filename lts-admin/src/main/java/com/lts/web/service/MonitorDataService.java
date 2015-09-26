@@ -8,7 +8,11 @@ import com.lts.core.commons.utils.Md5Encrypt;
 import com.lts.core.domain.JobTrackerMonitorData;
 import com.lts.core.domain.TaskTrackerMonitorData;
 import com.lts.core.support.SystemClock;
-import com.lts.web.repository.*;
+import com.lts.web.repository.domain.AbstractMonitorDataPo;
+import com.lts.web.repository.domain.JobTrackerMonitorDataPo;
+import com.lts.web.repository.domain.TaskTrackerMonitorDataPo;
+import com.lts.web.repository.mapper.JobTrackerMonitorRepository;
+import com.lts.web.repository.mapper.TaskTrackerMonitorRepository;
 import com.lts.web.request.MonitorDataAddRequest;
 import com.lts.web.request.MonitorDataRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +28,9 @@ import java.util.List;
 public class MonitorDataService {
 
     @Autowired
-    private TaskTrackerMonitorDataRepository taskTrackerMonitorDataRepository;
+    private TaskTrackerMonitorRepository taskTrackerMonitorRepository;
     @Autowired
-    private JobTrackerMonitorDataRepository jobTrackerMonitorDataRepository;
+    private JobTrackerMonitorRepository jobTrackerMonitorDataRepository;
 
     public void addTaskTrackerMonitorData(MonitorDataAddRequest request) {
 
@@ -44,12 +48,11 @@ public class MonitorDataService {
 
             po.setTaskTrackerIdentity(request.getIdentity());
             po.setTaskTrackerNodeGroup(request.getNodeGroup());
-            po.setId(Md5Encrypt.md5(po.getTaskTrackerIdentity() + monitorData.getTimestamp()));
             po.setGmtCreated(SystemClock.now());
 
             pos.add(po);
         }
-        taskTrackerMonitorDataRepository.insert(pos);
+        taskTrackerMonitorRepository.insert(pos);
     }
 
     public List<? extends AbstractMonitorDataPo> queryMonitorDataSum(MonitorDataRequest request){
@@ -59,7 +62,7 @@ public class MonitorDataService {
             case JOB_TRACKER:
                 return jobTrackerMonitorDataRepository.querySum(request);
             case TASK_TRACKER:
-                return taskTrackerMonitorDataRepository.querySum(request);
+                return taskTrackerMonitorRepository.querySum(request);
         }
         return null;
     }
@@ -78,7 +81,6 @@ public class MonitorDataService {
             BeanUtils.copyProperties(po, monitorData);
 
             po.setJobTrackerIdentity(request.getIdentity());
-            po.setId(Md5Encrypt.md5(po.getJobTrackerIdentity() + monitorData.getTimestamp()));
             po.setGmtCreated(SystemClock.now());
             pos.add(po);
         }

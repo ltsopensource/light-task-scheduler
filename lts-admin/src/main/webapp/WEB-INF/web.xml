@@ -33,11 +33,21 @@
     </servlet-mapping>
 
     <listener>
-        <listener-class>com.lts.web.support.SystemInitListener</listener-class>
+        <listener-class>com.lts.web.initialization.SystemInitListener</listener-class>
     </listener>
 
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
+
+    <servlet>
+        <servlet-name>H2Console</servlet-name>
+        <servlet-class>com.lts.web.support.H2ConsoleWebServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>H2Console</servlet-name>
+        <url-pattern>/h2/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>

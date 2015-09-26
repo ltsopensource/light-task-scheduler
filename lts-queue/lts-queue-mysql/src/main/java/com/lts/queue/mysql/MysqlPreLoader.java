@@ -6,7 +6,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.queue.AbstractPreLoader;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.mysql.support.ResultSetHandlerHolder;
-import com.lts.store.jdbc.DataSourceProviderFactory;
+import com.lts.store.jdbc.datasource.DataSourceProviderFactory;
 import com.lts.store.jdbc.SqlTemplate;
 
 import java.sql.SQLException;
