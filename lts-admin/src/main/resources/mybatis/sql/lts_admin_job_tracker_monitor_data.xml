@@ -20,7 +20,7 @@
       );
     </table>
     <indexes>
-      <index>CREATE INDEX `idx_timestamp` ON `lts_admin_job_tracker_monitor_data` (`timestamp`);</index>
+      <index>CREATE INDEX `idx_jobTracker_timestamp` ON `lts_admin_job_tracker_monitor_data` (`timestamp`);</index>
       <index>CREATE INDEX `idx_jobTrackerIdentity` ON `lts_admin_job_tracker_monitor_data` (`job_tracker_identity`);</index>
     </indexes>
 </tableSchema>

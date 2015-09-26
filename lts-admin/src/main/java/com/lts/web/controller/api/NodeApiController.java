@@ -8,7 +8,10 @@ import com.lts.queue.domain.NodeGroupPo;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.cluster.RegistryService;
 import com.lts.web.controller.AbstractController;
+import com.lts.web.repository.domain.NodeOnOfflineLog;
+import com.lts.web.repository.mapper.NodeOnOfflineLogRepo;
 import com.lts.web.request.NodeGroupRequest;
+import com.lts.web.request.NodeOnOfflineLogRequest;
 import com.lts.web.request.NodeRequest;
 import com.lts.web.response.PageResponse;
 import com.lts.web.vo.RestfulResponse;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,12 +33,14 @@ public class NodeApiController extends AbstractController {
     RegistryService registryService;
     @Autowired
     AdminApplication application;
+    @Autowired
+    NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
     @RequestMapping("node-list-get")
     public RestfulResponse getNodeList(NodeRequest request) {
         RestfulResponse response = new RestfulResponse();
 
-        List<Node> nodes = registryService.getNodes(request);
+        List<Node> nodes = registryService.getOnlineNodes(request);
 
         response.setSuccess(true);
         response.setResults(CollectionUtils.sizeOf(nodes));
@@ -78,6 +84,21 @@ public class NodeApiController extends AbstractController {
             application.getExecutableJobQueue().removeQueue(request.getNodeGroup());
         }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
             application.getJobFeedbackQueue().removeQueue(request.getNodeGroup());
+        }
+        response.setSuccess(true);
+        return response;
+    }
+
+    @RequestMapping("node-onoffline-log-get")
+    public RestfulResponse delNodeGroup(NodeOnOfflineLogRequest request) {
+        RestfulResponse response = new RestfulResponse();
+        Long results = nodeOnOfflineLogRepo.count(request);
+        response.setResults(results.intValue());
+        if(results > 0){
+            List<NodeOnOfflineLog> rows = nodeOnOfflineLogRepo.select(request);
+            response.setRows(rows);
+        }else{
+            response.setRows(new ArrayList(0));
         }
         response.setSuccess(true);
         return response;

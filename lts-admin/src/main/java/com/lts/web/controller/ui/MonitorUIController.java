@@ -5,9 +5,8 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.web.cluster.AdminApplication;
-import com.lts.web.repository.domain.TaskTrackerMonitorDataPo;
-import com.lts.web.repository.mapper.JobTrackerMonitorRepository;
-import com.lts.web.repository.mapper.TaskTrackerMonitorRepository;
+import com.lts.web.repository.mapper.JobTrackerMonitorRepo;
+import com.lts.web.repository.mapper.TaskTrackerMonitorRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,9 +26,9 @@ public class MonitorUIController {
     @Autowired
     private AdminApplication application;
     @Autowired
-    private TaskTrackerMonitorRepository taskTrackerMonitorRepository;
+    private TaskTrackerMonitorRepo taskTrackerMonitorRepo;
     @Autowired
-    private JobTrackerMonitorRepository jobTrackerMonitorRepository;
+    private JobTrackerMonitorRepo jobTrackerMonitorRepo;
 
     @RequestMapping("monitor/tasktracker-monitor")
     public String taskTrackerMonitor(Model model) {
@@ -40,7 +39,7 @@ public class MonitorUIController {
         model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
         model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
 
-        List<Map<String, String>> taskTrackerMap = taskTrackerMonitorRepository.getTaskTrackerMap();
+        List<Map<String, String>> taskTrackerMap = taskTrackerMonitorRepo.getTaskTrackerMap();
 
         Map<String, String> map = new HashMap<String, String>();
         if(CollectionUtils.isNotEmpty(taskTrackerMap)){
@@ -63,7 +62,7 @@ public class MonitorUIController {
         model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
         model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
 
-        List<String> taskTrackers = jobTrackerMonitorRepository.getJobTrackers();
+        List<String> taskTrackers = jobTrackerMonitorRepo.getJobTrackers();
         model.addAttribute("jobTrackers", taskTrackers);
 
         return "jobtracker-monitor";

@@ -34,6 +34,13 @@ public class UIController {
         return "node-group-manager";
     }
 
+    @RequestMapping("node/node-onoffline-log")
+    public String nodeOnOfflineLogUI(Model model) {
+        model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(DateUtils.addDay(new Date(), -10)));
+        model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(new Date()));
+        return "node-onoffline-log";
+    }
+
     @RequestMapping("job-queue/job-add-ui")
     public String addJobUI(Model model) {
         setAttr(model);

@@ -11,6 +11,13 @@
         <form id="searchForm" class="form-horizontal span24">
             <div class="row">
                 <div class="control-group span8">
+                    <label class="control-label">节点组：</label>
+
+                    <div class="controls">
+                        <input type="text" class="control-text" name="group">
+                    </div>
+                </div>
+                <div class="control-group span8">
                     <label class="control-label">节点标识：</label>
 
                     <div class="controls">
@@ -18,51 +25,23 @@
                     </div>
                 </div>
                 <div class="control-group span8">
-                    <label class="control-label">IP：</label>
-
+                    <label class="control-label">事件类型：</label>
                     <div class="controls">
-                        <input type="text" class="control-text" name="ip">
-                    </div>
-                </div>
-                <div class="control-group span8">
-                    <label class="control-label">节点组：</label>
-
-                    <div class="controls">
-                        <input type="text" class="control-text" name="nodeGroup">
-                    </div>
-                </div>
-                <div class="control-group span8">
-                    <label class="control-label">节点类型：</label>
-
-                    <div class="controls">
-                        <select name="nodeType">
+                        <select name="event">
                             <option value="">所有</option>
-                            <option value="JOB_CLIENT">JobClient</option>
-                            <option value="TASK_TRACKER">TaskTracker</option>
-                            <option value="JOB_TRACKER">JobTracker</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="control-group span8">
-                    <label class="control-label">状态：</label>
-
-                    <div class="controls">
-                        <select name="available">
-                            <option value="">所有</option>
-                            <option value="true">正常</option>
-                            <option value="false">禁用</option>
+                            <option value="ONLINE">上线</option>
+                            <option value="OFFLINE">离线</option>
                         </select>
                     </div>
                 </div>
                 <div class="control-group span12">
                     <label class="control-label">创建时间：</label>
-
                     <div class="controls">
-                        <input type="text" class="calendar calendar-time" name="startDate"><span> -
-                        </span><input name="endDate" type="text" class="calendar calendar-time">
+                        <input type="text" class="calendar calendar-time" name="startLogTime" value="${startLogTime}"><span> -
+                        </span><input name="endLogTime" type="text" class="calendar calendar-time" value="${endLogTime}">
                     </div>
                 </div>
-                <div class="span3 offset2">
+                <div class="control-group span3">
                     <button type="button" id="btnSearch" class="button button-primary">搜索</button>
                 </div>
             </div>
@@ -83,10 +62,20 @@
     function buiInit(BUI, Grid, Form, Data, Overlay, DateUtil) {
 
         var columns = [
-            {title: '节点标识', dataIndex: 'identity', width: 230},
-            {title: '集群名称', dataIndex: 'clusterName', width: 100},
+            {
+                title: '记录时间', dataIndex: 'logTime', width: 125, renderer: function (v) {
+                return DateUtil.formatYMDHMD(v);
+                }
+            },
+            {
+                title: '事件', dataIndex: 'event', width: 50, renderer: function (v) {
+                return v == "ONLINE" ? "上线" : "离线";
+            }
+            },
+            {title: '集群名称', dataIndex: 'clusterName', width: 120},
             {title: '节点类型', dataIndex: 'nodeType', width: 100},
-            {title: '节点组名', dataIndex: 'group', width: 150},
+            {title: '节点组名', dataIndex: 'group', width: 180},
+            {title: '节点标识', dataIndex: 'identity', width: 245},
             {
                 title: '节点创建时间', dataIndex: 'createTime', width: 125, renderer: function (v) {
                 return DateUtil.formatYMDHMD(v);
@@ -107,26 +96,11 @@
                 }
                 return '无';
             }
-            },
-            {
-                title: '状态', dataIndex: 'available', width: 60,
-                renderer: function (v, obj) {
-                    if (v) {
-                        return "正常";
-                    } else {
-                        return "禁用";
-                    }
-                }
-            },
-            {
-                title: '操作', dataIndex: '', width: 100, renderer: function (value, obj) {
-                return "";
-            }
             }
         ];
 
         var store = new Data.Store({
-            url: '../api/node/node-list-get',
+            url: '../api/node/node-onoffline-log-get',
             autoLoad: true,
             pageSize: 20,
             remoteSort: false

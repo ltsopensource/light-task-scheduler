@@ -1,9 +1,10 @@
 package com.lts.web.initialization;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.web.repository.mapper.AbstractRepository;
-import com.lts.web.repository.mapper.JobTrackerMonitorRepository;
-import com.lts.web.repository.mapper.TaskTrackerMonitorRepository;
+import com.lts.web.repository.mapper.AbstractRepo;
+import com.lts.web.repository.mapper.JobTrackerMonitorRepo;
+import com.lts.web.repository.mapper.NodeOnOfflineLogRepo;
+import com.lts.web.repository.mapper.TaskTrackerMonitorRepo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -30,22 +31,23 @@ import java.util.List;
 public class LtsAdminDatabaseInitialingBean implements InitializingBean {
 
     @Autowired
-    private TaskTrackerMonitorRepository taskTrackerMonitorRepository;
+    TaskTrackerMonitorRepo taskTrackerMonitorRepo;
     @Autowired
-    private JobTrackerMonitorRepository jobTrackerMonitorRepository;
+    JobTrackerMonitorRepo jobTrackerMonitorRepo;
+    @Autowired
+    NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-
-        execute(taskTrackerMonitorRepository, "sql/lts_admin_task_tracker_monitor_data.xml");
-        execute(jobTrackerMonitorRepository, "sql/lts_admin_job_tracker_monitor_data.xml");
-
+        execute(taskTrackerMonitorRepo, "mybatis/sql/lts_admin_task_tracker_monitor_data.xml");
+        execute(jobTrackerMonitorRepo, "mybatis/sql/lts_admin_job_tracker_monitor_data.xml");
+        execute(nodeOnOfflineLogRepo, "mybatis/sql/lts_admin_node_onoffline_log.xml");
     }
 
     /**
      * 执行创建表语句
      */
-    private void execute(AbstractRepository repository, String sqlXml) throws Exception {
+    private void execute(AbstractRepo repository, String sqlXml) throws Exception {
 
         TableSchema tableSchema = getTableSchema(sqlXml);
 
@@ -81,7 +83,7 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
         tableSchema.table = table.item(0).getFirstChild().getNodeValue();
 
         NodeList indexes = root.getElementsByTagName("indexes");
-        if (indexes != null) {
+        if (indexes != null && indexes.getLength() > 0) {
             tableSchema.indexes = new ArrayList<String>();
             NodeList indexList = ((Element) indexes.item(0)).getElementsByTagName("index");
             for (int i = 0; i < indexList.getLength(); i++) {

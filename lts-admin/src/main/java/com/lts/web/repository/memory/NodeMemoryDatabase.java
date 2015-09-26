@@ -9,6 +9,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.store.jdbc.SqlBuilder;
 import com.lts.web.request.NodeRequest;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
+@Repository
 public class NodeMemoryDatabase extends MemoryDatabase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeMemoryDatabase.class);

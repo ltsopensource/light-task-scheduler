@@ -6,6 +6,7 @@ import org.h2.server.web.WebServlet;
 import javax.servlet.ServletContext;
 
 /**
+ * H2 Console 的 servlet
  * @author Robert HG (254963746@qq.com) on 9/26/15.
  */
 public class H2ConsoleWebServlet extends WebServlet {
