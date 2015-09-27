@@ -3,7 +3,6 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
-import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -163,6 +162,8 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     protected abstract void remotingStop();
 
     protected void preRemotingStart() {
+        // 检查identity是否重复
+
     }
 
     protected void afterRemotingStart() {
@@ -213,6 +214,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
      */
     public void setClusterName(String clusterName) {
         config.setClusterName(clusterName);
+    }
+
+    public void setIdentity(String identity) {
+        config.setIdentity(identity);
     }
 
     /**

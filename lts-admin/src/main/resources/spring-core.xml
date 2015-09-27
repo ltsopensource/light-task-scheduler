@@ -2,13 +2,30 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-4.0.xsd"
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
         >
 
     <context:component-scan base-package="com.lts">
         <context:exclude-filter type="regex" expression="com.lts.web.controller.*"/>
     </context:component-scan>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <context:annotation-config/>
+
+    <bean id="dataSource" class="com.lts.web.support.spring.DataSourceFactoryBean"/>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.lts.web.repository.domain,com.lts.web.request"/>
+        <property name="mapperLocations" value="classpath:mybatis/mapper/*.xml"/>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.lts.web.repository.mapper"/>
+    </bean>
+
 </beans>

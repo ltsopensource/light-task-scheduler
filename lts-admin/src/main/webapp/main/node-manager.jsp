@@ -101,11 +101,11 @@
             }
             },
             {
-                title: '工作线程数', dataIndex: 'threads', width: 60, renderer: function (v, obj) {
+                title: '工作线程数', dataIndex: 'threads', width: 80, renderer: function (v, obj) {
                 if (obj['nodeType'] == 'TASK_TRACKER') {
                     return v;
                 }
-                return '';
+                return '无';
             }
             },
             {

@@ -1,6 +1,7 @@
 package com.lts.store.jdbc;
 
 import com.lts.core.cluster.Config;
+import com.lts.store.jdbc.datasource.DataSourceProviderFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

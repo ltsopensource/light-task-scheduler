@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.5-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
@@ -42,7 +42,7 @@
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
         <reflectasm.version>1.11.0</reflectasm.version>
-        <hsqldb.version>2.3.2</hsqldb.version>
+        <h2.version>1.4.189</h2.version>
         <springframework.version>4.1.6.RELEASE</springframework.version>
     </properties>
 
@@ -102,11 +102,6 @@
                         <artifactId>cglib-nodep</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${hsqldb.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
@@ -182,6 +177,11 @@
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>reflectasm</artifactId>
                 <version>${reflectasm.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -3,8 +3,10 @@ package com.lts.web.controller.api;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.web.controller.AbstractController;
-import com.lts.web.repository.AbstractMonitorDataPo;
+import com.lts.web.repository.domain.AbstractMonitorDataPo;
 import com.lts.web.request.MonitorDataAddRequest;
 import com.lts.web.request.MonitorDataRequest;
 import com.lts.web.service.MonitorDataService;
@@ -20,6 +22,8 @@ import java.util.List;
  */
 @RestController
 public class MonitorApiController extends AbstractController {
+
+    private Logger LOGGER = LoggerFactory.getLogger(MonitorApiController.class);
 
     @Autowired
     private MonitorDataService monitorDataService;
@@ -45,6 +49,7 @@ public class MonitorApiController extends AbstractController {
             return response;
 
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             response.setSuccess(false);
             response.setMsg(e.getMessage());
             return response;

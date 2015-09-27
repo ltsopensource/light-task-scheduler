@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * 系统的配置信息（lts-admin.cfg）
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class AppConfigurer {

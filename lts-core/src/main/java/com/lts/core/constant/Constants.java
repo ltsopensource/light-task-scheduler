@@ -89,5 +89,4 @@ public interface Constants {
 
     String ADMIN_ID_PREFIX = "LTS_admin_";
 
-
 }

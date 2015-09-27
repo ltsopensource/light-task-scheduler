@@ -11,6 +11,7 @@ import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
+import com.lts.jvmmonitor.JVMMonitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +37,6 @@ public abstract class AbstractMonitor implements Monitor {
     protected Config config;
     protected String monitorSite;
 
-    private ScheduledExecutorService reportScheduleExecutor =
-            Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> reportScheduledFuture;
     private ScheduledExecutorService monitorDataCollectScheduleExecutor =
             Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> monitorDataCollectScheduledFuture;
@@ -53,6 +51,8 @@ public abstract class AbstractMonitor implements Monitor {
         config = application.getConfig();
     }
 
+    private final int INTERVAL = 60;    // 1分钟
+
     public final void start() {
         monitorSite = config.getParameter("lts.monitor.url");
         if (StringUtils.isEmpty(monitorSite)) {
@@ -60,18 +60,6 @@ public abstract class AbstractMonitor implements Monitor {
         }
         try {
             if (start.compareAndSet(false, true)) {
-                // 用来汇报数据
-                reportScheduledFuture = reportScheduleExecutor.scheduleWithFixedDelay(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            report();
-                        } catch (Throwable t) {
-                            LOGGER.error("Report monitor data failed.", t);
-                        }
-                    }
-                }, 1, 1, TimeUnit.MINUTES);
-
                 // 用来记录每段时间的压力
                 monitorDataCollectScheduledFuture = monitorDataCollectScheduleExecutor.scheduleWithFixedDelay(new Runnable() {
                     @Override
@@ -79,16 +67,21 @@ public abstract class AbstractMonitor implements Monitor {
                         try {
                             MonitorData monitorData = collectMonitorData();
                             long seconds = SystemClock.now() / 1000;
-                            long residue = seconds % 5;
-                            seconds = seconds - residue;        // 所有都向下取整，保证是5的倍数
+                            long residue = seconds % INTERVAL;
+                            seconds = seconds - residue;        // 所有都向下取整，保证是60的倍数
                             monitorData.setTimestamp(seconds * 1000);
                             setMemoryInfo(monitorData);
                             mis.add(monitorData);
+
+                            // report
+                            report();
                         } catch (Throwable t) {
                             LOGGER.error("MonitorData collect failed.", t);
                         }
                     }
-                }, 5, 5, TimeUnit.SECONDS);     // 5s 查看一下当前节点的压力
+                }, 5, INTERVAL, TimeUnit.SECONDS);     // 60s 查看一下当前节点的压力
+
+                JVMMonitor.start();
 
                 LOGGER.info("Monitor start succeed.");
             }
@@ -107,10 +100,9 @@ public abstract class AbstractMonitor implements Monitor {
     public final void stop() {
         try {
             if (start.compareAndSet(true, false)) {
-                reportScheduledFuture.cancel(true);
-                reportScheduleExecutor.shutdown();
                 monitorDataCollectScheduledFuture.cancel(true);
                 monitorDataCollectScheduleExecutor.shutdown();
+                JVMMonitor.stop();
                 LOGGER.info("Monitor stop succeed.");
             }
         } catch (Exception e) {
@@ -141,15 +133,15 @@ public abstract class AbstractMonitor implements Monitor {
                     try {
                         if (send(params)) {
                             toIndex = toIndex + CollectionUtils.sizeOf(monitorDataList);
-                            if(LOGGER.isDebugEnabled()){
+                            if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Report monitor data success ");
                             }
                         } else {
-                            LOGGER.warn("Report monitor data failed, send later ,please check the LTS-Admin is available");
+                            LOGGER.warn("Report monitor data failed(" + monitorSite + "), send later ,please check the LTS-Admin is available");
                             break;
                         }
                     } catch (Exception e) {
-                        LOGGER.warn("Report monitor data failed, send later, please check the LTS-Admin is available : " + e.getMessage());
+                        LOGGER.warn("Report monitor data failed(" + monitorSite + "), send later, please check the LTS-Admin is available : " + e.getMessage());
                         break;
                     }
                 }
@@ -180,9 +172,11 @@ public abstract class AbstractMonitor implements Monitor {
                 JSONObject json = JSONUtils.parseObject(result);
                 if (json.getBoolean("success")) {
                     return true;
+                } else {
+                    LOGGER.warn("Monitor(" + url + ") report result : \n" + result);
                 }
             } catch (JSONException e) {
-                LOGGER.error("Monitor("+ url +") report result : \n" + result);
+                LOGGER.error("Monitor(" + url + ") report result : \n" + result);
             }
         }
         return false;

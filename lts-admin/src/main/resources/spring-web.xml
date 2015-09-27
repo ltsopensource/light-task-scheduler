@@ -29,7 +29,7 @@
                 <bean class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                     <property name="objectMapper">
-                        <bean class="com.lts.web.support.NotNullObjectMapping"/>
+                        <bean class="com.lts.web.support.spring.NotNullObjectMapping"/>
                     </property>
                 </bean>
                 <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>
@@ -39,9 +39,9 @@
     </bean>
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
-        <property name="prefix" value="/main/"></property>
-        <property name="suffix" value=".jsp"></property>
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/main/"/>
+        <property name="suffix" value=".jsp"/>
     </bean>
 
     <mvc:resources mapping="/assets/**" location="/assets"/>

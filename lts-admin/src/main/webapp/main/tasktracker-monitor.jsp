@@ -28,10 +28,8 @@
                     <div class="controls">
                         <select name="identity">
                             <option value="">不限</option>
-                            <c:forEach items="${taskTrackerMap}" var="map">
-                                <c:forEach items="${map.value}" var="identity">
-                                    <option value="${identity}">${identity}(${map.key})</option>
-                                </c:forEach>
+                            <c:forEach items="${taskTrackerMap}" var="entry">
+                                <option value="${entry.key}">${entry.key}(${entry.value})</option>
                             </c:forEach>
                         </select>
                     </div>
