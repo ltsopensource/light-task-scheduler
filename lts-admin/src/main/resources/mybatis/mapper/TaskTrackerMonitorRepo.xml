@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.TaskTrackerMonitorRepo">
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO lts_admin_task_tracker_monitor_data (
+        gmt_created,
+        node_group,
+        `identity`,
+        exe_success_num,
+        exe_failed_num,
+        exe_later_num,
+        exe_exception_num,
+        total_running_time,
+        fail_store_size,
+        timestamp
+        ) VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        (
+        #{item.gmtCreated},
+        #{item.nodeGroup},
+        #{item.identity},
+        #{item.exeSuccessNum},
+        #{item.exeFailedNum},
+        #{item.exeLaterNum},
+        #{item.exeExceptionNum},
+        #{item.totalRunningTime},
+        #{item.failStoreSize},
+        #{item.timestamp}
+        )
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="identity != null and identity != ''">
+                AND identity = #{identity}
+            </if>
+            <if test="nodeGroup != null and nodeGroup != ''">
+                AND node_group = #{nodeGroup}
+            </if>
+            <![CDATA[ AND timestamp >= #{startTime} AND timestamp <= #{endTime} ]]>
+        </where>
+    </sql>
+
+    <select id="querySum" resultType="com.lts.web.repository.domain.TaskTrackerMonitorDataPo"
+            parameterType="com.lts.web.request.MonitorDataRequest">
+        SELECT
+        timestamp,
+        SUM(exe_success_num) AS exeSuccessNum,
+        SUM(exe_failed_num) AS exeFailedNum,
+        SUM(exe_later_num) AS exeLaterNum,
+        SUM(exe_exception_num) AS exeExceptionNum,
+        SUM(total_running_time) AS totalRunningTime,
+        SUM(fail_store_size) AS failStoreSize
+        FROM lts_admin_task_tracker_monitor_data
+        <include refid="whereCondition"/>
+        GROUP BY timestamp ORDER BY timestamp ASC limit #{start},#{limit}
+    </select>
+
+    <delete id="delete" parameterType="com.lts.web.request.MonitorDataRequest">
+        DELETE FROM lts_admin_task_tracker_monitor_data
+        <include refid="whereCondition"/>
+    </delete>
+
+    <resultMap id="hashMapResult" type="java.util.HashMap">
+        <result property="key" column="identity"/>
+        <result property="value" column="node_group"/>
+    </resultMap>
+
+    <select id="getTaskTrackerMap" resultMap="hashMapResult">
+        select distinct `identity`,node_group  from lts_admin_task_tracker_monitor_data
+    </select>
+
+</mapper>

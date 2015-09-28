@@ -33,10 +33,6 @@ public class JobTrackerMonitorDataPo extends AbstractMonitorDataPo {
      * 修复死任务数
      */
     private Long fixExecutingJobNum;
-    /**
-     * JobTracker节点标识
-     */
-    private String jobTrackerIdentity;
 
     public Long getReceiveJobNum() {
         return receiveJobNum;
@@ -94,11 +90,4 @@ public class JobTrackerMonitorDataPo extends AbstractMonitorDataPo {
         this.fixExecutingJobNum = fixExecutingJobNum;
     }
 
-    public String getJobTrackerIdentity() {
-        return jobTrackerIdentity;
-    }
-
-    public void setJobTrackerIdentity(String jobTrackerIdentity) {
-        this.jobTrackerIdentity = jobTrackerIdentity;
-    }
 }

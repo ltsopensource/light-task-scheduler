@@ -55,7 +55,6 @@
         <div id="exeFailedNumContainer" data-title="执行失败个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="exeLaterNumContainer" data-title="延迟执行个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="exeExceptionNumContainer" data-title="执行异常个数" data-yTitle="任务数" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="totalFreeMemoryContainer" data-title="空闲内存" data-yTitle="内存" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="failStoreSizeContainer" data-title="FailStore占用空间大小" data-yTitle="空间" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
     </div>
 </div>

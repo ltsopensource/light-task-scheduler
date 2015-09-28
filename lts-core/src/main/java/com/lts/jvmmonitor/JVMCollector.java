@@ -1,12 +1,15 @@
 package com.lts.jvmmonitor;
 
 import com.lts.core.commons.utils.JSONUtils;
-import com.lts.jvmmonitor.mbean.JVMGC;
+import com.lts.core.domain.monitor.JVMMonitorData;
 import com.lts.jvmmonitor.mbean.JVMGCMBean;
-import com.lts.jvmmonitor.mbean.JVMInfo;
-import com.lts.jvmmonitor.mbean.JVMMemory;
+import com.lts.jvmmonitor.mbean.JVMInfoMBean;
+import com.lts.jvmmonitor.mbean.JVMMemoryMBean;
+import com.lts.jvmmonitor.mbean.JVMThreadMBean;
 
-import java.util.Arrays;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,51 +17,54 @@ import java.util.Map;
  */
 public class JVMCollector {
 
-    private static final JVMInfo JVM_INFO = JVMInfo.getInstance();
-
     /**
      * 收集信息
      */
-    public static void collect() {
-        // memory
-        Map<String, Object> memoryMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_MEMORY_NAME, Arrays.asList("HeapMemoryInit", "HeapMemoryMax", "HeapMemoryUsed",
-                "NonHeapMemoryInit", "NonHeapMemoryMax", "NonHeapMemoryUsed",
-                "PermGenMax", "PermGenUsed", "OldGenMax", "OldGenUsed",
-                "EdenSpaceMax", "EdenSpaceUsed", "SurvivorMax", "SurvivorUsed"));
-        System.out.println("------------memoryMap----------------");
-        System.out.println(JSONUtils.toJSONString(memoryMap));
+    public static JVMMonitorData collect() {
 
+        JVMMonitorData jvmMonitorData = new JVMMonitorData();
+        // memory
+        Map<String, Object> memoryMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_MEMORY_NAME,
+                getAttributeList(JVMMemoryMBean.class));
+        jvmMonitorData.setMemoryMap(memoryMap);
         // gc
-        Map<String, Object> gcMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_GC_NAME, Arrays.asList("YoungGCCollectionCount", "YoungGCCollectionTime",
-                "FullGCCollectionCount", "FullGCCollectionTime",
-                "SpanYoungGCCollectionCount", "SpanYoungGCCollectionTime",
-                "SpanFullGCCollectionCount", "SpanFullGCCollectionTime"));
-        System.out.println("------------gcMap----------------");
-        System.out.println(JSONUtils.toJSONString(gcMap));
+        Map<String, Object> gcMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_GC_NAME,
+                getAttributeList(JVMGCMBean.class));
+        jvmMonitorData.setGcMap(gcMap);
 
         // thread
-        Map<String, Object> threadMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_THREAD_NAME, Arrays.asList("DaemonThreadCount", "ThreadCount", "TotalStartedThreadCount",
-                "DeadLockedThreadCount", "ProcessCpuTimeRate"));
-        System.out.println("------------threadMap----------------");
-        System.out.println(JSONUtils.toJSONString(threadMap));
+        Map<String, Object> threadMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_THREAD_NAME,
+                getAttributeList(JVMThreadMBean.class));
+        jvmMonitorData.setThreadMap(threadMap);
 
-        System.out.println("---------------------------");
+        return jvmMonitorData;
+    }
+
+    private static List<String> getAttributeList(Class<?> clazz) {
+        Method[] methods = clazz.getDeclaredMethods();
+        List<String> attributeList = new ArrayList<String>(methods.length);
+        for (Method method : methods) {
+            // 去掉 get 前缀
+            attributeList.add(method.getName().substring(3));
+        }
+        return attributeList;
+    }
+
+    public static Map<String, Object> getJVMInfo() {
+        return JVMMonitor.getAttribute(MConstants.JMX_JVM_INFO_NAME,
+                getAttributeList(JVMInfoMBean.class));
     }
 
     public static void main(String[] args) {
-//        JVMMonitor.start();
+        JVMMonitor.start();
 
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 while (true) {
-//                    JVMCollector.collect();
-
-                    System.out.println(JVMGC.getInstance().getFullGCCollectionCount());
-                    System.out.println(JVMMemory.getInstance().getEdenSpaceCommitted());
-                    System.out.println(JVMMemory.getInstance().getNonHeapMemoryUsed());
-
+                    JVMMonitorData jvmMonitorData = JVMCollector.collect();
+                    System.out.println(JSONUtils.toJSONString(jvmMonitorData));
                     try {
                         Thread.sleep(10000L);
                     } catch (InterruptedException e) {

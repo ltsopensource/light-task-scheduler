@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 9/22/15.
  */
-public interface TaskTrackerMonitorRepo extends AbstractRepo {
+public interface TaskTrackerMonitorRepo {
 
     void insert(List<TaskTrackerMonitorDataPo> pos);
 

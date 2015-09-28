@@ -28,28 +28,28 @@ public class JVMMemory implements JVMMemoryMBean {
 
         List<MemoryPoolMXBean> list = ManagementFactory.getMemoryPoolMXBeans();
         for (MemoryPoolMXBean item : list) {
-            if ("CMS Perm Gen".equals(item.getName()) //
-                    || "Perm Gen".equals(item.getName()) //
-                    || "PS Perm Gen".equals(item.getName()) //
-                    || "G1 Perm Gen".equals(item.getName()) //
+            if ("CMS Perm Gen".equals(item.getName()) 
+                    || "Perm Gen".equals(item.getName()) 
+                    || "PS Perm Gen".equals(item.getName()) 
+                    || "G1 Perm Gen".equals(item.getName()) 
                     ) {
                 permGenMxBean = item;
-            } else if ("CMS Old Gen".equals(item.getName()) //
-                    || "Tenured Gen".equals(item.getName()) //
-                    || "PS Old Gen".equals(item.getName()) //
-                    || "G1 Old Gen".equals(item.getName()) //
+            } else if ("CMS Old Gen".equals(item.getName()) 
+                    || "Tenured Gen".equals(item.getName()) 
+                    || "PS Old Gen".equals(item.getName()) 
+                    || "G1 Old Gen".equals(item.getName()) 
                     ) {
                 oldGenMxBean = item;
-            } else if ("Par Eden Space".equals(item.getName()) //
-                    || "Eden Space".equals(item.getName()) //
-                    || "PS Eden Space".equals(item.getName()) //
-                    || "G1 Eden".equals(item.getName()) //
+            } else if ("Par Eden Space".equals(item.getName()) 
+                    || "Eden Space".equals(item.getName()) 
+                    || "PS Eden Space".equals(item.getName()) 
+                    || "G1 Eden".equals(item.getName()) 
                     ) {
                 edenSpaceMxBean = item;
-            } else if ("Par Survivor Space".equals(item.getName()) //
-                    || "Survivor Space".equals(item.getName()) //
-                    || "PS Survivor Space".equals(item.getName()) //
-                    || "G1 Survivor".equals(item.getName()) //
+            } else if ("Par Survivor Space".equals(item.getName()) 
+                    || "Survivor Space".equals(item.getName()) 
+                    || "PS Survivor Space".equals(item.getName()) 
+                    || "G1 Survivor".equals(item.getName()) 
                     ) {
                 pSSurvivorSpaceMxBean = item;
             }

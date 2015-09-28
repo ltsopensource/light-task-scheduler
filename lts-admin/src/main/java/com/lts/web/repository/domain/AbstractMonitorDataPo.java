@@ -1,5 +1,7 @@
 package com.lts.web.repository.domain;
 
+import com.lts.core.cluster.NodeType;
+
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
@@ -10,16 +12,20 @@ public abstract class AbstractMonitorDataPo {
      * 创建时间
      */
     private Long gmtCreated;
-
+    /**
+     * 记录时间(监控数据时间点)
+     */
     private Long timestamp;
-    // 最大内存
-    private Long maxMemory;
-    // 已分配内存
-    private Long allocatedMemory;
-    // 已分配内存中的剩余内存
-    private Long freeMemory;
-    // 总的空闲内存
-    private Long totalFreeMemory;
+
+    private NodeType nodeType;
+    /**
+     * NodeGroup
+     */
+    private String nodeGroup;
+    /**
+     * TaskTracker 节点标识
+     */
+    private String identity;
 
     public String getId() {
         return id;
@@ -45,35 +51,27 @@ public abstract class AbstractMonitorDataPo {
         this.timestamp = timestamp;
     }
 
-    public Long getMaxMemory() {
-        return maxMemory;
+    public NodeType getNodeType() {
+        return nodeType;
     }
 
-    public void setMaxMemory(Long maxMemory) {
-        this.maxMemory = maxMemory;
+    public void setNodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
     }
 
-    public Long getAllocatedMemory() {
-        return allocatedMemory;
+    public String getNodeGroup() {
+        return nodeGroup;
     }
 
-    public void setAllocatedMemory(Long allocatedMemory) {
-        this.allocatedMemory = allocatedMemory;
+    public void setNodeGroup(String nodeGroup) {
+        this.nodeGroup = nodeGroup;
     }
 
-    public Long getFreeMemory() {
-        return freeMemory;
+    public String getIdentity() {
+        return identity;
     }
 
-    public void setFreeMemory(Long freeMemory) {
-        this.freeMemory = freeMemory;
-    }
-
-    public Long getTotalFreeMemory() {
-        return totalFreeMemory;
-    }
-
-    public void setTotalFreeMemory(Long totalFreeMemory) {
-        this.totalFreeMemory = totalFreeMemory;
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 }

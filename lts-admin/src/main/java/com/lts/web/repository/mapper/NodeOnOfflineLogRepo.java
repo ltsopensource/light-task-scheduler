@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 9/26/15.
  */
-public interface NodeOnOfflineLogRepo extends AbstractRepo {
+public interface NodeOnOfflineLogRepo {
 
     void insert(List<NodeOnOfflineLog> nodeOnOfflineLogs);
 

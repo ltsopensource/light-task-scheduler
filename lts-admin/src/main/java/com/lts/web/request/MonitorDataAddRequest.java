@@ -17,9 +17,9 @@ public class MonitorDataAddRequest {
      */
     private String identity;
     /**
-     * JSON List<MonitorData>
+     * data
      */
-    private String monitorData;
+    private String data;
 
     public String getNodeGroup() {
         return nodeGroup;
@@ -37,12 +37,12 @@ public class MonitorDataAddRequest {
         this.identity = identity;
     }
 
-    public String getMonitorData() {
-        return monitorData;
+    public String getData() {
+        return data;
     }
 
-    public void setMonitorData(String monitorData) {
-        this.monitorData = monitorData;
+    public void setData(String data) {
+        this.data = data;
     }
 
     public NodeType getNodeType() {
@@ -51,5 +51,15 @@ public class MonitorDataAddRequest {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    @Override
+    public String toString() {
+        return "MonitorDataAddRequest{" +
+                "nodeType=" + nodeType +
+                ", nodeGroup='" + nodeGroup + '\'' +
+                ", identity='" + identity + '\'' +
+                ", data='" + data + '\'' +
+                '}';
     }
 }

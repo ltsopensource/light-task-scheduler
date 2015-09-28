@@ -1,9 +1,9 @@
 package com.lts.jobtracker.monitor;
 
 import com.lts.core.cluster.NodeType;
-import com.lts.core.domain.JobTrackerMonitorData;
+import com.lts.core.domain.monitor.JobTrackerMonitorData;
 import com.lts.core.monitor.AbstractMonitor;
-import com.lts.core.monitor.MonitorData;
+import com.lts.core.domain.monitor.MonitorData;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 
 import java.util.concurrent.atomic.AtomicLong;

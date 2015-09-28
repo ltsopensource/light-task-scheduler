@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.JVMInfoRepo">
+
+    <insert id="insert" parameterType="com.lts.web.repository.domain.JVMInfoDataPo" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_jvm_info`
+        (`gmt_created`,
+        `identity`,
+        `timestamp`,
+        `node_type`,
+        `node_group`,
+        `jvm_info`)
+        VALUES
+      (
+        #{gmtCreated},
+        #{identity},
+        #{timestamp},
+        #{nodeType},
+        #{nodeGroup},
+        #{jvmInfo})
+        ]]>
+    </insert>
+
+</mapper>
