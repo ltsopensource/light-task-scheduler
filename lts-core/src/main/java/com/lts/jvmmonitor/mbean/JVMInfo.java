@@ -1,5 +1,7 @@
 package com.lts.jvmmonitor.mbean;
 
+import com.lts.core.commons.utils.NetUtils;
+
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
@@ -130,6 +132,16 @@ public class JVMInfo implements JVMInfoMBean {
     @Override
     public long getTotalCompilationTime() {
         return compilationMXBean.getTotalCompilationTime();
+    }
+
+    @Override
+    public String getHostName() {
+        return NetUtils.getLocalHostName();
+    }
+
+    @Override
+    public String getLocalIp() {
+        return NetUtils.getLocalHost();
     }
 
 }

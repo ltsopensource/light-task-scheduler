@@ -2,9 +2,6 @@ package com.lts.web.initialization;
 
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.web.repository.mapper.CommonRepo;
-import com.lts.web.repository.mapper.JobTrackerMonitorRepo;
-import com.lts.web.repository.mapper.NodeOnOfflineLogRepo;
-import com.lts.web.repository.mapper.TaskTrackerMonitorRepo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -25,6 +22,7 @@ import java.util.List;
 
 /**
  * 创建LTS-Admin数据库
+ *
  * @author Robert HG (254963746@qq.com) on 9/26/15.
  */
 @Component
@@ -32,12 +30,6 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
 
     @Autowired
     CommonRepo commonRepo;
-    @Autowired
-    TaskTrackerMonitorRepo taskTrackerMonitorRepo;
-    @Autowired
-    JobTrackerMonitorRepo jobTrackerMonitorRepo;
-    @Autowired
-    NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -77,9 +69,9 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
         Element rootXML = doc.getDocumentElement();
 
         NodeList tableSchemasXML = rootXML.getElementsByTagName("tableSchema");
-        if(tableSchemasXML != null && tableSchemasXML.getLength() > 0){
+        if (tableSchemasXML != null && tableSchemasXML.getLength() > 0) {
             for (int i = 0; i < tableSchemasXML.getLength(); i++) {
-                Element tableSchemaXML = (Element)tableSchemasXML.item(i);
+                Element tableSchemaXML = (Element) tableSchemasXML.item(i);
 
                 NodeList tableXML = tableSchemaXML.getElementsByTagName("table");
                 TableSchema tableSchema = new TableSchema();
