@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.JVMMemoryRepo">
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_jvm_memory` 
+        (
+        `gmt_created`, 
+        `identity`, 
+        `timestamp`, 
+        `node_type`, 
+        `node_group`, 
+        `heap_memory_committed`, 
+        `heap_memory_init`, 
+        `heap_memory_max`, 
+        `heap_memory_used`, 
+        `non_heap_memory_committed`, 
+        `non_heap_memory_init`, 
+        `non_heap_memory_max`, 
+        `non_heap_memory_used`, 
+        `perm_gen_committed`, 
+        `perm_gen_init`, 
+        `perm_gen_max`, 
+        `perm_gen_used`, 
+        `old_gen_committed`, 
+        `old_gen_init`, 
+        `old_gen_max`, 
+        `old_gen_used`, 
+        `eden_space_committed`, 
+        `eden_space_init`, 
+        `eden_space_max`, 
+        `eden_space_used`, 
+        `survivor_committed`, 
+        `survivor_init`, 
+        `survivor_max`, 
+        `survivor_used`
+        )
+      VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        ( 
+        #{item.gmtCreated}, 
+        #{item.identity}, 
+        #{item.timestamp}, 
+        #{item.nodeType}, 
+        #{item.nodeGroup}, 
+        #{item.heapMemoryCommitted}, 
+        #{item.heapMemoryInit}, 
+        #{item.heapMemoryMax}, 
+        #{item.heapMemoryUsed}, 
+        #{item.nonHeapMemoryCommitted}, 
+        #{item.nonHeapMemoryInit}, 
+        #{item.nonHeapMemoryMax}, 
+        #{item.nonHeapMemoryUsed}, 
+        #{item.permGenCommitted}, 
+        #{item.permGenInit}, 
+        #{item.permGenMax}, 
+        #{item.permGenUsed}, 
+        #{item.oldGenCommitted}, 
+        #{item.oldGenInit}, 
+        #{item.oldGenMax}, 
+        #{item.oldGenUsed}, 
+        #{item.edenSpaceCommitted}, 
+        #{item.edenSpaceInit}, 
+        #{item.edenSpaceMax}, 
+        #{item.edenSpaceUsed}, 
+        #{item.survivorCommitted}, 
+        #{item.survivorInit}, 
+        #{item.survivorMax}, 
+        #{item.survivorUsed}
+        )
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="identity != null and identity != ''">
+                <![CDATA[  AND `identity` = #{identity} ]]>
+            </if>
+            <if test="startTime != null">
+                <![CDATA[  AND `timestamp` >= #{startTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[  AND `timestamp` <= #{endTime} ]]>
+            </if>
+        </where>
+    </sql>
+
+    <delete id="delete" parameterType="JVMDataRequest">
+        DELETE FROM `lts_admin_jvm_gc`
+        <include refid="whereCondition"/>
+    </delete>
+
+</mapper>

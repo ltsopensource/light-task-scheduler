@@ -4,9 +4,8 @@ import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.QuietUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.web.repository.mapper.JobTrackerMonitorRepo;
-import com.lts.web.repository.mapper.NodeOnOfflineLogRepo;
-import com.lts.web.repository.mapper.TaskTrackerMonitorRepo;
+import com.lts.web.repository.mapper.*;
+import com.lts.web.request.JVMDataRequest;
 import com.lts.web.request.MonitorDataRequest;
 import com.lts.web.request.NodeOnOfflineLogRequest;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,6 +34,14 @@ public class LtsAdminDataCleaner implements InitializingBean {
     private JobTrackerMonitorRepo jobTrackerMonitorDataRepo;
     @Autowired
     private NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
+    @Autowired
+    private JVMInfoRepo jvmInfoRepo;
+    @Autowired
+    private JVMGCRepo jvmgcRepo;
+    @Autowired
+    private JVMThreadRepo jvmThreadRepo;
+    @Autowired
+    private JVMMemoryRepo jvmMemoryRepo;
 
     private ScheduledExecutorService cleanExecutor = Executors.newSingleThreadScheduledExecutor();
 
@@ -57,9 +64,8 @@ public class LtsAdminDataCleaner implements InitializingBean {
 
     private void clean() {
         //  1. 清除TaskTracker JobTracker的统计数据(3天之前的)
-        Long endTime = DateUtils.addDay(new Date(), -3).getTime();
         final MonitorDataRequest request = new MonitorDataRequest();
-        request.setEndTime(endTime);
+        request.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
 
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
@@ -86,7 +92,35 @@ public class LtsAdminDataCleaner implements InitializingBean {
             }
         });
 
-        LOGGER.info("Clean monitor data before {} succeed ", DateUtils.formatYMD_HMS(new Date(endTime)));
+        // 3. 清除3天前的JVM监控信息
+        final JVMDataRequest jvmDataRequest = new JVMDataRequest();
+        jvmDataRequest.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
+        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+            @Override
+            public void call() throws Exception {
+                jvmInfoRepo.delete(jvmDataRequest);
+            }
+        });
+        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+            @Override
+            public void call() throws Exception {
+                jvmgcRepo.delete(jvmDataRequest);
+            }
+        });
+        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+            @Override
+            public void call() throws Exception {
+                jvmThreadRepo.delete(jvmDataRequest);
+            }
+        });
+        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+            @Override
+            public void call() throws Exception {
+                jvmMemoryRepo.delete(jvmDataRequest);
+            }
+        });
+
+        LOGGER.info("Clean monitor data succeed ");
     }
 
     @Override

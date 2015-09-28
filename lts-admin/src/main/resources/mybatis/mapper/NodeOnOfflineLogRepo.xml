@@ -4,10 +4,6 @@
 
 <mapper namespace="com.lts.web.repository.mapper.NodeOnOfflineLogRepo">
 
-    <insert id="executeSQL" parameterType="java.lang.String">
-      ${sql}
-    </insert>
-
     <insert id="insert" parameterType="java.util.List" flushCache="true">
         <![CDATA[
         INSERT INTO `lts_admin_node_onoffline_log` 

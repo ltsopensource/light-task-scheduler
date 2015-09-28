@@ -2,9 +2,9 @@ package com.lts.tasktracker.monitor;
 
 import com.lts.core.Application;
 import com.lts.core.cluster.NodeType;
-import com.lts.core.domain.TaskTrackerMonitorData;
+import com.lts.core.domain.monitor.TaskTrackerMonitorData;
 import com.lts.core.monitor.AbstractMonitor;
-import com.lts.core.monitor.MonitorData;
+import com.lts.core.domain.monitor.MonitorData;
 
 import java.util.concurrent.atomic.AtomicLong;
 

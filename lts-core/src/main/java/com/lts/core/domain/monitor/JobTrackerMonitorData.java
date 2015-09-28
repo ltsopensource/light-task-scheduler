@@ -1,6 +1,4 @@
-package com.lts.core.domain;
-
-import com.lts.core.monitor.MonitorData;
+package com.lts.core.domain.monitor;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/31/15.

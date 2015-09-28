@@ -10,6 +10,6 @@ public enum NodeType {
     // task tracker
     TASK_TRACKER,
     // client
-    JOB_CLIENT,
+    JOB_CLIENT, NodeType,
 
 }

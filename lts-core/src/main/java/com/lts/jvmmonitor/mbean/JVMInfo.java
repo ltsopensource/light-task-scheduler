@@ -134,11 +134,13 @@ public class JVMInfo implements JVMInfoMBean {
         return compilationMXBean.getTotalCompilationTime();
     }
 
-    public String getHostname() {
+    @Override
+    public String getHostName() {
         return NetUtils.getLocalHostName();
     }
 
-    public String getLocalIP() {
+    @Override
+    public String getLocalIp() {
         return NetUtils.getLocalHost();
     }
 

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 9/22/15.
  */
-public interface JobTrackerMonitorRepo extends AbstractRepo {
+public interface JobTrackerMonitorRepo {
 
     void insert(List<JobTrackerMonitorDataPo> pos);
 

@@ -1,6 +1,4 @@
-package com.lts.core.domain;
-
-import com.lts.core.monitor.MonitorData;
+package com.lts.core.domain.monitor;
 
 /**
  * TaskTracker Monitor Info(MI)

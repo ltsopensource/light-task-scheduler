@@ -6,14 +6,6 @@ package com.lts.web.repository.domain;
 public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
 
     /**
-     * TaskTracker NodeGroup
-     */
-    private String taskTrackerNodeGroup;
-    /**
-     * TaskTracker 节点标识
-     */
-    private String taskTrackerIdentity;
-    /**
      * 执行成功个数
      */
     private Long exeSuccessNum;
@@ -35,22 +27,6 @@ public class TaskTrackerMonitorDataPo extends AbstractMonitorDataPo {
     private Long totalRunningTime;
     // FailStore 占用空间
     private Long failStoreSize;
-
-    public String getTaskTrackerNodeGroup() {
-        return taskTrackerNodeGroup;
-    }
-
-    public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
-        this.taskTrackerNodeGroup = taskTrackerNodeGroup;
-    }
-
-    public String getTaskTrackerIdentity() {
-        return taskTrackerIdentity;
-    }
-
-    public void setTaskTrackerIdentity(String taskTrackerIdentity) {
-        this.taskTrackerIdentity = taskTrackerIdentity;
-    }
 
     public Long getExeSuccessNum() {
         return exeSuccessNum;

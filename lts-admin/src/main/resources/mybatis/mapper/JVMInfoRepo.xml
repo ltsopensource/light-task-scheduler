@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.JVMInfoRepo">
+
+    <insert id="insert" parameterType="com.lts.web.repository.domain.JVMInfoDataPo" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_jvm_info`
+        (`gmt_created`,
+        `identity`,
+        `timestamp`,
+        `node_type`,
+        `node_group`,
+        `jvm_info`)
+        VALUES
+      (
+        #{gmtCreated},
+        #{identity},
+        #{timestamp},
+        #{nodeType},
+        #{nodeGroup},
+        #{jvmInfo})
+        ]]>
+    </insert>
+
+    <select id="select" parameterType="com.lts.web.request.JVMDataRequest"
+            resultType="JVMInfoDataPo">
+        SELECT
+         id,
+         gmt_created as gmtCreated,
+        `identity`,
+        `timestamp`,
+        `node_type` as nodeType,
+        `node_group` as nodeGroup,
+        `jvm_info` as jvmInfo
+         FROM
+        `lts_admin_jvm_info`
+        <include refid="whereCondition"/>
+         ORDER BY `gmt_created` DESC LIMIT 0,1
+    </select>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="identity != null and identity != ''">
+                <![CDATA[  AND `identity` = #{identity} ]]>
+            </if>
+            <if test="startTime != null">
+                <![CDATA[  AND `timestamp` >= #{startTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[  AND `timestamp` <= #{endTime} ]]>
+            </if>
+        </where>
+    </sql>
+
+    <delete id="delete" parameterType="JVMDataRequest">
+        DELETE FROM `lts_admin_jvm_gc`
+        <include refid="whereCondition"/>
+    </delete>
+
+</mapper>

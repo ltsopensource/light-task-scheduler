@@ -104,5 +104,10 @@
             <artifactId>h2</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.jdmk</groupId>
+            <artifactId>jmxtools</artifactId>
+            <version>1.2.1</version>
+        </dependency>
     </dependencies>
 </project>

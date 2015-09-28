@@ -40,7 +40,7 @@ public class JVMMonitor {
                 for (Map.Entry<String, Object> entry : MONITOR_MAP.entrySet()) {
                     MBEAN_SERVER.registerMBean(entry.getValue(), new ObjectName(entry.getKey()));
                 }
-                LOGGER.error("Start jvm monitor succeed ");
+                LOGGER.info("Start jvm monitor succeed ");
             } catch (Exception e) {
                 LOGGER.error("Start jvm monitor error ", e);
             }
@@ -56,7 +56,7 @@ public class JVMMonitor {
                         MBEAN_SERVER.unregisterMBean(objectName);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("unregister mBean {} error", entry.getKey(), e);
+                    LOGGER.error("Stop jvm monitor {} error", entry.getKey(), e);
                 }
             }
         }

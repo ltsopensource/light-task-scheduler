@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.JVMGCRepo">
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_jvm_gc` 
+        ( 
+        `gmt_created`, 
+        `identity`, 
+        `timestamp`, 
+        `node_type`, 
+        `node_group`, 
+        `young_gc_collection_count`, 
+        `young_gc_collection_time`, 
+        `full_gc_collection_count`, 
+        `full_gc_collection_time`, 
+        `span_young_gc_collection_count`, 
+        `span_young_gc_collection_time`, 
+        `span_full_gc_collection_count`, 
+        `span_full_gc_collection_time`
+        )
+      VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        ( 
+        #{item.gmtCreated},
+        #{item.identity}, 
+        #{item.timestamp}, 
+        #{item.nodeType},
+        #{item.nodeGroup},
+        #{item.youngGCCollectionCount},
+        #{item.youngGCCollectionTime},
+        #{item.fullGCCollectionCount},
+        #{item.fullGCCollectionTime},
+        #{item.spanYoungGCCollectionCount},
+        #{item.spanYoungGCCollectionTime},
+        #{item.spanFullGCCollectionCount},
+        #{item.spanFullGCCollectionTime}
+        )
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="identity != null and identity != ''">
+                <![CDATA[  AND `identity` = #{identity} ]]>
+            </if>
+            <if test="startTime != null">
+                <![CDATA[  AND `timestamp` >= #{startTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[  AND `timestamp` <= #{endTime} ]]>
+            </if>
+        </where>
+    </sql>
+
+    <delete id="delete" parameterType="JVMDataRequest">
+        DELETE FROM `lts_admin_jvm_gc`
+        <include refid="whereCondition"/>
+    </delete>
+
+</mapper>

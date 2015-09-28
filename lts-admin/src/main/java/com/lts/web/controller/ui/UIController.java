@@ -41,6 +41,12 @@ public class UIController {
         return "node-onoffline-log";
     }
 
+    @RequestMapping("node/node-jvm-info")
+    public String nodeJVMInfo(String identity) {
+        return "node-jvm-info";
+    }
+
+
     @RequestMapping("job-queue/job-add-ui")
     public String addJobUI(Model model) {
         setAttr(model);

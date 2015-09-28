@@ -29,22 +29,23 @@ public class MonitorApiController extends AbstractController {
     private MonitorDataService monitorDataService;
 
     @RequestMapping("/monitor/monitor-data-add")
-    public RestfulResponse taskTrackerMonitorInfoAdd(MonitorDataAddRequest request) {
+    public RestfulResponse monitorDataAdd(MonitorDataAddRequest request) {
         RestfulResponse response = new RestfulResponse();
 
         try {
             Assert.notNull(request.getNodeType(), "nodeType can not be null");
             Assert.hasText(request.getIdentity(), "identity can not be null");
             Assert.hasText(request.getNodeGroup(), "nodeGroup can not be null");
-            Assert.hasText(request.getMonitorData(), "monitorData can not be null");
+            Assert.hasText(request.getData(), "data can not be null");
 
             if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
                 monitorDataService.addTaskTrackerMonitorData(request);
             } else if (NodeType.JOB_TRACKER.equals(request.getNodeType())) {
                 monitorDataService.addJobTrackerMonitorData(request);
-            }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
-                monitorDataService.addJobClientMonitorData(request);
+            } else if (NodeType.JOB_CLIENT.equals(request.getNodeType())) {
+                //
             }
+
             response.setSuccess(true);
             return response;
 
@@ -56,10 +57,34 @@ public class MonitorApiController extends AbstractController {
         }
     }
 
-    @RequestMapping("/monitor/monitor-data-get")
-    public RestfulResponse taskTrackerMonitorInfoGet(MonitorDataRequest request) {
+    @RequestMapping("/monitor/jvm-info-data-add")
+    public RestfulResponse jvmInfoAdd(MonitorDataAddRequest request) {
         RestfulResponse response = new RestfulResponse();
-        if(request.getNodeType() == null){
+
+        try {
+            Assert.notNull(request.getNodeType(), "nodeType can not be null");
+            Assert.hasText(request.getIdentity(), "identity can not be null");
+            Assert.hasText(request.getNodeGroup(), "nodeGroup can not be null");
+            Assert.hasText(request.getData(), "data can not be null");
+
+            monitorDataService.addJVMInfoData(request);
+
+            response.setSuccess(true);
+            return response;
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            response.setSuccess(false);
+            response.setMsg(e.getMessage());
+            return response;
+        }
+    }
+
+
+    @RequestMapping("/monitor/monitor-data-get")
+    public RestfulResponse monitorDataGet(MonitorDataRequest request) {
+        RestfulResponse response = new RestfulResponse();
+        if (request.getNodeType() == null) {
             response.setSuccess(false);
             response.setMsg("nodeType can not be null.");
             return response;
