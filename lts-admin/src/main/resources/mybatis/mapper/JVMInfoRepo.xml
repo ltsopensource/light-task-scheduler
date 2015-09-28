@@ -24,7 +24,7 @@
         ]]>
     </insert>
 
-    <select id="select" parameterType="com.lts.web.request.JVMDataGetRequest"
+    <select id="select" parameterType="com.lts.web.request.JVMDataRequest"
             resultType="JVMInfoDataPo">
         SELECT
          id,
@@ -36,7 +36,27 @@
         `jvm_info` as jvmInfo
          FROM
         `lts_admin_jvm_info`
-        WHERE `identity` = #{identity} ORDER BY `gmt_created` DESC LIMIT 0,1
+        <include refid="whereCondition"/>
+         ORDER BY `gmt_created` DESC LIMIT 0,1
     </select>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="identity != null and identity != ''">
+                <![CDATA[  AND `identity` = #{identity} ]]>
+            </if>
+            <if test="startTime != null">
+                <![CDATA[  AND `timestamp` >= #{startTime} ]]>
+            </if>
+            <if test="endTime != null">
+                <![CDATA[  AND `timestamp` <= #{endTime} ]]>
+            </if>
+        </where>
+    </sql>
+
+    <delete id="delete" parameterType="JVMDataRequest">
+        DELETE FROM `lts_admin_jvm_gc`
+        <include refid="whereCondition"/>
+    </delete>
 
 </mapper>

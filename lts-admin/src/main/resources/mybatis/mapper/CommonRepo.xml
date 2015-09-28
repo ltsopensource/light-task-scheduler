@@ -5,7 +5,7 @@
 <mapper namespace="com.lts.web.repository.mapper.CommonRepo">
 
     <insert id="executeSQL" parameterType="java.lang.String">
-      ${sql}
+        <![CDATA[ ${sql} ]]>
     </insert>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.lts.web.repository.mapper;
 
 import com.lts.web.repository.domain.JVMGCDataPo;
+import com.lts.web.request.JVMDataRequest;
 
 import java.util.List;
 
@@ -10,5 +11,7 @@ import java.util.List;
 public interface JVMGCRepo{
 
     void insert(List<JVMGCDataPo> pos);
+
+    void delete(JVMDataRequest request);
 
 }

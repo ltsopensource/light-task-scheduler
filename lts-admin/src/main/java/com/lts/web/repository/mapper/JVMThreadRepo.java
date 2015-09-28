@@ -1,6 +1,7 @@
 package com.lts.web.repository.mapper;
 
 import com.lts.web.repository.domain.JVMThreadDataPo;
+import com.lts.web.request.JVMDataRequest;
 
 import java.util.List;
 
@@ -10,4 +11,7 @@ import java.util.List;
 public interface JVMThreadRepo {
 
     void insert(List<JVMThreadDataPo> pos);
+
+    void delete(JVMDataRequest request);
+
 }
