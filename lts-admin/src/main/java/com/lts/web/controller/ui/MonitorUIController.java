@@ -30,7 +30,7 @@ public class MonitorUIController {
     @Autowired
     private JobTrackerMonitorRepo jobTrackerMonitorRepo;
 
-    @RequestMapping("monitor/tasktracker-monitor")
+    @RequestMapping("tasktracker-monitor")
     public String taskTrackerMonitor(Model model) {
 
         List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
@@ -50,10 +50,10 @@ public class MonitorUIController {
 
         model.addAttribute("taskTrackerMap", map);
 
-        return "tasktracker-monitor";
+        return "tasktrackerMonitor";
     }
 
-    @RequestMapping("monitor/jobtracker-monitor")
+    @RequestMapping("jobtracker-monitor")
     public String jobTrackerMonitor(Model model) {
 
         List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_TRACKER);
@@ -65,7 +65,7 @@ public class MonitorUIController {
         List<String> taskTrackers = jobTrackerMonitorRepo.getJobTrackers();
         model.addAttribute("jobTrackers", taskTrackers);
 
-        return "jobtracker-monitor";
+        return "jobtrackerMonitor";
     }
 
 }

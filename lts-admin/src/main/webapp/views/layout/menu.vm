@@ -1,0 +1,58 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <div class="env-element" id="current-env" env="daily">LTS管理后台</div>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="text-muted text-xs block">切换集群 <b class="caret"></b></span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a href="#">性能</a></li>
+                        <li><a href="#">二套</a></li>
+                        <li class="divider"></li>
+                        <li><a href="#" class="switch-env-link">线上环境</a></li>
+                    </ul>
+                </div>
+                <div class="logo-element">LTS</div>
+            </li>
+            <li class="active">
+                <a href="index.htm">
+                    <i class="fa fa-th"></i> <span class="nav-label">概览</span>
+                    <span class="label label-info pull-right">常用</span></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-server"></i> <span class="nav-label">节点管理</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="node-manager.htm">节点管理</a></li>
+                    <li><a href="node-group-manager.htm">节点组管理</a></li>
+                    <li><a href="node-onoffline-log.htm">节点上下线日志</a></li>
+                    <li><a href="node-jvm-info.htm">节点JVM信息</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-random"></i> <span class="nav-label">任务队列管理</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="job-add.htm">任务添加</a></li>
+                    <li><a href="cron-job-queue.htm">定时任务</a></li>
+                    <li><a href="executing-job-queue.htm">执行中队列</a></li>
+                    <li><a href="executable-job-queue.htm">等待执行队列</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">日志</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="job-logger.htm">任务日志</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">监控报警</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="tasktracker-monitor.htm">TaskTracker监控</a></li>
+                    <li><a href="jobtracker-monitor.htm">JobTracker监控</a></li>
+                    <li><a href="h2" target="_blank">H2-Console</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

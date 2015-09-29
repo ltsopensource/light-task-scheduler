@@ -27,25 +27,30 @@
                     <constructor-arg value="UTF-8"/>
                 </bean>
                 <bean class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
-                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                    <property name="objectMapper">
-                        <bean class="com.lts.web.support.spring.NotNullObjectMapping"/>
-                    </property>
-                </bean>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>
             </list>
         </property>
     </bean>
 
-    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
-        <property name="prefix" value="/main/"/>
-        <property name="suffix" value=".jsp"/>
-    </bean>
-
     <mvc:resources mapping="/assets/**" location="/assets"/>
 
-    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+    <bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+        <property name="configLocation">
+            <value>/views/velocity.properties</value>
+        </property>
+    </bean>
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
+        <property name="cache" value="false"/>
+        <property name="prefix" value="/templates/"/>
+        <property name="layoutUrl" value="/layout/main.vm"/>
+        <property name="suffix" value=".vm"/>
+        <property name="exposeSpringMacroHelpers" value="true" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.velocity.VelocityLayoutView" />
+    </bean>
 
 </beans>

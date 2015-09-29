@@ -25,7 +25,7 @@
                 <version>2.2</version>
                 <configuration>
                     <path>/</path>
-                    <port>8081</port>
+                    <port>8085</port>
                     <server>tomcat</server>
                     <warFile>lts-admin.war</warFile>
                     <uriEncoding>utf-8</uriEncoding>
@@ -97,6 +97,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+            <version>${springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
             <version>${springframework.version}</version>
         </dependency>
         <dependency>
@@ -187,5 +192,16 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>1.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-tools</artifactId>
+            <version>2.0</version>
+        </dependency>
+
     </dependencies>
 </project>

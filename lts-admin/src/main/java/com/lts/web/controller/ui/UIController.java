@@ -24,36 +24,41 @@ public class UIController {
     @Autowired
     AdminApplication application;
 
-    @RequestMapping("node/node-manager")
+    @RequestMapping("index")
+    public String index(){
+        return "index";
+    }
+
+    @RequestMapping("node-manager")
     public String nodeManagerUI() {
-        return "node-manager";
+        return "nodeManager";
     }
 
-    @RequestMapping("node/node-group-manager")
+    @RequestMapping("node-group-manager")
     public String nodeGroupManagerUI() {
-        return "node-group-manager";
+        return "nodeGroupManager";
     }
 
-    @RequestMapping("node/node-onoffline-log")
+    @RequestMapping("node-onoffline-log")
     public String nodeOnOfflineLogUI(Model model) {
         model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(DateUtils.addDay(new Date(), -10)));
         model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(new Date()));
-        return "node-onoffline-log";
+        return "nodeOnOfflineLog";
     }
 
-    @RequestMapping("node/node-jvm-info")
+    @RequestMapping("node-jvm-info")
     public String nodeJVMInfo(String identity) {
-        return "node-jvm-info";
+        return "nodeJvmInfo";
     }
 
 
-    @RequestMapping("job-queue/job-add-ui")
+    @RequestMapping("job-add")
     public String addJobUI(Model model) {
         setAttr(model);
-        return "job-add";
+        return "jobAdd";
     }
 
-    @RequestMapping("job-logger/job-logger")
+    @RequestMapping("job-logger")
     public String jobLoggerUI(Model model, String taskId, String taskTrackerNodeGroup,
                               Date startLogTime, Date endLogTime) {
         model.addAttribute("taskId", taskId);
@@ -67,25 +72,25 @@ public class UIController {
         }
         model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(endLogTime));
         setAttr(model);
-        return "job-logger";
+        return "jobLogger";
     }
 
-    @RequestMapping("job-queue/cron-job-queue")
+    @RequestMapping("cron-job-queue")
     public String cronJobQueueUI(Model model) {
         setAttr(model);
-        return "cron-job-queue";
+        return "cronJobQueue";
     }
 
-    @RequestMapping("job-queue/executable-job-queue")
+    @RequestMapping("executable-job-queue")
     public String executableJobQueueUI(Model model) {
         setAttr(model);
-        return "executable-job-queue";
+        return "executableJobQueue";
     }
 
-    @RequestMapping("job-queue/executing-job-queue")
+    @RequestMapping("executing-job-queue")
     public String executingJobQueueUI(Model model) {
         setAttr(model);
-        return "executing-job-queue";
+        return "executingJobQueue";
     }
 
     private void setAttr(Model model) {
