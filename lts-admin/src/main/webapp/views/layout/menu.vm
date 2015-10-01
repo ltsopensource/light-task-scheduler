@@ -4,22 +4,13 @@
             <li class="nav-header">
                 <div class="dropdown profile-element">
                     <div class="env-element" id="current-env" env="daily">LTS管理后台</div>
-##                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-##                        <span class="text-muted text-xs block">切换集群 <b class="caret"></b></span>
-##                    </a>
-##                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
-##                        <li><a href="#">性能</a></li>
-##                        <li><a href="#">二套</a></li>
-##                        <li class="divider"></li>
-##                        <li><a href="#" class="switch-env-link">线上环境</a></li>
-##                    </ul>
                 </div>
                 <div class="logo-element">LTS</div>
             </li>
             <li>
                 <a href="index.htm">
-                    <i class="fa fa-th"></i> <span class="nav-label">概览</span>
-                    <span class="label label-info pull-right">首页</span></a>
+                    <i class="fa fa-th"></i> <span class="nav-label">首页</span>
+                    <span class="label label-info pull-right">推荐</span></a>
             </li>
             <li>
                 <a href="#"><i class="fa fa-server"></i> <span class="nav-label">节点管理</span><span class="fa arrow"></span></a>
