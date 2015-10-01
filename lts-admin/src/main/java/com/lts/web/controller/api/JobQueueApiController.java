@@ -87,7 +87,7 @@ public class JobQueueApiController extends AbstractController {
                     application.getExecutableJobQueue().selectiveUpdate(request);
                 } catch (Exception e) {
                     response.setSuccess(false);
-                    response.setMsg("更新等待执行的任务失败，请手动更新!");
+                    response.setMsg("更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
                     return response;
                 }
                 response.setSuccess(true);
@@ -148,7 +148,16 @@ public class JobQueueApiController extends AbstractController {
             response.setMsg("JobId 必须传!");
             return response;
         }
-        application.getCronJobQueue().remove(request.getJobId());
+        boolean success = application.getCronJobQueue().remove(request.getJobId());
+        if(success){
+            try {
+                application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+            } catch (Exception e) {
+                response.setSuccess(false);
+                response.setMsg("删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
+                return response;
+            }
+        }
         response.setSuccess(true);
         return response;
     }
@@ -165,8 +174,24 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
 
-        application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
-        response.setSuccess(true);
+        boolean success = application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+        if (success) {
+            if (StringUtils.isNotEmpty(request.getCronExpression())) {
+                // 是Cron任务, Cron任务队列的也要被删除
+                try {
+                    application.getCronJobQueue().remove(request.getJobId());
+                } catch (Exception e) {
+                    response.setSuccess(false);
+                    response.setMsg("在Cron任务队列中删除该任务失败，请手动更新! error:" + e.getMessage());
+                    return response;
+                }
+            }
+            response.setSuccess(true);
+        } else{
+            response.setSuccess(false);
+            response.setMsg("更新失败，该条任务可能已经删除.");
+        }
+
         return response;
     }
 

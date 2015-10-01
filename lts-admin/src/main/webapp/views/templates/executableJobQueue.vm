@@ -239,7 +239,7 @@
 
             swal({
                 title: "确认要删除该任务吗？",
-                text: cronExpression ? "该条是Cron任务删除将影响下次执行，记得在定时队列管理中也将该任务删除掉" : null,
+                text: cronExpression ? "该条是Cron任务，Cron任务队列中的也将该任务删除掉，请谨慎操作。" : null,
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
@@ -250,7 +250,7 @@
                     url: '/api/job-queue/executable-job-delete',
                     type: 'POST',
                     dataType: 'json',
-                    data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup},
+                    data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup, cronExpression: cronExpression},
                     success: function (json) {
                         if (json && json.success) {
                             swal("删除成功!", "恭喜你", "success");

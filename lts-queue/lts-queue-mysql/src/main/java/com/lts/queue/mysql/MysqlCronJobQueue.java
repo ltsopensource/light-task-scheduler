@@ -61,7 +61,7 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     @Override
     public boolean remove(String jobId) {
         try {
-            return getSqlTemplate().update(removeSQL, jobId) == 0;
+            return getSqlTemplate().update(removeSQL, jobId) == 1;
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }
