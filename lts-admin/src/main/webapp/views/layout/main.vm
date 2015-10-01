@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    #parse('/layout/head.vm')
+</head>
+
+<body class="pace-done">
+<div id="wrapper">
+    #parse('/layout/menu.vm')
+
+    <div id="page-wrapper" class="gray-bg" style="min-height: 761px;">
+
+        #parse('/layout/topbar.vm')
+
+        $screen_content
+
+        #parse('/layout/footer.vm')
+    </div>
+</div>
+</body>
+</html>

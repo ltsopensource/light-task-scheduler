@@ -65,6 +65,7 @@ public class SqlBuilder {
             }
         } else if (
                 obj instanceof Boolean ||
+                        obj instanceof Integer ||
                         obj instanceof Long ||
                         obj instanceof Float ||
                         obj instanceof Date) {

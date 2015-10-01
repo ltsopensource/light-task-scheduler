@@ -4,8 +4,6 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CharacterUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.web.request.JobQueueRequest;
-import com.lts.web.response.PageResponse;
 import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -13,6 +11,8 @@ import com.lts.queue.exception.JobQueueException;
 import com.lts.queue.mysql.support.ResultSetHandlerHolder;
 import com.lts.store.jdbc.JdbcRepository;
 import com.lts.store.jdbc.SqlBuilder;
+import com.lts.web.request.JobQueueRequest;
+import com.lts.web.response.PageResponse;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -116,8 +116,8 @@ public abstract class AbstractMysqlJobQueue extends JdbcRepository implements Jo
         sql.addCondition("job_id", request.getJobId());
 
         try {
-            getSqlTemplate().update(sql.getSQL(), sql.getParams().toArray());
-            return true;
+            int effectRows = getSqlTemplate().update(sql.getSQL(), sql.getParams().toArray());
+            return effectRows == 1;
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

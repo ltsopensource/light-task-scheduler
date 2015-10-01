@@ -10,6 +10,17 @@ public class JVMInfoDataPo extends AbstractMonitorDataPo {
      */
     private String jvmInfo;
 
+    // transient
+    private boolean alive;
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
     public String getJvmInfo() {
         return jvmInfo;
     }

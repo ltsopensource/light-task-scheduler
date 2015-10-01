@@ -3,6 +3,7 @@ package com.lts.web.controller.api;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.web.controller.AbstractController;
@@ -93,6 +94,9 @@ public class MonitorApiController extends AbstractController {
             response.setSuccess(false);
             response.setMsg("Search time range must be input.");
             return response;
+        }
+        if (StringUtils.isNotEmpty(request.getIdentity())) {
+            request.setNodeGroup(null);
         }
         List<? extends AbstractMonitorDataPo> rows = monitorDataService.queryMonitorDataSum(request);
         response.setSuccess(true);

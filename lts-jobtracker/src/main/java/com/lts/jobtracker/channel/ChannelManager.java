@@ -173,8 +173,6 @@ public class ChannelManager {
         return offlineTaskTrackerMap.get(identity);
     }
 
-
-
     public void removeChannel(ChannelWrapper channel) {
         String nodeGroup = channel.getNodeGroup();
         NodeType nodeType = channel.getNodeType();

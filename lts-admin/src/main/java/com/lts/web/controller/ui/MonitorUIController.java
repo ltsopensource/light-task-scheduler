@@ -30,14 +30,15 @@ public class MonitorUIController {
     @Autowired
     private JobTrackerMonitorRepo jobTrackerMonitorRepo;
 
-    @RequestMapping("monitor/tasktracker-monitor")
+    @RequestMapping("tasktracker-monitor")
     public String taskTrackerMonitor(Model model) {
 
         List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
 
-        model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
-        model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
+        Date endDate = new Date();
+        model.addAttribute("startTime", DateUtils.formatYMD_HMS(DateUtils.addHour(endDate, -3)));
+        model.addAttribute("endTime", DateUtils.formatYMD_HMS(endDate));
 
         List<Map<String, String>> taskTrackerMap = taskTrackerMonitorRepo.getTaskTrackerMap();
 
@@ -50,22 +51,23 @@ public class MonitorUIController {
 
         model.addAttribute("taskTrackerMap", map);
 
-        return "tasktracker-monitor";
+        return "tasktrackerMonitor";
     }
 
-    @RequestMapping("monitor/jobtracker-monitor")
+    @RequestMapping("jobtracker-monitor")
     public String jobTrackerMonitor(Model model) {
 
         List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_TRACKER);
         model.addAttribute("jobTrackerNodeGroups", taskTrackerNodeGroups);
 
-        model.addAttribute("startTime", DateUtils.formatYMD(new Date()));
-        model.addAttribute("endTime", DateUtils.formatYMD(new Date()));
+        Date endDate = new Date();
+        model.addAttribute("startTime", DateUtils.formatYMD_HMS(DateUtils.addHour(endDate, -3)));
+        model.addAttribute("endTime", DateUtils.formatYMD_HMS(endDate));
 
         List<String> taskTrackers = jobTrackerMonitorRepo.getJobTrackers();
         model.addAttribute("jobTrackers", taskTrackers);
 
-        return "jobtracker-monitor";
+        return "jobtrackerMonitor";
     }
 
 }
