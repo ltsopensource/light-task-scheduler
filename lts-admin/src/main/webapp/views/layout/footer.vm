@@ -1,4 +1,3 @@
-
 <div class="footer">
     <div>Copyright © 2014 - 2015 <strong>LTS</strong>. All Rights Reserved</div>
 </div>
@@ -29,7 +28,13 @@
                 $(this).parent().addClass("active");
             }
         });
+
+        $(document).on("focus", ".datepicker", function () {
+            WdatePicker({el: $(this).attr("id"), dateFmt: $(this).attr("date-format"), lang: 'zh-cn', qsEnabled: false})
+        });
+
     });
+
 </script>
 
 <!-- Mainly scripts -->
@@ -42,7 +47,11 @@
 
 <!-- FooTable -->
 <script src="assets/js/plugins/footable/footable.all.min.js"></script>
+<script src="assets/js/plugins/pagination/jquery.twbsPagination.min.js"></script>
 <!-- JS Template -->
 <script src="assets/js/plugins/artTemplate/template.js"></script>
+<script src="assets/js/plugins/datepicker/WdatePicker.js"></script>
 <!-- Autocomplete -->
 <script src="assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
+
+<script src="assets/js/lts.js"></script>

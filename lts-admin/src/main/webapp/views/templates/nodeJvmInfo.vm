@@ -8,7 +8,7 @@
     </div>
 </div>
 
-<div class="row wrapper wrapper-content">
+<div class="row wrapper wrapper-content animated fadeInRight">
     <div class="panel-body" style="padding-top:0px;">
         <div class="input-group">
             <input type="text" value="" placeholder="请输入节点标识 (可以在节点上下线信息中或者节点管理中找到)" name="identity"
@@ -99,20 +99,19 @@
                             if (key == 'StartTime') {
                                 value = DateUtil.formatYMDHMD(value);
                             }
-                            var html = template("jvm-info-template",{
-                                identity: identity,
-                                data: data,
-                                KYE_LABEL_MAP: KYE_LABEL_MAP
-                            });
-                            $("#jvmInfo").html(html);
+                            showJVMInfo(identity, data);
                         });
+                    } else {
+                        if (json) {
+                            swal(json['msg']);
+                        }
                     }
                 }
             });
         });
 
-        function showJVMInfo(identity, data){
-            var html = template("jvm-info-template",{
+        function showJVMInfo(identity, data) {
+            var html = template("jvm-info-template", {
                 identity: identity,
                 data: data,
                 KYE_LABEL_MAP: KYE_LABEL_MAP
@@ -120,6 +119,6 @@
             $("#jvmInfo").html(html);
         }
 
-        showJVMInfo('',{});
+        showJVMInfo('', {});
     });
 </script>
