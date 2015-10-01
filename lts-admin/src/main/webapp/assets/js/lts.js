@@ -173,6 +173,11 @@ function showLineChart(chartId, title, yTitle, series, colors) {
                 color: '#808080'
             }]
         },
+        tooltip: {
+            dateTimeLabelFormats: {
+                minute:"%Y-%m-%d %H:%M"
+            }
+        },
         plotOptions: {
             series: {
                 fillOpacity: 0.1,
