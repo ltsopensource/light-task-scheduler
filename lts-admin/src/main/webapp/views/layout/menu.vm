@@ -26,7 +26,6 @@
                 <ul class="nav nav-second-level collapse">
                     <li><a href="node-manager.htm">节点管理</a></li>
                     <li><a href="node-group-manager.htm">节点组管理</a></li>
-                    <li><a href="node-onoffline-log.htm">节点上下线日志</a></li>
                     <li><a href="node-jvm-info.htm">节点JVM信息</a></li>
                 </ul>
             </li>
@@ -43,6 +42,7 @@
                 <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">日志</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
                     <li><a href="job-logger.htm">任务日志</a></li>
+                    <li><a href="node-onoffline-log.htm">节点上下线日志</a></li>
                 </ul>
             </li>
             <li>
