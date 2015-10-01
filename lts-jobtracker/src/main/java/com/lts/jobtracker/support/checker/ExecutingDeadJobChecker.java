@@ -109,7 +109,7 @@ public class ExecutingDeadJobChecker {
                 String taskTrackerIdentity = entry.getKey();
                 // 去查看这个TaskTrackerIdentity是否存活
                 ChannelWrapper channelWrapper = application.getChannelManager().getChannel(taskTrackerNodeGroup, NodeType.TASK_TRACKER, taskTrackerIdentity);
-                if (channelWrapper == null) {
+                if (channelWrapper == null && taskTrackerIdentity != null) {
                     Long offlineTimestamp = application.getChannelManager().getOfflineTimestamp(taskTrackerIdentity);
                     // 已经离线太久，直接修复
                     if (offlineTimestamp == null || SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
@@ -118,7 +118,7 @@ public class ExecutingDeadJobChecker {
                     }
                 } else {
                     // 去询问是否在执行该任务
-                    if (channelWrapper.getChannel() != null && channelWrapper.isOpen()) {
+                    if (channelWrapper != null && channelWrapper.getChannel() != null && channelWrapper.isOpen()) {
                         askTimeoutJob(channelWrapper.getChannel(), entry.getValue());
                     }
                 }

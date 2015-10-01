@@ -33,9 +33,9 @@
                 <a href="#"><i class="fa fa-random"></i> <span class="nav-label">任务队列管理</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
                     <li><a href="job-add.htm">任务添加</a></li>
-                    <li><a href="cron-job-queue.htm">定时任务</a></li>
-                    <li><a href="executing-job-queue.htm">执行中队列</a></li>
-                    <li><a href="executable-job-queue.htm">等待执行队列</a></li>
+                    <li><a href="cron-job-queue.htm">Cron任务</a></li>
+                    <li><a href="executing-job-queue.htm">执行中的任务</a></li>
+                    <li><a href="executable-job-queue.htm">等待执行的任务</a></li>
                 </ul>
             </li>
             <li>

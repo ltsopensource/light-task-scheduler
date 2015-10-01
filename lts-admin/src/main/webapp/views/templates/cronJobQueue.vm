@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>定时任务</h2>
+        <h2>Cron任务</h2>
         <ol class="breadcrumb">
             <li><a>任务队列管理</a></li>
-            <li class="active"><b>定时任务</b></li>
+            <li class="active"><b>Cron任务</b></li>
         </ol>
     </div>
 </div>
@@ -13,7 +13,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">定时任务</span></h3>
+                    <h3><span class="text-navy">Cron任务</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">
@@ -52,8 +52,8 @@
                             <div class="col-sm-2">
                                 <select name="needFeedback" class="form-control">
                                     <option value="">-- 不限 --</option>
-                                    <option value="true">是</option>
-                                    <option value="false">否</option>
+                                    <option value="true">需要</option>
+                                    <option value="false">不需要</option>
                                 </select>
                             </div>
                             <div class="col-sm-1" style="width:70px;">
@@ -81,10 +81,10 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>`
 </div>
 
-<div class="modal inmodal" id="cron-job-edit-modal" role="dialog" aria-hidden="true" style="display: none;">
+<div class="modal inmodal" id="job-edit-modal" role="dialog" aria-hidden="true" style="display: none;">
     <div class="modal-dialog" style="width: 600px;">
         <div class="modal-content animated rubberBand">
             <div class="modal-header">
@@ -228,7 +228,7 @@
             var logUrl = "job-logger.htm?taskId=" + row.taskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
-                    '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '"><span class="label label-primary" style="background-color: #F50932;"><i class="fa fa-trash-o"></i> 删除</span></a>';
+                    '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
         }
 
         $(document).on("click", ".job-del-btn", function () {
@@ -241,7 +241,7 @@
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "确认删除!",
+                confirmButtonText: "确认删除",
                 closeOnConfirm: false
             }, function () {
                 $.ajax({
@@ -269,13 +269,17 @@
                 var name = $(this).attr("name");
                 var value = job[name];
                 if (name == 'extParams') {
-                    value = JSON.stringify(value);
+                    if (value == null) {
+                        value = ''
+                    } else {
+                        value = JSON.stringify(value);
+                    }
                 } else {
                     value = value + '';
                 }
                 $(this).val(value);
             });
-            $("#cron-job-edit-modal").modal("show");
+            $("#job-edit-modal").modal("show");
         });
 
         $(document).on("click", "#editBtn", function () {
@@ -327,8 +331,8 @@
                     if (json && json.success) {
                         swal("修改成功!", "恭喜你", "success");
                         $("#form")[0].reset();
-                        $("input[name='taskId'").val(params['taskId']);
-                        $("#cron-job-edit-modal").modal("hide");
+                        $("input[name='taskId']").val(params['taskId']);
+                        $("#job-edit-modal").modal("hide");
                         $("#searchBtn").trigger("click");
                     } else {
                         json ? swal(json['msg']) : {};

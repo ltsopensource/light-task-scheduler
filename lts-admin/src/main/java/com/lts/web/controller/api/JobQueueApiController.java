@@ -4,13 +4,13 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.web.request.JobQueueRequest;
-import com.lts.web.response.PageResponse;
 import com.lts.core.support.CronExpression;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.controller.AbstractController;
+import com.lts.web.request.JobQueueRequest;
+import com.lts.web.response.PageResponse;
 import com.lts.web.vo.RestfulResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -62,32 +62,45 @@ public class JobQueueApiController extends AbstractController {
     public RestfulResponse cronJobUpdate(JobQueueRequest request) {
         RestfulResponse response = new RestfulResponse();
         // 检查参数
-        // 1. 检测 cronExpression是否是正确的
-        if (StringUtils.isNotEmpty(request.getCronExpression())) {
-            try {
-                CronExpression expression = new CronExpression(request.getCronExpression());
-                if (expression.getTimeAfter(new Date()) == null) {
-                    response.setSuccess(false);
-                    response.setMsg(StringUtils.format("该CronExpression={} 已经没有执行时间点!", request.getCronExpression()));
-                    return response;
-                }
-            } catch (ParseException e) {
-                response.setSuccess(false);
-                response.setMsg("请输入正确的 CronExpression!");
-                return response;
-            }
-        }
         try {
             Assert.hasLength(request.getJobId(), "jobId不能为空!");
+            Assert.hasLength(request.getCronExpression(), "cronExpression不能为空!");
         } catch (IllegalArgumentException e) {
             response.setSuccess(false);
             response.setMsg(e.getMessage());
             return response;
         }
+        // 1. 检测 cronExpression是否是正确的
+        try {
+            CronExpression expression = new CronExpression(request.getCronExpression());
+            if (expression.getTimeAfter(new Date()) == null) {
+                response.setSuccess(false);
+                response.setMsg(StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
+                return response;
+            }
 
-        application.getCronJobQueue().selectiveUpdate(request);
-        response.setSuccess(true);
-        return response;
+            boolean success = application.getCronJobQueue().selectiveUpdate(request);
+            if (success) {
+                try {
+                    // 把等待执行的队列也更新一下
+                    request.setTriggerTime(expression.getTimeAfter(new Date()));
+                    application.getExecutableJobQueue().selectiveUpdate(request);
+                } catch (Exception e) {
+                    response.setSuccess(false);
+                    response.setMsg("更新等待执行的任务失败，请手动更新!");
+                    return response;
+                }
+                response.setSuccess(true);
+            } else {
+                response.setSuccess(false);
+                response.setMsg("该任务已经被删除或者执行完成.");
+            }
+            return response;
+        } catch (ParseException e) {
+            response.setSuccess(false);
+            response.setMsg("请输入正确的 CronExpression!");
+            return response;
+        }
     }
 
     @RequestMapping("/job-queue/executable-job-update")
@@ -117,8 +130,13 @@ public class JobQueueApiController extends AbstractController {
             response.setMsg(e.getMessage());
             return response;
         }
-        application.getCronJobQueue().selectiveUpdate(request);
-        response.setSuccess(true);
+        boolean success = application.getExecutableJobQueue().selectiveUpdate(request);
+        if (success) {
+            response.setSuccess(true);
+        } else {
+            response.setSuccess(false);
+            response.setCode("DELETE_OR_RUNNING");
+        }
         return response;
     }
 

@@ -8,7 +8,7 @@
 
         IS_SAME_DAY: 0,        // 是同一天
         FORMAT_YMD: 'yyyy-MM-dd',
-        FORMAT_YMD_HMS: 'yyyy-MM-dd hh:mm:ss',
+        FORMAT_YMD_HMS: 'yyyy-MM-dd HH:mm:ss',
         ONE_DAY_TIME: 24 * 60 * 60 * 1000,
 
         /**

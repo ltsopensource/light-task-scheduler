@@ -102,7 +102,7 @@
 
         LTS.colFormatter.optFormat = function (v, row) {
             return '<a href="javascript:;" class="node-group-del-btn" nodeGroup="' + row.name + '" nodeType="' + row.nodeType + '">' +
-                    '<span class="label label-info"><i class="fa fa-trash"></i> </span></a>';
+                    '<span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
         }
         var ltsTable = $("#ltstableContainer").ltsTable({
             url: '/api/node/node-group-get',
@@ -130,7 +130,7 @@
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "确认删除!",
+                confirmButtonText: "确认删除",
                 closeOnConfirm: false
             }, function () {
                 $.ajax({

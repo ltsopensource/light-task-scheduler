@@ -9,8 +9,10 @@ import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
 import com.lts.store.mongo.MongoRepository;
+import com.mongodb.WriteResult;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
 
 import java.util.Date;
 
@@ -75,9 +77,8 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
         addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
 
-        template.update(query, operations);
-
-        return true;
+        UpdateResults ur = template.update(query, operations);
+        return ur.getUpdatedCount() == 1;
     }
 
     private Query<JobPo> addCondition(Query<JobPo> query, String field, Object o) {
