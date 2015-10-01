@@ -10,7 +10,7 @@ var LTS = {
     colFormatter: {},
     ReExp: {
         time: /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$/,         // yyyy-MM-dd HH:mm:ss
-        number:/^\d+$/              // 正整数
+        number: /^\d+$/              // 正整数
     }
 };
 
@@ -55,7 +55,7 @@ function LtsTable(options) {
 
     var _this = this;
 
-    _this.renderEmpty = function(){
+    _this.renderEmpty = function () {
         _this.render({}, 0, {}, 1);
     };
 
@@ -131,3 +131,65 @@ jQuery.fn.extend({
         return new LtsTable(opts);
     }
 });
+
+
+Highcharts.setOptions({
+    lang: {
+        months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+        shortMonths: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'],
+        weekdays: ['星期天', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+        resetZoom: '查看全图',
+        resetZoomTitle: '查看全图',
+        downloadPNG: '下载PNG',
+        downloadJPEG: '下载JPEG',
+        downloadPDF: '下载PDF',
+        downloadSVG: '下载SVG',
+        exportButtonTitle: '导出成图片',
+        printButtonTitle: '打印图表',
+        loading: '数据加载中，请稍候...'
+    }
+});
+
+function showLineChart(chartId, title, yTitle, series, colors) {
+    $(chartId).highcharts({
+        chart: {
+            zoomType: 'x'
+        },
+        colors: colors,
+        title: {
+            text: title
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: yTitle
+            },
+            min: 0,
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        plotOptions: {
+            series: {
+                fillOpacity: 0.1,
+                shadow: false,
+                marker: {
+                    enabled: false,
+                    radius: 4,
+                    fillColor: null,
+                    lineWidth: 2,
+                    lineColor: '#FFFFFF',
+                    states: {hover: {enabled: true}}
+                }
+            }
+        },
+        credits: {
+            enabled: false
+        },
+        series: series
+    });
+}

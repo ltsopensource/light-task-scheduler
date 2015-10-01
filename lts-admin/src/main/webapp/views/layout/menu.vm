@@ -4,15 +4,15 @@
             <li class="nav-header">
                 <div class="dropdown profile-element">
                     <div class="env-element" id="current-env" env="daily">LTS管理后台</div>
-                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                        <span class="text-muted text-xs block">切换集群 <b class="caret"></b></span>
-                    </a>
-                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a href="#">性能</a></li>
-                        <li><a href="#">二套</a></li>
-                        <li class="divider"></li>
-                        <li><a href="#" class="switch-env-link">线上环境</a></li>
-                    </ul>
+##                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+##                        <span class="text-muted text-xs block">切换集群 <b class="caret"></b></span>
+##                    </a>
+##                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+##                        <li><a href="#">性能</a></li>
+##                        <li><a href="#">二套</a></li>
+##                        <li class="divider"></li>
+##                        <li><a href="#" class="switch-env-link">线上环境</a></li>
+##                    </ul>
                 </div>
                 <div class="logo-element">LTS</div>
             </li>
@@ -48,8 +48,8 @@
             <li>
                 <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">监控报警</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
-                    <li><a href="tasktracker-monitor.htm">TaskTracker监控</a></li>
                     <li><a href="jobtracker-monitor.htm">JobTracker监控</a></li>
+                    <li><a href="tasktracker-monitor.htm">TaskTracker监控</a></li>
                     <li><a href="h2" target="_blank">H2-Console</a></li>
                 </ul>
             </li>
