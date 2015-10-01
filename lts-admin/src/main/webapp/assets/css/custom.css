@@ -344,3 +344,20 @@ td.param-list > i {
 .w_250 {
     width: 250px;
 }
+
+.btn-default{
+    background-color: #FFF;
+    border-color: #c2c2c2;
+    color: #333;
+}
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default{
+    background-color: #fff;
+    border-color: #bababa;
+    color: #333;
+}
+.dropdown-menu li a{
+    outline: none;
+}
+button{
+    outline: none!important;
+}

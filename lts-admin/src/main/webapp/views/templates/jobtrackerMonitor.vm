@@ -20,7 +20,7 @@
                         <div class="form-group">
                             <label class="col-sm-1 control-label">节点标识</label>
 
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <select name="identity" class="form-control">
                                     <option value="">不限</option>
                                     #foreach($jobTrackerIdenity in $jobTrackers)

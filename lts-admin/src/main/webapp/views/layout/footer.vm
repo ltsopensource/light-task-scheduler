@@ -33,6 +33,7 @@
             WdatePicker({el: $(this).attr("id"), dateFmt: $(this).attr("date-format"), lang: 'zh-cn', qsEnabled: false})
         });
 
+        $('select').addClass("selectpicker");
     });
 
 </script>
@@ -54,4 +55,5 @@
 <!-- Autocomplete -->
 <script src="assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
 
+<script src="assets/js/plugins/select/bootstrap-select.min.js"></script>
 <script src="assets/js/lts.js"></script>

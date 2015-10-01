@@ -21,7 +21,7 @@
 
                             <label class="col-sm-1 control-label">节点标识</label>
 
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <select name="nodeGroup" class="form-control">
                                     <option value="">不限</option>
                                     #foreach($nodeGroup in $taskTrackerNodeGroups)
@@ -32,7 +32,7 @@
 
                             <label class="col-sm-1 control-label">节点标识</label>
 
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <select name="identity" class="form-control">
                                     <option value="">不限</option>
                                     #foreach($ttMap in $taskTrackerMap.entrySet())

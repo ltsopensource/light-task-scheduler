@@ -17,6 +17,7 @@
 
 <link href="assets/css/style.min.css" rel="stylesheet">
 <link href="assets/css/custom.css" rel="stylesheet">
+<link href="assets/css/plugins/select/bootstrap-select.min.css" rel="stylesheet">
 
 <script src="assets/js/jquery-2.1.1.js"></script>
 <script src="assets/js/bootstrap.min.js"></script>
