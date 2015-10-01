@@ -347,12 +347,12 @@ td.param-list > i {
 
 .btn-default{
     background-color: #FFF;
-    border-color: #c2c2c2;
+    border:1px solid #e5e6e7;
     color: inherit;
 }
 .btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default{
     background-color: #fff;
-    border-color: #bababa;
+    border:1px solid #e5e6e7;
     color: inherit;
 }
 .dropdown-menu li a{
