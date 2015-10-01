@@ -47,10 +47,10 @@ public class UIController {
     }
 
     @RequestMapping("node-jvm-info")
-    public String nodeJVMInfo(String identity) {
+    public String nodeJVMInfo(Model model, String identity) {
+        model.addAttribute("identity", identity);
         return "nodeJvmInfo";
     }
-
 
     @RequestMapping("job-add")
     public String addJobUI(Model model) {

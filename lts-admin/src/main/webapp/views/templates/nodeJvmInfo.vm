@@ -11,7 +11,9 @@
 <div class="row wrapper wrapper-content animated fadeInRight">
     <div class="panel-body" style="padding-top:0px;">
         <div class="input-group">
-            <input type="text" value="" placeholder="请输入节点标识 (可以在节点上下线信息中或者节点管理中找到)" name="identity"
+            <input type="text" placeholder="请输入节点标识 (可以在节点上下线信息中或者节点管理中找到)"
+                   name="identity"
+                   value="$!identity"
                    class="form-control input-lg">
 
             <div class="input-group-btn">
@@ -118,7 +120,11 @@
             });
             $("#jvmInfo").html(html);
         }
-
-        showJVMInfo('', {});
+        var identity = $("input[name='identity']").val();
+        if (identity) {
+            $("#searchBtn").trigger("click");
+        } else {
+            showJVMInfo('', {});
+        }
     });
 </script>

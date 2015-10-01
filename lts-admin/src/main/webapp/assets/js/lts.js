@@ -17,21 +17,22 @@ var LTS = {
 /**
  * 将JSON对象转为字符串
  */
-LTS.colFormatter.stringifyJSON = function (obj) {
+LTS.colFormatter.stringifyJSON = function (v) {
     return obj ? JSON.stringify(obj) : obj;
 };
 
-LTS.colFormatter.needFeedbackLabel = function (obj) {
-    return obj ? "需要" : "不需要";
+LTS.colFormatter.needFeedbackLabel = function (v) {
+    return v ? "需要" : "不需要";
 };
 
+template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
     return DateUtil.format(date, format);
 });
 
-template.helper('format', function (obj, colFormatter, row) {
+template.helper('format', function (v, colFormatter, row) {
     var formatterFn = LTS.colFormatter[colFormatter];
-    return formatterFn ? formatterFn(obj, row) : obj;
+    return formatterFn ? formatterFn(v, row) : obj;
 });
 
 /**
