@@ -7,12 +7,15 @@
 
         <ul class="nav navbar-top-links navbar-right">
             <li class="welcome-message">
-                <span class="m-r-sm text-muted">关关雎鸠，在河之洲。窈窕淑女，君子好逑。</span>
+                <span class="m-r-sm text-muted">
+                    <a href="https://github.com/qq254963746/light-task-scheduler" target="_blank"><span class="label label-info"><i class="fa fa-github"></i> github</span></a>
+                    <a href="http://git.oschina.net/hugui/light-task-scheduler" target="_blank"><span class="label label-info"><i class="fa fa-users"></i> oschina</span></a>
+                </span>
             </li>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown"
                    href="#">
-                    <img alt="user&#39;s avatar" class="img-circle" style="width:30px;" src="assets/img/avatar.jpeg">
+                    <img class="img-circle" style="width:30px;" src="assets/img/avatar.jpeg">
                     <span>管理员</span>
                 </a>
                 <ul class="dropdown-menu">
