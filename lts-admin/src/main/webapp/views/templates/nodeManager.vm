@@ -168,7 +168,7 @@
             }
         }
         LTS.colFormatter.optFormat = function (v, row) {
-            return '<a href="{url}" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> </span></a>'
+            return '<a href="{url}" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> JVM</span></a>'
                     .replace("{url}", "node-jvm-info.htm?identity=" + row.identity);
         }
 

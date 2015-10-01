@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId"
+                                <input type="text" class="form-control" name="taskId" value="$!taskId"
                                        placeholder="请输入你提交的任务ID(TaskId)">
                             </div>
 
@@ -30,7 +30,11 @@
                             <div class="col-sm-3">
                                 <select class="form-control selectpicker" name="taskTrackerNodeGroup">
                                     #foreach ($nodeGroup in $taskTrackerNodeGroups)
-                                        <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
+                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
+                                        #else
+                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                        #end
                                     #end
                                 </select>
                             </div>
@@ -192,6 +196,12 @@
             };
             ltsTable.post(params, 1);
         });
-        ltsTable.renderEmpty();
+
+        var taskId = $("input[name='taskId']").val();
+        if (taskId) {
+            $("#searchBtn").trigger("click");
+        } else {
+            ltsTable.renderEmpty();
+        }
     });
 </script>

@@ -52,8 +52,8 @@
 
                             <div class="col-sm-3">
                                 <select name="needFeedback" class="form-control">
-                                    <option value="true">是</option>
-                                    <option value="false" selected>否</option>
+                                    <option value="true">需要</option>
+                                    <option value="false" selected>不需要</option>
                                 </select>
                             </div>
                         </div>

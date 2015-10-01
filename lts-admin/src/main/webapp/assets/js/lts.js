@@ -18,7 +18,7 @@ var LTS = {
  * 将JSON对象转为字符串
  */
 LTS.colFormatter.stringifyJSON = function (v) {
-    return obj ? JSON.stringify(obj) : obj;
+    return v ? JSON.stringify(v) : v;
 };
 
 LTS.colFormatter.needFeedbackLabel = function (v) {
