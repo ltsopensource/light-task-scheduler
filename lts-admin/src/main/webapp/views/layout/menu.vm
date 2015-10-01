@@ -16,10 +16,10 @@
                 </div>
                 <div class="logo-element">LTS</div>
             </li>
-            <li class="active">
+            <li>
                 <a href="index.htm">
                     <i class="fa fa-th"></i> <span class="nav-label">概览</span>
-                    <span class="label label-info pull-right">常用</span></a>
+                    <span class="label label-info pull-right">首页</span></a>
             </li>
             <li>
                 <a href="#"><i class="fa fa-server"></i> <span class="nav-label">节点管理</span><span class="fa arrow"></span></a>
