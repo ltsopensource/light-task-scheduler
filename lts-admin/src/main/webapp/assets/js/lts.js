@@ -9,8 +9,8 @@
 var LTS = {
     colFormatter: {},
     ReExp: {
-        time: /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$/         // yyyy-MM-dd HH:mm:ss
-
+        time: /^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$/,         // yyyy-MM-dd HH:mm:ss
+        number:/^\d+$/              // 正整数
     }
 };
 
