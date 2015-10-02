@@ -249,7 +249,7 @@
                 closeOnConfirm: false
             }, function () {
                 $.ajax({
-                    url: '/api/job-queue/cron-job-delete',
+                    url: 'api/job-queue/cron-job-delete',
                     type: 'POST',
                     dataType: 'json',
                     data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup},
@@ -327,7 +327,7 @@
             }
             // 请求修改数据
             $.ajax({
-                url: '/api/job-queue/cron-job-update',
+                url: 'api/job-queue/cron-job-update',
                 type: 'POST',
                 dataType: 'json',
                 data: params,
@@ -347,7 +347,7 @@
         });
 
         var ltsTable = $("#ltstableContainer").ltsTable({
-            url: '/api/job-queue/cron-job-get',
+            url: 'api/job-queue/cron-job-get',
             templateId: 'ltstable'
         });
 

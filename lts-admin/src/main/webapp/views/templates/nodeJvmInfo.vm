@@ -88,7 +88,7 @@
                 return;
             }
             $.ajax({
-                url: '/api/jvm/node-jvm-info-get.do',
+                url: 'api/jvm/node-jvm-info-get.do',
                 type: 'GET',
                 dataType: 'JSON',
                 data: {identity: identity},

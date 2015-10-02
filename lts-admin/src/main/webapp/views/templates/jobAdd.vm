@@ -198,7 +198,7 @@
             }
 
             $.ajax({
-                url: '/api/job-queue/job-add',
+                url: 'api/job-queue/job-add',
                 type: 'POST',
                 dataType: 'json',
                 data: params,
