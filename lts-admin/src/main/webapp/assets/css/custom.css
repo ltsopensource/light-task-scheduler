@@ -345,19 +345,26 @@ td.param-list > i {
     width: 250px;
 }
 
-.btn-default{
+.btn-default {
     background-color: #FFF;
-    border:1px solid #e5e6e7;
+    border: 1px solid #e5e6e7;
     color: inherit;
 }
-.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default{
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
     background-color: #fff;
-    border:1px solid #e5e6e7;
+    border: 1px solid #e5e6e7;
     color: inherit;
 }
-.dropdown-menu li a{
+
+.dropdown-menu li a {
     outline: none;
 }
-button{
-    outline: none!important;
+
+button {
+    outline: none !important;
+}
+
+.footable-row-detail-name {
+    min-width: 100px;
 }

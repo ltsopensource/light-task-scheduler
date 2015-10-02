@@ -124,7 +124,9 @@
             <td>{{row.cronExpression}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel'}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
-            <td>{{row.msg}}</td>
+            <td>
+                <pre>{{row.msg}}</pre>
+            </td>
         </tr>
         {{/each}}
         {{if results == 0}}
@@ -143,6 +145,14 @@
         </tfoot>
     </table>
 </script>
+
+<style>
+    pre {
+        padding: 0px;
+        background-color: transparent;
+        border: 0;
+    }
+</style>
 
 <script>
     $(document).ready(function () {
