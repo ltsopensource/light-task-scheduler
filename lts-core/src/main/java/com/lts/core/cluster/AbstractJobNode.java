@@ -216,6 +216,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         config.setClusterName(clusterName);
     }
 
+    /**
+     * 节点标识(必须要保证这个标识是唯一的才能设置，请谨慎设置)
+     * 这个是非必须设置的，建议使用系统默认生成
+     */
     public void setIdentity(String identity) {
         config.setIdentity(identity);
     }

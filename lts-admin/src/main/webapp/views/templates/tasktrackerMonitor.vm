@@ -154,7 +154,7 @@
             params.nodeType = "TASK_TRACKER";
 
             $.ajax({
-                url: '/api/monitor/monitor-data-get.do',
+                url: 'api/monitor/monitor-data-get.do',
                 type: 'GET',
                 dataType: 'json',
                 data: params,

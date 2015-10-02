@@ -173,7 +173,7 @@
         }
 
         var ltsTable = $("#ltstableContainer").ltsTable({
-            url: '/api/node/node-list-get',
+            url: 'api/node/node-list-get',
             templateId: 'ltstable'
         });
 
