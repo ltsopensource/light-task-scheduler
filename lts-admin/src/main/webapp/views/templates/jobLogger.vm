@@ -29,6 +29,7 @@
 
                             <div class="col-sm-3">
                                 <select class="form-control selectpicker" name="taskTrackerNodeGroup">
+                                    <option value="">-- 不限 --</option>
                                     #foreach ($nodeGroup in $taskTrackerNodeGroups)
                                         #if ($taskTrackerNodeGroup == $nodeGroup.name)
                                             <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
@@ -39,7 +40,6 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="hr-line-dashed"></div>
                         <div class="form-group row">
                             <label class="col-sm-2 control-label">时间</label>
 
@@ -52,6 +52,7 @@
                                        value="$startLogTime"/>
                             </div>
                             <label class="control-label" style="width: 20px;float: left;">到</label>
+
                             <div class="col-sm-3">
                                 <input class="form-control datepicker" type="text" style="width:160px"
                                        id="endLogTime"
@@ -61,11 +62,14 @@
                                        value="$endLogTime"/>
                             </div>
                             <div class="col-sm-2">
-                                <button class="btn btn-primary" type="button" id="searchBtn">
-                                    搜索
-                                </button>
+                                <div class="col-sm-2">
+                                    <button class="btn btn-primary" type="button" id="searchBtn">
+                                        搜索
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        <div class="hr-line-dashed"></div>
                     </form>
                 </div>
             </div>
@@ -96,7 +100,7 @@
             <th data-hide="all">日志级别</th>
             <th data-hide="all">重试次数</th>
             <th data-hide="all">优先级</th>
-            <th data-hide="phone,tablet">执行时间</th>
+            <th data-hide="all">执行时间</th>
             <th>Cron表达式</th>
             <th data-hide="all">反馈客户端</th>
             <th data-hide="all">用户参数</th>
@@ -165,10 +169,10 @@
 
         $(document).on("click", "#searchBtn", function () {
             var taskId = $("input[name='taskId']").val();
-            if (!taskId) {
-                sweetAlert("请输入任务ID", "请输入你提交的任务ID(TaskId)", "error");
-                return;
-            }
+//            if (!taskId) {
+//                sweetAlert("请输入任务ID", "请输入你提交的任务ID(TaskId)", "error");
+//                return;
+//            }
             var taskTrackerNodeGroup = $("select[name='taskTrackerNodeGroup']").val();
             var startLogTime = $("input[name='startLogTime']").val();
             var endLogTime = $("input[name='endLogTime']").val();
@@ -188,16 +192,43 @@
                 sweetAlert("结束查询时间格式不正确", "格式 yyyy-MM-dd HH:mm:ss", "error");
                 return;
             }
+
             var params = {
                 taskId: taskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
                 startLogTime: startLogTime, endLogTime: endLogTime
             };
-            ltsTable.post(params, 1);
+            if (!taskId) {
+                // 如果没有按ID查询，那么要对时间跨度长的做提醒(超过1小时的)
+                if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 60 * 60 * 1000) {
+                    swal({
+                        title: "确认查询操作？",
+                        text: "您当前查询日志没有按照任务ID查询，时间跨度大于1小时，可能查询结果会比较大 !",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        cancelButtonText: "取消",
+                        confirmButtonText: "我要查询",
+                        closeOnConfirm: true
+                    }, function (isConfirm) {
+                        if (isConfirm) {
+                            ltsTable.post(params, 1);
+                        }
+                    });
+                } else {
+                    ltsTable.post(params, 1);
+                }
+            } else {
+                ltsTable.post(params, 1);
+            }
+
         });
 
         var taskId = $("input[name='taskId']").val();
         if (taskId) {
+            // 如果是按ID查询，要把时间设置长一点
+            var startLongTime = DateUtil.formatYMDHMD(DateUtil.getDate(new Date(), -10));
+            $("input[name='startLogTime']").val(startLongTime);
             $("#searchBtn").trigger("click");
         } else {
             ltsTable.renderEmpty();

@@ -200,8 +200,8 @@ public class JobQueueApiController extends AbstractController {
         RestfulResponse response = new RestfulResponse();
 
         try {
-            Assert.hasLength(request.getTaskId(), "taskId不能为空!");
-            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
+//            Assert.hasLength(request.getTaskId(), "taskId不能为空!");
+//            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
         } catch (IllegalArgumentException e) {
             response.setSuccess(false);
             response.setMsg(e.getMessage());

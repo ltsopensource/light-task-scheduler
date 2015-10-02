@@ -64,7 +64,7 @@ public class UIController {
         model.addAttribute("taskId", taskId);
         model.addAttribute("taskTrackerNodeGroup", taskTrackerNodeGroup);
         if (startLogTime == null) {
-            startLogTime = DateUtils.addDay(new Date(), -3);
+            startLogTime = DateUtils.addMinute(new Date(), -10);
         }
         model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(startLogTime));
         if (endLogTime == null) {
