@@ -338,6 +338,7 @@
                     if (json && json.success) {
                         swal("修改成功!", "恭喜你", "success");
                         $("#form")[0].reset();
+                        $("#form").find('select').selectpicker('render');
                         $("input[name='taskId']").val(params['taskId']);
                         $("#job-edit-modal").modal("hide");
                         $("#searchBtn").trigger("click");
@@ -345,6 +346,7 @@
                         if (json && json.code == 'DELETE_OR_RUNNING') {
                             swal('修改失败，该任务已经删除或者正在执行。');
                             $("#form")[0].reset();
+                            $("#form").find('select').selectpicker('render');
                             $("#job-edit-modal").modal("hide");
                             $("#searchBtn").trigger("click");
                         } else {
