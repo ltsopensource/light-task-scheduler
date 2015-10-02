@@ -53,7 +53,7 @@
                                        date-format="yyyy-MM-dd HH:mm:ss"
                                        placeholder="yyyy-MM-dd HH:mm:ss"/>
                             </div>
-                            <label class="col-sm-1 control-label" style="width:0px;padding-left:5px;">到</label>
+                            <label class="control-label" style="width: 20px;float: left;">到</label>
 
                             <div class="col-sm-2">
                                 <input class="form-control datepicker" type="text" style="width:160px"
