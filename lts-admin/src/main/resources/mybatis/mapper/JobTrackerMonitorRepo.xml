@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.JobTrackerMonitorRepo">
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_job_tracker_monitor_data`
+            (
+             `gmt_created`,
+             `identity`,
+             `receive_job_num`,
+             `push_job_num`,
+             `exe_success_num`,
+             `exe_failed_num`,
+             `exe_later_num`,
+             `exe_exception_num`,
+             `fix_executing_job_num`,
+             `timestamp`
+             )
+        VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        (
+        #{item.gmtCreated},
+        #{item.identity},
+        #{item.receiveJobNum},
+        #{item.pushJobNum},
+        #{item.exeSuccessNum},
+        #{item.exeFailedNum},
+        #{item.exeLaterNum},
+        #{item.exeExceptionNum},
+        #{item.fixExecutingJobNum},
+        #{item.timestamp}
+        )
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="id != null and id != ''">
+                AND id = #{id}
+            </if>
+            <if test="identity != null and identity != ''">
+                AND identity = #{identity}
+            </if>
+            <![CDATA[ AND timestamp >= #{startTime} AND timestamp <= #{endTime} ]]>
+        </where>
+    </sql>
+
+    <select id="querySum" resultType="com.lts.web.repository.domain.JobTrackerMonitorDataPo"
+            parameterType="com.lts.web.request.MonitorDataRequest">
+        SELECT
+        `timestamp`,
+        SUM(receive_job_num) AS receiveJobNum,
+        SUM(push_job_num) AS pushJobNum,
+        SUM(exe_success_num) AS exeSuccessNum,
+        SUM(exe_failed_num) AS exeFailedNum,
+        SUM(exe_later_num) AS exeLaterNum,
+        SUM(exe_exception_num) AS exeExceptionNum,
+        SUM(fix_executing_job_num) AS fixExecutingJobNum
+        FROM lts_admin_job_tracker_monitor_data
+        <include refid="whereCondition"/>
+        GROUP BY timestamp ORDER BY timestamp ASC limit #{start},#{limit}
+    </select>
+
+    <delete id="delete" parameterType="com.lts.web.request.MonitorDataRequest">
+        DELETE FROM lts_admin_job_tracker_monitor_data
+        <include refid="whereCondition"/>
+    </delete>
+
+    <select id="getJobTrackers" resultType="java.lang.String">
+        select distinct `identity` from lts_admin_job_tracker_monitor_data
+    </select>
+
+</mapper>

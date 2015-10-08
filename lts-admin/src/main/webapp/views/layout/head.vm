@@ -1,0 +1,24 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>管理后台</title>
+
+<link rel="shortcut icon" href="assets/favicon.ico">
+
+<link href="assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="assets/css/animate.css" rel="stylesheet">
+<link href="assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+<link href="assets/css/plugins/switchery/switchery.css" rel="stylesheet">
+<!-- FooTable -->
+<link href="assets/css/plugins/footable/footable.core.css" rel="stylesheet">
+<link href="assets/css/plugins/iCheck/custom.css" rel="stylesheet">
+
+<link href="assets/css/style.min.css" rel="stylesheet">
+<link href="assets/css/custom.css" rel="stylesheet">
+<link href="assets/css/plugins/select/bootstrap-select.min.css" rel="stylesheet">
+
+<script src="assets/js/jquery-2.1.1.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+<script src="assets/js/date-util.js"></script>

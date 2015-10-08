@@ -1,0 +1,370 @@
+/* left nav START */
+.env-element {
+    font-size: 24px;
+    font-weight: 600;
+    color: #FFF;
+}
+
+.dropdown-menu > li > a.switch-env-link {
+    color: #1ab394;
+    font-weight: bold;
+}
+
+.nav-second-level li a.nav-second-title {
+    padding-right: 20px;
+}
+
+.nav-second-level li ul li.active {
+    border-left: none;
+}
+
+/* left nav END */
+
+/* top nav START */
+.navbar-static-top {
+    margin-bottom: 0;
+}
+
+.navbar-top-links {
+    padding: 6px 12px;
+}
+
+.navbar-top-links li a {
+    padding: 10px 0;
+    min-height: 40px;
+}
+
+@media (max-width: 992px) {
+    .navbar-top-links .welcome-message {
+        display: none;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+    .navbar-top-links .welcome-message {
+        width: 380px;
+        vertical-align: middle;
+    }
+}
+
+/* top nav END */
+
+/* search container START */
+.search-container {
+    margin-bottom: 20px;
+}
+
+ul.typeahead.dropdown-menu {
+    width: 100%;
+}
+
+ul.typeahead.dropdown-menu > .active > a, ul.typeahead.dropdown-menu > .active > a:focus, ul.typeahead.dropdown-menu > .active > a:hover {
+    background-color: #1ab394;
+}
+
+/* search container END */
+
+/* breadcrumb START */
+.breadcrumb > li a.btn {
+    vertical-align: bottom;
+    margin-left: 5px;
+    color: #FFF;
+}
+
+/* breadcrumb END */
+
+/* service search START */
+.inner-h5-block h5 {
+    display: block;
+    float: none;
+}
+
+/* service search END */
+
+/* service detail START */
+.collapse-table-item {
+    margin-bottom: 20px;
+}
+
+.collapse-table-item .item-header {
+    border: 1px dashed #e7eaec;
+    background: #f3f3f4;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+.collapse-table-item .item-header > button {
+    color: #c1c1c1;
+    float: left;
+    margin-right: 5px;
+    width: 25px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: center;
+}
+
+.collapse-table-item .item-body {
+    padding-left: 40px;
+}
+
+.collapse-table-item .item-body .table {
+    margin-bottom: 0;
+}
+
+.collapse-table-item .item-body .table th, .collapse-table-item .item-body .table td {
+    text-align: center;
+}
+
+.collapse-table-item .item-body .table tr > td:first-child {
+    text-align: left;
+}
+
+.popover-content {
+    word-wrap: break-word;
+    word-break: normal;
+}
+
+.popover {
+    max-width: 100%;
+}
+
+td.param-list > i {
+    margin: 2px 5px 2px 0;
+    font-size: 10px;
+    font-style: normal;
+    background-color: #d1dade;
+    color: #5e5e5e;
+    padding: 3px 8px;
+    border-radius: 3px;
+    text-shadow: none;
+    float: left;
+}
+
+/* service detail END */
+
+/* wangwang START */
+.ww-link {
+    margin-right: 5px;
+}
+
+.ww-link i {
+    vertical-align: text-top;
+}
+
+.wangwang-offline {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url(https://aliwork.alicdn.com/tps/i1/TB1MkIRFVXXXXatXXXXz843ZpXX-316-260.png) -191px -71px no-repeat;
+}
+
+.wangwang-online {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url(https://aliwork.alicdn.com/tps/i1/TB1MkIRFVXXXXatXXXXz843ZpXX-316-260.png) -62px -36px no-repeat;
+}
+
+/* wangwang END */
+
+/* grouping rule START */
+.search-result-title h5 {
+    display: inline-block;
+    font-size: 14px;
+    margin: 0 0 7px;
+    padding: 0;
+    text-overflow: ellipsis;
+    float: left;
+}
+
+@media (min-width: 768px) {
+    .rule-modal .modal-dialog {
+        width: 80%;
+    }
+}
+
+@media (min-width: 992px) {
+    .rule-modal .modal-dialog {
+        width: 80%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .rule-modal .modal-dialog {
+        width: 80%;
+    }
+}
+
+/* grouping rule END */
+
+/* codemirror START */
+.CodeMirror {
+    height: 400px;
+}
+
+.CodeMirror pre.CodeMirror-placeholder {
+    color: #999;
+}
+
+.CodeMirror-empty.CodeMirror-focused {
+    outline: 1px solid #1AB394;
+}
+
+.CodeMirror.CodeMirror-focused {
+    outline: 1px solid #1AB394;
+}
+
+/* codemirror END */
+
+/* sweet-alert START */
+.sweet-alert.width-auto {
+    width: auto;
+}
+
+.sweet-alert.width-auto p {
+    text-align: left;
+}
+
+/* sweet-alert END */
+
+/* tooltip customization START */
+.tooltip-inner {
+    max-width: 992px;
+}
+
+/* tooltip customization END */
+
+/* form START */
+.form-control-text {
+    padding: 6px 12px;
+    width: 100%;
+}
+
+.icheckbox_square-green {
+    margin-right: 3px !important;
+}
+
+/* form END */
+
+/* custom file input START */
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.file-input-wrapper, .file-input-wrapper * {
+    cursor: pointer;
+}
+
+.file-input-wrapper input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    height: 100%
+}
+
+.file-input-placeholder {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+/* custom file input END */
+
+/* custom checkboxes for environments list */
+.checkbox-inline.no-indent,
+.checkbox-inline.no-indent + .checkbox-inline.no-indent {
+    margin-left: 0;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.checkbox-inline.no-indent:last-child {
+    margin-right: 0;
+}
+
+/* custom checkboxes for environments END */
+
+/* margin & padding utils START */
+.no-margin-top {
+    margin-top: 0;
+}
+
+.no-margin-right {
+    margin-right: 0;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0;
+}
+
+.no-margin-left {
+    margin-left: 0;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.no-padding-top {
+    padding-top: 0;
+}
+
+.no-padding-right {
+    padding-right: 0;
+}
+
+.no-padding-bottom {
+    padding-bottom: 0;
+}
+
+.no-padding-left {
+    padding-left: 0;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+/* margin & padding utils END */
+
+.w_120 {
+    width: 120px;
+}
+
+.w_340 {
+    width: 340px;
+}
+
+.w_250 {
+    width: 250px;
+}
+
+.btn-default {
+    background-color: #FFF;
+    border: 1px solid #e5e6e7;
+    color: inherit;
+}
+
+.btn-default:hover, .btn-default:focus, .btn-default:active, .btn-default.active, .open .dropdown-toggle.btn-default {
+    background-color: #fff;
+    border: 1px solid #e5e6e7;
+    color: inherit;
+}
+
+.dropdown-menu li a {
+    outline: none;
+}
+
+button {
+    outline: none !important;
+}
+
+.footable-row-detail-name {
+    min-width: 100px;
+}

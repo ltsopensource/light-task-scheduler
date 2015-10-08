@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lts.web.repository.mapper.NodeOnOfflineLogRepo">
+
+    <insert id="insert" parameterType="java.util.List" flushCache="true">
+        <![CDATA[
+        INSERT INTO `lts_admin_node_onoffline_log` 
+        (
+        `log_time`, 
+        `event`, 
+        `node_type`,
+        `cluster_name`,
+        `ip`, 
+        `port`, 
+        `host_name`, 
+        `group`, 
+        `create_time`, 
+        `threads`, 
+        `identity`)
+        VALUES  
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            <![CDATA[
+        (
+        #{item.logTime},
+        #{item.event}, 
+        #{item.nodeType},
+        #{item.clusterName},
+        #{item.ip}, 
+        #{item.port}, 
+        #{item.hostName},
+        #{item.group}, 
+        #{item.createTime},
+        #{item.threads}, 
+        #{item.identity})
+        ]]>
+        </foreach>
+
+    </insert>
+
+    <sql id="whereCondition">
+        <where>
+            <if test="identity != null and identity != ''">
+                <![CDATA[  AND `identity` = #{identity} ]]>
+            </if>
+            <if test="group != null and group != ''">
+                <![CDATA[  AND `group` = #{group} ]]>
+            </if>
+            <if test="event != null and event != ''">
+                <![CDATA[  AND `event` = #{event} ]]>
+            </if>
+            <if test="startLogTime != null">
+                <![CDATA[  AND log_time >= #{startLogTime} ]]>
+            </if>
+            <if test="endLogTime != null">
+                <![CDATA[  AND log_time <= #{endLogTime} ]]>
+            </if>
+        </where>
+    </sql>
+
+    <select id="select" parameterType="com.lts.web.request.NodeOnOfflineLogRequest"
+            resultType="com.lts.web.repository.domain.NodeOnOfflineLog">
+        SELECT
+        `log_time` as logTime,
+        `event`,
+        `node_type` as nodeType,
+        `cluster_name` as clusterName,
+        `ip`,
+        `port`,
+        `host_name` as hostName,
+        `group`,
+        `create_time` as createTime,
+        `threads`,
+        `identity`
+        FROM lts_admin_node_onoffline_log
+        <include refid="whereCondition"/>
+        ORDER BY log_time DESC limit #{start}, #{limit}
+    </select>
+
+    <select id="count" parameterType="com.lts.web.request.NodeOnOfflineLogRequest"
+            resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM lts_admin_node_onoffline_log
+        <include refid="whereCondition"/>
+    </select>
+
+
+    <delete id="delete" parameterType="com.lts.web.request.NodeOnOfflineLogRequest">
+        DELETE FROM lts_admin_node_onoffline_log
+        <include refid="whereCondition"/>
+    </delete>
+
+</mapper>
