@@ -91,4 +91,11 @@ public interface Constants {
 
     String ADMIN_ID_PREFIX = "LTS_admin_";
 
+    // 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失)
+    String LAZY_JOB_LOGGER = "lazy.job.logger";
+    // 延迟批量刷盘日志 内存中的最大日志量阀值
+    String LAZY_JOB_LOGGER_MEM_SIZE = "lazy.job.logger.mem.size";
+    // 延迟批量刷盘日志 检查频率
+    String LAZY_JOB_LOGGER_CHECK_PERIOD = "lazy.job.logger.check.period";
+
 }

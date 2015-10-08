@@ -11,9 +11,9 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.constant.Level;
-import com.lts.web.response.PageResponse;
 import com.lts.store.jdbc.JdbcRepository;
 import com.lts.store.jdbc.SqlBuilder;
+import com.lts.web.response.PageResponse;
 import org.apache.commons.dbutils.ResultSetHandler;
 
 import java.io.IOException;
@@ -78,18 +78,7 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         if (CollectionUtils.isEmpty(jobLogPos)) {
             return;
         }
-        String prefixSQL = "INSERT INTO `lts_job_log_po` ( `log_time`, `gmt_created`, `log_type`, `success`, `msg`" +
-                ",`task_tracker_identity`, `level`, `task_id`, `job_id`" +
-                ", `priority`, `submit_node_group`, `task_tracker_node_group`, `ext_params`, `need_feedback`" +
-                ", `cron_expression`, `trigger_time`, `retry_times`) VALUES ";
         int size = jobLogPos.size();
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            } else {
-                prefixSQL += "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),";
-            }
-        }
 
         Object[][] params = new Object[size][17];
         int index = 0;
@@ -115,7 +104,7 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         }
 
         try {
-            getSqlTemplate().batchUpdate(prefixSQL, params);
+            getSqlTemplate().batchUpdate(insertSQL, params);
         } catch (SQLException e) {
             throw new JobLogException(e);
         }

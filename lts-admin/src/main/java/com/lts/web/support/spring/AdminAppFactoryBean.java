@@ -1,6 +1,6 @@
 package com.lts.web.support.spring;
 
-import com.lts.biz.logger.JobLoggerFactory;
+import com.lts.biz.logger.JobLoggerDelegate;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
@@ -9,7 +9,6 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.registry.RegistryStatMonitor;
-import com.lts.ec.EventCenter;
 import com.lts.ec.EventCenterFactory;
 import com.lts.queue.*;
 import com.lts.web.cluster.AdminApplication;
@@ -32,8 +31,6 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
             ExecutingJobQueueFactory.class).getAdaptiveExtension();
     NodeGroupStoreFactory nodeGroupStoreFactory = ExtensionLoader.getExtensionLoader(
             NodeGroupStoreFactory.class).getAdaptiveExtension();
-    JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(
-            JobLoggerFactory.class).getAdaptiveExtension();
     JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(
             JobFeedbackQueueFactory.class).getAdaptiveExtension();
     private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
@@ -90,7 +87,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
-        application.setJobLogger(jobLoggerFactory.getJobLogger(config));
+        application.setJobLogger(new JobLoggerDelegate(config));
         application.setEventCenter(eventCenterFactory.getEventCenter(config));
         application.setRegistryStatMonitor(new RegistryStatMonitor(application));
     }

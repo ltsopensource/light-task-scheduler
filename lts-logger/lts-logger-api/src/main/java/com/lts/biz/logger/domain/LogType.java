@@ -5,6 +5,7 @@ package com.lts.biz.logger.domain;
  */
 public enum LogType {
 
+    RECEIVE,         // 接受任务
     SENT,            // 任务发送 开始执行
     FINISHED,        // 任务执行完成
     RESEND,          // TaskTracker 重新发送的任务执行结果

@@ -72,9 +72,12 @@ public class JobTrackerTest {
         // 任务队列用mysql
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置
-         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
-         jobTracker.addConfig("jdbc.username", "root");
-         jobTracker.addConfig("jdbc.password", "root");
+        jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
+        jobTracker.addConfig("jdbc.username", "root");
+        jobTracker.addConfig("jdbc.password", "root");
+
+        // 延迟批量刷盘业务日志开关
+//        jobTracker.addConfig("lazy.job.logger", "true");
 
         jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient

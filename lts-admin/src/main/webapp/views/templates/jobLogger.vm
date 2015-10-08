@@ -158,6 +158,7 @@
     $(document).ready(function () {
 
         var LOG_TYPE = {
+            RECEIVE: '接受任务',
             SENT: '派发任务',
             FINISHED: '完成任务',
             FIXED_DEAD: '修复死任务',

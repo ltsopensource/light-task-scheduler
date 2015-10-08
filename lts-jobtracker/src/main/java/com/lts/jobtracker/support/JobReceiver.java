@@ -1,6 +1,9 @@
 package com.lts.jobtracker.support;
 
+import com.lts.biz.logger.domain.JobLogPo;
+import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobReceiveException;
 import com.lts.core.extension.ExtensionLoader;
@@ -8,6 +11,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.support.LoggerName;
+import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.id.IdGenerator;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
@@ -68,6 +72,7 @@ public class JobReceiver {
 
         JobPo jobPo = null;
 
+        boolean duplicate = false;
         try {
             jobPo = JobDomainConverter.convert(job);
             if (jobPo == null) {
@@ -82,17 +87,37 @@ public class JobReceiver {
 
             if (job.isSchedule()) {
                 addCronJob(jobPo);
-                LOGGER.info("Receive cron job success. nodeGroup={}, CronExpression={}, {}",
+                LOGGER.info("Receive Cron Job success. nodeGroup={}, CronExpression={}, {}",
                         request.getNodeGroup(), job.getCronExpression(), job);
             } else {
                 application.getExecutableJobQueue().add(jobPo);
-                LOGGER.info("Receive job success. nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.info("Receive Job success. nodeGroup={}, {}", request.getNodeGroup(), job);
             }
+
         } catch (DuplicateJobException e) {
             // already exist, ignore
             LOGGER.info("Job already exist. nodeGroup={}, {}", request.getNodeGroup(), job);
+            duplicate = true;
         } finally {
             monitor.incReceiveJobNum();
+        }
+
+        if (jobPo != null) {
+            try {
+                // 记录日志
+                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+                jobLogPo.setSuccess(true);
+                jobLogPo.setLogType(LogType.RECEIVE);
+                jobLogPo.setLogTime(SystemClock.now());
+                jobLogPo.setLevel(Level.INFO);
+                if (duplicate) {
+                    jobLogPo.setLevel(Level.WARN);
+                    jobLogPo.setMsg("在任务队列中已经存在,忽略本次提交.");
+                }
+                application.getJobLogger().log(jobLogPo);
+            } catch (Throwable t) {     // 日志记录失败不影响正常运行
+                LOGGER.error("Receive Job Log error ", t);
+            }
         }
 
         return jobPo;

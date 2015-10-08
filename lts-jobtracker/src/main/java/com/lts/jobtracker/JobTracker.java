@@ -1,5 +1,6 @@
 package com.lts.jobtracker;
 
+import com.lts.biz.logger.JobLoggerDelegate;
 import com.lts.biz.logger.JobLoggerFactory;
 import com.lts.core.cluster.AbstractServerNode;
 import com.lts.core.extension.ExtensionLoader;
@@ -20,8 +21,6 @@ import com.lts.remoting.netty.NettyRequestProcessor;
  * @author Robert HG (254963746@qq.com) on 7/23/14.
  */
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
-
-    private JobLoggerFactory jobLoggerFactory = ExtensionLoader.getExtensionLoader(JobLoggerFactory.class).getAdaptiveExtension();
 
     private CronJobQueueFactory cronJobQueueFactory =
             ExtensionLoader.getExtensionLoader(CronJobQueueFactory.class).getAdaptiveExtension();
@@ -56,7 +55,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         super.preRemotingStart();
         // injectRemotingServer
         application.setRemotingServer(remotingServer);
-        application.setJobLogger(jobLoggerFactory.getJobLogger(config));
+        application.setJobLogger(new JobLoggerDelegate(config));
         application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
         application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
         application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
