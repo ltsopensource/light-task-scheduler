@@ -3,14 +3,17 @@ package com.lts.web.controller.api;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.commons.utils.Assert;
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.domain.Job;
 import com.lts.core.support.CronExpression;
-import com.lts.core.support.SystemClock;
+import com.lts.jobclient.domain.Response;
 import com.lts.queue.domain.JobPo;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.controller.AbstractController;
 import com.lts.web.request.JobQueueRequest;
 import com.lts.web.response.PageResponse;
+import com.lts.web.support.LtsAdminJobClient;
 import com.lts.web.vo.RestfulResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
@@ -27,6 +31,8 @@ public class JobQueueApiController extends AbstractController {
 
     @Autowired
     AdminApplication application;
+    @Autowired
+    LtsAdminJobClient ltsAdminJobClient;
 
     @RequestMapping("/job-queue/cron-job-get")
     public RestfulResponse cronJobGet(JobQueueRequest request) {
@@ -149,7 +155,7 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
         boolean success = application.getCronJobQueue().remove(request.getJobId());
-        if(success){
+        if (success) {
             try {
                 application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
@@ -187,7 +193,7 @@ public class JobQueueApiController extends AbstractController {
                 }
             }
             response.setSuccess(true);
-        } else{
+        } else {
             response.setSuccess(false);
             response.setMsg("更新失败，该条任务可能已经删除.");
         }
@@ -199,14 +205,14 @@ public class JobQueueApiController extends AbstractController {
     public RestfulResponse jobLoggerGet(JobLoggerRequest request) {
         RestfulResponse response = new RestfulResponse();
 
-        try {
+//        try {
 //            Assert.hasLength(request.getTaskId(), "taskId不能为空!");
 //            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
-        } catch (IllegalArgumentException e) {
-            response.setSuccess(false);
-            response.setMsg(e.getMessage());
-            return response;
-        }
+//        } catch (IllegalArgumentException e) {
+//            response.setSuccess(false);
+//            response.setMsg(e.getMessage());
+//            return response;
+//        }
 
         PageResponse<JobLogPo> pageResponse = application.getJobLogger().search(request);
         response.setResults(pageResponse.getResults());
@@ -221,7 +227,6 @@ public class JobQueueApiController extends AbstractController {
         RestfulResponse response = new RestfulResponse();
         // 表单check
 
-        Long triggerTime = null;
         try {
             Assert.hasLength(request.getTaskId(), "taskId不能为空!");
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
@@ -236,7 +241,7 @@ public class JobQueueApiController extends AbstractController {
                         response.setMsg(StringUtils.format("该CronExpression={} 已经没有执行时间点!", request.getCronExpression()));
                         return response;
                     } else {
-                        triggerTime = nextTime.getTime();
+                        request.setTriggerTime(nextTime);
                     }
                 } catch (ParseException e) {
                     response.setSuccess(false);
@@ -251,38 +256,36 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
 
-        addJob(request, triggerTime);
-
-        response.setSuccess(true);
+        Response ltsResponse = addJob(request);
+        if (ltsResponse.isSuccess()) {
+            response.setSuccess(true);
+        } else {
+            response.setSuccess(false);
+            response.setMsg("提交失败: " + ltsResponse.getMsg());
+            response.setCode(ltsResponse.getCode());
+        }
         return response;
     }
 
-    private void addJob(JobQueueRequest request, Long triggerTime) {
-        JobPo jobPo = new JobPo();
-        // 这里暂时用UUID来代替
-        jobPo.setJobId(StringUtils.generateUUID());
-        jobPo.setCronExpression(request.getCronExpression());
-        jobPo.setExtParams(request.getExtParams());
-        jobPo.setGmtCreated(SystemClock.now());
-        jobPo.setGmtModified(jobPo.getGmtCreated());
-        jobPo.setNeedFeedback(request.getNeedFeedback());
-        jobPo.setPriority(request.getPriority());
-        jobPo.setTaskId(request.getTaskId());
-        jobPo.setSubmitNodeGroup(request.getSubmitNodeGroup());
-        jobPo.setTaskTrackerNodeGroup(request.getTaskTrackerNodeGroup());
-        if (request.getTriggerTime() != null) {
-            jobPo.setTriggerTime(request.getTriggerTime().getTime());
-        }
+    private Response addJob(JobQueueRequest request) {
 
-        if (jobPo.isSchedule()) {
-            application.getCronJobQueue().add(jobPo);
-            if (triggerTime != null) {
-                jobPo.setTriggerTime(triggerTime);
+        Job job = new Job();
+        job.setTaskId(request.getTaskId());
+        if (CollectionUtils.isNotEmpty(request.getExtParams())) {
+            for (Map.Entry<String, String> entry : request.getExtParams().entrySet()) {
+                job.setParam(entry.getKey(), entry.getValue());
             }
         }
-        if (jobPo.getTriggerTime() == null) {
-            jobPo.setTriggerTime(SystemClock.now());
-        }
-        application.getExecutableJobQueue().add(jobPo);
+        // 执行节点的group名称
+        job.setTaskTrackerNodeGroup(request.getTaskTrackerNodeGroup());
+        job.setSubmitNodeGroup(request.getSubmitNodeGroup());
+
+        job.setNeedFeedback(request.getNeedFeedback());
+        // 这个是 cron expression 和 quartz 一样，可选
+        job.setCronExpression(request.getCronExpression());
+        job.setTriggerTime(request.getTriggerTime());
+        job.setPriority(request.getPriority());
+
+        return ltsAdminJobClient.submitJob(job);
     }
 }

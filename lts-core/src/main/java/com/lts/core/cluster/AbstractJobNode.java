@@ -72,7 +72,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         try {
             if (started.compareAndSet(true, false)) {
 
-                registry.unregister(node);
+                if (registry != null) {
+                    registry.unregister(node);
+                }
 
                 preRemotingStop();
 

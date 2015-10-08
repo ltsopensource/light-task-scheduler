@@ -82,13 +82,13 @@
         {{/each}}
         {{if results == 0}}
         <tr>
-            <td colspan="15">暂无数据</td>
+            <td colspan="4">暂无数据</td>
         </tr>
         {{/if}}
         </tbody>
         <tfoot>
         <tr>
-            <td colspan="9">
+            <td colspan="4">
                 <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
                 <ul class="pagination-sm pull-right"></ul>
             </td>
