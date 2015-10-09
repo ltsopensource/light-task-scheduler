@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * 业务日志记录器实现
+ * 1. 业务日志会发送给JobTracker
+ * 2. 也会采取Fail And Store 的方式
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
 public class BizLoggerImpl implements BizLogger {

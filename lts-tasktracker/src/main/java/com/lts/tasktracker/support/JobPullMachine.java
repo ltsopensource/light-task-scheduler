@@ -22,6 +22,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 用来向JobTracker去取任务
+ * 1. 会订阅JobTracker的可用,不可用消息主题的订阅
+ * 2. 只有当JobTracker可用的时候才会去Pull任务
+ * 3. Pull只是会给JobTracker发送一个通知
  * Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class JobPullMachine {

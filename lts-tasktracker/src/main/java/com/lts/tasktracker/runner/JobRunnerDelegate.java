@@ -17,8 +17,11 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
+ * Job Runner 的代理类,
+ * 1. 做一些错误处理之类的
+ * 2. 监控统计
+ * 3. Context信息设置
  * @author Robert HG (254963746@qq.com) on 8/16/14.
- *         Job Runner 的代理类,  要做一些错误处理之类的
  */
 public class JobRunnerDelegate implements Runnable {
 
