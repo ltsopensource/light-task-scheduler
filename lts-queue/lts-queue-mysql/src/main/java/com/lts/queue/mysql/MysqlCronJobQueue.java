@@ -2,6 +2,7 @@ package com.lts.queue.mysql;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
+import com.lts.core.constant.Constants;
 import com.lts.web.request.JobQueueRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
@@ -29,7 +30,7 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
         // create table
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_cron_job_queue.sql");
-            String sql = FileUtils.read(is);
+            String sql = FileUtils.read(is, Constants.CHARSET);
             sql = sql.replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
             getSqlTemplate().update(sql);
         } catch (Exception e) {

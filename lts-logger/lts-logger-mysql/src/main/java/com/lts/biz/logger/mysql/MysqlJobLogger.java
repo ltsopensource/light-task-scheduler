@@ -10,6 +10,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.store.jdbc.JdbcRepository;
 import com.lts.store.jdbc.SqlBuilder;
@@ -186,7 +187,7 @@ public class MysqlJobLogger extends JdbcRepository implements JobLogger {
         // 创建表
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_job_log_po.sql");
-            getSqlTemplate().update(FileUtils.read(is));
+            getSqlTemplate().update(FileUtils.read(is, Constants.CHARSET));
         } catch (SQLException e) {
             throw new JobLogException("create table error!", e);
         } catch (IOException e) {
