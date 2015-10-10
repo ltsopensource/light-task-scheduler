@@ -38,7 +38,7 @@
 
     <bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
         <property name="configLocation">
-            <value>/views/velocity.properties</value>
+            <value>/WEB-INF/views/velocity.properties</value>
         </property>
     </bean>
     <bean id="viewResolver"
