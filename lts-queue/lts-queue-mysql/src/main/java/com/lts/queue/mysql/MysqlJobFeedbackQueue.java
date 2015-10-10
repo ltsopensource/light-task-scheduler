@@ -5,6 +5,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.queue.JobFeedbackQueue;
@@ -37,7 +38,7 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
         // create table
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_job_feedback_queue.sql");
-            String sql = FileUtils.read(is);
+            String sql = FileUtils.read(is, Constants.CHARSET);
             getSqlTemplate().update(getRealSql(sql, jobClientNodeGroup));
         } catch (Exception e) {
             throw new JobQueueException("create table error!", e);

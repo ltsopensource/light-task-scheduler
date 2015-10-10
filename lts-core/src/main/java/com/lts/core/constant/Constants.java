@@ -20,7 +20,7 @@ public interface Constants {
     // 默认集群名字
     String DEFAULT_CLUSTER_NAME = "defaultCluster";
 
-    String CHARSET = "utf-8";
+    String CHARSET = "UTF-8";
 
     int DEFAULT_TIMEOUT = 1000;
 

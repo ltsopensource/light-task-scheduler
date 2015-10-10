@@ -3,6 +3,7 @@ package com.lts.queue.mysql;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.file.FileUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.domain.NodeGroupGetRequest;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
@@ -34,7 +35,7 @@ public class MysqlNodeGroupStore extends JdbcRepository implements NodeGroupStor
         // create table
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_node_group_store.sql");
-            String sql = FileUtils.read(is);
+            String sql = FileUtils.read(is, Constants.CHARSET);
             sql = sql.replace("{tableName}", JobQueueUtils.NODE_GROUP_STORE);
             getSqlTemplate().update(sql);
         } catch (Exception e) {

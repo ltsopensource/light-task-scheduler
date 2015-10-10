@@ -3,6 +3,7 @@ package com.lts.queue.mysql;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
@@ -41,7 +42,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
         // create table
         try {
             InputStream is = this.getClass().getClassLoader().getResourceAsStream("sql/lts_executable_job_queue.sql");
-            String sql = FileUtils.read(is);
+            String sql = FileUtils.read(is, Constants.CHARSET);
             getSqlTemplate().update(getRealSql(sql, taskTrackerNodeGroup));
             return true;
         } catch (Exception e) {
