@@ -118,7 +118,7 @@ public class RunnerPool {
             threadPoolExecutor.shutdownNow();
             Thread.sleep(1000);
             threadPoolExecutor = initThreadPoolExecutor();
-            LOGGER.error("stop working succeed ");
+            LOGGER.info("stop working succeed ");
         } catch (Throwable t) {
             LOGGER.error("stop working failed ", t);
         }

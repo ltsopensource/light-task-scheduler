@@ -39,7 +39,7 @@ public class JettyContainer {
             server.setStopAtShutdown(true);
             server.start();
 
-            System.out.println("LTS-Admin started. http://" + NetUtils.getLocalHost() + ":" + port + "/main.html");
+            System.out.println("LTS-Admin started. http://" + NetUtils.getLocalHost() + ":" + port + "/index.htm");
 
         } catch (Exception e) {
             e.printStackTrace();
