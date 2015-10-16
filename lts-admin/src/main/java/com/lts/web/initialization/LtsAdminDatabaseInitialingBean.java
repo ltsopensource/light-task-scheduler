@@ -10,12 +10,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,15 +36,17 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
         for (TableSchema tableSchema : tableSchemas) {
             // 建表
             commonRepo.executeSQL(tableSchema.table);
+
             // 建立索引
-            if (CollectionUtils.isNotEmpty(tableSchema.indexes)) {
-                for (String index : tableSchema.indexes) {
-                    try {
-                        commonRepo.executeSQL(index);
-                    } catch (BadSqlGrammarException e) {
-                        if (!e.getMessage().contains("exists")) {
-                            throw e;
-                        }
+            if (CollectionUtils.isEmpty(tableSchema.indexes)) {
+                continue;
+            }
+            for (String index : tableSchema.indexes) {
+                try {
+                    commonRepo.executeSQL(index);
+                } catch (BadSqlGrammarException e) {
+                    if (!e.getMessage().contains("exists")) {
+                        throw e;
                     }
                 }
             }
@@ -58,7 +57,7 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
     /**
      * 读取xml的sql
      */
-    private List<TableSchema> getTableSchema(String xml) throws ParserConfigurationException, IOException, SAXException {
+    private List<TableSchema> getTableSchema(String xml) throws Exception {
 
         List<TableSchema> tableSchemas = new ArrayList<TableSchema>();
 

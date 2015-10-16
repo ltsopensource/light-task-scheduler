@@ -24,13 +24,13 @@ public class LtsAdminJobClient implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         jobClient = new JobClient();
         jobClient.setNodeGroup("LTS-Admin");
-        String clusterName = AppConfigurer.getProperties("clusterName");
+        String clusterName = AppConfigurer.getProperty("clusterName");
         if (StringUtils.isEmpty(clusterName)) {
             throw new IllegalArgumentException("clusterName in lts-admin.cfg can not be null.");
         }
-        jobClient.setFailStorePath(AppConfigurer.getProperties("lts.admin.data.path", Constants.USER_HOME));
+        jobClient.setFailStorePath(AppConfigurer.getProperty("lts.admin.data.path", Constants.USER_HOME));
         jobClient.setClusterName(clusterName);
-        jobClient.setRegistryAddress(AppConfigurer.getProperties("registryAddress"));
+        jobClient.setRegistryAddress(AppConfigurer.getProperty("registryAddress"));
 
         jobClient.start();
     }

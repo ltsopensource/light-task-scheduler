@@ -35,12 +35,12 @@ public class DataSourceFactoryBean implements FactoryBean<DataSource>, Initializ
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        String dataSourceProvider = AppConfigurer.getProperties("jdbc.datasource.provider", DataSourceProvider.H2);
+        String dataSourceProvider = AppConfigurer.getProperty("jdbc.datasource.provider", DataSourceProvider.H2);
         Config config = new Config();
 
         if (DataSourceProvider.H2.equals(dataSourceProvider)) {
             // h2 本地文件
-            String monitorDBPath = AppConfigurer.getProperties("lts.admin.data.path", Constants.USER_HOME) + "/.lts/h2/lts-admin";
+            String monitorDBPath = AppConfigurer.getProperty("lts.admin.data.path", Constants.USER_HOME) + "/.lts/h2/lts-admin";
             config.setParameter("jdbc.datasource.provider", dataSourceProvider);
             // http://h2database.com/html/features.html#connection_modes
             // http://h2database.com/html/features.html#auto_mixed_mode
