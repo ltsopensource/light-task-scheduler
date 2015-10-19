@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.0-beta3</version>
+    <version>1.6.1</version>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
