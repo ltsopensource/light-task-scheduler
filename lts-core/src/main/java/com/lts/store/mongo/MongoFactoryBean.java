@@ -20,8 +20,7 @@ public class MongoFactoryBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(MongoFactoryBean.class);
     private List<ServerAddress> replicaSetSeeds = new ArrayList<ServerAddress>();
     private MongoClientOptions mongoClientOptions;
-    private List<MongoCredential> mongoCredentials;
-
+    private List<MongoCredential> mongoCredentials = new ArrayList<MongoCredential>();
 
     public MongoFactoryBean(String[] serverAddresses) {
         replSeeds(serverAddresses);
