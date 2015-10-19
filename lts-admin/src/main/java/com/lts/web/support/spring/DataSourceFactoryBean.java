@@ -4,10 +4,12 @@ import com.lts.core.cluster.Config;
 import com.lts.core.constant.Constants;
 import com.lts.store.jdbc.datasource.DataSourceProvider;
 import com.lts.store.jdbc.datasource.DataSourceProviderFactory;
+import com.lts.web.cluster.AdminApplication;
 import com.lts.web.support.AppConfigurer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 
@@ -17,6 +19,8 @@ import javax.sql.DataSource;
 public class DataSourceFactoryBean implements FactoryBean<DataSource>, InitializingBean, DisposableBean {
 
     private DataSource dataSource;
+    @Autowired
+    private AdminApplication application;
 
     @Override
     public DataSource getObject() throws Exception {
@@ -36,9 +40,9 @@ public class DataSourceFactoryBean implements FactoryBean<DataSource>, Initializ
     @Override
     public void afterPropertiesSet() throws Exception {
         String dataSourceProvider = AppConfigurer.getProperty("jdbc.datasource.provider", DataSourceProvider.H2);
-        Config config = new Config();
 
         if (DataSourceProvider.H2.equals(dataSourceProvider)) {
+            Config config = new Config();
             // h2 本地文件
             String monitorDBPath = AppConfigurer.getProperty("lts.admin.data.path", Constants.USER_HOME) + "/.lts/h2/lts-admin";
             config.setParameter("jdbc.datasource.provider", dataSourceProvider);
@@ -49,13 +53,13 @@ public class DataSourceFactoryBean implements FactoryBean<DataSource>, Initializ
             config.setParameter("jdbc.password", "");
             dataSource = DataSourceProviderFactory.create(config).getDataSource(config);
         } else if (DataSourceProvider.MYSQL.equals(dataSourceProvider)) {
-
+            Config config = application.getConfig();
             // mysql
+            dataSource = DataSourceProviderFactory.create(config).getDataSource(config);
 
         } else {
             throw new IllegalArgumentException("Error config : jdbc.datasource.provider");
         }
-
     }
 
     @Override
