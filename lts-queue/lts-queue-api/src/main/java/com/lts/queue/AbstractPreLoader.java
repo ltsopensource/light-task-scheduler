@@ -30,9 +30,9 @@ public abstract class AbstractPreLoader implements PreLoader {
     // 没个节点的步长
     protected int step = 500;
     // 预取阀值
-    private double factor = 0.8;
+    private double factor = 0.5;
 
-    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, BlockingQueue<JobPo>> JOB_MAP = new ConcurrentHashMap<String, BlockingQueue<JobPo>>();
+    private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, JobPriorityBlockingQueue> JOB_MAP = new ConcurrentHashMap<String, JobPriorityBlockingQueue>();
 
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
@@ -47,13 +47,19 @@ public abstract class AbstractPreLoader implements PreLoader {
                 public void run() {
 
                     for (String loadTaskTrackerNodeGroup : LOAD_SIGNAL) {
-                        BlockingQueue<JobPo> queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
+                        JobPriorityBlockingQueue queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
                         if (queue.size() / step < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, curSequence * step);
                             // 加入到内存中
                             if (CollectionUtils.isNotEmpty(loads)) {
-                                queue.addAll(loads);
+                                for (JobPo load : loads) {
+                                    if (!queue.offer(load)) {
+                                        // 没有成功说明已经满了
+                                        break;
+                                    }
+                                }
+                                System.out.println(queue.toString());
                             }
                         }
                         LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
@@ -127,35 +133,22 @@ public abstract class AbstractPreLoader implements PreLoader {
     protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int offset);
 
     private JobPo get(String taskTrackerNodeGroup) {
-        BlockingQueue<JobPo> jobPos = JOB_MAP.get(taskTrackerNodeGroup);
-        if (jobPos == null) {
-            jobPos = new PriorityBlockingQueue<JobPo>(step, new Comparator<JobPo>() {
-                @Override
-                public int compare(JobPo left, JobPo right) {
-                    int compare = left.getTriggerTime().compareTo(right.getTriggerTime());
-                    if (compare != 0) {
-                        return compare;
-                    }
-                    compare = left.getPriority().compareTo(left.getPriority());
-                    if (compare != 0) {
-                        return compare;
-                    }
-                    return left.getGmtCreated().compareTo(right.getGmtCreated());
-                }
-            });
-            BlockingQueue<JobPo> oldJobPos = JOB_MAP.putIfAbsent(taskTrackerNodeGroup, jobPos);
-            if (oldJobPos != null) {
-                jobPos = oldJobPos;
+        JobPriorityBlockingQueue queue = JOB_MAP.get(taskTrackerNodeGroup);
+        if (queue == null) {
+            queue = new JobPriorityBlockingQueue(step);
+            JobPriorityBlockingQueue oldQueue = JOB_MAP.putIfAbsent(taskTrackerNodeGroup, queue);
+            if (oldQueue != null) {
+                queue = oldQueue;
             }
         }
 
-        if (jobPos.size() / step < factor) {
+        if (queue.size() / step < factor) {
             // 触发加载的请求
             if (!LOAD_SIGNAL.contains(taskTrackerNodeGroup)) {
                 LOAD_SIGNAL.add(taskTrackerNodeGroup);
             }
         }
-        return jobPos.poll();
+        return queue.poll();
     }
 
 }

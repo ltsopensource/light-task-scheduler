@@ -216,6 +216,8 @@
                     if (json && json.success) {
                         swal('添加成功');
                         $("#resetBtn").trigger("click");
+                        $("#cronJob").hide();
+                        $("#triggerTimeJob").hide();
                     } else {
                         if (json) {
                             swal(json['msg']);
