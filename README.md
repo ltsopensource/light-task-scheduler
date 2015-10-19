@@ -295,6 +295,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |job.max.retry.times|可选|10|JobTracker|addConfig("job.max.retry.times", "xx")|任务的最大重试次数|
 |lts.monitor.url|可选|无|JobTracker,TaskTracker|addConfig("lts.monitor.url", "xx")|监控中心地址，也就是LTS-Admin地址，如 http://localhost:8081|
 |stop.working|可选|false|TaskTracker|addConfig("stop.working", "true")|主要用于当TaskTracker与JobTracker出现网络隔离的时候，超过一定时间隔离之后，TaskTracker自动停止当前正在运行的任务|
+|job.fail.store|可选|leveldb|JobClient,TaskTracker|addConfig("job.fail.store", "leveldb")|可选值:leveldb(默认), rocksdb, berkeleydb, FailStore实现|
+|failStorePath|可选|user.home|JobClient,TaskTracker|setFailStorePath("xxxx")|FailStore文件存储路径|
 
 
 

@@ -59,6 +59,7 @@ public class LtsAdminDataCleaner implements InitializingBean {
                     }
                 }
             }, 1, 24, TimeUnit.HOURS);
+            LOGGER.info("LtsAdminDataCleaner start succeed ");
         }
     }
 

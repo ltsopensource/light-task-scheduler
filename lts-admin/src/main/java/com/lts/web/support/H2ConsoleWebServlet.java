@@ -22,7 +22,7 @@ public class H2ConsoleWebServlet extends WebServlet {
     public void init(ServletConfig config) throws ServletException {
         ServletConfigFacade servletConfigFacade = new ServletConfigFacade(config);
 
-        String monitorDBPath = AppConfigurer.getProperties("lts.admin.data.path",
+        String monitorDBPath = AppConfigurer.getProperty("lts.admin.data.path",
                 Constants.USER_HOME) + "/.lts/h2/lts-admin";
         // http://h2database.com/html/features.html#connection_modes
         // http://h2database.com/html/features.html#auto_mixed_mode

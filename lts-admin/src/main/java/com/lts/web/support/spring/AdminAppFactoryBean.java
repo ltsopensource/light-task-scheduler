@@ -65,8 +65,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         Config config = new Config();
         config.setIdentity(node.getIdentity());
         config.setNodeType(node.getNodeType());
-        config.setRegistryAddress(AppConfigurer.getProperties("registryAddress"));
-        String clusterName = AppConfigurer.getProperties("clusterName");
+        config.setRegistryAddress(AppConfigurer.getProperty("registryAddress"));
+        String clusterName = AppConfigurer.getProperty("clusterName");
         if (StringUtils.isEmpty(clusterName)) {
             throw new IllegalArgumentException("clusterName in lts-admin.cfg can not be null.");
         }

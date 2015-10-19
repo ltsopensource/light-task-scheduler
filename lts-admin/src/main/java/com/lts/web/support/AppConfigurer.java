@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 系统的配置信息（lts-admin.cfg）
+ *
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
 public class AppConfigurer {
@@ -22,15 +23,18 @@ public class AppConfigurer {
     private static AtomicBoolean load = new AtomicBoolean(false);
 
     public static void load(String confPath) {
+        String path = "";
         try {
             if (load.compareAndSet(false, true)) {
                 Properties conf = new Properties();
 
                 if (StringUtils.isNotEmpty(confPath)) {
-                    InputStream is = new FileInputStream(new File(confPath + "/" + CONF_NAME));
+                    path = confPath + "/" + CONF_NAME;
+                    InputStream is = new FileInputStream(new File(path));
                     conf.load(is);
                 } else {
-                    InputStream is = AppConfigurer.class.getClassLoader().getResourceAsStream(CONF_NAME);
+                    path = CONF_NAME;
+                    InputStream is = AppConfigurer.class.getClassLoader().getResourceAsStream(path);
                     conf.load(is);
                 }
 
@@ -41,7 +45,7 @@ public class AppConfigurer {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Load config[" + path + "] error ", e);
         }
     }
 
@@ -49,39 +53,15 @@ public class AppConfigurer {
         return CONFIG;
     }
 
-    public static String getProperties(String name) {
+    public static String getProperty(String name) {
         return CONFIG.get(name);
     }
 
-    public static String getProperties(String name, String defaultValue) {
+    public static String getProperty(String name, String defaultValue) {
         String returnValue = CONFIG.get(name);
         if (returnValue == null || returnValue.equals("")) {
             returnValue = defaultValue;
         }
         return returnValue;
-    }
-
-    public static int getInteger(String name, int defaultValue) {
-        String returnValue = CONFIG.get(name);
-        if (returnValue == null || returnValue.equals("")) {
-            return defaultValue;
-        }
-        return Integer.parseInt(returnValue.trim());
-    }
-
-    public static int getInteger(String name) {
-        return Integer.parseInt(CONFIG.get(name));
-    }
-
-    public static boolean getBoolean(String name, boolean defaultValue) {
-        String returnValue = CONFIG.get(name);
-        if (returnValue == null || returnValue.equals("")) {
-            return defaultValue;
-        }
-        return Boolean.valueOf(CONFIG.get(name));
-    }
-
-    public static boolean getBoolean(String name) {
-        return Boolean.valueOf(CONFIG.get(name));
     }
 }
