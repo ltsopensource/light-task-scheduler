@@ -53,8 +53,8 @@ public class JobClientTest extends BaseJobClientTest {
 //      final JobClient jobClient = new JobClient();
         jobClient.setNodeGroup("test_jobClient");
         jobClient.setClusterName("test_cluster");
-//        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
+        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+//        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
 //        jobClient.setFailStorePath(Constants.USER_HOME);
         jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
