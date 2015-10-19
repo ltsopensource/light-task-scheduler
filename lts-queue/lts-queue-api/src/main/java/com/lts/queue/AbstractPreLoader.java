@@ -59,7 +59,6 @@ public abstract class AbstractPreLoader implements PreLoader {
                                         break;
                                     }
                                 }
-                                System.out.println(queue.toString());
                             }
                         }
                         LOAD_SIGNAL.remove(loadTaskTrackerNodeGroup);
