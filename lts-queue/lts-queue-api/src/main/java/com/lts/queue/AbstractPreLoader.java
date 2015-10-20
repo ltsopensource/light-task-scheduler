@@ -28,9 +28,9 @@ public abstract class AbstractPreLoader implements PreLoader {
     private int curSequence = 0;
     private int totalNodes = 1;
     // 每个节点的步长
-    protected int loadSize = 500;
+    protected int loadSize;
     // 预取阀值
-    private double factor = 0.5;
+    private double factor;
 
     private ConcurrentHashMap<String/*taskTrackerNodeGroup*/, JobPriorityBlockingQueue> JOB_MAP = new ConcurrentHashMap<String, JobPriorityBlockingQueue>();
 
@@ -43,8 +43,8 @@ public abstract class AbstractPreLoader implements PreLoader {
     public AbstractPreLoader(final Application application) {
         if (start.compareAndSet(false, true)) {
 
-            loadSize = application.getConfig().getParameter("job.preloader.size", 500);
-            factor = application.getConfig().getParameter("job.preloader.factor", 0.5);
+            loadSize = application.getConfig().getParameter("job.preloader.size", 300);
+            factor = application.getConfig().getParameter("job.preloader.factor", 0.2);
 
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override
