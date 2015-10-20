@@ -104,10 +104,10 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay
                         (new CheckSelfRunner(), 10, 30, TimeUnit.SECONDS);
-                LOGGER.info("Start {} RetryScheduler success.", name);
+                LOGGER.info("Start {} RetryScheduler success", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} RetryScheduler failed.", name, t);
+            LOGGER.error("Start {} RetryScheduler failed", name, t);
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
                         scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 30, 60, TimeUnit.SECONDS);
-                LOGGER.info("Start {} master RetryScheduler success.", name);
+                LOGGER.info("Start {} master RetryScheduler success", name);
             }
         } catch (Throwable t) {
             LOGGER.error("Start {} master RetryScheduler failed.", name, t);
@@ -129,10 +129,10 @@ public abstract class RetryScheduler<T> {
             if (masterCheckStart.compareAndSet(true, false)) {
                 masterScheduledFuture.cancel(true);
                 MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} master RetryScheduler success.", name);
+                LOGGER.info("Stop {} master RetryScheduler success", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} master RetryScheduler failed.", name, t);
+            LOGGER.error("Stop {} master RetryScheduler failed", name, t);
         }
     }
 
@@ -142,10 +142,10 @@ public abstract class RetryScheduler<T> {
                 scheduledFuture.cancel(true);
                 failStore.close();
                 RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} RetryScheduler success.", name);
+                LOGGER.info("Stop {} RetryScheduler success", name);
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} RetryScheduler failed.", name, t);
+            LOGGER.error("Stop {} RetryScheduler failed", name, t);
         }
     }
 
@@ -154,7 +154,7 @@ public abstract class RetryScheduler<T> {
             stop();
             failStore.destroy();
         } catch (FailStoreException e) {
-            LOGGER.error("destroy {} RetryScheduler failed.", name, e);
+            LOGGER.error("destroy {} RetryScheduler failed", name, e);
         }
     }
 

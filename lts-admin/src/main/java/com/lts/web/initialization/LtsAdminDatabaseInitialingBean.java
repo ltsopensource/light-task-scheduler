@@ -2,6 +2,8 @@ package com.lts.web.initialization;
 
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.web.repository.mapper.CommonRepo;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
+import org.h2.jdbc.JdbcSQLException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -43,14 +45,23 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
             }
             for (String index : tableSchema.indexes) {
                 try {
+                    // 创建索引
                     commonRepo.executeSQL(index);
+
                 } catch (BadSqlGrammarException e) {
-                    if (!e.getMessage().contains("exists")) {
+                    if (isDuplicateIndex(e)) {
+                        // ignore
+                    } else {
                         throw e;
                     }
                 }
             }
         }
+    }
+
+    private boolean isDuplicateIndex(BadSqlGrammarException e) {
+        return (e.getSQLException() instanceof JdbcSQLException && e.getMessage().contains("already exists")) // H2
+                || (e.getSQLException() instanceof MySQLSyntaxErrorException && e.getMessage().contains("Duplicate")); // MYSQL
     }
 
 

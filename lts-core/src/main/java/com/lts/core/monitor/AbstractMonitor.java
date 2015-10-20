@@ -16,10 +16,7 @@ import com.lts.jvmmonitor.JVMCollector;
 import com.lts.jvmmonitor.JVMMonitor;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -36,9 +33,8 @@ public abstract class AbstractMonitor implements Monitor {
     protected Config config;
     protected String monitorSite;
 
-    private ScheduledExecutorService monitorDataCollectScheduleExecutor =
-            Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> monitorDataCollectScheduledFuture;
+    private ScheduledExecutorService collectScheduleExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture<?> collectScheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     // 这里面保存发送失败的，不过有个最大限制，防止内存爆掉
     private List<MonitorData> toSendMonitorDataList = new ArrayList<MonitorData>();
@@ -49,8 +45,9 @@ public abstract class AbstractMonitor implements Monitor {
         config = application.getConfig();
     }
 
-    private final int INTERVAL = 60;    // 1分钟
+    private int interval = 1;    // 1分钟
     private boolean jvmInfoSendSuccess = false;     // 是否JVMInfo信息是否发送成功
+    private Integer preMinute = null;  // 上一分钟
 
     public final void start() {
         monitorSite = config.getParameter("lts.monitor.url");
@@ -60,29 +57,43 @@ public abstract class AbstractMonitor implements Monitor {
         try {
             if (start.compareAndSet(false, true)) {
 
-                // 用来记录每段时间的压力
-                monitorDataCollectScheduledFuture = monitorDataCollectScheduleExecutor.scheduleWithFixedDelay(new Runnable() {
+                collectScheduledFuture = collectScheduleExecutor.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
+                        Calendar calendar = Calendar.getInstance();
+                        int minute = calendar.get(Calendar.MINUTE);
                         try {
-                            MonitorData monitorData = collectMonitorData();
-                            long seconds = SystemClock.now() / 1000;
-                            long residue = seconds % INTERVAL;
-                            seconds = seconds - residue;        // 所有都向下取整，保证是60的倍数
-                            monitorData.setTimestamp(seconds * 1000);
-                            // JVM monitor
-                            monitorData.setJvmMonitorData(JVMCollector.collect());
-                            // report
-                            report(monitorData);
+                            if (preMinute == null) {
+                                preMinute = minute;
+                                return;
+                            }
 
-                            // 检查是否发送成功
-                            checkSendJVMInfo();
+                            int diff = minute - preMinute;
+                            diff = diff < 0 ? diff + 60 : diff;
+                            if (diff >= interval) {
+
+                                // 变化超过了间隔时间，要立马收集
+                                MonitorData monitorData = collectMonitorData();
+                                long seconds = SystemClock.now() / 1000;
+                                seconds = seconds - (seconds % 60);        // 所有都向下取整，保证是60的倍数
+                                seconds = seconds - interval * 60;        // 算其实时间点的数据
+                                monitorData.setTimestamp(seconds * 1000);
+                                // JVM monitor
+                                monitorData.setJvmMonitorData(JVMCollector.collect());
+                                // report
+                                report(monitorData);
+
+                                // 检查是否发送成功
+                                checkSendJVMInfo();
+
+                                preMinute = minute;
+                            }
 
                         } catch (Throwable t) {
                             LOGGER.error("MonitorData collect failed.", t);
                         }
                     }
-                }, 5, INTERVAL, TimeUnit.SECONDS);     // 60s 查看一下当前节点的压力
+                }, 1, 1, TimeUnit.SECONDS);
 
                 // 启动JVM监控
                 JVMMonitor.start();
@@ -107,8 +118,8 @@ public abstract class AbstractMonitor implements Monitor {
     public final void stop() {
         try {
             if (start.compareAndSet(true, false)) {
-                monitorDataCollectScheduledFuture.cancel(true);
-                monitorDataCollectScheduleExecutor.shutdown();
+                collectScheduledFuture.cancel(true);
+                collectScheduleExecutor.shutdown();
                 JVMMonitor.stop();
                 LOGGER.info("Monitor stop succeed.");
             }
@@ -213,5 +224,4 @@ public abstract class AbstractMonitor implements Monitor {
             LOGGER.warn("Report JVMInfo data failed(" + monitorSite + "), send later, please check the LTS-Admin is available : " + e.getMessage());
         }
     }
-
 }

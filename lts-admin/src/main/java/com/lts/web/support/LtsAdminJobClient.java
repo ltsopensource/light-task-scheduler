@@ -5,6 +5,7 @@ import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.domain.Response;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author Robert HG (254963746@qq.com) on 10/3/15.
  */
 @Component
-public class LtsAdminJobClient implements InitializingBean {
+public class LtsAdminJobClient implements InitializingBean, DisposableBean {
 
     private JobClient jobClient;
 
@@ -35,4 +36,10 @@ public class LtsAdminJobClient implements InitializingBean {
         jobClient.start();
     }
 
+    @Override
+    public void destroy() throws Exception {
+        if (jobClient != null) {
+            jobClient.stop();
+        }
+    }
 }
