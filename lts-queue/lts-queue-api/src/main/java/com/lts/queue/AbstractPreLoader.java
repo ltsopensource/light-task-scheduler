@@ -116,7 +116,9 @@ public abstract class AbstractPreLoader implements PreLoader {
                 return null;
             }
             // update jobPo
-            if (lockJob(taskTrackerNodeGroup, jobPo.getJobId(), taskTrackerIdentity, jobPo.getTriggerTime())) {
+            if (lockJob(taskTrackerNodeGroup, jobPo.getJobId(),
+                    taskTrackerIdentity, jobPo.getTriggerTime(),
+                    jobPo.getGmtModified())) {
                 jobPo.setTaskTrackerIdentity(taskTrackerIdentity);
                 jobPo.setIsRunning(true);
                 jobPo.setGmtModified(SystemClock.now());
@@ -128,7 +130,11 @@ public abstract class AbstractPreLoader implements PreLoader {
     /**
      * 锁定任务
      */
-    protected abstract boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime);
+    protected abstract boolean lockJob(String taskTrackerNodeGroup,
+                                       String jobId,
+                                       String taskTrackerIdentity,
+                                       Long triggerTime,
+                                       Long gmtModified);
 
     /**
      * 加载任务

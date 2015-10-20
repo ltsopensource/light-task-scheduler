@@ -21,9 +21,34 @@ import java.util.concurrent.atomic.AtomicLong;
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
+//        submitWidthReplaceOnExist();
         console();
 //        testProtector();
     }
+
+    public static void submitWidthReplaceOnExist() throws IOException {
+        // 推荐使用RetryJobClient
+        JobClient jobClient = new RetryJobClient();
+        jobClient.setNodeGroup("test_jobClient");
+        jobClient.setClusterName("test_cluster");
+        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
+        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+        jobClient.start();
+
+        Job job = new Job();
+        job.setTaskId("t_555");
+        job.setParam("shopId", "1122222221");
+        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+        job.setNeedFeedback(true);
+        job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
+        job.setCronExpression("0 0/1 * * * ?");
+//        job.setTriggerTime(DateUtils.addDay(new Date(), 1));
+        Response response = jobClient.submitJob(job);
+        System.out.println(response);
+    }
+
 
     public static void console() throws IOException {
         // 推荐使用RetryJobClient
@@ -71,7 +96,7 @@ public class JobClientTest extends BaseJobClientTest {
         final AtomicLong num = new AtomicLong();
         System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 10; i++) {
 
             new Thread(new Runnable() {
                 @Override

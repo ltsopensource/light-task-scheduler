@@ -281,6 +281,7 @@ public class JobQueueApiController extends AbstractController {
         job.setSubmitNodeGroup(request.getSubmitNodeGroup());
 
         job.setNeedFeedback(request.getNeedFeedback());
+        job.setReplaceOnExist(true);
         // 这个是 cron expression 和 quartz 一样，可选
         job.setCronExpression(request.getCronExpression());
         job.setTriggerTime(request.getTriggerTime());

@@ -44,6 +44,10 @@ public class Job {
      * 如果设置了 cronExpression， 那么这个字段没用
      */
     private Long triggerTime;
+    /**
+     * 当任务队列中存在这个任务的时候，是否替换更新
+     */
+    private boolean replaceOnExist = false;
 
     public Integer getPriority() {
         return priority;
@@ -139,6 +143,14 @@ public class Job {
 
     public void setTriggerTime(Long triggerTime) {
         this.triggerTime = triggerTime;
+    }
+
+    public boolean isReplaceOnExist() {
+        return replaceOnExist;
+    }
+
+    public void setReplaceOnExist(boolean replaceOnExist) {
+        this.replaceOnExist = replaceOnExist;
     }
 
     @Override
