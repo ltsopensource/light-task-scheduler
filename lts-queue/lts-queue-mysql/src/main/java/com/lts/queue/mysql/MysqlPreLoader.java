@@ -59,7 +59,7 @@ public class MysqlPreLoader extends AbstractPreLoader {
             Long now = SystemClock.now();
             return sqlTemplate.query(getRealSql(takeSelectSQL, loadTaskTrackerNodeGroup),
                     ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER,
-                    false, now, offset, step);
+                    false, now, offset, loadSize);
         } catch (SQLException e) {
             return null;
         }
