@@ -4,6 +4,7 @@ import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.listener.MasterChangeListener;
+import com.lts.spring.tasktracker.JobDispatcher;
 import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -23,6 +25,7 @@ import java.util.Properties;
 /**
  * TaskTracker Spring Bean 工厂类
  * 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过注解的方式注入
+ *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker>, ApplicationContextAware,
@@ -67,6 +70,11 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
      * master节点变化监听器
      */
     private MasterChangeListener[] masterChangeListeners;
+
+    /**
+     * 只有当使用 JobDispatcher 的时候才有效果
+     */
+    private String shardField;
     /**
      * 额外参数配置
      */
@@ -148,7 +156,13 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
         jobRunnerBeanName = "LTS_".concat(jobRunnerClass.getName());
         if (!beanFactory.containsBean(jobRunnerBeanName)) {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(jobRunnerClass);
-            builder.setScope("prototype");
+            if (jobRunnerClass == JobDispatcher.class) {
+                builder.setScope("singleton");
+                builder.setLazyInit(false);
+                builder.getBeanDefinition().getPropertyValues().addPropertyValue("shardField", shardField);
+            } else {
+                builder.setScope("prototype");
+            }
             beanFactory.registerBeanDefinition(jobRunnerBeanName, builder.getBeanDefinition());
         }
     }
@@ -209,5 +223,9 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
 
     public void setConfigs(Properties configs) {
         this.configs = configs;
+    }
+
+    public void setShardField(String shardField) {
+        this.shardField = shardField;
     }
 }

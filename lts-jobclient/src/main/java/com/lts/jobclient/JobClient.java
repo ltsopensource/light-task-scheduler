@@ -30,7 +30,6 @@ import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -106,8 +105,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     if (responseCommand == null) {
                         response.setFailedJobs(jobs);
                         response.setSuccess(false);
-                        LOGGER.warn("Submit job failed: {}, {}",
-                                jobs, "JobTracker is broken");
+                        LOGGER.warn("Submit job failed: {}, {}", jobs, "JobTracker is broken");
                         return;
                     }
 
@@ -121,10 +119,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     response.setFailedJobs(jobSubmitResponse.getFailedJobs());
                     response.setSuccess(false);
                     response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
-                    LOGGER.warn("Submit job failed: {}, {}, {}",
-                            jobs,
-                            responseCommand.getRemark(),
-                            jobSubmitResponse.getMsg());
+                    LOGGER.warn("Submit job failed: {}, {}, {}", jobs, responseCommand.getRemark(), jobSubmitResponse.getMsg());
                 }
             };
 
