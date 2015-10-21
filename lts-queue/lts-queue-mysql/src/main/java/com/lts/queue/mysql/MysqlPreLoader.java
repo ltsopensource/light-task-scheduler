@@ -33,13 +33,16 @@ public class MysqlPreLoader extends AbstractPreLoader {
             "`is_running` = ?, " +
             "`task_tracker_identity` = ?, " +
             "`gmt_modified` = ?" +
-            " WHERE job_id = ? AND is_running = ? AND trigger_time = ? ";
+            " WHERE job_id = ? AND is_running = ? AND trigger_time = ? AND gmt_modified = ? ";
 
     @Override
-    protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime) {
+    protected boolean lockJob(String taskTrackerNodeGroup, String jobId,
+                              String taskTrackerIdentity,
+                              Long triggerTime,
+                              Long gmtModified) {
         try {
             int affectedRow = sqlTemplate.update(getRealSql(taskUpdateSQL, taskTrackerNodeGroup), true,
-                    taskTrackerIdentity, SystemClock.now(), jobId, false, triggerTime);
+                    taskTrackerIdentity, SystemClock.now(), jobId, false, triggerTime, gmtModified);
             return affectedRow == 1;
         } catch (SQLException e) {
             return false;

@@ -201,7 +201,7 @@ public abstract class RetryScheduler<T> {
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
             } catch (Throwable e) {
-                LOGGER.error("Run {} RetryScheduler error.", name, e);
+                LOGGER.error("Run {} RetryScheduler error ", name, e);
             }
         }
     }

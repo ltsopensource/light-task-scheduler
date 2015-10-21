@@ -27,4 +27,9 @@ public interface CronJobQueue extends JobQueue{
      */
     boolean remove(String jobId);
 
+    /**
+     * 得到JobPo
+     */
+    JobPo getJob(String taskTrackerNodeGroup, String taskId);
+
 }

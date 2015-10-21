@@ -10,10 +10,6 @@ import com.lts.queue.domain.JobPo;
 public class Md5Generator implements IdGenerator{
     @Override
     public String generate(Config config, JobPo jobPo) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(jobPo.getTaskId())
-                .append(jobPo.getSubmitNodeGroup())
-                .append(jobPo.getGmtCreated());
-        return Md5Encrypt.md5(sb.toString());
+        return Md5Encrypt.md5(jobPo.getTaskId() + jobPo.getSubmitNodeGroup() + jobPo.getGmtCreated());
     }
 }

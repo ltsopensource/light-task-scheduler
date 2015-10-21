@@ -24,7 +24,7 @@ public class JobPo {
      */
     private String taskId;
     // 创建时间
-    private Long gmtCreated = SystemClock.now();
+    private Long gmtCreated;
     // 修改时间
     private Long gmtModified;
     /**
