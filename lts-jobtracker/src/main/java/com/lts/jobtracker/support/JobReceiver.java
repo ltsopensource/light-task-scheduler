@@ -8,6 +8,7 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobReceiveException;
+import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
@@ -15,7 +16,6 @@ import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.id.IdGenerator;
-import com.lts.jobtracker.id.Md5Generator;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -38,7 +38,7 @@ public class JobReceiver {
     public JobReceiver(JobTrackerApplication application) {
         this.application = application;
         this.monitor = (JobTrackerMonitor) application.getMonitor();
-        this.idGenerator = new Md5Generator();
+        this.idGenerator = ExtensionLoader.getExtensionLoader(IdGenerator.class).getAdaptiveExtension();
     }
 
     /**
@@ -82,7 +82,7 @@ public class JobReceiver {
                 jobPo.setSubmitNodeGroup(request.getNodeGroup());
             }
             // 设置 jobId
-            jobPo.setJobId(idGenerator.generate(jobPo));
+            jobPo.setJobId(idGenerator.generate(application.getConfig(), jobPo));
 
             // 添加任务
             addJob(job, jobPo, request);
@@ -126,13 +126,28 @@ public class JobReceiver {
         }
     }
 
-    /** 更新任务 **/
+    /**
+     * 更新任务
+     **/
     private boolean replaceOnExist(Job job, JobPo jobPo, JobSubmitRequest request) {
-        // 1. 删除任务
-        application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobPo.getJobId());
+
+        // 得到老的jobId
+        JobPo oldJobPo = null;
         if (job.isSchedule()) {
-            application.getCronJobQueue().remove(jobPo.getJobId());
+            oldJobPo = application.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+        } else {
+            oldJobPo = application.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         }
+        if (oldJobPo != null) {
+            String jobId = oldJobPo.getJobId();
+            // 1. 删除任务
+            application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
+            if (job.isSchedule()) {
+                application.getCronJobQueue().remove(jobId);
+            }
+            jobPo.setJobId(jobId);
+        }
+
         // 2. 重新添加任务
         try {
             addJob(job, jobPo, request);

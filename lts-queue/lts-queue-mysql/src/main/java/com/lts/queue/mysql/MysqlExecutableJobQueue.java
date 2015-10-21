@@ -129,4 +129,15 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
             throw new JobQueueException(e);
         }
     }
+
+    private String selectSQL = "SELECT * FROM `{tableName}` WHERE task_id = ? AND task_tracker_node_group = ?";
+
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        try {
+            return getSqlTemplate().query(getRealSql(selectSQL, taskTrackerNodeGroup), ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, taskId, taskTrackerNodeGroup);
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+    }
 }

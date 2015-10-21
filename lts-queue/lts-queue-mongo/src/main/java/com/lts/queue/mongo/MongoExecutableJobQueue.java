@@ -118,4 +118,13 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
                 filter("gmtCreated < ", deadline);
         return query.asList();
     }
+
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("taskId").equal(taskId).
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.get();
+    }
 }

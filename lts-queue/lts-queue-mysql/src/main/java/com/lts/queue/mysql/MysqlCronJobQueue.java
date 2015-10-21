@@ -22,6 +22,9 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     private String finishSQL = "SELECT * FROM `{tableName}` WHERE job_id = ?"
             .replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
 
+    private String selectSQL = "SELECT * FROM `{tableName}` WHERE task_id = ? AND task_tracker_node_group = ?"
+            .replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
+
     private String removeSQL = "DELETE FROM `{tableName}` WHERE job_id = ?"
             .replace("{tableName}", JobQueueUtils.CRON_JOB_QUEUE);
 
@@ -63,6 +66,15 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     public boolean remove(String jobId) {
         try {
             return getSqlTemplate().update(removeSQL, jobId) == 1;
+        } catch (SQLException e) {
+            throw new JobQueueException(e);
+        }
+    }
+
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        try {
+            return getSqlTemplate().query(selectSQL, ResultSetHandlerHolder.JOB_PO_RESULT_SET_HANDLER, taskId, taskTrackerNodeGroup);
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

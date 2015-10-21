@@ -68,4 +68,12 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
         return wr.getN() == 1;
     }
 
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        Query<JobPo> query = template.createQuery(JobPo.class);
+        query.field("taskId").equal(taskId).
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.get();
+    }
+
 }

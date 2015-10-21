@@ -44,4 +44,9 @@ public interface ExecutableJobQueue extends JobQueue{
      * @return
      */
     List<JobPo> getDeadJob(String taskTrackerNodeGroup, long deadline);
+
+    /**
+     * 得到JobPo
+     */
+    JobPo getJob(String taskTrackerNodeGroup, String taskId);
 }
