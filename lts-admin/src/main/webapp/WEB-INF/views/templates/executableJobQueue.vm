@@ -290,7 +290,11 @@
                 } else {
                     value = value + '';
                 }
-                $(this).val(value);
+                if($(this)[0].tagName.toUpperCase() == 'SELECT'){
+                    $(this).selectpicker('val', value);
+                }else{
+                    $(this).val(value);
+                }
             });
             $("#job-edit-modal").modal("show");
         });
