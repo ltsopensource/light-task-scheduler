@@ -27,6 +27,9 @@ LTS.colFormatter.needFeedbackLabel = function (v) {
 
 template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
+    if(!date){
+        return "";
+    }
     return DateUtil.format(date, format);
 });
 

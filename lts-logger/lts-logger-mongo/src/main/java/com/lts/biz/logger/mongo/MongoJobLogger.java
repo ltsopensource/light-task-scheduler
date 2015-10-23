@@ -6,6 +6,7 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.web.response.PageResponse;
 import com.lts.store.mongo.MongoRepository;
 import com.mongodb.DBCollection;
@@ -48,8 +49,12 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
     public PageResponse<JobLogPo> search(JobLoggerRequest request) {
 
         Query<JobLogPo> query = template.createQuery(JobLogPo.class);
-        query.field("taskId").equal(request.getTaskId())
-                .field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
+        if(StringUtils.isNotEmpty(request.getTaskId())){
+            query.field("taskId").equal(request.getTaskId());
+        }
+        if(StringUtils.isNotEmpty(request.getTaskTrackerNodeGroup())){
+            query.field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
+        }
         if (request.getStartLogTime() != null) {
             query.filter("logTime >= ", getTimestamp(request.getStartLogTime()));
         }
