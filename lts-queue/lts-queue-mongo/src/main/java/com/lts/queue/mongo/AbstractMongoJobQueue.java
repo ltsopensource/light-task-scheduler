@@ -1,7 +1,6 @@
 package com.lts.queue.mongo;
 
 import com.lts.core.cluster.Config;
-import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.web.request.JobQueueRequest;
 import com.lts.web.response.PageResponse;
@@ -9,12 +8,12 @@ import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
 import com.lts.store.mongo.MongoRepository;
-import com.mongodb.WriteResult;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
 
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/7/15.
@@ -71,7 +70,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         UpdateOperations<JobPo> operations = template.createUpdateOperations(JobPo.class);
         addUpdateField(operations, "cronExpression", request.getCronExpression());
         addUpdateField(operations, "needFeedback", request.getNeedFeedback());
-        addUpdateField(operations, "extParams", JSONUtils.toJSONString(request.getExtParams()));
+        addUpdateField(operations, "extParams", request.getExtParams());
         addUpdateField(operations, "triggerTime", request.getTriggerTime() == null ? null : request.getTriggerTime().getTime());
         addUpdateField(operations, "priority", request.getPriority());
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
@@ -109,7 +108,8 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
                 obj instanceof Boolean ||
                         obj instanceof Long ||
                         obj instanceof Float ||
-                        obj instanceof Date) {
+                        obj instanceof Date ||
+                        obj instanceof HashMap) {
             return true;
         } else {
             throw new IllegalArgumentException("Can not support type " + obj.getClass());
