@@ -9,4 +9,8 @@ public interface PreLoader {
 
     public JobPo take(String taskTrackerNodeGroup, String taskTrackerIdentity);
 
+    /**
+     * 如果taskTrackerNodeGroup为空，那么load所有的
+     */
+    public void load(String taskTrackerNodeGroup);
 }

@@ -1,10 +1,11 @@
 package com.lts.jobtracker;
 
 import com.lts.biz.logger.JobLoggerDelegate;
-import com.lts.biz.logger.JobLoggerFactory;
+import com.lts.command.CommandCenter;
 import com.lts.core.cluster.AbstractServerNode;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.jobtracker.channel.ChannelManager;
+import com.lts.jobtracker.command.LoadJobCommand;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.JobTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
@@ -44,6 +45,9 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setJobClientManager(new JobClientManager(application));
         // TaskTracker 管理者
         application.setTaskTrackerManager(new TaskTrackerManager(application));
+        // 命令中心
+        application.setCommandCenter(new CommandCenter(application.getConfig()));
+
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
         // 添加master节点变化监听器
@@ -62,20 +66,36 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
         application.setPreLoader(preLoaderFactory.getPreLoader(config, application));
+
+        registerCommand();
+    }
+
+    private void registerCommand() {
+        // 手动加载任务
+        application.getCommandCenter().registerCommand("loadJob", new LoadJobCommand(application));
+
     }
 
     @Override
     protected void afterRemotingStart() {
         super.afterRemotingStart();
+
         application.getChannelManager().start();
+
         application.getMonitor().start();
+
+        application.getCommandCenter().start();
     }
 
     @Override
     protected void afterRemotingStop() {
         super.afterRemotingStop();
+
         application.getChannelManager().stop();
+
         application.getMonitor().stop();
+
+        application.getCommandCenter().stop();
     }
 
     @Override
