@@ -9,6 +9,7 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.registry.RegistryStatMonitor;
+import com.lts.core.support.SystemClock;
 import com.lts.ec.EventCenterFactory;
 import com.lts.queue.*;
 import com.lts.web.cluster.AdminApplication;
@@ -55,6 +56,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
     @Override
     public void afterPropertiesSet() throws Exception {
         final Node node = new Node();
+        node.setCreateTime(SystemClock.now());
         node.setIp(NetUtils.getLocalHost());
         node.setHostName(NetUtils.getLocalHostName());
         node.setIdentity(Constants.ADMIN_ID_PREFIX + StringUtils.generateUUID());

@@ -13,6 +13,7 @@ public class CommandClient {
 
         StringBuilder sb = new StringBuilder();
         sb.append("http://").append(ip).append(":").append(port).append("/").append(command.getCommand());
+
         Map<String, String> params = command.getParams();
         if (params != null) {
             sb.append("?");

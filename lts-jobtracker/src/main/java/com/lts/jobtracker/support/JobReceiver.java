@@ -85,7 +85,7 @@ public class JobReceiver {
             jobPo.setJobId(idGenerator.generate(application.getConfig(), jobPo));
 
             // 添加任务
-            addJob(job, jobPo, request);
+            addJob(job, jobPo);
 
             success = true;
             code = BizLogCode.SUCCESS;
@@ -94,7 +94,7 @@ public class JobReceiver {
             // 已经存在
             if (job.isReplaceOnExist()) {
                 Assert.notNull(jobPo);
-                success = replaceOnExist(job, jobPo, request);
+                success = replaceOnExist(job, jobPo);
                 code = success ? BizLogCode.DUP_REPLACE : BizLogCode.DUP_FAILED;
             } else {
                 code = BizLogCode.DUP_IGNORE;
@@ -115,21 +115,20 @@ public class JobReceiver {
     /**
      * 添加任务
      */
-    private void addJob(Job job, JobPo jobPo, JobSubmitRequest request) throws DuplicateJobException {
+    private void addJob(Job job, JobPo jobPo) throws DuplicateJobException {
         if (job.isSchedule()) {
             addCronJob(jobPo);
-            LOGGER.info("Receive Cron Job success. nodeGroup={}, CronExpression={}, {}",
-                    request.getNodeGroup(), job.getCronExpression(), job);
+            LOGGER.info("Receive Cron Job success. {}", job);
         } else {
             application.getExecutableJobQueue().add(jobPo);
-            LOGGER.info("Receive Job success. nodeGroup={}, {}", request.getNodeGroup(), job);
+            LOGGER.info("Receive Job success. {}", job);
         }
     }
 
     /**
      * 更新任务
      **/
-    private boolean replaceOnExist(Job job, JobPo jobPo, JobSubmitRequest request) {
+    private boolean replaceOnExist(Job job, JobPo jobPo) {
 
         // 得到老的jobId
         JobPo oldJobPo = null;
@@ -150,10 +149,10 @@ public class JobReceiver {
 
         // 2. 重新添加任务
         try {
-            addJob(job, jobPo, request);
+            addJob(job, jobPo);
         } catch (DuplicateJobException e) {
             // 一般不会走到这里
-            LOGGER.error("Job already exist twice. nodeGroup={}, {}", request.getNodeGroup(), job);
+            LOGGER.error("Job already exist twice. {}", job);
             return false;
         }
         return true;

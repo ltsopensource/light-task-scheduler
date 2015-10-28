@@ -6,10 +6,8 @@ import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -22,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 主要用于 curl
+ *
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
 public class CommandCenter {
@@ -32,30 +31,48 @@ public class CommandCenter {
     private final Map<String, CommandProcessor> processorMap = new HashMap<String, CommandProcessor>();
 
     private Config config;
+    private int port;
 
     public CommandCenter(Config config) {
         this.config = config;
     }
 
-    public void start() {
+    public void start() throws CommandException {
         try {
             if (start.compareAndSet(false, true)) {
 
-                int commandPort = config.getParameter("lts.command.port", 8719);
+                port = config.getParameter("lts.command.port", 8719);
+
                 commandExecutor = new ThreadPoolExecutor(Constants.AVAILABLE_PROCESSOR,
                         Constants.AVAILABLE_PROCESSOR,
                         0L, TimeUnit.MILLISECONDS,
                         new LinkedBlockingQueue<Runnable>(100), new ThreadPoolExecutor.DiscardPolicy());
 
-                ServerSocket serverSocket = new ServerSocket(commandPort);
+                ServerSocket serverSocket = getServerSocket();
                 // 开启监听命令
                 startServerListener(serverSocket);
 
-                LOGGER.info("Start CommandCenter succeed at port {}", serverSocket.getLocalPort());
+                LOGGER.info("Start CommandCenter succeed at port {}", port);
             }
-        } catch (Throwable t) {
-            LOGGER.error("Start CommandCenter error ", t);
+        } catch (Exception t) {
+            LOGGER.error("Start CommandCenter error at port {} , use lts.command.port config change the port.", port, t);
+            throw new CommandException(t);
         }
+    }
+
+    private ServerSocket getServerSocket() throws IOException {
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (BindException e) {
+            if (e.getMessage().contains("Address already in use")) {
+                port = port + 1;
+                serverSocket = getServerSocket();
+            } else {
+                throw e;
+            }
+        }
+        return serverSocket;
     }
 
     private void startServerListener(final ServerSocket serverSocket) {
@@ -99,6 +116,10 @@ public class CommandCenter {
         }
     }
 
+    public int getPort() {
+        return port;
+    }
+
     public void registerCommand(String command, CommandProcessor processor) {
 
         if (StringUtils.isEmpty(command)) {
@@ -131,7 +152,7 @@ public class CommandCenter {
                 out = new PrintWriter(outputStream);
 
                 String line = in.readLine();
-                CommandRequest request = CommandRequestParser.parse(line);
+                CommandRequest request = CommandRequest.parse(line);
 
                 out.print("HTTP/1.1 200 OK\r\n\r\n");
                 out.flush();

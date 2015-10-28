@@ -64,7 +64,11 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 LOGGER.info("Start success!");
             }
         } catch (Throwable e) {
-            LOGGER.error("Start failed!", e);
+            if (e.getMessage().contains("Address already in use")) {
+                LOGGER.error("Start failed at listen port {}!", config.getListenPort(), e);
+            } else {
+                LOGGER.error("Start failed!", e);
+            }
         }
     }
 

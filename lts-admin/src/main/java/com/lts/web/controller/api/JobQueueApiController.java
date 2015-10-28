@@ -2,18 +2,27 @@ package com.lts.web.controller.api;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
+import com.lts.command.Command;
+import com.lts.command.CommandClient;
+import com.lts.command.Commands;
+import com.lts.core.cluster.Node;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.CronExpression;
-import com.lts.jobclient.domain.Response;
 import com.lts.queue.domain.JobPo;
+import com.lts.remoting.common.Pair;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.controller.AbstractController;
+import com.lts.web.repository.memory.NodeMemoryDatabase;
 import com.lts.web.request.JobQueueRequest;
+import com.lts.web.request.NodeRequest;
 import com.lts.web.response.PageResponse;
-import com.lts.web.support.LtsAdminJobClient;
 import com.lts.web.vo.RestfulResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,10 +39,11 @@ import java.util.Map;
 @RestController
 public class JobQueueApiController extends AbstractController {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(JobQueueApiController.class);
     @Autowired
     AdminApplication application;
     @Autowired
-    LtsAdminJobClient ltsAdminJobClient;
+    NodeMemoryDatabase nodeMemoryDatabase;
 
     @RequestMapping("/job-queue/cron-job-get")
     public RestfulResponse cronJobGet(JobQueueRequest request) {
@@ -256,18 +267,13 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
 
-        Response ltsResponse = addJob(request);
-        if (ltsResponse.isSuccess()) {
-            response.setSuccess(true);
-        } else {
-            response.setSuccess(false);
-            response.setMsg("提交失败: " + ltsResponse.getMsg());
-            response.setCode(ltsResponse.getCode());
-        }
+        Pair<Boolean, String> pair = addJob(request);
+        response.setSuccess(pair.getObject1());
+        response.setMsg(pair.getObject2());
         return response;
     }
 
-    private Response addJob(JobQueueRequest request) {
+    private Pair<Boolean, String> addJob(JobQueueRequest request) {
 
         Job job = new Job();
         job.setTaskId(request.getTaskId());
@@ -287,6 +293,44 @@ public class JobQueueApiController extends AbstractController {
         job.setTriggerTime(request.getTriggerTime());
         job.setPriority(request.getPriority());
 
-        return ltsAdminJobClient.submitJob(job);
+        Command command = new Command();
+        command.setCommand(Commands.ADD_JOB);
+        command.addParam("job", JSONUtils.toJSONString(job));
+
+
+        NodeRequest nodeRequest = new NodeRequest();
+        nodeRequest.setNodeType(NodeType.JOB_TRACKER);
+        List<Node> jobTrackerNodeList = nodeMemoryDatabase.search(nodeRequest);
+        if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
+            return new Pair<Boolean, String>(false, "Can not found JobTracker.");
+        }
+
+        boolean success = false;
+        for (Node node : jobTrackerNodeList) {
+            success = sendCommand(node.getIp(), node.getCommandPort(), command);
+            if (success) {
+                break;
+            }
+        }
+
+        if(!success){
+            return new Pair<Boolean, String>(false, "Can not found JobTracker.");
+        }
+
+        String result = command.getResult();
+        if ("true".equals(result)) {
+            return new Pair<Boolean, String>(true, "Add success");
+        }
+        return new Pair<Boolean, String>(false, result);
+    }
+
+    private boolean sendCommand(String host, int port, Command command) {
+        try {
+            CommandClient.sendCommand(host, port, command);
+        } catch (Exception e) {
+            LOGGER.warn("send command[{}] error host:{}, port:{}", command.getCommand(), host, port);
+            return false;
+        }
+        return true;
     }
 }
