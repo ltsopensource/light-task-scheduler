@@ -24,8 +24,7 @@ public class TaskTrackerMain {
         taskTracker.setNodeGroup("test_trade_TaskTracker_" + index); // 同一个TaskTracker集群这个名字相同
         taskTracker.setClusterName("test_cluster");
         taskTracker.setWorkThreads(10);
-        // 反馈任务给JobTracker失败，存储本地文件路径
-        // taskTracker.setFailStorePath(Constants.USER_HOME);
+        // taskTracker.setDataPath(Constants.USER_HOME);
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         taskTracker.addMasterChangeListener(new MasterChangeListenerImpl());
         // 业务日志级别

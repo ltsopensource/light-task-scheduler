@@ -17,7 +17,6 @@ import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +24,7 @@ import java.util.List;
  * 业务日志记录器实现
  * 1. 业务日志会发送给JobTracker
  * 2. 也会采取Fail And Store 的方式
+ *
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
 public class BizLoggerImpl implements BizLogger {
@@ -43,7 +43,7 @@ public class BizLoggerImpl implements BizLogger {
         this.application = application;
         this.remotingClient = remotingClient;
         this.jobTL = new ThreadLocal<Pair<String, String>>();
-        String storePath = application.getConfig().getFailStorePath() + "bizlog/";
+        String storePath = getStorePath();
         this.retryScheduler = new RetryScheduler<BizLog>(application, storePath) {
             @Override
             protected boolean isRemotingEnable() {
@@ -57,6 +57,13 @@ public class BizLoggerImpl implements BizLogger {
         };
         retryScheduler.setName(BizLogger.class.getSimpleName());
         this.retryScheduler.start();
+    }
+
+    private String getStorePath() {
+        return application.getConfig().getDataPath()
+                + "/.lts" + "/" +
+                application.getConfig().getNodeType() + "/" +
+                application.getConfig().getNodeGroup() + "/bizlog/";
     }
 
     public void setId(String jobId, String taskId) {

@@ -1,7 +1,6 @@
 package com.lts.core.cluster;
 
 import com.lts.core.Application;
-import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.HeartBeatMonitor;
@@ -49,12 +48,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
      */
     public void setNodeGroup(String nodeGroup) {
         config.setNodeGroup(nodeGroup);
-    }
-
-    public void setFailStorePath(String failStorePath) {
-        if (StringUtils.isNotEmpty(failStorePath)) {
-            config.setFailStorePath(failStorePath);
-        }
     }
 
     public boolean isServerEnable() {

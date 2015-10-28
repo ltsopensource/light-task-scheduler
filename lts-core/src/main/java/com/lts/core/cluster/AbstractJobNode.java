@@ -3,6 +3,7 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -239,6 +240,12 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
         if (masterChangeListener != null) {
             masterChangeListeners.add(masterChangeListener);
+        }
+    }
+
+    public void setDataPath(String path) {
+        if (StringUtils.isNotEmpty(path)) {
+            config.setDataPath(path);
         }
     }
 

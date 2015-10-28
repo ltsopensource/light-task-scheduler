@@ -23,7 +23,7 @@ public class TaskTrackerCfg {
 
     private Class jobRunnerClass;
 
-    private String failStorePath;
+    private String dataPath;
 
     private boolean useSpring = false;
 
@@ -85,12 +85,12 @@ public class TaskTrackerCfg {
         this.useSpring = useSpring;
     }
 
-    public String getFailStorePath() {
-        return failStorePath;
+    public String getDataPath() {
+        return dataPath;
     }
 
-    public void setFailStorePath(String failStorePath) {
-        this.failStorePath = failStorePath;
+    public void setDataPath(String dataPath) {
+        this.dataPath = dataPath;
     }
 
     public Class getJobRunnerClass() {

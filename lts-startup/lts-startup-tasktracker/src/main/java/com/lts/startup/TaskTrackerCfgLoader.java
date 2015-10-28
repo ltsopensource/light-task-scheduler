@@ -56,7 +56,7 @@ public class TaskTrackerCfgLoader {
             Assert.hasText(workThreads, "workThreads can not be null.");
             cfg.setWorkThreads(Integer.parseInt(workThreads));
 
-            cfg.setFailStorePath(conf.getProperty("failStorePath"));
+            cfg.setDataPath(conf.getProperty("dataPath"));
 
             String useSpring = conf.getProperty("useSpring");
             if (StringUtils.isNotEmpty(useSpring)) {

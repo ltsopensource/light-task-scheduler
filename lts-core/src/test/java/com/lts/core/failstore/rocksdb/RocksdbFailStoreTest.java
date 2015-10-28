@@ -30,7 +30,7 @@ public class RocksdbFailStoreTest {
         config.setIdentity(StringUtils.generateUUID());
         config.setNodeGroup("berkeleydb_test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        config.setFailStorePath(Constants.USER_HOME);
+        config.setDataPath(Constants.USER_HOME);
         failStore = new RocksdbFailStore(config.getFailStorePath(), config.getIdentity());
         failStore.open();
     }

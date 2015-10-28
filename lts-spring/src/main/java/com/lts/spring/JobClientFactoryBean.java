@@ -37,7 +37,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
     /**
      * 提交失败任务存储路径 , 默认用户木邻居
      */
-    private String failStorePath;
+    private String dataPath;
     /**
      * master节点变化监听器
      */
@@ -88,7 +88,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         }
 
         jobClient.setClusterName(clusterName);
-        jobClient.setFailStorePath(failStorePath);
+        jobClient.setDataPath(dataPath);
         jobClient.setNodeGroup(nodeGroup);
         jobClient.setRegistryAddress(registryAddress);
 
@@ -135,8 +135,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         this.registryAddress = registryAddress;
     }
 
-    public void setFailStorePath(String failStorePath) {
-        this.failStorePath = failStorePath;
+    public void setDataPath(String dataPath) {
+        this.dataPath = dataPath;
     }
 
     public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {

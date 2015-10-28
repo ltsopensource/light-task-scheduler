@@ -26,7 +26,7 @@ public class LeveldbFailStoreTest {
     public void setup() throws FailStoreException {
         Config config = new Config();
         config.setIdentity(StringUtils.generateUUID());
-        config.setFailStorePath("/Users/hugui/.lts/TASK_TRACKER/test_trade_TaskTracker/");
+        config.setDataPath("/Users/hugui/.lts/TASK_TRACKER/test_trade_TaskTracker/");
         failStore = new LeveldbFailStore(config.getFailStorePath(), config.getIdentity());
         failStore.open();
     }

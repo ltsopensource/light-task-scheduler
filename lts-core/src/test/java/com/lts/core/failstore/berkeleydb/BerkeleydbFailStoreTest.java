@@ -29,7 +29,7 @@ public class BerkeleydbFailStoreTest {
         Config config = new Config();
         config.setNodeGroup("berkeleydb_test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        config.setFailStorePath(Constants.USER_HOME);
+        config.setDataPath(Constants.USER_HOME);
         config.setIdentity(StringUtils.generateUUID());
         failStore = new BerkeleydbFailStore(config.getFailStorePath(), config.getIdentity());
         failStore.open();
