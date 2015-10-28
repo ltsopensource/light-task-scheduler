@@ -32,7 +32,7 @@ public class Config implements Serializable {
     // 监听端口
     private int listenPort;
     // 任务信息存储路径(譬如TaskTracker反馈任务信息给JobTracker, JobTracker down掉了, 那么存储下来等待JobTracker可用时再发送)
-    private String failStorePath;
+    private String dataPath;
     // 集群名字
     private String clusterName;
     // java编译器
@@ -106,12 +106,16 @@ public class Config implements Serializable {
         this.listenPort = listenPort;
     }
 
-    public void setFailStorePath(String failStorePath) {
-        this.failStorePath = failStorePath;
+    public String getFailStorePath() {
+        return dataPath + "/.lts" + "/" + nodeType + "/" + nodeGroup + "/failstore/";
     }
 
-    public String getFailStorePath() {
-        return failStorePath + "/.lts" + "/" + nodeType + "/" + nodeGroup + "/";
+    public String getDataPath() {
+        return dataPath;
+    }
+
+    public void setDataPath(String dataPath) {
+        this.dataPath = dataPath;
     }
 
     public boolean isAvailable() {

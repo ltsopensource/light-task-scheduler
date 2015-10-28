@@ -9,7 +9,7 @@ import com.lts.jobclient.domain.Response;
 import com.lts.jobclient.domain.ResponseCode;
 import com.lts.jobclient.support.JobSubmitProtectException;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,8 +21,8 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
     private RetryScheduler retryScheduler;
 
     @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
+    protected void beforeStart() {
+        super.beforeStart();
         retryScheduler = new RetryScheduler<Job>(application, 30) {
             @Override
             protected boolean isRemotingEnable() {
@@ -44,14 +44,14 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
     }
 
     @Override
-    protected void preRemotingStop() {
-        super.preRemotingStop();
+    protected void beforeStop() {
+        super.beforeStop();
         retryScheduler.stop();
     }
 
     @Override
     public Response submitJob(Job job) {
-        return submitJob(Arrays.asList(job));
+        return submitJob(Collections.singletonList(job));
     }
 
     @Override

@@ -52,12 +52,23 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     private JobFinishedHandler jobFinishedHandler;
 
     @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
+    protected void beforeStart() {
         application.setRemotingClient(remotingClient);
         int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
                 Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
+    }
+
+    @Override
+    protected void afterStart() {
+    }
+
+    @Override
+    protected void afterStop() {
+    }
+
+    @Override
+    protected void beforeStop() {
     }
 
     public Response submitJob(Job job) throws JobSubmitException {

@@ -3,6 +3,7 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -51,7 +52,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 // 初始化配置
                 initConfig();
 
-                preRemotingStart();
+                beforeRemotingStart();
 
                 remotingStart();
 
@@ -80,7 +81,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                     registry.unregister(node);
                 }
 
-                preRemotingStop();
+                beforeRemotingStop();
 
                 remotingStop();
 
@@ -167,19 +168,13 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     protected abstract void remotingStop();
 
-    protected void preRemotingStart() {
-        // 检查identity是否重复
+    protected abstract void beforeRemotingStart();
 
-    }
+    protected abstract void afterRemotingStart();
 
-    protected void afterRemotingStart() {
-    }
+    protected abstract void beforeRemotingStop() ;
 
-    protected void preRemotingStop() {
-    }
-
-    protected void afterRemotingStop() {
-    }
+    protected abstract void afterRemotingStop();
 
     @SuppressWarnings("unchecked")
     private App getApplication() {
@@ -245,6 +240,12 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     public void addMasterChangeListener(MasterChangeListener masterChangeListener) {
         if (masterChangeListener != null) {
             masterChangeListeners.add(masterChangeListener);
+        }
+    }
+
+    public void setDataPath(String path) {
+        if (StringUtils.isNotEmpty(path)) {
+            config.setDataPath(path);
         }
     }
 

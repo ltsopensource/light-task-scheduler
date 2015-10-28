@@ -297,7 +297,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |stop.working|可选|false|TaskTracker|addConfig("stop.working", "true")|主要用于当TaskTracker与JobTracker出现网络隔离的时候，超过一定时间隔离之后，TaskTracker自动停止当前正在运行的任务|
 |job.fail.store|可选|leveldb|JobClient,TaskTracker|addConfig("job.fail.store", "leveldb")|可选值:leveldb(默认), rocksdb, berkeleydb, FailStore实现|
 |lazy.job.logger|可选|false|JobTracker|addConfig("lazy.job.logger", "true")|可选值:ture,false, 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失)|
-|failStorePath|可选|user.home|JobClient,TaskTracker|setFailStorePath("xxxx")|FailStore文件存储路径|
+|dataPath|可选|user.home|JobClient,TaskTracker,JobTracker|setDataPath("xxxx")|FailStore文件存储路径及其它数据存储路径|
 |lts.monitor.interval|可选|1|JobClient,TaskTracker,JobTracker|addConfig("lts.monitor.interval", "2")|分钟，整数，建议1-5分钟|
 
 

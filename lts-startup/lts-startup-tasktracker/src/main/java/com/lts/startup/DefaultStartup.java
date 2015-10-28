@@ -18,7 +18,7 @@ public class DefaultStartup {
         taskTracker.setNodeGroup(cfg.getNodeGroup());
         taskTracker.setClusterName(cfg.getClusterName());
         taskTracker.setWorkThreads(cfg.getWorkThreads());
-        taskTracker.setFailStorePath(cfg.getFailStorePath());
+        taskTracker.setDataPath(cfg.getDataPath());
         // 业务日志级别
         if (cfg.getBizLoggerLevel() == null) {
             taskTracker.setBizLoggerLevel(Level.INFO);

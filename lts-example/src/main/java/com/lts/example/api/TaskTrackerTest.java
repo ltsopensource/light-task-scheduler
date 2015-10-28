@@ -21,7 +21,7 @@ public class TaskTrackerTest {
         taskTracker.setClusterName("test_cluster");
         taskTracker.setWorkThreads(10);
         // 反馈任务给JobTracker失败，存储本地文件路径
-        // taskTracker.setFailStorePath(Constants.USER_HOME);
+        // taskTracker.setDataPath(Constants.USER_HOME);
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         taskTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 //        taskTracker.addConfig(Constants.JOB_PULL_FREQUENCY, "1"); //设置TaskTracker Pull Job的频率，精度要求高的，可以设置为1
