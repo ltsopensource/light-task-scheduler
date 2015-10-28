@@ -27,6 +27,7 @@
                     <li><a href="cron-job-queue.htm">Cron任务</a></li>
                     <li><a href="executing-job-queue.htm">执行中的任务</a></li>
                     <li><a href="executable-job-queue.htm">等待执行的任务</a></li>
+                    <li><a href="load-job.htm">手动加载任务</a></li>
                 </ul>
             </li>
             <li>

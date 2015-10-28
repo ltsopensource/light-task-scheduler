@@ -93,6 +93,12 @@ public class UIController {
         return "executingJobQueue";
     }
 
+    @RequestMapping("load-job")
+    public String loadJobUI(Model model) {
+        setAttr(model);
+        return "loadJob";
+    }
+
     private void setAttr(Model model) {
         List<NodeGroupPo> jobClientNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);

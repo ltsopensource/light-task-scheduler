@@ -233,6 +233,43 @@ public class JobQueueApiController extends AbstractController {
         return response;
     }
 
+    /**
+     * 给JobTracker发消息 加载任务到内存
+     */
+    @RequestMapping("/job-queue/load-add")
+    public RestfulResponse loadJob(JobQueueRequest request){
+        RestfulResponse response = new RestfulResponse();
+
+        String nodeGroup = request.getTaskTrackerNodeGroup();
+
+        Command command = new Command();
+        command.setCommand(Commands.LOAD_JOB);
+        command.addParam("nodeGroup", nodeGroup);
+
+        NodeRequest nodeRequest = new NodeRequest();
+        nodeRequest.setNodeType(NodeType.JOB_TRACKER);
+        List<Node> jobTrackerNodeList = nodeMemoryDatabase.search(nodeRequest);
+        if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
+            response.setMsg("Can not found JobTracker.");
+            response.setSuccess(false);
+            return response;
+        }
+
+        boolean success = false;
+        for (Node node : jobTrackerNodeList) {
+            if(sendCommand(node.getIp(), node.getCommandPort(), command)){
+                success = true;
+            }
+        }
+        if(success){
+            response.setMsg("Load success");
+        }else{
+            response.setMsg("Load failed");
+        }
+        response.setSuccess(success);
+        return response;
+    }
+
     @RequestMapping("/job-queue/job-add")
     public RestfulResponse jobAdd(JobQueueRequest request) {
         RestfulResponse response = new RestfulResponse();
