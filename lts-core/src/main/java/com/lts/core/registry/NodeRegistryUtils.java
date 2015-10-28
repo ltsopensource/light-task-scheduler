@@ -58,8 +58,10 @@ public class NodeRegistryUtils {
                 node.setCreateTime(Long.valueOf(value));
             } else if ("isAvailable".equals(key)) {
                 node.setAvailable(Boolean.valueOf(value));
-            } else if("hostName".equals(key)){
+            } else if ("hostName".equals(key)) {
                 node.setHostName(value);
+            } else if ("commandPort".equals(key)) {
+                node.setCommandPort(Integer.valueOf(value));
             }
         }
         return node;
@@ -98,6 +100,10 @@ public class NodeRegistryUtils {
                 .append(node.isAvailable())
                 .append("&hostName=")
                 .append(node.getHostName());
+
+        if (node.getCommandPort() != null) {
+            path.append("&commandPort=").append(node.getCommandPort());
+        }
 
         return path.toString();
     }

@@ -5,6 +5,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.support.SystemClock;
 import com.lts.ec.EventInfo;
@@ -39,6 +40,7 @@ public abstract class AbstractPreLoader implements PreLoader {
     private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
+    private String FORCE_PREFIX = "force_"; // 强制加载的信号
 
     public AbstractPreLoader(final Application application) {
         if (start.compareAndSet(false, true)) {
@@ -51,8 +53,16 @@ public abstract class AbstractPreLoader implements PreLoader {
                 public void run() {
 
                     for (String loadTaskTrackerNodeGroup : LOAD_SIGNAL) {
+
+                        // 是否是强制加载
+                        boolean force = false;
+                        if (loadTaskTrackerNodeGroup.startsWith(FORCE_PREFIX)) {
+                            loadTaskTrackerNodeGroup = loadTaskTrackerNodeGroup.replaceFirst(FORCE_PREFIX, "");
+                            force = true;
+                        }
+
                         JobPriorityBlockingQueue queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
-                        if (queue.size() / loadSize < factor) {
+                        if (!force && queue.size() / loadSize < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, curSequence * (loadSize - queue.size()));
                             // 加入到内存中
@@ -125,6 +135,17 @@ public abstract class AbstractPreLoader implements PreLoader {
                 return jobPo;
             }
         }
+    }
+
+    @Override
+    public void load(String taskTrackerNodeGroup) {
+        if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
+            for (String key : JOB_MAP.keySet()) {
+                LOAD_SIGNAL.add(FORCE_PREFIX + key);
+            }
+            return;
+        }
+        LOAD_SIGNAL.add(FORCE_PREFIX + taskTrackerNodeGroup);
     }
 
     /**

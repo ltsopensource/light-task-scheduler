@@ -135,16 +135,6 @@
             }
         });
 
-        $(document).on("change", "select[name='submitNodeGroup']", function () {
-            var submitNodeGroup = $(this).val();
-            if (submitNodeGroup == 'LTS-Admin') {
-                $("select[name='needFeedback']").selectpicker("val", "false");
-                $("select[name='needFeedback']").attr("disabled", "disabled");
-            } else {
-                $("select[name='needFeedback']").attr("disabled", null);
-            }
-        });
-
         $(document).on("click", "#addBtn", function () {
             var params = {};
             $.each($('#form').parent().find(".form-control"), function () {

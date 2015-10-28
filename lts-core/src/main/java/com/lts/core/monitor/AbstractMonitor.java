@@ -28,8 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractMonitor implements Monitor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
+    protected final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
+    protected Application application;
     protected Config config;
     protected String monitorSite;
 
@@ -42,7 +43,8 @@ public abstract class AbstractMonitor implements Monitor {
     private final static int BATCH_REPORT_SIZE = 10;
 
     public AbstractMonitor(Application application) {
-        config = application.getConfig();
+        this.application = application;
+        this.config = application.getConfig();
     }
 
     private int interval = 1;    // 1分钟
@@ -54,6 +56,9 @@ public abstract class AbstractMonitor implements Monitor {
         if (StringUtils.isEmpty(monitorSite)) {
             return;
         }
+
+        interval = config.getParameter("lts.monitor.interval", 1);
+
         try {
             if (start.compareAndSet(false, true)) {
 
@@ -70,23 +75,25 @@ public abstract class AbstractMonitor implements Monitor {
 
                             int diff = minute - preMinute;
                             diff = diff < 0 ? diff + 60 : diff;
-                            if (diff >= interval) {
+                            if (diff != 0 && diff % interval == 0) {
+                                try {
+                                    // 变化超过了间隔时间，要立马收集
+                                    MonitorData monitorData = collectMonitorData();
+                                    long seconds = SystemClock.now() / 1000;
+                                    seconds = seconds - (seconds % 60);        // 所有都向下取整，保证是60的倍数
+                                    seconds = seconds - interval * 60;        // 算其实时间点的数据
+                                    monitorData.setTimestamp(seconds * 1000);
+                                    // JVM monitor
+                                    monitorData.setJvmMonitorData(JVMCollector.collect());
+                                    // report
+                                    report(monitorData);
 
-                                // 变化超过了间隔时间，要立马收集
-                                MonitorData monitorData = collectMonitorData();
-                                long seconds = SystemClock.now() / 1000;
-                                seconds = seconds - (seconds % 60);        // 所有都向下取整，保证是60的倍数
-                                seconds = seconds - interval * 60;        // 算其实时间点的数据
-                                monitorData.setTimestamp(seconds * 1000);
-                                // JVM monitor
-                                monitorData.setJvmMonitorData(JVMCollector.collect());
-                                // report
-                                report(monitorData);
+                                    // 检查是否发送成功
+                                    checkSendJVMInfo();
 
-                                // 检查是否发送成功
-                                checkSendJVMInfo();
-
-                                preMinute = minute;
+                                } finally {
+                                    preMinute = minute;
+                                }
                             }
 
                         } catch (Throwable t) {
@@ -139,7 +146,7 @@ public abstract class AbstractMonitor implements Monitor {
                 List<MonitorData> subList = BatchUtils.getBatchList(i, BATCH_REPORT_SIZE, toSendMonitorDataList);
                 if (CollectionUtils.isNotEmpty(subList)) {
                     try {
-                        if (send(getPostParam(subList), Constants.MONITOR_DATA_ADD_URL)) {
+                        if (send(getPostParam(JSONUtils.toJSONString(subList)), Constants.MONITOR_DATA_ADD_URL)) {
                             toIndex = toIndex + CollectionUtils.sizeOf(subList);
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Report monitor data success ");
@@ -199,12 +206,12 @@ public abstract class AbstractMonitor implements Monitor {
         return FileUtils.getSize(new File(path));
     }
 
-    private Map<String, String> getPostParam(Object data) {
+    private Map<String, String> getPostParam(String data) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("nodeType", getNodeType().name());
         params.put("nodeGroup", config.getNodeGroup());
         params.put("identity", config.getIdentity());
-        params.put("data", JSONUtils.toJSONString(data));
+        params.put("data", data);
         return params;
     }
 
@@ -217,7 +224,7 @@ public abstract class AbstractMonitor implements Monitor {
         }
         Map<String, Object> infoMap = JVMCollector.getJVMInfo();
         try {
-            if (send(getPostParam(infoMap), Constants.MONITOR_JVM_INFO_DATA_ADD_URL)) {
+            if (send(getPostParam(JSONUtils.toJSONString(infoMap)), Constants.MONITOR_JVM_INFO_DATA_ADD_URL)) {
                 jvmInfoSendSuccess = true;
             }
         } catch (Exception e) {
