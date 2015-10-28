@@ -58,8 +58,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     }
 
     @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
+    protected void beforeStart() {
         // injectRemotingServer
         application.setRemotingServer(remotingServer);
         application.setJobLogger(new JobLoggerDelegate(config));
@@ -87,23 +86,23 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     }
 
     @Override
-    protected void afterRemotingStart() {
-        super.afterRemotingStart();
-
+    protected void afterStart() {
         application.getChannelManager().start();
 
         application.getMonitor().start();
     }
 
     @Override
-    protected void afterRemotingStop() {
-        super.afterRemotingStop();
-
+    protected void afterStop() {
         application.getChannelManager().stop();
 
         application.getMonitor().stop();
 
         application.getCommandCenter().stop();
+    }
+
+    @Override
+    protected void beforeStop() {
     }
 
     @Override

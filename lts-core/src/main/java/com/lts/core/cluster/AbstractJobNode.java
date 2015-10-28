@@ -51,7 +51,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                 // 初始化配置
                 initConfig();
 
-                preRemotingStart();
+                beforeRemotingStart();
 
                 remotingStart();
 
@@ -80,7 +80,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
                     registry.unregister(node);
                 }
 
-                preRemotingStop();
+                beforeRemotingStop();
 
                 remotingStop();
 
@@ -167,19 +167,13 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     protected abstract void remotingStop();
 
-    protected void preRemotingStart() {
-        // 检查identity是否重复
+    protected abstract void beforeRemotingStart();
 
-    }
+    protected abstract void afterRemotingStart();
 
-    protected void afterRemotingStart() {
-    }
+    protected abstract void beforeRemotingStop() ;
 
-    protected void preRemotingStop() {
-    }
-
-    protected void afterRemotingStop() {
-    }
+    protected abstract void afterRemotingStop();
 
     @SuppressWarnings("unchecked")
     private App getApplication() {

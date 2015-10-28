@@ -21,13 +21,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     protected RemotingClientDelegate remotingClient;
     private HeartBeatMonitor heartBeatMonitor;
 
-    @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
-        this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
-        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
-    }
-
     protected void remotingStart() {
         remotingClient.start();
         heartBeatMonitor.start();
@@ -43,8 +36,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
 
     /**
      * 得到默认的处理器
-     *
-     * @return
      */
     protected abstract NettyRequestProcessor getDefaultProcessor();
 
@@ -55,8 +46,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
 
     /**
      * 设置节点组名
-     *
-     * @param nodeGroup
      */
     public void setNodeGroup(String nodeGroup) {
         config.setNodeGroup(nodeGroup);
@@ -74,8 +63,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
 
     /**
      * 这个子类可以覆盖
-     *
-     * @return
      */
     protected NettyClientConfig getNettyClientConfig() {
         NettyClientConfig config = new NettyClientConfig();
@@ -90,5 +77,36 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     public void setLoadBalance(String loadBalance) {
         config.setParameter("loadbalance", loadBalance);
     }
+
+
+    @Override
+    protected void beforeRemotingStart() {
+        //
+        this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
+        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
+
+        beforeStart();
+    }
+
+    @Override
+    protected void afterRemotingStart() {
+        // 父类要做的
+        afterStart();
+    }
+
+    @Override
+    protected void beforeRemotingStop() {
+        beforeStop();
+    }
+
+    @Override
+    protected void afterRemotingStop() {
+        afterStop();
+    }
+
+    protected abstract void beforeStart();
+    protected abstract void afterStart();
+    protected abstract void afterStop();
+    protected abstract void beforeStop();
 
 }

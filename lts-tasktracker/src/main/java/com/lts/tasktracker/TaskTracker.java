@@ -25,8 +25,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     }
 
     @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
+    protected void beforeStart() {
         application.setRemotingClient(remotingClient);
         // 设置 线程池
         application.setRunnerPool(new RunnerPool(application));
@@ -35,8 +34,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     }
 
     @Override
-    protected void afterRemotingStart() {
-        super.afterRemotingStart();
+    protected void afterStart() {
         application.getMonitor().start();
         if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_SWITCH, false)) {
             application.getStopWorkingMonitor().start();
@@ -44,10 +42,13 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     }
 
     @Override
-    protected void afterRemotingStop() {
-        super.afterRemotingStop();
+    protected void afterStop() {
         application.getMonitor().stop();
         application.getStopWorkingMonitor().stop();
+    }
+
+    @Override
+    protected void beforeStop() {
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.lts.remoting.netty.NettyRemotingServer;
 import com.lts.remoting.netty.NettyRequestProcessor;
 import com.lts.remoting.netty.NettyServerConfig;
 
-import java.net.BindException;
 import java.util.concurrent.Executors;
 
 /**
@@ -18,21 +17,6 @@ import java.util.concurrent.Executors;
 public abstract class AbstractServerNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
 
     protected RemotingServerDelegate remotingServer;
-
-
-    @Override
-    protected void preRemotingStart() {
-        super.preRemotingStart();
-        NettyServerConfig nettyServerConfig = new NettyServerConfig();
-        // config 配置
-        if (config.getListenPort() == 0) {
-            config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
-            node.setPort(config.getListenPort());
-        }
-        nettyServerConfig.setListenPort(config.getListenPort());
-
-        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(nettyServerConfig), application);
-    }
 
     protected void remotingStart() {
 
@@ -54,11 +38,45 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
         remotingServer.shutdown();
     }
 
+    @Override
+    protected void beforeRemotingStart() {
+        NettyServerConfig nettyServerConfig = new NettyServerConfig();
+        // config 配置
+        if (config.getListenPort() == 0) {
+            config.setListenPort(Constants.JOB_TRACKER_DEFAULT_LISTEN_PORT);
+            node.setPort(config.getListenPort());
+        }
+        nettyServerConfig.setListenPort(config.getListenPort());
+
+        remotingServer = new RemotingServerDelegate(new NettyRemotingServer(nettyServerConfig), application);
+
+        beforeStart();
+    }
+
+    @Override
+    protected void afterRemotingStart() {
+        afterStart();
+    }
+
+    @Override
+    protected void beforeRemotingStop() {
+        beforeStop();
+    }
+
+    @Override
+    protected void afterRemotingStop() {
+        afterStop();
+    }
+
     /**
      * 得到默认的处理器
-     *
-     * @return
      */
     protected abstract NettyRequestProcessor getDefaultProcessor();
+
+    protected abstract void beforeStart();
+    protected abstract void afterStart();
+    protected abstract void afterStop();
+    protected abstract void beforeStop();
+
 
 }
