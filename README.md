@@ -373,6 +373,9 @@ public class TestJobRunnerTester extends JobRunnerTester {
 }
 ```
 
+##多网卡选择问题
+当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
+
 ##SPI扩展说明
 ###LTS-Logger扩展
 1. 引入`lts-logger-api-{version}.jar`
