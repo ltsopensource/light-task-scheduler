@@ -1,6 +1,5 @@
 package com.lts.core.logger.support;
 
-import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.support.Version;
 
@@ -21,7 +20,7 @@ public class FailsafeLogger extends AbstractLogger implements Logger {
     }
 
     private String appendContextMessage(String msg) {
-        return " [LTS] " + msg + ", lts version: " + Version.getVersion() + ", current host: " + NetUtils.getLocalHost();
+        return " [LTS] " + msg + ", lts version: " + Version.getVersion();
     }
 
     public void trace(String msg, Throwable e) {
