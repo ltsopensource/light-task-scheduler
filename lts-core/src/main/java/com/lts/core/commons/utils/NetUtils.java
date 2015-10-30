@@ -183,7 +183,7 @@ public class NetUtils {
         } catch (Exception e) {
             logger.warn("Failed to retriving ip address, " + e.getMessage(), e);
         }
-//        logger.error("Could not get local host ip address, will use 127.0.0.1 instead.");
+        logger.error("Could not get local host ip address, will use 127.0.0.1 instead.");
         return localAddress;
     }
 
