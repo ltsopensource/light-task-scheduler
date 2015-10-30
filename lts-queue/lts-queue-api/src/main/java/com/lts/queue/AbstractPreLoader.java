@@ -1,21 +1,12 @@
 package com.lts.queue;
 
 import com.lts.core.Application;
-import com.lts.core.cluster.Node;
-import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.EcTopic;
 import com.lts.core.support.SystemClock;
-import com.lts.ec.EventInfo;
-import com.lts.ec.EventSubscriber;
-import com.lts.ec.Observer;
 import com.lts.queue.domain.JobPo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -25,10 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractPreLoader implements PreLoader {
 
-    // 当前节点的序号
-    private int curSequence = 0;
-    private int totalNodes = 1;
-    // 每个节点的步长
     protected int loadSize;
     // 预取阀值
     private double factor;
@@ -64,7 +51,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                         JobPriorityBlockingQueue queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
                         if (!force && queue.size() / loadSize < factor) {
                             // load
-                            List<JobPo> loads = load(loadTaskTrackerNodeGroup, curSequence * (loadSize - queue.size()));
+                            List<JobPo> loads = load(loadTaskTrackerNodeGroup, loadSize - queue.size());
                             // 加入到内存中
                             if (CollectionUtils.isNotEmpty(loads)) {
                                 for (JobPo load : loads) {
@@ -79,43 +66,6 @@ public abstract class AbstractPreLoader implements PreLoader {
                     }
                 }
             }, 500, 500, TimeUnit.MILLISECONDS);
-        }
-
-        application.getEventCenter().subscribe(new EventSubscriber(application.getConfig().getIdentity() + "_preLoader", new Observer() {
-            @Override
-            public void onObserved(EventInfo eventInfo) {
-                setCurSequence(application);
-            }
-        }), EcTopic.NODE_ADD, EcTopic.NODE_REMOVE);
-
-        setCurSequence(application);
-    }
-
-    private void setCurSequence(Application application) {
-        List<Node> nodes = application.getSubscribedNodeManager().getNodeList(NodeType.JOB_TRACKER);
-        totalNodes = CollectionUtils.sizeOf(nodes);
-        if (totalNodes == 0) {
-            curSequence = 0;
-        } else if (totalNodes == 1) {
-            curSequence = 0;
-        } else {
-            List<Node> copy = new ArrayList<Node>(nodes);
-            Collections.sort(copy, new Comparator<Node>() {
-                @Override
-                public int compare(Node left, Node right) {
-                    return left.getCreateTime().compareTo(right.getCreateTime());
-                }
-            });
-
-            int index = 0;
-            for (Node node : copy) {
-                if (node.getIdentity().equals(application.getConfig().getIdentity())) {
-                    // 当前节点
-                    curSequence = index;
-                    break;
-                }
-                index++;
-            }
         }
     }
 
