@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class AbstractPreLoader implements PreLoader {
 
-    protected int loadSize;
+    private int loadSize;
     // 预取阀值
     private double factor;
 
@@ -110,7 +110,7 @@ public abstract class AbstractPreLoader implements PreLoader {
     /**
      * 加载任务
      */
-    protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int offset);
+    protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize);
 
     private JobPo get(String taskTrackerNodeGroup) {
         JobPriorityBlockingQueue queue = JOB_MAP.get(taskTrackerNodeGroup);

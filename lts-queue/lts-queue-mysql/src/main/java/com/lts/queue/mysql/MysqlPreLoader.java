@@ -57,12 +57,12 @@ public class MysqlPreLoader extends AbstractPreLoader {
             " LIMIT ?, ?";
 
     @Override
-    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int offset) {
+    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {
         try {
             Long now = SystemClock.now();
             return sqlTemplate.query(getRealSql(takeSelectSQL, loadTaskTrackerNodeGroup),
                     ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER,
-                    false, now, offset, loadSize);
+                    false, now, 0, loadSize);
         } catch (SQLException e) {
             return null;
         }

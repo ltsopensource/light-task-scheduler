@@ -45,13 +45,13 @@ public class MongoPreLoader extends AbstractPreLoader {
         return updateResult.getUpdatedCount() == 1;
     }
 
-    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int offset) {
+    protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {
         // load
         String tableName = JobQueueUtils.getExecutableQueueName(loadTaskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("isRunning").equal(false)
                 .filter("triggerTime < ", SystemClock.now())
-                .order(" triggerTime, priority , gmtCreated").offset(offset).limit(loadSize);
+                .order(" triggerTime, priority , gmtCreated").offset(0).limit(loadSize);
         return query.asList();
     }
 
