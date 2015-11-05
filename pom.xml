@@ -44,6 +44,7 @@
         <reflectasm.version>1.11.0</reflectasm.version>
         <h2.version>1.4.189</h2.version>
         <springframework.version>4.1.6.RELEASE</springframework.version>
+        <mina.version>2.0.9</mina.version>
     </properties>
 
     <dependencyManagement>
@@ -182,6 +183,12 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
