@@ -9,9 +9,10 @@ import com.lts.core.loadbalance.LoadBalance;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.ec.EventInfo;
-import com.lts.remoting.InvokeCallback;
-import com.lts.remoting.netty.NettyRemotingClient;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.RemotingClient;
+import com.lts.remoting.RemotingProcessor;
+import com.lts.remoting.exception.RemotingException;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.List;
@@ -20,13 +21,12 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/1/14.
- *         JobRemotingClient 包装了 NettyRemotingClient
  */
 public class RemotingClientDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingClientDelegate.class);
 
-    private NettyRemotingClient remotingClient;
+    private RemotingClient remotingClient;
     // 连JobTracker的负载均衡算法
     private LoadBalance loadBalance;
     private Application application;
@@ -35,7 +35,7 @@ public class RemotingClientDelegate {
     private volatile boolean serverEnable = false;
     private List<Node> jobTrackers;
 
-    public RemotingClientDelegate(NettyRemotingClient remotingClient, Application application) {
+    public RemotingClientDelegate(RemotingClient remotingClient, Application application) {
         this.remotingClient = remotingClient;
         this.application = application;
         this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
@@ -59,7 +59,11 @@ public class RemotingClientDelegate {
     }
 
     public void start() {
-        remotingClient.start();
+        try {
+            remotingClient.start();
+        } catch (RemotingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean contains(Node jobTracker) {
@@ -105,14 +109,14 @@ public class RemotingClientDelegate {
     /**
      * 异步调用
      */
-    public void invokeAsync(RemotingCommand request, InvokeCallback invokeCallback)
+    public void invokeAsync(RemotingCommand request, AsyncCallback asyncCallback)
             throws JobTrackerNotFoundException {
 
         Node jobTracker = getJobTrackerNode();
 
         try {
             remotingClient.invokeAsync(jobTracker.getAddress(), request,
-                    application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
+                    application.getConfig().getInvokeTimeoutMillis(), asyncCallback);
             this.serverEnable = true;
         } catch (Throwable e) {
             // 将这个JobTracker移除
@@ -123,7 +127,7 @@ public class RemotingClientDelegate {
                 LOGGER.error(e1.getMessage(), e1);
             }
             // 只要不是节点 不可用, 轮询所有节点请求
-            invokeAsync(request, invokeCallback);
+            invokeAsync(request, asyncCallback);
         }
     }
 
@@ -152,12 +156,12 @@ public class RemotingClientDelegate {
         }
     }
 
-    public void registerProcessor(int requestCode, NettyRequestProcessor processor,
+    public void registerProcessor(int requestCode, RemotingProcessor processor,
                                   ExecutorService executor) {
         remotingClient.registerProcessor(requestCode, processor, executor);
     }
 
-    public void registerDefaultProcessor(NettyRequestProcessor processor, ExecutorService executor) {
+    public void registerDefaultProcessor(RemotingProcessor processor, ExecutorService executor) {
         remotingClient.registerDefaultProcessor(processor, executor);
     }
 
@@ -173,7 +177,7 @@ public class RemotingClientDelegate {
         remotingClient.shutdown();
     }
 
-    public NettyRemotingClient getNettyClient() {
+    public RemotingClient getRemotingClient() {
         return remotingClient;
     }
 }

@@ -1,11 +1,11 @@
-package com.lts.remoting.netty;
+package com.lts.remoting;
 
 import com.lts.core.constant.Constants;
 
 /**
- * Netty客户端配置类
+ * 客户端配置类
  */
-public class NettyClientConfig {
+public class RemotingClientConfig {
     // 处理Server Response/Request
     private int clientWorkerThreads = 4;
     private int clientCallbackExecutorThreads = Constants.AVAILABLE_PROCESSOR * 2;

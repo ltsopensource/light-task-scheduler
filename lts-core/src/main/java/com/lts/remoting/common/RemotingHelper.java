@@ -1,6 +1,10 @@
 package com.lts.remoting.common;
 
-import io.netty.channel.Channel;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
+import com.lts.remoting.Channel;
+import com.lts.remoting.ChannelHandlerListener;
+import com.lts.remoting.Future;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -11,7 +15,9 @@ import java.net.SocketAddress;
  */
 public class RemotingHelper {
 
-    public static final String RemotingLogName = "LTS.Remoting";
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+
+    public static final String RemotingLogName = "LtsRemoting";
 
     public static String exceptionSimpleDesc(final Exception e) {
         StringBuilder sb = new StringBuilder();
@@ -37,7 +43,6 @@ public class RemotingHelper {
         return new InetSocketAddress(s[0], Integer.valueOf(s[1]));
     }
 
-
     public static String parseChannelRemoteAddr(final Channel channel) {
         if (null == channel) {
             return "";
@@ -55,6 +60,17 @@ public class RemotingHelper {
         }
 
         return "";
+    }
+
+    public static void closeChannel(Channel channel) {
+        final String addrRemote = RemotingHelper.parseChannelRemoteAddr(channel);
+        channel.close().addListener(new ChannelHandlerListener() {
+            @Override
+            public void operationComplete(Future future) throws Exception {
+                LOGGER.info("closeChannel: close the connection to remote address[{}] result: {}", addrRemote,
+                        future.isSuccess());
+            }
+        });
     }
 
 }

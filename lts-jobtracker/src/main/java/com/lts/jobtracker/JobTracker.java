@@ -19,7 +19,7 @@ import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.listener.JobNodeChangeListener;
 import com.lts.jobtracker.support.listener.JobTrackerMasterChangeListener;
 import com.lts.queue.*;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.RemotingProcessor;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/23/14.
@@ -106,7 +106,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     }
 
     @Override
-    protected NettyRequestProcessor getDefaultProcessor() {
+    protected RemotingProcessor getDefaultProcessor() {
         return new RemotingDispatcher(application);
     }
 

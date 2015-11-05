@@ -1,38 +1,31 @@
-package com.lts.remoting.netty;
-
-import io.netty.channel.Channel;
-
+package com.lts.remoting;
 
 /**
- * Netty产生的各种事件
+ * 事件
  */
-public class NettyEvent {
-    private final NettyEventType type;
+public class RemotingEvent {
+
+    private final RemotingEventType type;
     private final String remoteAddr;
     private final Channel channel;
 
-
-    public NettyEvent(NettyEventType type, String remoteAddr, Channel channel) {
+    public RemotingEvent(RemotingEventType type, String remoteAddr, Channel channel) {
         this.type = type;
         this.remoteAddr = remoteAddr;
         this.channel = channel;
     }
 
-
-    public NettyEventType getType() {
+    public RemotingEventType getType() {
         return type;
     }
-
 
     public String getRemoteAddr() {
         return remoteAddr;
     }
 
-
     public Channel getChannel() {
         return channel;
     }
-
 
     @Override
     public String toString() {

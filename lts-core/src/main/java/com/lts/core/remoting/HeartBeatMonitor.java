@@ -164,7 +164,7 @@ public class HeartBeatMonitor {
                 }
             }
         } catch (Throwable t) {
-            LOGGER.error(t.getMessage(), t);
+            LOGGER.error("Ping JobTracker error", t);
         }
     }
 
@@ -197,9 +197,6 @@ public class HeartBeatMonitor {
 
     /**
      * 发送心跳
-     *
-     * @param remotingClient
-     * @param addr
      */
     private boolean beat(RemotingClientDelegate remotingClient, String addr) {
 
@@ -208,7 +205,7 @@ public class HeartBeatMonitor {
         RemotingCommand request = RemotingCommand.createRequestCommand(
                 JobProtos.RequestCode.HEART_BEAT.code(), commandBody);
         try {
-            RemotingCommand response = remotingClient.getNettyClient().invokeSync(addr, request, 5000);
+            RemotingCommand response = remotingClient.getRemotingClient().invokeSync(addr, request, 5000);
             if (response != null && JobProtos.ResponseCode.HEART_BEAT_SUCCESS ==
                     JobProtos.ResponseCode.valueOf(response.getCode())) {
                 if (LOGGER.isDebugEnabled()) {

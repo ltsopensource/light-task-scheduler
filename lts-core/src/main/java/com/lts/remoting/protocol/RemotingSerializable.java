@@ -4,11 +4,11 @@ import com.alibaba.fastjson.JSON;
 
 import java.nio.charset.Charset;
 
-
 /**
  * 复杂对象的序列化，利用json来实现
  */
 public abstract class RemotingSerializable {
+
     public static String toJson(final Object obj, boolean prettyFormat) {
         return JSON.toJSONString(obj, prettyFormat);
     }
@@ -19,10 +19,7 @@ public abstract class RemotingSerializable {
 
     public static byte[] encode(final Object obj) {
         final String json = toJson(obj, false);
-        if (json != null) {
-            return json.getBytes(Charset.forName("UTF-8"));
-        }
-        return null;
+        return json.getBytes(Charset.forName("UTF-8"));
     }
 
     public static <T> T decode(final byte[] data, Class<T> classOfT) {
@@ -38,11 +35,4 @@ public abstract class RemotingSerializable {
         return toJson(this, prettyFormat);
     }
 
-    public byte[] encode() {
-        final String json = this.toJson();
-        if (json != null) {
-            return json.getBytes();
-        }
-        return null;
-    }
 }

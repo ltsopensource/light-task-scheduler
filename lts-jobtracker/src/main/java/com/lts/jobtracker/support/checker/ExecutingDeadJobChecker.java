@@ -21,11 +21,11 @@ import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
-import com.lts.remoting.InvokeCallback;
-import com.lts.remoting.netty.ResponseFuture;
+import com.lts.remoting.Channel;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
-import io.netty.channel.Channel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -139,7 +139,7 @@ public class ExecutingDeadJobChecker {
             JobAskRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobAskRequest());
             requestBody.setJobIds(jobIds);
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
-            remotingServer.invokeAsync(channel, request, new InvokeCallback() {
+            remotingServer.invokeAsync(channel, request, new AsyncCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {
                     RemotingCommand response = responseFuture.getResponseCommand();
@@ -184,7 +184,7 @@ public class ExecutingDeadJobChecker {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
                 // ignore
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
             }
 
             // 2. remove from executing queue

@@ -30,6 +30,7 @@ public class TaskTrackerTest {
         // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
         taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
+        // taskTracker.addConfig("lts.remoting", "mina");
         taskTracker.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

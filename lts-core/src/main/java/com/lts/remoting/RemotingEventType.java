@@ -1,9 +1,9 @@
-package com.lts.remoting.netty;
+package com.lts.remoting;
 
 /**
- * Netty产生的事件类型
+ * 事件类型
  */
-public enum NettyEventType {
+public enum RemotingEventType {
     CONNECT,
     CLOSE,
     READER_IDLE,

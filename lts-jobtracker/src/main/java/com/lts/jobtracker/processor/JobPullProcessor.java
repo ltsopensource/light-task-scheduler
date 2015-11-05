@@ -6,15 +6,15 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.support.JobPusher;
+import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  *         处理 TaskTracker的 Job pull 请求
  */
-public class JobPullProcessor extends AbstractProcessor {
+public class JobPullProcessor extends AbstractRemotingProcessor {
 
     private JobPusher jobPusher;
 
@@ -27,7 +27,7 @@ public class JobPullProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(final ChannelHandlerContext ctx, final RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(final Channel ctx, final RemotingCommand request) throws RemotingCommandException {
 
         JobPullRequest requestBody = request.getBody();
 

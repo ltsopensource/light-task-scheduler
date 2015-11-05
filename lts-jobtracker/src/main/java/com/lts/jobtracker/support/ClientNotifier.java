@@ -15,8 +15,8 @@ import com.lts.core.protocol.command.JobFinishedRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.domain.JobClientNode;
 import com.lts.jobtracker.domain.JobTrackerApplication;
-import com.lts.remoting.InvokeCallback;
-import com.lts.remoting.netty.ResponseFuture;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.*;
@@ -110,7 +110,7 @@ public class ClientNotifier {
         final Holder<Boolean> result = new Holder<Boolean>();
         try {
             final CountDownLatch latch = new CountDownLatch(1);
-            getRemotingServer().invokeAsync(jobClientNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
+            getRemotingServer().invokeAsync(jobClientNode.getChannel().getChannel(), commandRequest, new AsyncCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {
                     try {

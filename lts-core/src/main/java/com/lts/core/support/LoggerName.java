@@ -5,10 +5,10 @@ package com.lts.core.support;
  */
 public interface LoggerName {
 
-    public static final String TaskTracker = "LTS.TaskTracker";
+    public static final String TaskTracker = "LtsTaskTracker";
 
-    public static final String JobClient = "LTS.JobClient";
+    public static final String JobClient = "LtsJobClient";
 
-    public static final String JobTracker = "LTS.JobTracker";
+    public static final String JobTracker = "LtsJobTracker";
 
 }

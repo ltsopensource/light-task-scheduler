@@ -3,7 +3,7 @@ package com.lts.tasktracker;
 import com.lts.core.cluster.AbstractClientNode;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.RemotingProcessor;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.domain.TaskTrackerNode;
 import com.lts.tasktracker.monitor.StopWorkingMonitor;
@@ -52,7 +52,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     }
 
     @Override
-    protected NettyRequestProcessor getDefaultProcessor() {
+    protected RemotingProcessor getDefaultProcessor() {
         return new RemotingDispatcher(application);
     }
 

@@ -19,35 +19,28 @@ public abstract class ServiceThread implements Runnable {
     // 线程是否已经停止
     protected volatile boolean stoped = false;
 
-
     public ServiceThread() {
         this.thread = new Thread(this, this.getServiceName());
     }
 
-
     public abstract String getServiceName();
-
 
     public void start() {
         this.thread.start();
     }
 
-
     public void shutdown() {
         this.shutdown(false);
     }
-
 
     public void stop() {
         this.stop(false);
     }
 
-
     public void makeStop() {
         this.stoped = true;
         logger.info("makestop thread " + this.getServiceName());
     }
-
 
     public void stop(final boolean interrupt) {
         this.stoped = true;
@@ -63,7 +56,6 @@ public abstract class ServiceThread implements Runnable {
             this.thread.interrupt();
         }
     }
-
 
     public void shutdown(final boolean interrupt) {
         this.stoped = true;
@@ -90,7 +82,6 @@ public abstract class ServiceThread implements Runnable {
         }
     }
 
-
     public void wakeup() {
         synchronized (this) {
             if (!this.hasNotified) {
@@ -99,7 +90,6 @@ public abstract class ServiceThread implements Runnable {
             }
         }
     }
-
 
     protected void waitForRunning(long interval) {
         synchronized (this) {
@@ -120,10 +110,8 @@ public abstract class ServiceThread implements Runnable {
         }
     }
 
-
     protected void onWaitEnd() {
     }
-
 
     public boolean isStoped() {
         return stoped;

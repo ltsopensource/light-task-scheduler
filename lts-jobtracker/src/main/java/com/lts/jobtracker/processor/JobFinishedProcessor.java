@@ -4,6 +4,7 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Action;
@@ -25,10 +26,10 @@ import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
+import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,7 +39,7 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 8/17/14.
  *         TaskTracker 完成任务 的处理器
  */
-public class JobFinishedProcessor extends AbstractProcessor {
+public class JobFinishedProcessor extends AbstractRemotingProcessor {
 
     private ClientNotifier clientNotifier;
     private JobTrackerMonitor monitor;
@@ -79,7 +80,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request)
+    public RemotingCommand processRequest(Channel channel, RemotingCommand request)
             throws RemotingCommandException {
 
         TtJobFinishedRequest requestBody = request.getBody();
@@ -277,7 +278,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            LOGGER.warn(e.getMessage(), e);
+            LOGGER.warn("Add Executing Job error, jobPo={}", JSONUtils.toJSONString(jobPo), e);
             application.getExecutableJobQueue().resume(jobPo);
             return null;
         }
@@ -382,7 +383,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
             try {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
-                LOGGER.error(e.getMessage(), e);
+                LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
             }
             // 从正在执行的队列中移除
             application.getExecutingJobQueue().remove(jobPo.getJobId());

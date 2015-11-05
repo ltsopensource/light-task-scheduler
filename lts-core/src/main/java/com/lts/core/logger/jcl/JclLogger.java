@@ -19,7 +19,7 @@ public class JclLogger extends AbstractLogger implements Logger, Serializable {
 		this.logger = logger;
 	}
 
-    public void trace(String msg) {
+	public void trace(String msg) {
         logger.trace(msg);
     }
 

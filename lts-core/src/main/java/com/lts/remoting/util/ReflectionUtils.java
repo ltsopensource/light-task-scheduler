@@ -11,10 +11,6 @@ public class ReflectionUtils {
 
     /**
      * 得到所有field , 包括 父类
-     *
-     * @param clazz
-     * @return
-     * @throws IllegalAccessException
      */
     public static Field[] findFields(Class clazz) throws IllegalAccessException {
         final List<Field> fieldList = new ArrayList<Field>();

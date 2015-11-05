@@ -2,11 +2,12 @@ package com.lts.core.remoting;
 
 import com.lts.core.Application;
 import com.lts.core.exception.RemotingSendException;
-import com.lts.remoting.InvokeCallback;
+import com.lts.remoting.Channel;
+import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.RemotingServer;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.RemotingProcessor;
+import com.lts.remoting.exception.RemotingException;
 import com.lts.remoting.protocol.RemotingCommand;
-import io.netty.channel.Channel;
 
 import java.util.concurrent.ExecutorService;
 
@@ -27,17 +28,17 @@ public class RemotingServerDelegate {
     public void start() {
         try {
             remotingServer.start();
-        } catch (InterruptedException e) {
+        } catch (RemotingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void registerProcessor(int requestCode, NettyRequestProcessor processor,
+    public void registerProcessor(int requestCode, RemotingProcessor processor,
                                   ExecutorService executor) {
         remotingServer.registerProcessor(requestCode, processor, executor);
     }
 
-    public void registerDefaultProcessor(NettyRequestProcessor processor, ExecutorService executor) {
+    public void registerDefaultProcessor(RemotingProcessor processor, ExecutorService executor) {
         remotingServer.registerDefaultProcessor(processor, executor);
     }
 
@@ -52,12 +53,12 @@ public class RemotingServerDelegate {
         }
     }
 
-    public void invokeAsync(Channel channel, RemotingCommand request, InvokeCallback invokeCallback)
+    public void invokeAsync(Channel channel, RemotingCommand request, AsyncCallback asyncCallback)
             throws RemotingSendException {
         try {
 
             remotingServer.invokeAsync(channel, request,
-                    application.getConfig().getInvokeTimeoutMillis(), invokeCallback);
+                    application.getConfig().getInvokeTimeoutMillis(), asyncCallback);
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
