@@ -5,9 +5,9 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobFinishedRequest;
 import com.lts.jobclient.support.JobFinishedHandler;
+import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
@@ -23,7 +23,7 @@ public class JobFinishedProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request)
+    public RemotingCommand processRequest(Channel Channel, RemotingCommand request)
             throws RemotingCommandException {
 
         JobFinishedRequest requestBody = request.getBody();

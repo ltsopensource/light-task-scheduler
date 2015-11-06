@@ -25,9 +25,9 @@ import com.lts.jobclient.support.JobFinishedHandler;
 import com.lts.jobclient.support.JobSubmitExecutor;
 import com.lts.jobclient.support.JobSubmitProtector;
 import com.lts.jobclient.support.SubmitCallback;
-import com.lts.remoting.InvokeCallback;
-import com.lts.remoting.netty.NettyRequestProcessor;
-import com.lts.remoting.netty.ResponseFuture;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.RemotingProcessor;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.Collections;
@@ -155,7 +155,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     private void asyncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback)
             throws JobTrackerNotFoundException {
         final CountDownLatch latch = new CountDownLatch(1);
-        remotingClient.invokeAsync(requestCommand, new InvokeCallback() {
+        remotingClient.invokeAsync(requestCommand, new AsyncCallback() {
             @Override
             public void operationComplete(ResponseFuture responseFuture) {
                 try {
@@ -199,7 +199,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     }
 
     @Override
-    protected NettyRequestProcessor getDefaultProcessor() {
+    protected RemotingProcessor getDefaultProcessor() {
         return new RemotingDispatcher(jobFinishedHandler);
     }
 

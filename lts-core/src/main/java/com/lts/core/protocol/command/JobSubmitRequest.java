@@ -9,7 +9,7 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  *         任务传递信息
  */
-public class JobSubmitRequest extends AbstractCommandBody {
+public class JobSubmitRequest extends AbstractRemotingCommandBody {
 
     @NotNull
     private List<Job> jobs;

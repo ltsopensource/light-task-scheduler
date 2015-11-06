@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.
  */
-public class JobFinishedRequest extends AbstractCommandBody {
+public class JobFinishedRequest extends AbstractRemotingCommandBody {
     /**
      * 是否接受新任务
      */

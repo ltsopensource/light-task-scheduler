@@ -1,10 +1,6 @@
 package com.lts.remoting;
 
-import com.lts.remoting.exception.RemotingConnectException;
-import com.lts.remoting.exception.RemotingSendRequestException;
-import com.lts.remoting.exception.RemotingTimeoutException;
-import com.lts.remoting.exception.RemotingTooMuchRequestException;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.exception.*;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.concurrent.ExecutorService;
@@ -15,7 +11,7 @@ import java.util.concurrent.ExecutorService;
  */
 public interface RemotingClient {
 
-    public void start();
+    public void start() throws RemotingException;
 
     /**
      * 同步调用
@@ -28,7 +24,7 @@ public interface RemotingClient {
      * 异步调用
      */
     public void invokeAsync(final String addr, final RemotingCommand request, final long timeoutMillis,
-                            final InvokeCallback invokeCallback) throws InterruptedException, RemotingConnectException,
+                            final AsyncCallback asyncCallback) throws InterruptedException, RemotingConnectException,
             RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
 
     /**
@@ -41,13 +37,13 @@ public interface RemotingClient {
     /**
      * 注册处理器
      */
-    public void registerProcessor(final int requestCode, final NettyRequestProcessor processor,
+    public void registerProcessor(final int requestCode, final RemotingProcessor processor,
                                   final ExecutorService executor);
 
     /**
      * 注册默认处理器
      */
-    public void registerDefaultProcessor(final NettyRequestProcessor processor, final ExecutorService executor);
+    public void registerDefaultProcessor(final RemotingProcessor processor, final ExecutorService executor);
 
     public void shutdown();
 }

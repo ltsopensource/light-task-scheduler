@@ -2,11 +2,13 @@ package com.lts.core.domain;
 
 import com.lts.core.commons.utils.JSONUtils;
 
+import java.io.Serializable;
+
 /**
  * @author Robert HG (254963746@qq.com) on 6/13/15.
  * 发送给客户端的 任务执行结果
  */
-public class JobResult {
+public class JobResult implements Serializable{
 
     private Job job;
 

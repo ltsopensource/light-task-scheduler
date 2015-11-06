@@ -1,6 +1,10 @@
 package com.lts.remoting.common;
 
-import io.netty.channel.Channel;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
+import com.lts.remoting.Channel;
+import com.lts.remoting.ChannelHandlerListener;
+import com.lts.remoting.Future;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -11,23 +15,9 @@ import java.net.SocketAddress;
  */
 public class RemotingHelper {
 
-    public static final String RemotingLogName = "LTS.Remoting";
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
 
-    public static String exceptionSimpleDesc(final Exception e) {
-        StringBuilder sb = new StringBuilder();
-        if (e != null) {
-            sb.append(e.toString());
-
-            StackTraceElement[] stackTrace = e.getStackTrace();
-            if (stackTrace != null && stackTrace.length > 0) {
-                StackTraceElement elment = stackTrace[0];
-                sb.append(", ");
-                sb.append(elment.toString());
-            }
-        }
-
-        return sb.toString();
-    }
+    public static final String RemotingLogName = "LtsRemoting";
 
     /**
      * IP:PORT
@@ -36,7 +26,6 @@ public class RemotingHelper {
         String[] s = addr.split(":");
         return new InetSocketAddress(s[0], Integer.valueOf(s[1]));
     }
-
 
     public static String parseChannelRemoteAddr(final Channel channel) {
         if (null == channel) {
@@ -55,6 +44,17 @@ public class RemotingHelper {
         }
 
         return "";
+    }
+
+    public static void closeChannel(Channel channel) {
+        final String addrRemote = RemotingHelper.parseChannelRemoteAddr(channel);
+        channel.close().addListener(new ChannelHandlerListener() {
+            @Override
+            public void operationComplete(Future future) throws Exception {
+                LOGGER.info("closeChannel: close the connection to remote address[{}] result: {}", addrRemote,
+                        future.isSuccess());
+            }
+        });
     }
 
 }

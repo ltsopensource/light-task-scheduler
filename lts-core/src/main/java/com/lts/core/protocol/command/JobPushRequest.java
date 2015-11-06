@@ -6,7 +6,7 @@ import com.lts.remoting.annotation.NotNull;
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
  */
-public class JobPushRequest extends AbstractCommandBody{
+public class JobPushRequest extends AbstractRemotingCommandBody {
 
     @NotNull
     private JobWrapper jobWrapper;

@@ -1,7 +1,6 @@
 package com.lts.core.commons.utils;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
-import com.lts.remoting.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -74,7 +73,7 @@ public class BeanUtils {
     }
 
     public static String capitalize(String str) {
-        return new StringBuffer(str.length())
+        return new StringBuilder(str.length())
                 .append(Character.toTitleCase(str.charAt(0)))
                 .append(str.substring(1))
                 .toString();

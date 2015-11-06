@@ -7,15 +7,15 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
 import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
-import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  *         客户端提交任务的处理器
  */
-public class JobSubmitProcessor extends AbstractProcessor {
+public class JobSubmitProcessor extends AbstractRemotingProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
@@ -24,7 +24,7 @@ public class JobSubmitProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx, RemotingCommand request) throws RemotingCommandException {
+    public RemotingCommand processRequest(Channel channel, RemotingCommand request) throws RemotingCommandException {
 
         JobSubmitRequest jobSubmitRequest = request.getBody();
 

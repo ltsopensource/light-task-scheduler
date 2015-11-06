@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-public class BizLogSendRequest extends AbstractCommandBody{
+public class BizLogSendRequest extends AbstractRemotingCommandBody {
 
     private List<BizLog> bizLogs;
 

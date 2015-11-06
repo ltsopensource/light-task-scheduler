@@ -3,11 +3,11 @@ package com.lts.tasktracker.processor;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.protocol.command.JobAskRequest;
 import com.lts.core.protocol.command.JobAskResponse;
+import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class JobAskProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx,
+    public RemotingCommand processRequest(Channel channel,
                                           RemotingCommand request) throws RemotingCommandException {
 
         JobAskRequest requestBody = request.getBody();

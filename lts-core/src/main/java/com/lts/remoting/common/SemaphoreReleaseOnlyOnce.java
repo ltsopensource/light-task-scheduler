@@ -11,7 +11,6 @@ public class SemaphoreReleaseOnlyOnce {
     private final AtomicBoolean released = new AtomicBoolean(false);
     private final Semaphore semaphore;
 
-
     public SemaphoreReleaseOnlyOnce(Semaphore semaphore) {
         this.semaphore = semaphore;
     }

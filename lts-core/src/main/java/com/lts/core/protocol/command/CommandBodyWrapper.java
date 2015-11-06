@@ -15,14 +15,14 @@ public class CommandBodyWrapper {
         this.config = config;
     }
 
-    public <T extends AbstractCommandBody> T wrapper(T commandBody) {
+    public <T extends AbstractRemotingCommandBody> T wrapper(T commandBody) {
         commandBody.setNodeGroup(config.getNodeGroup());
         commandBody.setNodeType(config.getNodeType().name());
         commandBody.setIdentity(config.getIdentity());
         return commandBody;
     }
 
-    public static <T extends AbstractCommandBody> T wrapper(Application application, T commandBody) {
+    public static <T extends AbstractRemotingCommandBody> T wrapper(Application application, T commandBody) {
         return application.getCommandBodyWrapper().wrapper(commandBody);
     }
 

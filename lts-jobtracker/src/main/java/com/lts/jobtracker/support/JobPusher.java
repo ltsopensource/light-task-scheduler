@@ -3,6 +3,7 @@ package com.lts.jobtracker.support;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.Holder;
+import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
@@ -20,8 +21,8 @@ import com.lts.jobtracker.domain.TaskTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
-import com.lts.remoting.InvokeCallback;
-import com.lts.remoting.netty.ResponseFuture;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 
 import java.util.concurrent.CountDownLatch;
@@ -134,7 +135,7 @@ public class JobPusher {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            LOGGER.warn(e.getMessage(), e);
+            LOGGER.warn("Add Executing Job error, jobPo={}", JSONUtils.toJSONString(jobPo), e);
             application.getExecutableJobQueue().resume(jobPo);
             return PushResult.FAILED;
         }
@@ -150,7 +151,7 @@ public class JobPusher {
 
         final CountDownLatch latch = new CountDownLatch(1);
         try {
-            remotingServer.invokeAsync(taskTrackerNode.getChannel().getChannel(), commandRequest, new InvokeCallback() {
+            remotingServer.invokeAsync(taskTrackerNode.getChannel().getChannel(), commandRequest, new AsyncCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {
                     try {
@@ -192,7 +193,7 @@ public class JobPusher {
                 jobPo.setIsRunning(true);
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
                 needResume = false;
             }
             application.getExecutingJobQueue().remove(jobPo.getJobId());

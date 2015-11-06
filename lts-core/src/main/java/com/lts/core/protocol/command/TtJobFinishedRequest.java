@@ -10,7 +10,7 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 8/16/14.
  * TaskTracker Job finished request command body
  */
-public class TtJobFinishedRequest extends AbstractCommandBody {
+public class TtJobFinishedRequest extends AbstractRemotingCommandBody {
     /**
      * 是否接受新任务
      */

@@ -14,16 +14,16 @@ import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
-import com.lts.remoting.InvokeCallback;
+import com.lts.remoting.Channel;
+import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.exception.RemotingCommandException;
-import com.lts.remoting.netty.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.tasktracker.runner.RunnerCallback;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +63,7 @@ public class JobPushProcessor extends AbstractProcessor {
     }
 
     @Override
-    public RemotingCommand processRequest(ChannelHandlerContext ctx,
+    public RemotingCommand processRequest(Channel channel,
                                           final RemotingCommand request) throws RemotingCommandException {
 
         JobPushRequest requestBody = request.getBody();
@@ -108,7 +108,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
             try {
                 final CountDownLatch latch = new CountDownLatch(1);
-                remotingClient.invokeAsync(request, new InvokeCallback() {
+                remotingClient.invokeAsync(request, new AsyncCallback() {
                     @Override
                     public void operationComplete(ResponseFuture responseFuture) {
                         try {

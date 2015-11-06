@@ -1,7 +1,7 @@
 package com.lts.jobtracker.channel;
 
 import com.lts.core.cluster.NodeType;
-import io.netty.channel.Channel;
+import com.lts.remoting.Channel;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
@@ -59,9 +59,8 @@ public class ChannelWrapper {
     }
 
     public boolean isClosed() {
-        return !channel.isOpen();
+        return channel.isClosed();
     }
-
 
     @Override
     public boolean equals(Object o) {

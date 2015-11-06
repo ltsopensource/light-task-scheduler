@@ -2,11 +2,13 @@ package com.lts.core.domain;
 
 import com.lts.core.commons.utils.JSONUtils;
 
+import java.io.Serializable;
+
 /**
  * @author Robert HG (254963746@qq.com) on 8/19/14.
  * TaskTracker 任务执行结果
  */
-public class TaskTrackerJobResult {
+public class TaskTrackerJobResult implements Serializable{
 
     private JobWrapper jobWrapper;
 

@@ -5,15 +5,15 @@ import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.HeartBeatMonitor;
 import com.lts.core.remoting.RemotingClientDelegate;
-import com.lts.remoting.netty.NettyClientConfig;
-import com.lts.remoting.netty.NettyRemotingClient;
-import com.lts.remoting.netty.NettyRequestProcessor;
+import com.lts.remoting.RemotingClient;
+import com.lts.remoting.RemotingClientConfig;
+import com.lts.remoting.RemotingProcessor;
 
 import java.util.concurrent.Executors;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/18/14.
- *         抽象 netty 客户端
+ *         抽象客户端
  */
 public abstract class AbstractClientNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
 
@@ -24,7 +24,7 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
         remotingClient.start();
         heartBeatMonitor.start();
 
-        NettyRequestProcessor defaultProcessor = getDefaultProcessor();
+        RemotingProcessor defaultProcessor = getDefaultProcessor();
         if (defaultProcessor != null) {
             int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingClient.registerDefaultProcessor(defaultProcessor,
@@ -36,7 +36,7 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     /**
      * 得到默认的处理器
      */
-    protected abstract NettyRequestProcessor getDefaultProcessor();
+    protected abstract RemotingProcessor getDefaultProcessor();
 
     protected void remotingStop() {
         heartBeatMonitor.stop();
@@ -55,14 +55,6 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     }
 
     /**
-     * 这个子类可以覆盖
-     */
-    protected NettyClientConfig getNettyClientConfig() {
-        NettyClientConfig config = new NettyClientConfig();
-        return config;
-    }
-
-    /**
      * 设置连接JobTracker的负载均衡算法
      *
      * @param loadBalance 算法 random, consistenthash
@@ -75,11 +67,16 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     @Override
     protected void beforeRemotingStart() {
         //
-        this.remotingClient = new RemotingClientDelegate(new NettyRemotingClient(getNettyClientConfig()), application);
+        this.remotingClient = new RemotingClientDelegate(getRemotingClient(new RemotingClientConfig()), application);
         this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
 
         beforeStart();
     }
+
+    private RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
+        return remotingTransporter.getRemotingClient(config, remotingClientConfig);
+    }
+
 
     @Override
     protected void afterRemotingStart() {
@@ -98,8 +95,11 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     }
 
     protected abstract void beforeStart();
+
     protected abstract void afterStart();
+
     protected abstract void afterStop();
+
     protected abstract void beforeStop();
 
 }

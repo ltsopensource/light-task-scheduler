@@ -11,9 +11,9 @@ import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
-import com.lts.remoting.InvokeCallback;
+import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.common.Pair;
-import com.lts.remoting.netty.ResponseFuture;
+import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
 
@@ -118,7 +118,7 @@ public class BizLoggerImpl implements BizLogger {
         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.BIZ_LOG_SEND.code(), requestBody);
         try {
             // 有可能down机，日志丢失
-            remotingClient.invokeAsync(request, new InvokeCallback() {
+            remotingClient.invokeAsync(request, new AsyncCallback() {
                 @Override
                 public void operationComplete(ResponseFuture responseFuture) {
                     RemotingCommand response = responseFuture.getResponseCommand();

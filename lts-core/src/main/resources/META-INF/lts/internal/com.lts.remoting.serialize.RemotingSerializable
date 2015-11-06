@@ -1,0 +1,4 @@
+adaptive=com.lts.remoting.serialize.AdaptiveSerializable
+fastjson=com.lts.remoting.serialize.FastJsonSerializable
+hessian2=com.lts.remoting.serialize.Hessian2Serializable
+java=com.lts.remoting.serialize.JavaSerializable
