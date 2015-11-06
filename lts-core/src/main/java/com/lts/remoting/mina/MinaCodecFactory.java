@@ -13,7 +13,6 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.*;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/4/15.
@@ -63,7 +62,6 @@ public class MinaCodecFactory implements ProtocolCodecFactory {
                 Channel channel = new MinaChannel(session);
                 LOGGER.error("encode exception, addr={}, remotingCommand={}", RemotingHelper.parseChannelRemoteAddr(channel), remotingCommand.toString(), e);
                 RemotingHelper.closeChannel(channel);
-                throw e;
             }
         }
     };
@@ -72,19 +70,38 @@ public class MinaCodecFactory implements ProtocolCodecFactory {
 
         @Override
         protected boolean doDecode(IoSession session, IoBuffer in, ProtocolDecoderOutput out) throws Exception {
-            try {
-                // TODO 
-                in.order(ByteOrder.BIG_ENDIAN);
-                RemotingCommand remotingCommand = codec.decode(in.buf());
-                out.write(remotingCommand);
-            } catch (Exception e) {
-                Channel channel = new MinaChannel(session);
-                LOGGER.error("decode exception, {}", RemotingHelper.parseChannelRemoteAddr(channel), e);
-                RemotingHelper.closeChannel(channel);
-                throw e;
+
+            while (in.remaining() > 4) {
+                // 前4位是长度
+                byte[] lengthBytes = new byte[4];
+                in.mark();              //标记当前位置，以便reset
+                in.get(lengthBytes);      //读取前4字节
+                int length = ByteBuffer.wrap(lengthBytes).getInt();
+
+                // 数据不够，返回false，需要继续读取
+                if (length > in.remaining()) {
+                    in.reset();
+                    return false;
+                }
+
+                // 够了，开始解码
+                byte[] bytes = new byte[length];
+
+                in.get(bytes, 0, length);
+
+                ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+                try {
+                    RemotingCommand remotingCommand = codec.decode(byteBuffer);
+                    out.write(remotingCommand);
+                } catch (Exception e) {
+                    Channel channel = new MinaChannel(session);
+                    LOGGER.error("decode exception, {}", RemotingHelper.parseChannelRemoteAddr(channel), e);
+                    RemotingHelper.closeChannel(channel);
+                }
             }
-            return true;
+            return false;
         }
+
     };
 
 }

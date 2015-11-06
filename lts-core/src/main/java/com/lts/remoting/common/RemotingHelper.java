@@ -19,22 +19,6 @@ public class RemotingHelper {
 
     public static final String RemotingLogName = "LtsRemoting";
 
-    public static String exceptionSimpleDesc(final Exception e) {
-        StringBuilder sb = new StringBuilder();
-        if (e != null) {
-            sb.append(e.toString());
-
-            StackTraceElement[] stackTrace = e.getStackTrace();
-            if (stackTrace != null && stackTrace.length > 0) {
-                StackTraceElement elment = stackTrace[0];
-                sb.append(", ");
-                sb.append(elment.toString());
-            }
-        }
-
-        return sb.toString();
-    }
-
     /**
      * IP:PORT
      */

@@ -4,11 +4,9 @@ import com.lts.core.Application;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.RemotingServer;
 import com.lts.remoting.RemotingServerConfig;
-import com.lts.remoting.RemotingProcessor;
-import com.lts.remoting.mina.MinaRemotingServer;
-import com.lts.remoting.netty.NettyRemotingServer;
 
 import java.util.concurrent.Executors;
 
@@ -56,12 +54,7 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
     }
 
     private RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
-        String remotingType = config.getParameter("lts.remoting", "netty");
-        if ("mina".equals(remotingType)) {
-            return new MinaRemotingServer(remotingServerConfig);
-        } else {
-            return new NettyRemotingServer(remotingServerConfig);
-        }
+        return remotingTransporter.getRemotingServer(config, remotingServerConfig);
     }
 
     @Override

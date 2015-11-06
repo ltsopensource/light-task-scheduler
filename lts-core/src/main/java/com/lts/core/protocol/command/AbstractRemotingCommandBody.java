@@ -1,7 +1,7 @@
 package com.lts.core.protocol.command;
 
 import com.lts.core.support.SystemClock;
-import com.lts.remoting.CommandBody;
+import com.lts.remoting.RemotingCommandBody;
 import com.lts.remoting.annotation.NotNull;
 import com.lts.remoting.annotation.Nullable;
 import com.lts.remoting.exception.RemotingCommandFieldCheckException;
@@ -13,7 +13,7 @@ import java.util.Map;
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  * 抽象的header 传输信息
  */
-public class AbstractCommandBody implements CommandBody {
+public class AbstractRemotingCommandBody implements RemotingCommandBody {
 
     /**
      * 节点组 当前节点的 group(统一类型, 具有相同功能的节点group相同)

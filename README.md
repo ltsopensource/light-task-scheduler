@@ -299,6 +299,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |lazy.job.logger|可选|false|JobTracker|addConfig("lazy.job.logger", "true")|可选值:ture,false, 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失)|
 |dataPath|可选|user.home|JobClient,TaskTracker,JobTracker|setDataPath("xxxx")|FailStore文件存储路径及其它数据存储路径|
 |lts.monitor.interval|可选|1|JobClient,TaskTracker,JobTracker|addConfig("lts.monitor.interval", "2")|分钟，整数，建议1-5分钟|
+|lts.remoting|可选|netty|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting", "netty")|底层通讯框架，可选值netty和mina，可以混用，譬如JobTracker是netty， JobClient采用mina|
+|lts.remoting.serializable.default|可选|fastjson|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting.serializable.default", "fastjson")|底层通讯默认序列化方式，可选值 fastjson, hessian2 ，java，底层会自动识别你请求的序列化方式，然后返回数据也是采用与请求的序列化方式返回，假设JobTracker设置的是fastjson，而JobClient是hessian2，那么JobClient提交任务的时候，序列化方式是hessian2，当JobTracker收到请求的时候采用hessian2解码，然后也会将响应数据采用hessian2编码返回给JobClient|
 
 
 

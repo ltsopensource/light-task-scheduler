@@ -1,42 +1,51 @@
 package com.lts.remoting.codec;
 
-import com.lts.remoting.CommandBody;
+import com.lts.remoting.RemotingCommandBody;
 import com.lts.remoting.protocol.RemotingCommand;
-import com.lts.remoting.protocol.RemotingSerializable;
+import com.lts.remoting.serialize.RemotingSerializable;
 
 import java.nio.ByteBuffer;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/5/15.
- * <p/>
- * // Remoting通信协议
- * //
- * // 协议格式 <length> <header length> <header data> <body length> <body data> <body class>
- * //            1        2               3             4             5             6
- * // 协议分4部分，含义分别如下
- * //     1、大端4个字节整数，等于2、3、4、5、6长度总和
- * //     2、header 信息长度 大端4个字节整数，等于3的长度
- * //     3、header 信息内容
- * //     4、body 信息长度  大端4个字节整数，等于5的长度
- * //     5、body 信息内容
- * //     6、body 的class名称
- * </p>
+ *         <p/>
+ *         // Remoting通信协议
+ *         //
+ *         // 协议格式 <length> <serializable id> <header length> <header data> <body length> <body data> <body class>
+ *         //            1        2               3             4             5             6           7
+ *         // 协议分4部分，含义分别如下
+ *         //     1、大端4个字节整数，等于2、3、4、5、6, 7长度总和
+ *         //     1、大端4个字节整数，等 serializable id
+ *         //     3、header 信息长度 大端4个字节整数，等于3的长度
+ *         //     4、header 信息内容
+ *         //     5、body 信息长度  大端4个字节整数，等于5的长度
+ *         //     6、body 信息内容
+ *         //     7、body 的class名称
+ *         </p>
  */
-public class DefaultCodec implements Codec {
+public class DefaultCodec extends AbstractCodec {
 
     @Override
     public RemotingCommand decode(ByteBuffer byteBuffer) throws Exception {
 
         int length = byteBuffer.limit();
+        int serializableId = byteBuffer.getInt();
+
+        RemotingSerializable serializable =
+                getRemotingSerializable(serializableId);
+
         int headerLength = byteBuffer.getInt();
         byte[] headerData = new byte[headerLength];
         byteBuffer.get(headerData);
 
-        RemotingCommand cmd = RemotingSerializable.decode(headerData, RemotingCommand.class);
+        RemotingCommand cmd = serializable.deserialize(headerData, RemotingCommand.class);
 
-        if (length - 4 - headerLength > 0) {
+        int remaining = length - 4 - 4 - headerLength;
+
+        if (remaining > 0) {
+
             int bodyLength = byteBuffer.getInt();
-            int bodyClassLength = length - 4 - headerLength - 4 - bodyLength;
+            int bodyClassLength = remaining - 4 - bodyLength;
 
             if (bodyLength > 0) {
 
@@ -46,30 +55,36 @@ public class DefaultCodec implements Codec {
                 byte[] bodyClassData = new byte[bodyClassLength];
                 byteBuffer.get(bodyClassData);
 
-                cmd.setBody((CommandBody) RemotingSerializable.decode(bodyData, Class.forName(new String(bodyClassData))));
+                cmd.setBody((RemotingCommandBody) serializable.deserialize(bodyData, Class.forName(new String(bodyClassData))));
             }
         }
         return cmd;
     }
 
     @Override
-    public ByteBuffer encode(RemotingCommand remotingCommand) {
+    public ByteBuffer encode(RemotingCommand remotingCommand) throws Exception {
 
-        // 1> header length size
+        RemotingSerializable serializable =
+                getRemotingSerializable(remotingCommand.getSerializableTypeId());
+
+        // header length size
         int length = 4;
 
-        // 2> header data length
-        byte[] headerData = RemotingSerializable.encode(remotingCommand);
+        // serializable id (int)
+        length += 4;
+
+        //  header data length
+        byte[] headerData = serializable.serialize(remotingCommand);
         length += headerData.length;
 
         byte[] bodyData = null;
         byte[] bodyClass = null;
 
-        CommandBody body = remotingCommand.getBody();
+        RemotingCommandBody body = remotingCommand.getBody();
 
         if (body != null) {
             // body data
-            bodyData = RemotingSerializable.encode(body);
+            bodyData = serializable.serialize(body);
             length += bodyData.length;
 
             bodyClass = body.getClass().getName().getBytes();
@@ -82,6 +97,9 @@ public class DefaultCodec implements Codec {
 
         // length
         result.putInt(length);
+
+        // serializable Id
+        result.putInt(serializable.getId());
 
         // header length
         result.putInt(headerData.length);

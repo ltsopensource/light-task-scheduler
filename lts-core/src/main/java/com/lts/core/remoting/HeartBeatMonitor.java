@@ -130,7 +130,7 @@ public class HeartBeatMonitor {
                                         ping();
                                     }
                                 }
-                            }, 1, 1, TimeUnit.MILLISECONDS);
+                            }, 500, 500, TimeUnit.MILLISECONDS);
                 }
                 LOGGER.debug("Start fast ping success.");
             } catch (Throwable t) {

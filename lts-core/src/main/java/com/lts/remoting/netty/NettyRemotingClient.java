@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.remoting.*;
@@ -15,6 +16,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.SocketAddress;
@@ -47,18 +49,10 @@ public class NettyRemotingClient extends AbstractRemotingClient {
 
         NettyLogger.setNettyLoggerFactory();
 
-        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(//
-                remotingClientConfig.getClientWorkerThreads(), //
-                new ThreadFactory() {
-
-                    private AtomicInteger threadIndex = new AtomicInteger(0);
-
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "NettyClientWorkerThread_" + this.threadIndex.incrementAndGet());
-                    }
-                });
+        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(
+                remotingClientConfig.getClientWorkerThreads(),
+                new NamedThreadFactory("NettyClientWorkerThread_")
+        );
 
         final NettyCodecFactory nettyCodecFactory = new NettyCodecFactory(getCodec());
 

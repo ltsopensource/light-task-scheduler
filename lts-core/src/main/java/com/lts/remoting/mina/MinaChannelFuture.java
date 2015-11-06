@@ -17,7 +17,7 @@ public class MinaChannelFuture implements ChannelFuture {
 
     @Override
     public boolean isConnected() {
-        return connectFuture.isConnected();
+        return connectFuture.isConnected() && connectFuture.getSession().isConnected();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.lts.core.exception.JobSubmitException;
 import com.lts.core.support.CronExpression;
 import com.lts.remoting.annotation.NotNull;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
  */
-public class Job {
+public class Job implements Serializable{
 
     @NotNull
     private String taskId;

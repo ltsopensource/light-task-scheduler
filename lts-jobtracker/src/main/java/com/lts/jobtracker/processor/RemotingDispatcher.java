@@ -2,7 +2,7 @@ package com.lts.jobtracker.processor;
 
 import com.lts.core.cluster.NodeType;
 import com.lts.core.protocol.JobProtos;
-import com.lts.core.protocol.command.AbstractCommandBody;
+import com.lts.core.protocol.command.AbstractRemotingCommandBody;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.remoting.Channel;
@@ -55,7 +55,7 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
      * 2. 更新 TaskTracker 节点信息(可用线程数)
      */
     private void commonHandler(Channel channel, RemotingCommand request) {
-        AbstractCommandBody commandBody = request.getBody();
+        AbstractRemotingCommandBody commandBody = request.getBody();
         String nodeGroup = commandBody.getNodeGroup();
         String identity = commandBody.getIdentity();
         NodeType nodeType = NodeType.valueOf(commandBody.getNodeType());

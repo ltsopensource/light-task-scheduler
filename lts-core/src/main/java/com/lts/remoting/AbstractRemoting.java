@@ -1,5 +1,6 @@
 package com.lts.remoting;
 
+import com.lts.core.commons.utils.CommonUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -13,6 +14,7 @@ import com.lts.remoting.exception.RemotingSendRequestException;
 import com.lts.remoting.exception.RemotingTimeoutException;
 import com.lts.remoting.exception.RemotingTooMuchRequestException;
 import com.lts.remoting.protocol.RemotingCommand;
+import com.lts.remoting.protocol.RemotingCommandHelper;
 import com.lts.remoting.protocol.RemotingProtos;
 
 import java.util.HashMap;
@@ -42,14 +44,17 @@ public abstract class AbstractRemoting {
     protected final RemotingEventExecutor remotingEventExecutor = new RemotingEventExecutor();
     // 默认请求代码处理器
     protected Pair<RemotingProcessor, ExecutorService> defaultRequestProcessor;
+    protected final ChannelEventListener channelEventListener;
 
-
-    public AbstractRemoting(final int permitsOneway, final int permitsAsync) {
+    public AbstractRemoting(final int permitsOneway, final int permitsAsync, ChannelEventListener channelEventListener) {
         this.semaphoreOneway = new Semaphore(permitsOneway, true);
         this.semaphoreAsync = new Semaphore(permitsAsync, true);
+        this.channelEventListener = channelEventListener;
     }
 
-    public abstract ChannelEventListener getChannelEventListener();
+    public ChannelEventListener getChannelEventListener() {
+        return this.channelEventListener;
+    }
 
     public void putRemotingEvent(final RemotingEvent event) {
         this.remotingEventExecutor.putRemotingEvent(event);
@@ -67,10 +72,10 @@ public abstract class AbstractRemoting {
                     try {
                         final RemotingCommand response = pair.getObject1().processRequest(channel, cmd);
                         // Oneway形式忽略应答结果
-                        if (!cmd.isOnewayRPC()) {
+                        if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                             if (response != null) {
                                 response.setOpaque(cmd.getOpaque());
-                                response.markResponseType();
+                                RemotingCommandHelper.markResponseType(cmd);
                                 try {
                                     channel.writeAndFlush(response).addListener(new ChannelHandlerListener() {
                                         @Override
@@ -95,10 +100,10 @@ public abstract class AbstractRemoting {
                         LOGGER.error("process request exception", e);
                         LOGGER.error(cmd.toString());
 
-                        if (!cmd.isOnewayRPC()) {
+                        if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                             final RemotingCommand response =
                                     RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_ERROR.code(),//
-                                            RemotingHelper.exceptionSimpleDesc(e));
+                                            CommonUtils.exceptionSimpleDesc(e));
                             response.setOpaque(cmd.getOpaque());
                             channel.writeAndFlush(response);
                         }
@@ -114,7 +119,7 @@ public abstract class AbstractRemoting {
                         + ", too many requests and system thread pool busy, RejectedExecutionException " //
                         + pair.getObject2().toString() //
                         + " request code: " + cmd.getCode());
-                if (!cmd.isOnewayRPC()) {
+                if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                     final RemotingCommand response =
                             RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_BUSY.code(),
                                     "too many requests and system thread pool busy, please try another server");
@@ -185,10 +190,9 @@ public abstract class AbstractRemoting {
         responseTable.remove(cmd.getOpaque());
     }
 
-    public void processMessageReceived(Channel channel, RemotingCommand msg) throws Exception {
-        final RemotingCommand cmd = msg;
+    public void processMessageReceived(Channel channel, final RemotingCommand cmd) throws Exception {
         if (cmd != null) {
-            switch (cmd.getType()) {
+            switch (RemotingCommandHelper.getRemotingCommandType(cmd)) {
                 case REQUEST_COMMAND:
                     processRequestCommand(channel, cmd);
                     break;
@@ -318,7 +322,7 @@ public abstract class AbstractRemoting {
     public void invokeOnewayImpl(final Channel channel, final RemotingCommand request,
                                  final long timeoutMillis) throws InterruptedException, RemotingTooMuchRequestException,
             RemotingTimeoutException, RemotingSendRequestException {
-        request.markOnewayRPC();
+        RemotingCommandHelper.markOnewayRPC(request);
         boolean acquired = this.semaphoreOneway.tryAcquire(timeoutMillis, TimeUnit.MILLISECONDS);
         if (acquired) {
             final SemaphoreReleaseOnlyOnce once = new SemaphoreReleaseOnlyOnce(this.semaphoreOneway);
@@ -414,7 +418,7 @@ public abstract class AbstractRemoting {
         }
     }
 
-    protected Codec getCodec(){
+    protected Codec getCodec() {
         // TODO 改为SPI
         return new DefaultCodec();
     }

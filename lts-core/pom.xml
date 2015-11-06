@@ -110,5 +110,10 @@
             <artifactId>mina-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.caucho</groupId>
+            <artifactId>hessian</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

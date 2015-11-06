@@ -8,8 +8,6 @@ import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.remoting.RemotingClient;
 import com.lts.remoting.RemotingClientConfig;
 import com.lts.remoting.RemotingProcessor;
-import com.lts.remoting.mina.MinaRemotingClient;
-import com.lts.remoting.netty.NettyRemotingClient;
 
 import java.util.concurrent.Executors;
 
@@ -76,12 +74,7 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     }
 
     private RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
-        String remotingType = config.getParameter("lts.remoting", "netty");
-        if ("mina".equals(remotingType)) {
-            return new MinaRemotingClient(remotingClientConfig);
-        } else {
-            return new NettyRemotingClient(remotingClientConfig);
-        }
+        return remotingTransporter.getRemotingClient(config, remotingClientConfig);
     }
 
 

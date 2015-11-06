@@ -27,16 +27,14 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     protected final RemotingServerConfig remotingServerConfig;
     // 处理Callback应答器
     private final ExecutorService publicExecutor;
-    protected final ChannelEventListener channelEventListener;
     // 定时器
     private final Timer timer = new Timer("ServerHouseKeepingService", true);
 
     public AbstractRemotingServer(final RemotingServerConfig remotingServerConfig,
                                   final ChannelEventListener channelEventListener) {
         super(remotingServerConfig.getServerOnewaySemaphoreValue(),
-                remotingServerConfig.getServerAsyncSemaphoreValue());
+                remotingServerConfig.getServerAsyncSemaphoreValue(), channelEventListener);
         this.remotingServerConfig = remotingServerConfig;
-        this.channelEventListener = channelEventListener;
 
         int publicThreadNums = remotingServerConfig.getServerCallbackExecutorThreads();
         if (publicThreadNums <= 0) {
@@ -143,12 +141,6 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     }
 
     protected abstract void serverShutdown();
-
-    @Override
-    public ChannelEventListener getChannelEventListener() {
-        return channelEventListener;
-    }
-
 
     @Override
     protected ExecutorService getCallbackExecutor() {

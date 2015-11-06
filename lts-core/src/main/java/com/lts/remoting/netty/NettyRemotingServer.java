@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.remoting.*;
 import com.lts.remoting.common.RemotingHelper;
@@ -16,8 +17,6 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/3/15.
@@ -45,17 +44,10 @@ public class NettyRemotingServer extends AbstractRemotingServer {
 
         NettyLogger.setNettyLoggerFactory();
 
-        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(//
-                remotingServerConfig.getServerWorkerThreads(), //
-                new ThreadFactory() {
-
-                    private AtomicInteger threadIndex = new AtomicInteger(0);
-
-                    @Override
-                    public Thread newThread(Runnable r) {
-                        return new Thread(r, "NettyServerWorkerThread_" + this.threadIndex.incrementAndGet());
-                    }
-                });
+        this.defaultEventExecutorGroup = new DefaultEventExecutorGroup(
+                remotingServerConfig.getServerWorkerThreads(),
+                new NamedThreadFactory("NettyServerWorkerThread_")
+        );
 
         final NettyCodecFactory nettyCodecFactory = new NettyCodecFactory(getCodec());
 
@@ -70,7 +62,6 @@ public class NettyRemotingServer extends AbstractRemotingServer {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
-                                //
                                 defaultEventExecutorGroup, //
                                 nettyCodecFactory.getEncoder(), //
                                 nettyCodecFactory.getDecoder(), //
@@ -80,7 +71,6 @@ public class NettyRemotingServer extends AbstractRemotingServer {
                                 new NettyServerHandler());
                     }
                 });
-
 
         try {
             this.serverBootstrap.bind().sync();

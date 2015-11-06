@@ -9,7 +9,7 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  * 任务传递信息
  */
-public class JobSubmitResponse extends AbstractCommandBody {
+public class JobSubmitResponse extends AbstractRemotingCommandBody {
 
     private Boolean success = true;
 

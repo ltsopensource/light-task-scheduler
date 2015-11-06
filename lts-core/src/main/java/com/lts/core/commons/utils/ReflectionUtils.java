@@ -1,4 +1,4 @@
-package com.lts.remoting.util;
+package com.lts.core.commons.utils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

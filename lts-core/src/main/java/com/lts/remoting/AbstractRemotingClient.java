@@ -32,14 +32,12 @@ public abstract class AbstractRemotingClient extends AbstractRemoting implements
     private final Timer timer = new Timer("ClientHouseKeepingService", true);
     // 处理Callback应答器
     private final ExecutorService publicExecutor;
-    protected final ChannelEventListener channelEventListener;
 
     public AbstractRemotingClient(final RemotingClientConfig remotingClientConfig,
                                   final ChannelEventListener channelEventListener) {
         super(remotingClientConfig.getClientOnewaySemaphoreValue(), remotingClientConfig
-                .getClientAsyncSemaphoreValue());
+                .getClientAsyncSemaphoreValue(), channelEventListener);
         this.remotingClientConfig = remotingClientConfig;
-        this.channelEventListener = channelEventListener;
 
         int publicThreadNums = remotingClientConfig.getClientCallbackExecutorThreads();
         if (publicThreadNums <= 0) {
@@ -369,11 +367,6 @@ public abstract class AbstractRemotingClient extends AbstractRemoting implements
     @Override
     protected ExecutorService getCallbackExecutor() {
         return this.publicExecutor;
-    }
-
-    @Override
-    public ChannelEventListener getChannelEventListener() {
-        return channelEventListener;
     }
 
     private class ChannelWrapper {

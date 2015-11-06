@@ -1,43 +1,57 @@
 package com.lts.remoting.protocol;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.lts.remoting.CommandBody;
+import com.lts.core.commons.utils.JSONUtils;
+import com.lts.remoting.RemotingCommandBody;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com)
- *  Remoting模块中，服务器与客户端通过传递RemotingCommand来交互
+ *         Remoting模块中，服务器与客户端通过传递RemotingCommand来交互
  */
-public class RemotingCommand {
+public class RemotingCommand implements Serializable{
 
-    private static final int RPC_TYPE = 0; // 0, REQUEST_COMMAND
-    private static final int RPC_ONEWAY = 1; // 1, RPC
-    // 1, Oneway
-    private static AtomicInteger RequestId = new AtomicInteger(0);
+    private static final AtomicInteger requestId = new AtomicInteger(0);
     /**
      * Header 部分
      */
     private int code;
     private int subCode;
     private int version = 0;
-    private int opaque = RequestId.getAndIncrement();
+    private int opaque;
     private int flag = 0;
     private String remark;
+    private int serializableTypeId = -1;
     /**
      * body
      */
-    private transient CommandBody body;
+    private transient RemotingCommandBody body;
 
     private RemotingCommand() {
+
     }
 
-    public static RemotingCommand createRequestCommand(int code, CommandBody body) {
+    public static RemotingCommand createRequestCommand(int code, RemotingCommandBody body) {
         RemotingCommand cmd = new RemotingCommand();
         cmd.setCode(code);
-        cmd.body = body;
+        cmd.setBody(body);
+        cmd.setOpaque(requestId.getAndIncrement());
         return cmd;
+    }
+
+    public static RemotingCommand createResponseCommand(int code, String remark, RemotingCommandBody body) {
+        RemotingCommand cmd = new RemotingCommand();
+        RemotingCommandHelper.markResponseType(cmd);
+        cmd.setCode(code);
+        cmd.setRemark(remark);
+        cmd.setBody(body);
+        cmd.setOpaque(requestId.getAndIncrement());
+        return cmd;
+    }
+
+    public static RemotingCommand createResponseCommand(int code, RemotingCommandBody body) {
+        return createResponseCommand(code, null, body);
     }
 
     public static RemotingCommand createResponseCommand(int code) {
@@ -48,47 +62,12 @@ public class RemotingCommand {
         return createResponseCommand(code, remark, null);
     }
 
-    public static RemotingCommand createResponseCommand(int code, String remark, CommandBody body) {
-        RemotingCommand cmd = new RemotingCommand();
-        cmd.markResponseType();
-        cmd.setCode(code);
-        cmd.setRemark(remark);
-        cmd.body = body;
-        return cmd;
-    }
-
-    public static RemotingCommand createResponseCommand(int code, CommandBody body) {
-        return createResponseCommand(code, null, body);
-    }
-
-    public void setBody(CommandBody body) {
+    public void setBody(RemotingCommandBody body) {
         this.body = body;
     }
 
-    public <T extends CommandBody> T getBody() {
+    public <T extends RemotingCommandBody> T getBody() {
         return (T) body;
-    }
-
-    public void markResponseType() {
-        int bits = 1 << RPC_TYPE;
-        this.flag |= bits;
-    }
-
-    @JSONField(serialize = false)
-    public boolean isResponseType() {
-        int bits = 1 << RPC_TYPE;
-        return (this.flag & bits) == bits;
-    }
-
-    public void markOnewayRPC() {
-        int bits = 1 << RPC_ONEWAY;
-        this.flag |= bits;
-    }
-
-    @JSONField(serialize = false)
-    public boolean isOnewayRPC() {
-        int bits = 1 << RPC_ONEWAY;
-        return (this.flag & bits) == bits;
     }
 
     public int getCode() {
@@ -97,14 +76,6 @@ public class RemotingCommand {
 
     public void setCode(int code) {
         this.code = code;
-    }
-
-    @JSONField(serialize = false)
-    public RemotingCommandType getType() {
-        if (this.isResponseType()) {
-            return RemotingCommandType.RESPONSE_COMMAND;
-        }
-        return RemotingCommandType.REQUEST_COMMAND;
     }
 
     public int getVersion() {
@@ -147,6 +118,14 @@ public class RemotingCommand {
         this.remark = remark;
     }
 
+    public int getSerializableTypeId() {
+        return serializableTypeId;
+    }
+
+    public void setSerializableTypeId(int serializableTypeId) {
+        this.serializableTypeId = serializableTypeId;
+    }
+
     @Override
     public String toString() {
         return "RemotingCommand{" +
@@ -156,7 +135,9 @@ public class RemotingCommand {
                 ", opaque=" + opaque +
                 ", flag=" + flag +
                 ", remark='" + remark + '\'' +
-                ", body=" + JSON.toJSONString(body) +
+                ", serializableTypeId='" + serializableTypeId + '\'' +
+                ", body=" + JSONUtils.toJSONString(body) +
                 '}';
     }
+
 }

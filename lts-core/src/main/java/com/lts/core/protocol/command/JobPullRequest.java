@@ -4,7 +4,7 @@ package com.lts.core.protocol.command;
  * Job pull request
  * Robert HG (254963746@qq.com) on 3/25/15.
  */
-public class JobPullRequest extends AbstractCommandBody {
+public class JobPullRequest extends AbstractRemotingCommandBody {
 
     private Integer availableThreads;
 

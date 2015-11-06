@@ -4,6 +4,7 @@ import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -16,6 +17,8 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.*;
 import com.lts.ec.EventCenterFactory;
+import com.lts.remoting.RemotingTransporter;
+import com.lts.remoting.serialize.AdaptiveSerializable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +38,10 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     protected App application;
     private List<NodeChangeListener> nodeChangeListeners;
     private List<MasterChangeListener> masterChangeListeners;
-    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
+    private EventCenterFactory eventCenterFactory = ExtensionLoader
+            .getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
+    protected RemotingTransporter remotingTransporter = ExtensionLoader
+            .getExtensionLoader(RemotingTransporter.class).getAdaptiveExtension();
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public AbstractJobNode() {
@@ -115,7 +121,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         node = NodeFactory.create(getNodeClass(), config);
         config.setNodeType(node.getNodeType());
 
-        LOGGER.info("Current node config :{}", config);
+        LOGGER.info("Current Node config :{}", config);
 
         // 订阅的node管理
         SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
@@ -125,6 +131,12 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         nodeChangeListeners.add(new MasterElectionListener(application));
         // 监听自己节点变化（如，当前节点被禁用了）
         nodeChangeListeners.add(new SelfChangeListener(application));
+
+        // 设置默认序列化方式
+        String defaultSerializable = config.getParameter(Constants.DEFAULT_REMOTING_SERIALIZABLE);
+        if (StringUtils.isNotEmpty(defaultSerializable)) {
+            AdaptiveSerializable.setDefaultSerializable(defaultSerializable);
+        }
     }
 
     private void initRegistry() {
@@ -172,7 +184,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     protected abstract void afterRemotingStart();
 
-    protected abstract void beforeRemotingStop() ;
+    protected abstract void beforeRemotingStop();
 
     protected abstract void afterRemotingStop();
 

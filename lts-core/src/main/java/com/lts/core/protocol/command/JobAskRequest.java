@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com)
  */
-public class JobAskRequest extends AbstractCommandBody {
+public class JobAskRequest extends AbstractRemotingCommandBody {
 
     List<String> jobIds;
 

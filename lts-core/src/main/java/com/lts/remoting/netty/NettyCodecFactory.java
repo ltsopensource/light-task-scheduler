@@ -29,9 +29,8 @@ public class NettyCodecFactory {
 
     private ChannelHandler encoder = new NettyEncoder();
 
-    private ChannelHandler decoder = new NettyDecoder();
-
-    class NettyEncoder extends MessageToByteEncoder<RemotingCommand> {
+    @ChannelHandler.Sharable
+    public class NettyEncoder extends MessageToByteEncoder<RemotingCommand> {
         @Override
         public void encode(ChannelHandlerContext ctx, RemotingCommand remotingCommand, ByteBuf out)
                 throws Exception {
@@ -52,7 +51,7 @@ public class NettyCodecFactory {
         }
     }
 
-    class NettyDecoder extends LengthFieldBasedFrameDecoder {
+    public class NettyDecoder extends LengthFieldBasedFrameDecoder {
 
         private static final int FRAME_MAX_LENGTH = 1024 * 1024 * 8;
 
@@ -90,6 +89,6 @@ public class NettyCodecFactory {
     }
 
     public ChannelHandler getDecoder() {
-        return decoder;
+        return new NettyDecoder();
     }
 }
