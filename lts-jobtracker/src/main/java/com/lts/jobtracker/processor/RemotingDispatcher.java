@@ -30,6 +30,7 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
         processors.put(RequestCode.JOB_FINISHED, new JobFinishedProcessor(application));
         processors.put(RequestCode.JOB_PULL, new JobPullProcessor(application));
         processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(application));
+        processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(application));
     }
 
     @Override

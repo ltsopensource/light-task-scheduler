@@ -2,6 +2,7 @@ package com.lts.jobclient;
 
 import com.lts.core.Application;
 import com.lts.core.cluster.AbstractClientNode;
+import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.BatchUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.CommonUtils;
@@ -13,6 +14,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.CommandBodyWrapper;
+import com.lts.core.protocol.command.JobCancelRequest;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
 import com.lts.core.support.LoggerName;
@@ -49,8 +51,6 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     // 过载保护的提交者
     private JobSubmitProtector protector;
 
-    private JobFinishedHandler jobFinishedHandler;
-
     @Override
     protected void beforeStart() {
         application.setRemotingClient(remotingClient);
@@ -82,6 +82,47 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                 return submitJob(jobs, SubmitType.ASYNC);
             }
         });
+    }
+
+    /**
+     * 取消任务
+     */
+    public Response cancelJob(String taskId, String taskTrackerNodeGroup) {
+
+        final Response response = new Response();
+
+        Assert.hasText(taskId, "taskId can not be empty");
+        Assert.hasText(taskTrackerNodeGroup, "taskTrackerNodeGroup can not be empty");
+
+        JobCancelRequest request = CommandBodyWrapper.wrapper(application, new JobCancelRequest());
+        request.setTaskId(taskId);
+        request.setTaskTrackerNodeGroup(taskTrackerNodeGroup);
+
+        RemotingCommand requestCommand = RemotingCommand.createRequestCommand(
+                JobProtos.RequestCode.CANCEL_JOB.code(), request);
+
+        try {
+            RemotingCommand remotingResponse = remotingClient.invokeSync(requestCommand);
+
+            if (JobProtos.ResponseCode.JOB_CANCEL_SUCCESS.code() == remotingResponse.getCode()) {
+                LOGGER.info("Cancel job success taskId={}, taskTrackerNodeGroup={} ", taskId, taskTrackerNodeGroup);
+                response.setSuccess(true);
+                return response;
+            }
+
+            response.setSuccess(false);
+            response.setCode(JobProtos.ResponseCode.valueOf(remotingResponse.getCode()).name());
+            response.setMsg(remotingResponse.getRemark());
+            LOGGER.warn("Cancel job failed: taskId={}, taskTrackerNodeGroup={}, msg={}", taskId,
+                    taskTrackerNodeGroup, remotingResponse.getRemark());
+            return response;
+
+        } catch (JobTrackerNotFoundException e) {
+            response.setSuccess(false);
+            response.setCode(ResponseCode.JOB_TRACKER_NOT_FOUND);
+            response.setMsg("Can not found JobTracker node!");
+            return response;
+        }
     }
 
     private void checkFields(List<Job> jobs) {
@@ -152,6 +193,9 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         return response;
     }
 
+    /**
+     * 异步提交任务
+     */
     private void asyncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback)
             throws JobTrackerNotFoundException {
         final CountDownLatch latch = new CountDownLatch(1);
@@ -172,6 +216,9 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         }
     }
 
+    /**
+     * 同步提交任务
+     */
     private void syncSubmit(RemotingCommand requestCommand, final SubmitCallback submitCallback)
             throws JobTrackerNotFoundException {
         submitCallback.call(remotingClient.invokeSync(requestCommand));
@@ -200,14 +247,14 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     @Override
     protected RemotingProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(jobFinishedHandler);
+        return new RemotingDispatcher(application);
     }
 
     /**
      * 设置任务完成接收器
      */
     public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
-        this.jobFinishedHandler = jobFinishedHandler;
+        application.setJobFinishedHandler(jobFinishedHandler);
     }
 
     enum SubmitType {
