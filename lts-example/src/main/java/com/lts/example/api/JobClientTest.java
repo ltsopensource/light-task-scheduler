@@ -24,6 +24,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        submitWidthReplaceOnExist();
         console();
 //        testProtector();
+//        cancelJob();
     }
 
     public static void submitWidthReplaceOnExist() throws IOException {
@@ -47,6 +48,25 @@ public class JobClientTest extends BaseJobClientTest {
 //        job.setTriggerTime(DateUtils.addDay(new Date(), 1));
         Response response = jobClient.submitJob(job);
         System.out.println(response);
+    }
+
+    public static void cancelJob(){
+        JobClient jobClient = new RetryJobClient();
+        jobClient.setNodeGroup("test_jobClient");
+        jobClient.setClusterName("test_cluster");
+        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+//         jobClient.setRegistryAddress("redis://127.0.0.1:6379");
+        // 任务重试保存地址，默认用户目录下
+        // jobClient.setDataPath(Constants.USER_HOME);
+        // 任务完成反馈接口
+        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
+        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+        // 可选址  leveldb(默认), rocksdb, berkeleydb
+        // taskTracker.addConfig("job.fail.store", "leveldb");
+        jobClient.start();
+
+        jobClient.cancelJob("t_4", "test_trade_TaskTracker");
     }
 
 
