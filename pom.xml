@@ -46,7 +46,7 @@
         <h2.version>1.4.189</h2.version>
         <springframework.version>4.1.6.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
-        <hessian.version>4.0.37</hessian.version>
+        <hessian.version>4.0.38</hessian.version>
     </properties>
 
     <dependencyManagement>
