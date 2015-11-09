@@ -22,7 +22,7 @@ public class RemotingCommand implements Serializable{
     private int opaque;
     private int flag = 0;
     private String remark;
-    private int serializableTypeId = -1;
+    private int sid = -1;   // serializableTypeId
     /**
      * body
      */
@@ -118,12 +118,12 @@ public class RemotingCommand implements Serializable{
         this.remark = remark;
     }
 
-    public int getSerializableTypeId() {
-        return serializableTypeId;
+    public int getSid() {
+        return sid;
     }
 
-    public void setSerializableTypeId(int serializableTypeId) {
-        this.serializableTypeId = serializableTypeId;
+    public void setSid(int sid) {
+        this.sid = sid;
     }
 
     @Override
@@ -135,7 +135,7 @@ public class RemotingCommand implements Serializable{
                 ", opaque=" + opaque +
                 ", flag=" + flag +
                 ", remark='" + remark + '\'' +
-                ", serializableTypeId='" + serializableTypeId + '\'' +
+                ", sid='" + sid + '\'' +
                 ", body=" + JSONUtils.toJSONString(body) +
                 '}';
     }
