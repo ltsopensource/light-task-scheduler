@@ -50,7 +50,7 @@ public class JavassistCompiler extends AbstractCompiler {
                 }
             }
         }
-        String[] packages = importPackages.toArray(new String[0]);
+        String[] packages = importPackages.toArray(new String[importPackages.size()]);
         matcher = EXTENDS_PATTERN.matcher(source);
         CtClass cls;
         if (matcher.find()) {

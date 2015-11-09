@@ -65,7 +65,7 @@ public class DefaultCodec extends AbstractCodec {
     public ByteBuffer encode(RemotingCommand remotingCommand) throws Exception {
 
         RemotingSerializable serializable =
-                getRemotingSerializable(remotingCommand.getSerializableTypeId());
+                getRemotingSerializable(remotingCommand.getSid());
 
         // header length size
         int length = 4;
