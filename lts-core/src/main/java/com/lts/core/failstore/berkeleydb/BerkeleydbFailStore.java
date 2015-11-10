@@ -27,7 +27,11 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     private DatabaseConfig dbConfig;
 
     public BerkeleydbFailStore(File dbPath) {
-        super(dbPath);
+        super(dbPath, true);
+    }
+
+    public BerkeleydbFailStore(File dbPath, boolean needLock) {
+        super(dbPath, needLock);
     }
 
     public static final String name = "berkeleydb";
@@ -52,11 +56,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
         } catch (DatabaseException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public BerkeleydbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat(name).concat("/").concat(identity)));
-        getLock(dbPath.getPath());
     }
 
     @Override

@@ -27,11 +27,11 @@ public class BerkeleydbFailStoreTest {
     @Before
     public void setup() throws FailStoreException {
         Config config = new Config();
-        config.setNodeGroup("berkeleydb_test");
-        config.setNodeType(NodeType.JOB_CLIENT);
         config.setDataPath(Constants.USER_HOME);
-        config.setIdentity(StringUtils.generateUUID());
-        failStore = new BerkeleydbFailStore(config.getFailStorePath(), config.getIdentity());
+        config.setNodeGroup("test");
+        config.setNodeType(NodeType.JOB_CLIENT);
+        config.setIdentity("testIdentity");
+        failStore = new BerkeleydbFailStoreFactory().getFailStore(config, config.getFailStorePath());
         failStore.open();
     }
 

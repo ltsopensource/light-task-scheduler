@@ -1,4 +1,4 @@
-package com.lts.core.failstore.rocksdb;
+package com.lts.core.failstore.mapdb;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
@@ -16,13 +16,12 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Robert HG (254963746@qq.com) on 5/27/15.
+ * Created by hugui on 11/10/15.
  */
-public class RocksdbFailStoreTest {
-
-    FailStore failStore;
+public class MapdbFailStoreTest {
 
     private String key = "23412x";
+    FailStore failStore;
 
     @Before
     public void setup() throws FailStoreException {
@@ -31,7 +30,7 @@ public class RocksdbFailStoreTest {
         config.setDataPath(Constants.USER_HOME);
         config.setNodeGroup("test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        failStore = new RocksdbFailStoreFactory().getFailStore(config, config.getFailStorePath());
+        failStore = new MapdbFailStoreFactory().getFailStore(config, config.getFailStorePath());
         failStore.open();
     }
 

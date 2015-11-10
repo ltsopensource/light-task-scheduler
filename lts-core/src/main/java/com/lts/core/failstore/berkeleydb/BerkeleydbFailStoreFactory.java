@@ -1,19 +1,22 @@
 package com.lts.core.failstore.berkeleydb;
 
-import com.lts.core.cluster.Config;
-import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.failstore.AbstractFailStoreFactory;
 import com.lts.core.failstore.FailStore;
-import com.lts.core.failstore.FailStoreFactory;
+
+import java.io.File;
 
 /**
  * Robert HG (254963746@qq.com) on 5/26/15.
  */
-public class BerkeleydbFailStoreFactory implements FailStoreFactory {
+public class BerkeleydbFailStoreFactory extends AbstractFailStoreFactory{
+
     @Override
-    public FailStore getFailStore(Config config, String storePath) {
-        if (StringUtils.isEmpty(storePath)) {
-            storePath = config.getFailStorePath();
-        }
-        return new BerkeleydbFailStore(storePath, config.getIdentity());
+    protected String getName() {
+        return BerkeleydbFailStore.name;
+    }
+
+    @Override
+    protected FailStore newInstance(File dbPath) {
+        return new BerkeleydbFailStore(dbPath);
     }
 }

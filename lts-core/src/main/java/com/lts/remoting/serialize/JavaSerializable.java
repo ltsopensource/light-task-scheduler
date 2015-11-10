@@ -1,5 +1,8 @@
 package com.lts.remoting.serialize;
 
+import com.lts.core.commons.io.UnsafeByteArrayInputStream;
+import com.lts.core.commons.io.UnsafeByteArrayOutputStream;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -18,38 +21,29 @@ public class JavaSerializable implements RemotingSerializable {
     @Override
     public byte[] serialize(Object obj) throws Exception {
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        UnsafeByteArrayOutputStream bos = new UnsafeByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos);
 
         try {
-
             oos.writeObject(obj);
-
             oos.flush();
-
             return bos.toByteArray();
-
         } finally {
             oos.close();
-            bos.close();
         }
     }
 
     @Override
     public <T> T deserialize(byte[] data, Class<T> clazz) throws Exception {
 
-        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        UnsafeByteArrayInputStream bin = new UnsafeByteArrayInputStream(data);
         ObjectInputStream ois = new ObjectInputStream(bin);
 
         try {
-
             Object obj = ois.readObject();
-
             return (T) obj;
-
         } finally {
             ois.close();
-            bin.close();
         }
     }
 

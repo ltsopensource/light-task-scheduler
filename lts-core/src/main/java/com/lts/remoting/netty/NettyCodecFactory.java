@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.remoting.Channel;
@@ -27,8 +28,6 @@ public class NettyCodecFactory {
         this.codec = codec;
     }
 
-    private ChannelHandler encoder = new NettyEncoder();
-
     @ChannelHandler.Sharable
     public class NettyEncoder extends MessageToByteEncoder<RemotingCommand> {
         @Override
@@ -53,7 +52,7 @@ public class NettyCodecFactory {
 
     public class NettyDecoder extends LengthFieldBasedFrameDecoder {
 
-        private static final int FRAME_MAX_LENGTH = 1024 * 1024 * 8;
+        private static final int FRAME_MAX_LENGTH = Constants.DEFAULT_BUFFER_SIZE;
 
         public NettyDecoder() {
             super(FRAME_MAX_LENGTH, 0, 4, 0, 4);
@@ -85,7 +84,7 @@ public class NettyCodecFactory {
     }
 
     public ChannelHandler getEncoder() {
-        return encoder;
+        return new NettyEncoder();
     }
 
     public ChannelHandler getDecoder() {

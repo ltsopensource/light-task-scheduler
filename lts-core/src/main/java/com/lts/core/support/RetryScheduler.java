@@ -276,16 +276,11 @@ public abstract class RetryScheduler<T> {
 
     /**
      * 远程连接是否可用
-     *
-     * @return
      */
     protected abstract boolean isRemotingEnable();
 
     /**
      * 重试
-     *
-     * @param list
-     * @return
      */
     protected abstract boolean retry(List<T> list);
 

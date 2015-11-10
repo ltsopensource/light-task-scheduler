@@ -1,9 +1,11 @@
 package com.lts.core.failstore.leveldb;
 
 import com.lts.core.cluster.Config;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.JSONUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.FailStore;
@@ -25,9 +27,11 @@ public class LeveldbFailStoreTest {
     @Before
     public void setup() throws FailStoreException {
         Config config = new Config();
-        config.setIdentity(StringUtils.generateUUID());
-        config.setDataPath("/Users/hugui/.lts/TASK_TRACKER/test_trade_TaskTracker/");
-        failStore = new LeveldbFailStore(config.getFailStorePath(), config.getIdentity());
+        config.setIdentity("testIdentity");
+        config.setDataPath(Constants.USER_HOME);
+        config.setNodeGroup("test");
+        config.setNodeType(NodeType.JOB_CLIENT);
+        failStore = new LeveldbFailStoreFactory().getFailStore(config, config.getFailStorePath());
         failStore.open();
     }
 

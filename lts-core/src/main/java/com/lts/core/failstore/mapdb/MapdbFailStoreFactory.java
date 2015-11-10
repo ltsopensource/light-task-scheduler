@@ -1,4 +1,4 @@
-package com.lts.core.failstore.leveldb;
+package com.lts.core.failstore.mapdb;
 
 import com.lts.core.failstore.AbstractFailStoreFactory;
 import com.lts.core.failstore.FailStore;
@@ -6,17 +6,17 @@ import com.lts.core.failstore.FailStore;
 import java.io.File;
 
 /**
- * Robert HG (254963746@qq.com) on 5/21/15.
+ * @author Robert HG (254963746@qq.com) on 11/10/15.
  */
-public class LeveldbFailStoreFactory extends AbstractFailStoreFactory {
+public class MapdbFailStoreFactory extends AbstractFailStoreFactory{
 
     @Override
     protected String getName() {
-        return LeveldbFailStore.name;
+        return MapdbFailStore.name;
     }
 
     @Override
     protected FailStore newInstance(File dbPath) {
-        return new LeveldbFailStore(dbPath);
+        return new MapdbFailStore(dbPath);
     }
 }

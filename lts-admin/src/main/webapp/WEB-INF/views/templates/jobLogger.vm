@@ -94,6 +94,7 @@
             <th>日志记录时间</th>
             <th data-hide="all">日志创建时间</th>
             <th>执行节点组</th>
+            <th data-hide="all">执行节点标识</th>
             <th data-hide="phone,tablet">提交节点组</th>
             <th>日志类型</th>
             <th>执行结果</th>
@@ -114,6 +115,7 @@
             <td>{{row.logTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.taskTrackerIdentity}}</td>
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.logType | format:'logTypeLabel'}}</td>
             <td>{{row.success | format:'successLabel'}}</td>
@@ -131,7 +133,7 @@
         {{/each}}
         {{if results == 0}}
         <tr>
-            <td colspan="15">暂无数据</td>
+            <td colspan="16">暂无数据</td>
         </tr>
         {{/if}}
         </tbody>
