@@ -23,7 +23,11 @@ public class RocksdbFailStore extends AbstractFailStore {
     private Options options;
 
     public RocksdbFailStore(File dbPath) {
-        super(dbPath);
+        super(dbPath, true);
+    }
+
+    public RocksdbFailStore(File dbPath, boolean needLock) {
+        super(dbPath, needLock);
     }
 
     public static final String name = "rocksdb";
@@ -51,11 +55,6 @@ public class RocksdbFailStore extends AbstractFailStore {
                 .setBlockCacheCompressedNumShardBits(10);
 
         options.setTableFormatConfig(tableConfig);
-    }
-
-    public RocksdbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat(name).concat("/").concat(identity)));
-        getLock(dbPath.getPath());
     }
 
     @Override

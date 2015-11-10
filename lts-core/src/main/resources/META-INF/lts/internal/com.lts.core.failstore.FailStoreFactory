@@ -1,3 +1,4 @@
 leveldb=com.lts.core.failstore.leveldb.LeveldbFailStoreFactory
 berkeleydb=com.lts.core.failstore.berkeleydb.BerkeleydbFailStoreFactory
 rocksdb=com.lts.core.failstore.rocksdb.RocksdbFailStoreFactory
+mapdb=com.lts.core.failstore.mapdb.MapdbFailStoreFactory

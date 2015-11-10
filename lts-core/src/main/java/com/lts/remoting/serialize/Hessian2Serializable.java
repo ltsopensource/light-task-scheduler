@@ -2,9 +2,8 @@ package com.lts.remoting.serialize;
 
 import com.caucho.hessian.io.Hessian2Input;
 import com.caucho.hessian.io.Hessian2Output;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import com.lts.core.commons.io.UnsafeByteArrayInputStream;
+import com.lts.core.commons.io.UnsafeByteArrayOutputStream;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/6/15.
@@ -19,35 +18,24 @@ public class Hessian2Serializable implements RemotingSerializable {
     @Override
     public byte[] serialize(Object obj) throws Exception {
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
+        UnsafeByteArrayOutputStream bos = new UnsafeByteArrayOutputStream();
         Hessian2Output out = new Hessian2Output(bos);
-
         out.startMessage();
-
         out.writeObject(obj);
-
         out.completeMessage();
         out.close();
-        bos.close();
-
         return bos.toByteArray();
     }
 
     @Override
     public <T> T deserialize(byte[] data, Class<T> clazz) throws Exception {
 
-        ByteArrayInputStream bin = new ByteArrayInputStream(data);
+        UnsafeByteArrayInputStream bin = new UnsafeByteArrayInputStream(data);
         Hessian2Input in = new Hessian2Input(bin);
-
         in.startMessage();
-
-        Object obj = in.readObject();
-
+        Object obj = in.readObject(clazz);
         in.completeMessage();
         in.close();
-        bin.close();
-
         return (T) obj;
     }
 

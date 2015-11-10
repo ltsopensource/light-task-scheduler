@@ -1,20 +1,22 @@
 package com.lts.core.failstore.rocksdb;
 
-import com.lts.core.cluster.Config;
-import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.failstore.AbstractFailStoreFactory;
 import com.lts.core.failstore.FailStore;
-import com.lts.core.failstore.FailStoreFactory;
+
+import java.io.File;
 
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.
  */
-public class RocksdbFailStoreFactory implements FailStoreFactory {
+public class RocksdbFailStoreFactory extends AbstractFailStoreFactory{
 
     @Override
-    public FailStore getFailStore(Config config, String storePath) {
-        if (StringUtils.isEmpty(storePath)) {
-            storePath = config.getFailStorePath();
-        }
-        return new RocksdbFailStore(storePath, config.getIdentity());
+    protected String getName() {
+        return RocksdbFailStore.name;
+    }
+
+    @Override
+    protected FailStore newInstance(File dbPath) {
+        return new RocksdbFailStore(dbPath);
     }
 }

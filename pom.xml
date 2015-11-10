@@ -47,6 +47,7 @@
         <springframework.version>4.1.6.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
         <hessian.version>4.0.38</hessian.version>
+        <mapdb.version>2.0-beta10</mapdb.version>
     </properties>
 
     <dependencyManagement>
@@ -195,6 +196,11 @@
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
                 <version>${hessian.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>${mapdb.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

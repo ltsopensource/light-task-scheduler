@@ -115,5 +115,10 @@
             <artifactId>hessian</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mapdb</groupId>
+            <artifactId>mapdb</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

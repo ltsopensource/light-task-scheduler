@@ -23,10 +23,13 @@ public abstract class AbstractFailStore implements FailStore {
     protected File dbPath;
     private static final String dbLockName = "___db.lock";
 
-    public AbstractFailStore(File dbPath) {
+    public AbstractFailStore(File dbPath, boolean needLock) {
         this.dbPath = dbPath;
         String path = dbPath.getPath();
         this.home = path.substring(0, path.indexOf(getName())).concat(getName());
+        if (needLock) {
+            getLock(dbPath.getPath());
+        }
         init();
     }
 
@@ -71,8 +74,8 @@ public abstract class AbstractFailStore implements FailStore {
 
     private FailStore getFailStore(File dbPath) {
         try {
-            Constructor constructor = this.getClass().getConstructor(File.class);
-            return (FailStore) constructor.newInstance(dbPath);
+            Constructor constructor = this.getClass().getConstructor(File.class, boolean.class);
+            return (FailStore) constructor.newInstance(dbPath, false);
         } catch (Exception e) {
             LOGGER.error("new instance failStore failed,", e);
         }

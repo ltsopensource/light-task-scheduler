@@ -37,6 +37,8 @@ public interface Constants {
     String SUBSCRIBE = "subscribe";
 
     String UNSUBSCRIBE = "unsubscribe";
+
+    int DEFAULT_BUFFER_SIZE = 16 * 1024;
     /**
      * 注册中心失败事件重试事件
      */

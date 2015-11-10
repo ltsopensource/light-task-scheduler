@@ -28,13 +28,12 @@ public class LeveldbFailStore extends AbstractFailStore {
 
     public static final String name = "leveldb";
 
-    public LeveldbFailStore(String storePath, String identity) {
-        this(new File(storePath.concat(name).concat("/").concat(identity)));
-        getLock(dbPath.getPath());
+    public LeveldbFailStore(File dbPath) {
+        super(dbPath, true);
     }
 
-    public LeveldbFailStore(File dbPath) {
-        super(dbPath);
+    public LeveldbFailStore(File dbPath, boolean needLock) {
+        super(dbPath, needLock);
     }
 
     @Override
