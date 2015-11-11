@@ -4,7 +4,7 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
 import com.lts.example.support.BaseJobClientTest;
-import com.lts.example.support.JobFinishedHandlerImpl;
+import com.lts.example.support.JobCompletedHandlerImpl;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.RetryJobClient;
@@ -33,7 +33,7 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.setNodeGroup("test_jobClient");
         jobClient.setClusterName("test_cluster");
         jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        jobClient.setJobFinishedHandler(new JobCompletedHandlerImpl());
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         jobClient.start();
@@ -59,7 +59,7 @@ public class JobClientTest extends BaseJobClientTest {
         // 任务重试保存地址，默认用户目录下
         // jobClient.setDataPath(Constants.USER_HOME);
         // 任务完成反馈接口
-        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        jobClient.setJobFinishedHandler(new JobCompletedHandlerImpl());
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         // 可选址  leveldb(默认), rocksdb, berkeleydb
@@ -80,7 +80,7 @@ public class JobClientTest extends BaseJobClientTest {
         // 任务重试保存地址，默认用户目录下
         // jobClient.setDataPath(Constants.USER_HOME);
         // 任务完成反馈接口
-        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        jobClient.setJobFinishedHandler(new JobCompletedHandlerImpl());
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         // 可选址  leveldb(默认), rocksdb, berkeleydb, mapdb
@@ -103,7 +103,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
         // 任务重试保存地址，默认用户目录下
 //        jobClient.setDataPath(Constants.USER_HOME);
-        jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl());
+        jobClient.setJobFinishedHandler(new JobCompletedHandlerImpl());
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
 //                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
 //        jobClient.addConfig("job.fail.store", "berkeleydb");

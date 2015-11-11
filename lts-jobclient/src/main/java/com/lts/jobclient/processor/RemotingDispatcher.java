@@ -11,7 +11,7 @@ import com.lts.remoting.protocol.RemotingProtos;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.lts.core.protocol.JobProtos.RequestCode.JOB_FINISHED;
+import static com.lts.core.protocol.JobProtos.RequestCode.JOB_COMPLETED;
 import static com.lts.core.protocol.JobProtos.RequestCode.valueOf;
 
 /**
@@ -23,7 +23,7 @@ public class RemotingDispatcher implements RemotingProcessor {
     private final Map<JobProtos.RequestCode, RemotingProcessor> processors = new HashMap<JobProtos.RequestCode, RemotingProcessor>();
 
     public RemotingDispatcher(JobClientApplication application) {
-        processors.put(JOB_FINISHED, new JobFinishedProcessor(application));
+        processors.put(JOB_COMPLETED, new JobFinishedProcessor(application));
     }
 
     @Override

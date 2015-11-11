@@ -12,6 +12,7 @@ import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.JobTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.processor.RemotingDispatcher;
+import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobReceiver;
 import com.lts.jobtracker.support.OldDataHandler;
 import com.lts.jobtracker.support.cluster.JobClientManager;
@@ -69,6 +70,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
         application.setPreLoader(preLoaderFactory.getPreLoader(config, application));
         application.setJobReceiver(new JobReceiver(application));
+        application.setJobSender(new JobSender(application));
 
         registerCommand();
     }

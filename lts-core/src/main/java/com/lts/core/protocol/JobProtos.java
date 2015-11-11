@@ -19,7 +19,7 @@ public class JobProtos {
         // 分发任务
         PUSH_JOB(13),
         // 任务执行完成
-        JOB_FINISHED(14),
+        JOB_COMPLETED(14),
         // 询问任务
         JOB_ASK(15),
         // 请求推送任务

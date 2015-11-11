@@ -23,7 +23,7 @@ import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
 import com.lts.jobclient.domain.ResponseCode;
 import com.lts.jobclient.processor.RemotingDispatcher;
-import com.lts.jobclient.support.JobFinishedHandler;
+import com.lts.jobclient.support.JobCompletedHandler;
 import com.lts.jobclient.support.JobSubmitExecutor;
 import com.lts.jobclient.support.JobSubmitProtector;
 import com.lts.jobclient.support.SubmitCallback;
@@ -253,8 +253,8 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
     /**
      * 设置任务完成接收器
      */
-    public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
-        application.setJobFinishedHandler(jobFinishedHandler);
+    public void setJobFinishedHandler(JobCompletedHandler jobCompletedHandler) {
+        application.setJobCompletedHandler(jobCompletedHandler);
     }
 
     enum SubmitType {

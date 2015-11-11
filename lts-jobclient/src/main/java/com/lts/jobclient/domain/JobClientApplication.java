@@ -2,7 +2,7 @@ package com.lts.jobclient.domain;
 
 import com.lts.core.Application;
 import com.lts.core.remoting.RemotingClientDelegate;
-import com.lts.jobclient.support.JobFinishedHandler;
+import com.lts.jobclient.support.JobCompletedHandler;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
@@ -11,14 +11,14 @@ public class JobClientApplication extends Application{
 
     private RemotingClientDelegate remotingClient;
 
-    private JobFinishedHandler jobFinishedHandler;
+    private JobCompletedHandler jobCompletedHandler;
 
-    public JobFinishedHandler getJobFinishedHandler() {
-        return jobFinishedHandler;
+    public JobCompletedHandler getJobCompletedHandler() {
+        return jobCompletedHandler;
     }
 
-    public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
-        this.jobFinishedHandler = jobFinishedHandler;
+    public void setJobCompletedHandler(JobCompletedHandler jobCompletedHandler) {
+        this.jobCompletedHandler = jobCompletedHandler;
     }
 
     public RemotingClientDelegate getRemotingClient() {

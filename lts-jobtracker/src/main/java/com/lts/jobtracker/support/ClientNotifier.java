@@ -105,7 +105,7 @@ public class ClientNotifier {
 
         JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
-        RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_FINISHED.code(), requestBody);
+        RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_COMPLETED.code(), requestBody);
 
         final Holder<Boolean> result = new Holder<Boolean>();
         try {

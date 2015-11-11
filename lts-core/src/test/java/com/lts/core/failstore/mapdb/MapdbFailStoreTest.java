@@ -16,7 +16,7 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Created by hugui on 11/10/15.
+ * @author Robert HG (254963746@qq.com) on 11/10/15.
  */
 public class MapdbFailStoreTest {
 

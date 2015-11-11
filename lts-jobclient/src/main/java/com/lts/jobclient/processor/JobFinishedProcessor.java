@@ -29,8 +29,8 @@ public class JobFinishedProcessor implements RemotingProcessor {
 
         JobFinishedRequest requestBody = request.getBody();
         try {
-            if (application.getJobFinishedHandler() != null) {
-                application.getJobFinishedHandler().handle(requestBody.getJobResults());
+            if (application.getJobCompletedHandler() != null) {
+                application.getJobCompletedHandler().onComplete(requestBody.getJobResults());
             }
         } catch (Exception t) {
             LOGGER.error(t.getMessage(), t);

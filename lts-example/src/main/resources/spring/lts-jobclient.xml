@@ -17,8 +17,8 @@
                 <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
-        <property name="jobFinishedHandler">
-            <bean class="com.lts.example.support.JobFinishedHandlerImpl"/>
+        <property name="jobCompletedHandler">
+            <bean class="com.lts.example.support.JobCompletedHandlerImpl"/>
         </property>
         <property name="configs">
             <props>

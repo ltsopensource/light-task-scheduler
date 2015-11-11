@@ -8,9 +8,9 @@ import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.
- * TaskTracker Job finished request command body
+ * TaskTracker Job completed request command body
  */
-public class TtJobFinishedRequest extends AbstractRemotingCommandBody {
+public class JobCompletedRequest extends AbstractRemotingCommandBody {
     /**
      * 是否接受新任务
      */
