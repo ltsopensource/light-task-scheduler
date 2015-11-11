@@ -120,5 +120,10 @@
             <artifactId>mapdb</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

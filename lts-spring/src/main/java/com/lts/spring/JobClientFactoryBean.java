@@ -4,7 +4,7 @@ import com.lts.core.commons.utils.Assert;
 import com.lts.core.listener.MasterChangeListener;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.RetryJobClient;
-import com.lts.jobclient.support.JobFinishedHandler;
+import com.lts.jobclient.support.JobCompletedHandler;
 import com.lts.tasktracker.TaskTracker;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -53,7 +53,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
     /**
      * 任务完成处理接口
      */
-    private JobFinishedHandler jobFinishedHandler;
+    private JobCompletedHandler jobCompletedHandler;
 
     @Override
     public JobClient getObject() throws Exception {
@@ -92,8 +92,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         jobClient.setNodeGroup(nodeGroup);
         jobClient.setRegistryAddress(registryAddress);
 
-        if (jobFinishedHandler != null) {
-            jobClient.setJobFinishedHandler(jobFinishedHandler);
+        if (jobCompletedHandler != null) {
+            jobClient.setJobFinishedHandler(jobCompletedHandler);
         }
 
         // 设置config
@@ -147,8 +147,8 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         this.configs = configs;
     }
 
-    public void setJobFinishedHandler(JobFinishedHandler jobFinishedHandler) {
-        this.jobFinishedHandler = jobFinishedHandler;
+    public void setJobCompletedHandler(JobCompletedHandler jobCompletedHandler) {
+        this.jobCompletedHandler = jobCompletedHandler;
     }
 
     public void setType(String type) {

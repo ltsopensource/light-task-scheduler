@@ -8,14 +8,14 @@ import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
+import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
-import com.lts.core.protocol.command.TtJobFinishedRequest;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
-import com.lts.remoting.Channel;
 import com.lts.remoting.AsyncCallback;
+import com.lts.remoting.Channel;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -96,11 +96,11 @@ public class JobPushProcessor extends AbstractProcessor {
             taskTrackerJobResult.setJobWrapper(response.getJobWrapper());
             taskTrackerJobResult.setAction(response.getAction());
             taskTrackerJobResult.setMsg(response.getMsg());
-            TtJobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new TtJobFinishedRequest());
+            JobCompletedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
             requestBody.addJobResult(taskTrackerJobResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 
-            int requestCode = JobProtos.RequestCode.JOB_FINISHED.code();
+            int requestCode = JobProtos.RequestCode.JOB_COMPLETED.code();
 
             RemotingCommand request = RemotingCommand.createRequestCommand(requestCode, requestBody);
 
@@ -164,11 +164,11 @@ public class JobPushProcessor extends AbstractProcessor {
      */
     private boolean retrySendJobResults(List<TaskTrackerJobResult> results) {
         // 发送消息给 JobTracker
-        TtJobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new TtJobFinishedRequest());
+        JobCompletedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
         requestBody.setTaskTrackerJobResults(results);
         requestBody.setReSend(true);
 
-        int requestCode = JobProtos.RequestCode.JOB_FINISHED.code();
+        int requestCode = JobProtos.RequestCode.JOB_COMPLETED.code();
         RemotingCommand request = RemotingCommand.createRequestCommand(requestCode, requestBody);
 
         try {

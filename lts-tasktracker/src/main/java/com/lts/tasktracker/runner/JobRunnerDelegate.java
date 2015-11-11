@@ -71,7 +71,7 @@ public class JobRunnerDelegate implements Runnable {
                     }
                     long time = SystemClock.now() - startTime;
                     monitor.addRunningTime(time);
-                    LOGGER.info("Job execute finished : {}, time:{} ms.", jobWrapper, time);
+                    LOGGER.info("Job execute completed : {}, time:{} ms.", jobWrapper, time);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));

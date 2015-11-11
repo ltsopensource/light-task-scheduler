@@ -1,6 +1,9 @@
 package com.lts.zookeeper.serializer;
 
 
+import com.lts.core.commons.io.UnsafeByteArrayInputStream;
+import com.lts.core.commons.io.UnsafeByteArrayOutputStream;
+
 import java.io.*;
 
 /**
@@ -13,7 +16,7 @@ public class SerializableSerializer implements ZkSerializer {
             if (serializable == null) {
                 return null;
             }
-            ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
+            UnsafeByteArrayOutputStream byteArrayOS = new UnsafeByteArrayOutputStream();
             ObjectOutputStream stream = new ObjectOutputStream(byteArrayOS);
             stream.writeObject(serializable);
             stream.close();
@@ -29,7 +32,7 @@ public class SerializableSerializer implements ZkSerializer {
             return null;
         }
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
+            ObjectInputStream inputStream = new ObjectInputStream(new UnsafeByteArrayInputStream(bytes));
             return inputStream.readObject();
         } catch (ClassNotFoundException e) {
             throw new ZkMarshallingException("Unable to find object class.", e);

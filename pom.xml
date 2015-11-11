@@ -49,6 +49,7 @@
         <hessian.version>4.0.38</hessian.version>
         <mapdb.version>2.0-beta10</mapdb.version>
         <commons-codec.version>1.10</commons-codec.version>
+        <groovy.version>2.4.5</groovy.version>
     </properties>
 
     <dependencyManagement>
@@ -208,6 +209,33 @@
                 <artifactId>mapdb</artifactId>
                 <version>${mapdb.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.thoughtworks.xstream</groupId>
+                        <artifactId>xstream</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.gpars</groupId>
+                        <artifactId>gpars</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ivy</groupId>
+                        <artifactId>ivy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.fusesource.jansi</groupId>
+                        <artifactId>jansi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -237,5 +265,11 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <connection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</connection>
+        <developerConnection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</developerConnection>
+        <url>https://github.com/qq254963746/light-task-scheduler.git</url>
+    </scm>
 
 </project>
