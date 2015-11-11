@@ -1,0 +1,14 @@
+# 查看远程地址
+git remote -v
+
+# 添加新的远程地址
+git remote add osc https://git.oschina.net/hugui/light-task-scheduler.git
+git remote add github https://github.com/qq254963746/light-task-scheduler.git
+
+# 推送develop的本地分支git, 所有分支的话使用--all
+git push -u osc develop
+git push -u github develop
+
+#推送所有的标签
+git push osc --tags
+git push github --tags
