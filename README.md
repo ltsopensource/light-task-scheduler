@@ -43,7 +43,7 @@ LTS支持任务类型：
 ###FailStore
 1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
 2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
-3. FailStore目前提供三种实现：leveldb，rocksdb，berkeleydb，用于可以自由选择使用哪种。
+3. FailStore目前提供三种实现：leveldb，rocksdb，berkeleydb,mapdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
 
 
 ## 流程图
@@ -54,6 +54,7 @@ LTS支持任务类型：
 ## LTS-Admin新版界面预览
 
 ![LTS Admin](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS-Admin/LTS-Admin-cron-job-queue.png?dir=0&filepath=docs%2FLTS-Admin%2FLTS-Admin-cron-job-queue.png&oid=aecaf01bca5270a53b144891baaa3d7e56d47706&sha=9a38205065553f6e02fb27a01cb06eeb0e643486)
+目前后台带有由[ztajy](https://github.com/ztajy)提供的一个简易的认证功能. 用户名密码在auth.cfg中,用户自行修改.
 
 ##特性
 ###1、Spring支持
