@@ -98,7 +98,7 @@ public class NodeApiController extends AbstractController {
             List<NodeOnOfflineLog> rows = nodeOnOfflineLogRepo.select(request);
             response.setRows(rows);
         }else{
-            response.setRows(new ArrayList(0));
+            response.setRows(new ArrayList<Object>(0));
         }
         response.setSuccess(true);
         return response;

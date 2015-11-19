@@ -79,8 +79,9 @@ public class MonitorDataService {
                 return jobTrackerMonitorDataRepo.querySum(request);
             case TASK_TRACKER:
                 return taskTrackerMonitorRepo.querySum(request);
+			default:
+				return null;
         }
-        return null;
     }
 
     /**
@@ -168,7 +169,7 @@ public class MonitorDataService {
                     if (method != null) {
                         String string = String.valueOf(entry.getValue());
                         Object value = entry.getValue();
-                        Class parameterType = method.getParameterTypes()[0];
+                        Class<?> parameterType = method.getParameterTypes()[0];
                         if (parameterType == Long.class || parameterType == long.class) {
                             value = Long.valueOf(string);
                         } else if (parameterType == Integer.class || parameterType == int.class) {

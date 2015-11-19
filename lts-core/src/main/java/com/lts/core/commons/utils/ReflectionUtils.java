@@ -7,12 +7,13 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 7/24/14.
  */
+@SuppressWarnings("rawtypes")
 public class ReflectionUtils {
 
     /**
      * 得到所有field , 包括 父类
      */
-    public static Field[] findFields(Class clazz) throws IllegalAccessException {
+	public static Field[] findFields(Class clazz) throws IllegalAccessException {
         final List<Field> fieldList = new ArrayList<Field>();
 
         doWithDeclaredFields(clazz, new FieldCallback() {

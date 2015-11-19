@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class JobSubmitException extends RuntimeException {
 
-    public JobSubmitException() {
+	private static final long serialVersionUID = 8375498515729588730L;
+
+	public JobSubmitException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class JobSubmitException extends RuntimeException {
         super(cause);
     }
 
-    protected JobSubmitException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

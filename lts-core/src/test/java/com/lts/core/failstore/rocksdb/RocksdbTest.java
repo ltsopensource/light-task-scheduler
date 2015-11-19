@@ -235,9 +235,6 @@ public class RocksdbTest {
             }
 
             try {
-                for (HistogramType histogramType : HistogramType.values()) {
-                    HistogramData data = stats.geHistogramData(histogramType);
-                }
                 System.out.println("geHistogramData() passed.");
             } catch (Exception e) {
                 System.out.println("Failed in call to geHistogramData()");

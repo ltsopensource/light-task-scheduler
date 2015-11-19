@@ -54,7 +54,7 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
     private DataSource createDruidDataSource(Config config) {
         DruidDataSource dataSource = new DruidDataSource();
         Class<DruidDataSource> clazz = DruidDataSource.class;
-        for (Map.Entry<String, Class> entry : FIELDS.entrySet()) {
+        for (Map.Entry<String, Class<?>> entry : FIELDS.entrySet()) {
             String field = entry.getKey();
             String value = config.getParameter("druid." + field);
             if (StringUtils.isNotEmpty(value)) {
@@ -80,7 +80,7 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
         return dataSource;
     }
 
-    private static final Map<String, Class> FIELDS = new ConcurrentHashMap<String, Class>();
+    private static final Map<String, Class<?>> FIELDS = new ConcurrentHashMap<String, Class<?>>();
 
     static {
         // druid配置属性，see <a href="https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE%E5%B1%9E%E6%80%A7%E5%88%97%E8%A1%A8">DruidDataSource配置属性列表</a>

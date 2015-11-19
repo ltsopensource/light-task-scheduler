@@ -25,7 +25,8 @@ public abstract class AbstractPreLoader implements PreLoader {
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
     private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> scheduledFuture;
+    @SuppressWarnings("unused")
+	private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private String FORCE_PREFIX = "force_"; // 强制加载的信号
 

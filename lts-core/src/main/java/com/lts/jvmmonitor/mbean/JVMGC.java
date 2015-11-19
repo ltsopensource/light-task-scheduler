@@ -2,7 +2,6 @@ package com.lts.jvmmonitor.mbean;
 
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
-import java.util.ListIterator;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/15/15.

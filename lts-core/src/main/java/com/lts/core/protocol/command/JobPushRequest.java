@@ -8,7 +8,9 @@ import com.lts.remoting.annotation.NotNull;
  */
 public class JobPushRequest extends AbstractRemotingCommandBody {
 
-    @NotNull
+	private static final long serialVersionUID = 2986743693237022215L;
+	
+	@NotNull
     private JobWrapper jobWrapper;
 
     public JobWrapper getJobWrapper() {

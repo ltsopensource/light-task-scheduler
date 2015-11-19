@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class RequestTimeoutException extends RuntimeException {
 
-    public RequestTimeoutException() {
+	private static final long serialVersionUID = 7216536669163975612L;
+
+	public RequestTimeoutException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class RequestTimeoutException extends RuntimeException {
         super(cause);
     }
 
-    protected RequestTimeoutException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

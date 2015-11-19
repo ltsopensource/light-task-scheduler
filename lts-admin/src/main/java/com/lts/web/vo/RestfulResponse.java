@@ -9,7 +9,9 @@ import java.util.List;
  */
 public class RestfulResponse implements Serializable {
 
-    private boolean success;
+	private static final long serialVersionUID = -5795089018013798231L;
+
+	private boolean success;
 
     private String code;
 
@@ -21,7 +23,7 @@ public class RestfulResponse implements Serializable {
     /**
      * rows
      */
-    private List rows;
+    private List<?> rows;
 
     public boolean isSuccess() {
         return success;
@@ -55,11 +57,11 @@ public class RestfulResponse implements Serializable {
         this.results = results;
     }
 
-    public List getRows() {
+    public List<?> getRows() {
         return rows;
     }
 
-    public void setRows(List rows) {
+    public void setRows(List<?> rows) {
         this.rows = rows;
     }
 }

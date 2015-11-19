@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 主要做了一个去重的操作，当时同一个任务的时候，会覆盖
  * @author Robert HG (254963746@qq.com) on 10/19/15.
  */
+@SuppressWarnings("unchecked")
 public class JobPriorityBlockingQueue {
 
     private final ReentrantLock lock;
@@ -103,7 +104,7 @@ public class JobPriorityBlockingQueue {
         }
     }
 
-    private <E> void siftDownUsingComparator(int k, E x, Object[] array,
+	private <E> void siftDownUsingComparator(int k, E x, Object[] array,
                                              int n,
                                              Comparator<? super E> cmp) {
         if (n > 0) {

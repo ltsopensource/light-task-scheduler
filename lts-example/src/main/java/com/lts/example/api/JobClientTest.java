@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
  */
+@SuppressWarnings("rawtypes")
 public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
@@ -27,7 +28,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        cancelJob();
     }
 
-    public static void submitWidthReplaceOnExist() throws IOException {
+	public static void submitWidthReplaceOnExist() throws IOException {
         // 推荐使用RetryJobClient
         JobClient jobClient = new RetryJobClient();
         jobClient.setNodeGroup("test_jobClient");

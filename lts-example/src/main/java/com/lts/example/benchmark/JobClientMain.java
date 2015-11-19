@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/15.
  */
+@SuppressWarnings("rawtypes")
 public class JobClientMain {
 
     public static void main(String[] args) {

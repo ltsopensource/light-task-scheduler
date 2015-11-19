@@ -5,7 +5,9 @@ package com.lts.queue.exception;
  */
 public class JobQueueException extends RuntimeException {
 
-    public JobQueueException(String message) {
+	private static final long serialVersionUID = -4879333207487958676L;
+
+	public JobQueueException(String message) {
         super(message);
     }
 

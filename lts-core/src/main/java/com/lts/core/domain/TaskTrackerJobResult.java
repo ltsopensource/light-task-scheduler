@@ -10,7 +10,9 @@ import java.io.Serializable;
  */
 public class TaskTrackerJobResult implements Serializable{
 
-    private JobWrapper jobWrapper;
+	private static final long serialVersionUID = 8622758290605000897L;
+
+	private JobWrapper jobWrapper;
 
     private Action action;
 

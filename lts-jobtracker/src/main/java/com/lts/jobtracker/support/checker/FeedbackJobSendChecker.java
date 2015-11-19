@@ -29,7 +29,7 @@ public class FeedbackJobSendChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackJobSendChecker.class);
 
     private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture scheduledFuture;
+    private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private ClientNotifier clientNotifier;
     private JobTrackerApplication application;
@@ -39,7 +39,8 @@ public class FeedbackJobSendChecker {
      *
      * @return
      */
-    private boolean isStart() {
+    @SuppressWarnings("unused")
+	private boolean isStart() {
         return start.get();
     }
 
@@ -164,7 +165,10 @@ public class FeedbackJobSendChecker {
     }
 
     private class TaskTrackerJobResultWrapper extends TaskTrackerJobResult {
-        private String id;
+		
+    	private static final long serialVersionUID = 6257259684477618571L;
+    	
+		private String id;
 
         public String getId() {
             return id;

@@ -1,5 +1,6 @@
 package com.lts.web.filter;
 
+import com.lts.core.commons.utils.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ import java.util.Properties;
 
 /**
  * Created by ztajy on 2015-11-11.
+ *
+ * @author hugui
  */
 public class LoginAuthFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(LoginAuthFilter.class);
@@ -22,6 +25,8 @@ public class LoginAuthFilter implements Filter {
     private String username = "admin";
 
     private String password = "admin";
+
+    private String[] excludedURLArray;
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -34,12 +39,27 @@ public class LoginAuthFilter implements Filter {
         }
         username = props.getProperty("console.username", username);
         password = props.getProperty("console.password", password);
+
+        String excludedURLs = filterConfig.getInitParameter("excludedURLs");
+        if (StringUtils.isNotEmpty(excludedURLs)) {
+            String[] arr = excludedURLs.split(",");
+            excludedURLArray = new String[arr.length];
+            for (int i = 0; i < arr.length; i++) {
+                excludedURLArray[i] = StringUtils.trim(arr[i]);
+            }
+        }
     }
 
     @Override
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        if (isExclude(httpRequest.getRequestURI())) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String authorization = httpRequest.getHeader("authorization");
         if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
             authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
@@ -52,6 +72,18 @@ public class LoginAuthFilter implements Filter {
         } else {
             needAuthenticate(httpRequest, httpResponse);
         }
+    }
+
+    private boolean isExclude(String path) {
+        if (excludedURLArray != null) {
+            for (String page : excludedURLArray) {
+                //判断是否在过滤url中
+                if (path.equals(page)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void authenticateSuccess(final HttpServletResponse response) {

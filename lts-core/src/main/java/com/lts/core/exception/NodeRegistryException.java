@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class NodeRegistryException extends RuntimeException {
 
-    public NodeRegistryException() {
+	private static final long serialVersionUID = 3113597129620580907L;
+
+	public NodeRegistryException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class NodeRegistryException extends RuntimeException {
         super(cause);
     }
 
-    protected NodeRegistryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

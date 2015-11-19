@@ -6,6 +6,7 @@ import com.lts.jobclient.JobClient;
 import com.lts.jobclient.RetryJobClient;
 import com.lts.jobclient.support.JobCompletedHandler;
 import com.lts.tasktracker.TaskTracker;
+
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -17,10 +18,11 @@ import java.util.Properties;
  * JobClient Spring Bean 工厂类
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
+@SuppressWarnings("rawtypes")
 public class JobClientFactoryBean implements FactoryBean<JobClient>,
         InitializingBean, DisposableBean {
 
-    private JobClient jobClient;
+	private JobClient jobClient;
     private boolean started;
     /**
      * 集群名称

@@ -8,13 +8,13 @@ import com.lts.spring.tasktracker.JobDispatcher;
 import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -28,6 +28,7 @@ import java.util.Properties;
  *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
+@SuppressWarnings("rawtypes")
 public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker>, ApplicationContextAware,
         InitializingBean, DisposableBean {
 
@@ -57,7 +58,7 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
     /**
      * 任务执行类
      */
-    private Class jobRunnerClass;
+	private Class jobRunnerClass;
     /**
      * 业务日志级别
      */
@@ -106,7 +107,8 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
                 StringUtils.format("jobRunnerClass should be implements {}.", JobRunner.class.getName()));
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void afterPropertiesSet() throws Exception {
 
         checkProperties();

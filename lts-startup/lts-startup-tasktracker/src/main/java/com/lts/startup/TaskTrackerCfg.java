@@ -9,6 +9,7 @@ import java.util.Map;
  *
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
+@SuppressWarnings("rawtypes")
 public class TaskTrackerCfg {
 
     private String registryAddress;
@@ -21,7 +22,7 @@ public class TaskTrackerCfg {
 
     private int workThreads;
 
-    private Class jobRunnerClass;
+	private Class jobRunnerClass;
 
     private String dataPath;
 

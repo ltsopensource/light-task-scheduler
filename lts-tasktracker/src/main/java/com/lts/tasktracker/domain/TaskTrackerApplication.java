@@ -29,7 +29,7 @@ public class TaskTrackerApplication extends Application{
     /**
      * 执行任务的class
      */
-    private Class jobRunnerClass;
+    private Class<?> jobRunnerClass;
 
     public StopWorkingMonitor getStopWorkingMonitor() {
         return stopWorkingMonitor;
@@ -55,11 +55,11 @@ public class TaskTrackerApplication extends Application{
         this.bizLogLevel = bizLogLevel;
     }
 
-    public Class getJobRunnerClass() {
+    public Class<?> getJobRunnerClass() {
         return jobRunnerClass;
     }
 
-    public void setJobRunnerClass(Class jobRunnerClass) {
+    public void setJobRunnerClass(Class<?> jobRunnerClass) {
         this.jobRunnerClass = jobRunnerClass;
     }
 

@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Config implements Serializable {
 
-    // 节点是否可用
+	private static final long serialVersionUID = -8283382582968938472L;
+	// 节点是否可用
     private boolean available = true;
     // 应用节点组
     private String nodeGroup;

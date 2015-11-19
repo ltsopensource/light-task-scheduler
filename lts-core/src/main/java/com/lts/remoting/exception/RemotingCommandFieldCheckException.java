@@ -5,7 +5,9 @@ package com.lts.remoting.exception;
  */
 public class RemotingCommandFieldCheckException extends Exception{
 
-    public RemotingCommandFieldCheckException(String message) {
+	private static final long serialVersionUID = -3040346783583325400L;
+
+	public RemotingCommandFieldCheckException(String message) {
         super(message);
     }
 

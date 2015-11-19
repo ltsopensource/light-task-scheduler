@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * 泛型工具类
  */
+@SuppressWarnings("rawtypes")
 public class GenericsUtils {
 	/**  
      * 通过反射,获得指定类的父类的泛型参数的实际类型. 如BuyerServiceBean extends DaoSupport<Buyer>  

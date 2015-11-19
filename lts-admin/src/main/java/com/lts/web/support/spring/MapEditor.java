@@ -28,7 +28,7 @@ public class MapEditor extends PropertyEditorSupport {
 
     @Override
     public String getAsText() {
-        Map value = (Map) getValue();
+        Map<?, ?> value = (Map<?, ?>) getValue();
 
         if (value == null) {
             return "";

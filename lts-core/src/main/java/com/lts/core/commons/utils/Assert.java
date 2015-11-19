@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
+@SuppressWarnings("rawtypes")
 public class Assert {
 
     public static void isTrue(boolean expression, String message) {

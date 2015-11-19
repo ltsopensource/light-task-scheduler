@@ -7,7 +7,8 @@ import com.lts.core.exception.JobSubmitException;
  */
 public class JobSubmitProtectException extends JobSubmitException {
 
-    int concurrentSize;
+	private static final long serialVersionUID = -5502779460920973581L;
+	int concurrentSize;
 
     public JobSubmitProtectException(int concurrentSize) {
         super();

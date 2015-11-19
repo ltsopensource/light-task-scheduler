@@ -7,7 +7,9 @@ import java.io.Serializable;
  */
 public class JobWrapper implements Serializable{
 
-    private String jobId;
+	private static final long serialVersionUID = 1476984243004969158L;
+
+	private String jobId;
 
     private Job job;
 

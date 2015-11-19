@@ -9,7 +9,8 @@ import com.lts.core.extension.ExtensionLoader;
  */
 public class MainTest {
 
-    public static void main(String[] args) {
+    @SuppressWarnings("unused")
+	public static void main(String[] args) {
 
 //        TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getExtension("test2");
         TestService testService = ExtensionLoader.getExtensionLoader(TestService.class).getAdaptiveExtension();

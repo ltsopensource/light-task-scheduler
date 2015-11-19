@@ -72,7 +72,8 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     public void put(String key, Object value) throws FailStoreException {
         try {
             String valueString = JSONUtils.toJSONString(value);
-            OperationStatus status = db.put(null, new DatabaseEntry(key.getBytes("UTF-8")),
+            @SuppressWarnings("unused")
+			OperationStatus status = db.put(null, new DatabaseEntry(key.getBytes("UTF-8")),
                     new DatabaseEntry(valueString.getBytes("UTF-8")));
         } catch (Exception e) {
             throw new FailStoreException(e);
@@ -84,7 +85,8 @@ public class BerkeleydbFailStore extends AbstractFailStore {
         try {
             DatabaseEntry delKey = new DatabaseEntry();
             delKey.setData(key.getBytes("UTF-8"));
-            OperationStatus status = db.delete(null, delKey);
+            @SuppressWarnings("unused")
+			OperationStatus status = db.delete(null, delKey);
         } catch (Exception e) {
             throw new FailStoreException(e);
         }

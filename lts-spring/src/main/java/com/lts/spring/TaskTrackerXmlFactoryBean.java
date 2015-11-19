@@ -7,11 +7,9 @@ import com.lts.core.listener.MasterChangeListener;
 import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
 
 import java.util.Map;
 import java.util.Properties;

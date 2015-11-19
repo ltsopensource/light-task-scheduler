@@ -13,6 +13,7 @@ import com.netflix.curator.framework.api.CuratorWatcher;
 import com.netflix.curator.framework.state.ConnectionState;
 import com.netflix.curator.framework.state.ConnectionStateListener;
 import com.netflix.curator.retry.RetryNTimes;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -176,7 +177,8 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
         }
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public <T> T getData(String path) {
         try {
             return (T) zkSerializer.deserialize(client.getData().forPath(path));

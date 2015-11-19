@@ -5,7 +5,9 @@ package com.lts.spring.tasktracker;
  */
 public class JobDispatchException extends Exception{
 
-    public JobDispatchException() {
+	private static final long serialVersionUID = -99670791735250890L;
+
+	public JobDispatchException() {
         super();
     }
 

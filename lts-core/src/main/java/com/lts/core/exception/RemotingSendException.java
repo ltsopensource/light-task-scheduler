@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class RemotingSendException extends Exception{
 
-    public RemotingSendException() {
+	private static final long serialVersionUID = -8901776781734789960L;
+
+	public RemotingSendException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class RemotingSendException extends Exception{
         super(cause);
     }
 
-    protected RemotingSendException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

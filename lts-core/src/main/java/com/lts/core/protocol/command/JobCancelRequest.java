@@ -6,7 +6,9 @@ package com.lts.core.protocol.command;
  */
 public class JobCancelRequest extends AbstractRemotingCommandBody{
 
-    private String taskId;
+	private static final long serialVersionUID = 2945964772160028674L;
+
+	private String taskId;
 
     private String taskTrackerNodeGroup;
 

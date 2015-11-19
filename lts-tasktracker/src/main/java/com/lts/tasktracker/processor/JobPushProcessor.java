@@ -37,7 +37,7 @@ public class JobPushProcessor extends AbstractProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
 
-    private RetryScheduler retryScheduler;
+    private RetryScheduler<TaskTrackerJobResult> retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
     private RemotingClientDelegate remotingClient;
 

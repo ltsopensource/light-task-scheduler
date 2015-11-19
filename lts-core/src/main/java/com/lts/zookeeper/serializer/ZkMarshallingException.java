@@ -5,7 +5,9 @@ package com.lts.zookeeper.serializer;
  */
 public class ZkMarshallingException extends RuntimeException {
 
-    public ZkMarshallingException() {
+	private static final long serialVersionUID = 2489236644437409454L;
+
+	public ZkMarshallingException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class ZkMarshallingException extends RuntimeException {
         super(cause);
     }
 
-    protected ZkMarshallingException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
