@@ -1,20 +1,20 @@
 package com.lts.web.filter;
 
 import com.lts.core.commons.utils.StringUtils;
-import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Properties;
 
 /**
  * Created by ztajy on 2015-11-11.
- *
+ * @author ztajy
  * @author hugui
  */
 public class LoginAuthFilter implements Filter {
@@ -63,7 +63,7 @@ public class LoginAuthFilter implements Filter {
         String authorization = httpRequest.getHeader("authorization");
         if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
             authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
-            if ((username + ":" + password).equals(new String(Base64.decodeBase64(authorization)))) {
+            if ((username + ":" + password).equals(new String(Base64.getDecoder().decode(authorization)))) {
                 authenticateSuccess(httpResponse);
                 chain.doFilter(httpRequest, httpResponse);
             } else {
