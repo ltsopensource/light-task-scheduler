@@ -11,7 +11,8 @@ import java.util.List;
  */
 public class JobReceiveException extends Exception {
 
-    /**
+	private static final long serialVersionUID = 6091344409709022270L;
+	/**
      * 出错的job列表
      */
     private List<Job> jobs;
@@ -47,7 +48,4 @@ public class JobReceiveException extends Exception {
         super(cause);
     }
 
-    public JobReceiveException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

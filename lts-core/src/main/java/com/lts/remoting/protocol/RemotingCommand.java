@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RemotingCommand implements Serializable{
 
-    private static final AtomicInteger requestId = new AtomicInteger(0);
+	private static final long serialVersionUID = -6424506729433386206L;
+	private static final AtomicInteger requestId = new AtomicInteger(0);
     /**
      * Header 部分
      */
@@ -66,7 +67,8 @@ public class RemotingCommand implements Serializable{
         this.body = body;
     }
 
-    public <T extends RemotingCommandBody> T getBody() {
+    @SuppressWarnings("unchecked")
+	public <T extends RemotingCommandBody> T getBody() {
         return (T) body;
     }
 

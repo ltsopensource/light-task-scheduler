@@ -10,11 +10,11 @@ public class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static boolean isNotEmpty(Map map) {
+    public static boolean isNotEmpty(Map<?,?> map) {
         return map != null && map.size() > 0;
     }
 
-    public static boolean isEmpty(Map map) {
+    public static boolean isEmpty(Map<?,?> map) {
         return !isNotEmpty(map);
     }
 
@@ -26,7 +26,7 @@ public class CollectionUtils {
         return !isNotEmpty(collection);
     }
 
-    public static int sizeOf(Collection collection) {
+    public static int sizeOf(Collection<?> collection) {
         if (isEmpty(collection)) {
             return 0;
         }

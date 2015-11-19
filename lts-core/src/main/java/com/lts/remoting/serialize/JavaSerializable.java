@@ -3,8 +3,6 @@ package com.lts.remoting.serialize;
 import com.lts.core.commons.io.UnsafeByteArrayInputStream;
 import com.lts.core.commons.io.UnsafeByteArrayOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -33,7 +31,8 @@ public class JavaSerializable implements RemotingSerializable {
         }
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public <T> T deserialize(byte[] data, Class<T> clazz) throws Exception {
 
         UnsafeByteArrayInputStream bin = new UnsafeByteArrayInputStream(data);

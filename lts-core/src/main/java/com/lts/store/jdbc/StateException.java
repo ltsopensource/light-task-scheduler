@@ -5,7 +5,9 @@ package com.lts.store.jdbc;
  */
 public class StateException extends RuntimeException {
 
-    public StateException() {
+	private static final long serialVersionUID = -1431221683278943387L;
+
+	public StateException() {
     }
 
     public StateException(String message) {

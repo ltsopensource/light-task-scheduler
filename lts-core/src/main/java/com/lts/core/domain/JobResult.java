@@ -10,7 +10,9 @@ import java.io.Serializable;
  */
 public class JobResult implements Serializable{
 
-    private Job job;
+	private static final long serialVersionUID = -6542469058048149122L;
+
+	private Job job;
 
     // 执行成功还是失败
     private boolean success;

@@ -32,8 +32,7 @@ public class SerializableSerializer implements ZkSerializer {
             return null;
         }
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(new UnsafeByteArrayInputStream(bytes));
-            return inputStream.readObject();
+            return new ObjectInputStream(new UnsafeByteArrayInputStream(bytes)).readObject();
         } catch (ClassNotFoundException e) {
             throw new ZkMarshallingException("Unable to find object class.", e);
         } catch (IOException e) {

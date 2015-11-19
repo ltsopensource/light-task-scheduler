@@ -9,7 +9,8 @@ import java.util.List;
  */
 public class BizLogSendRequest extends AbstractRemotingCommandBody {
 
-    private List<BizLog> bizLogs;
+	private static final long serialVersionUID = 6477068771579478184L;
+	private List<BizLog> bizLogs;
 
     public List<BizLog> getBizLogs() {
         return bizLogs;

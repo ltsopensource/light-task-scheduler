@@ -1,8 +1,5 @@
 package com.lts.core.commons.utils;
 
-import com.lts.core.logger.Logger;
-import com.lts.core.logger.LoggerFactory;
-
 import java.io.IOException;
 import java.net.*;
 import java.util.Enumeration;
@@ -16,7 +13,7 @@ public class NetUtils {
 
     public static final String LOCALHOST = "127.0.0.1";
     public static final String ANYHOST = "0.0.0.0";
-    private static final Logger logger = LoggerFactory.getLogger(NetUtils.class);
+//    private static final Logger logger = LoggerFactory.getLogger(NetUtils.class);
     private static final int RND_PORT_START = 30000;
 
     private static final int RND_PORT_RANGE = 10000;

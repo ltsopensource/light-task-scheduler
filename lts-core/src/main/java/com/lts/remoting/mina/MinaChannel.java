@@ -2,7 +2,6 @@ package com.lts.remoting.mina;
 
 import com.lts.remoting.Channel;
 import com.lts.remoting.ChannelHandler;
-import io.netty.util.internal.ThreadLocalRandom;
 import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.WriteFuture;
 import org.apache.mina.core.session.IoSession;

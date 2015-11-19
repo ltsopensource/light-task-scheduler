@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class RetryJobClient extends JobClient<JobClientNode, JobClientApplication> {
 
-    private RetryScheduler retryScheduler;
+    private RetryScheduler<Job> retryScheduler;
 
     @Override
     protected void beforeStart() {

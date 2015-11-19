@@ -11,7 +11,9 @@ import java.util.List;
  * TaskTracker Job completed request command body
  */
 public class JobCompletedRequest extends AbstractRemotingCommandBody {
-    /**
+	private static final long serialVersionUID = 3034213298501228160L;
+
+	/**
      * 是否接受新任务
      */
     private boolean receiveNewJob = false;

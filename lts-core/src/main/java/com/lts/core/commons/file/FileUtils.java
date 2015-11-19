@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
  */
 public class FileUtils {
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static File createFileIfNotExist(File file) {
         if (!file.exists()) {
             // 创建父目录
@@ -26,7 +25,6 @@ public class FileUtils {
         return createFileIfNotExist(new File(path));
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static File createDirIfNotExist(File file) {
         if (!file.exists()) {
             // 创建父目录
@@ -60,7 +58,6 @@ public class FileUtils {
         return createTableSql.toString();
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void delete(File file) {
         if (!file.exists()) {
             return;

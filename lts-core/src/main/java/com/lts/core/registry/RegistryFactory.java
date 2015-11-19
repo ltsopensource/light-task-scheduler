@@ -1,7 +1,6 @@
 package com.lts.core.registry;
 
 import com.lts.core.Application;
-import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.registry.redis.RedisRegistry;
 import com.lts.core.registry.zookeeper.ZookeeperRegistry;

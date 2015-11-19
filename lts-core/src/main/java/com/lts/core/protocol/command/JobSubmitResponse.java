@@ -11,7 +11,9 @@ import java.util.List;
  */
 public class JobSubmitResponse extends AbstractRemotingCommandBody {
 
-    private Boolean success = true;
+	private static final long serialVersionUID = 9133108871954698698L;
+
+	private Boolean success = true;
 
     private String msg;
 

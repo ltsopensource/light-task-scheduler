@@ -13,7 +13,8 @@ import java.util.List;
  */
 public class Response implements Serializable {
 
-    private boolean success;
+	private static final long serialVersionUID = 1466250084442936848L;
+	private boolean success;
     private String msg;
     private String code;
 

@@ -9,7 +9,9 @@ import java.io.Serializable;
  */
 public class BizLog implements Serializable {
 
-    private String taskId;
+	private static final long serialVersionUID = -7770486329649514754L;
+
+	private String taskId;
 
     private String jobId;
 

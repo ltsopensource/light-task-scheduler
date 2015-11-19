@@ -56,6 +56,8 @@ public abstract class AbstractMonitor implements Monitor {
         if (StringUtils.isEmpty(monitorSite)) {
             return;
         }
+        // 去掉最后一个 /
+        monitorSite = removeLastSplit(monitorSite);
 
         interval = config.getParameter("lts.monitor.interval", 1);
 
@@ -113,6 +115,14 @@ public abstract class AbstractMonitor implements Monitor {
         } catch (Exception e) {
             LOGGER.error("Monitor start failed.", e);
         }
+    }
+
+    private String removeLastSplit(String str) {
+        if (str.endsWith("/")) {
+            str = str.substring(0, str.length() - 1);
+            return removeLastSplit(str);
+        }
+        return str;
     }
 
     /**

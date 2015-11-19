@@ -5,7 +5,9 @@ package com.lts.biz.logger;
  */
 public class JobLogException extends RuntimeException {
 
-    public JobLogException() {
+	private static final long serialVersionUID = -7907389604614654285L;
+
+	public JobLogException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class JobLogException extends RuntimeException {
         super(cause);
     }
 
-    protected JobLogException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

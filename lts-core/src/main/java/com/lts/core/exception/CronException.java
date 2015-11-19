@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class CronException extends RuntimeException {
 
-    public CronException() {
+	private static final long serialVersionUID = -5252237483450100864L;
+
+	public CronException() {
         super();
     }
 
@@ -21,7 +23,4 @@ public class CronException extends RuntimeException {
         super(cause);
     }
 
-    protected CronException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

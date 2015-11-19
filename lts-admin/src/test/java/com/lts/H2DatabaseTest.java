@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.UUID;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/25/15.

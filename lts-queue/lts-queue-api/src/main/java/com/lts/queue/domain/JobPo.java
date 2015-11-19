@@ -1,7 +1,6 @@
 package com.lts.queue.domain;
 
 import com.lts.core.commons.utils.JSONUtils;
-import com.lts.core.support.SystemClock;
 
 import java.util.Map;
 

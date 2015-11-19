@@ -5,7 +5,9 @@ package com.lts.core.exception;
  */
 public class DaoException extends RuntimeException{
 
-    public DaoException() {
+	private static final long serialVersionUID = -4031278211419963345L;
+
+	public DaoException() {
         super();
     }
 

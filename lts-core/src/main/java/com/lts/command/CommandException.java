@@ -5,7 +5,9 @@ package com.lts.command;
  */
 public class CommandException extends RuntimeException{
 
-    public CommandException() {
+	private static final long serialVersionUID = 7563802613921477340L;
+
+	public CommandException() {
         super();
     }
 
@@ -19,9 +21,5 @@ public class CommandException extends RuntimeException{
 
     public CommandException(Throwable cause) {
         super(cause);
-    }
-
-    protected CommandException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

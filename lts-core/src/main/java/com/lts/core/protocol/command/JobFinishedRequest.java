@@ -10,7 +10,9 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 8/16/14.
  */
 public class JobFinishedRequest extends AbstractRemotingCommandBody {
-    /**
+	private static final long serialVersionUID = -5455937821973991888L;
+
+	/**
      * 是否接受新任务
      */
     private boolean receiveNewJob = false;

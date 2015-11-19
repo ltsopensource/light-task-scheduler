@@ -34,7 +34,8 @@ public class JobLoggerDelegate implements JobLogger {
     private JobLogger jobLogger;
     private boolean lazyLog = false;
     private ScheduledExecutorService executor;
-    private ScheduledFuture scheduledFuture;
+    @SuppressWarnings("unused")
+	private ScheduledFuture<?> scheduledFuture;
     private BlockingQueue<JobLogPo> memoryQueue;
     // 日志批量刷盘数量
     private int batchFlushSize = 100;

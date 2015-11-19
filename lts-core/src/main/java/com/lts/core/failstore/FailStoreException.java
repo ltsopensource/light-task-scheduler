@@ -5,7 +5,9 @@ package com.lts.core.failstore;
  */
 public class FailStoreException extends Exception {
 
-    public FailStoreException(String message) {
+	private static final long serialVersionUID = -527169987823345068L;
+
+	public FailStoreException(String message) {
         super(message);
     }
 
@@ -17,7 +19,4 @@ public class FailStoreException extends Exception {
         super(cause);
     }
 
-    protected FailStoreException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

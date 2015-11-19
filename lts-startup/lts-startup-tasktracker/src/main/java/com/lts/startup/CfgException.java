@@ -5,7 +5,9 @@ package com.lts.startup;
  */
 public class CfgException extends Exception {
 
-    public CfgException() {
+	private static final long serialVersionUID = -661377294271386745L;
+
+	public CfgException() {
         super();
     }
 

@@ -1,6 +1,7 @@
 package com.lts.startup;
 
 import com.lts.tasktracker.TaskTracker;
+
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -8,7 +9,8 @@ import org.springframework.context.ApplicationContext;
  */
 public class SpringStartup {
 
-    public static TaskTracker start(String cfgPath) {
+    @SuppressWarnings("resource")
+	public static TaskTracker start(String cfgPath) {
 
         System.setProperty("lts.tasktracker.cfg.path", cfgPath);
 

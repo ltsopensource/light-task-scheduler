@@ -27,7 +27,7 @@ public class StopWorkingMonitor {
     private TaskTrackerApplication application;
     private AtomicBoolean start = new AtomicBoolean(false);
     private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
-    private ScheduledFuture scheduledFuture;
+    private ScheduledFuture<?> scheduledFuture;
     private String ecSubscriberName = StopWorkingMonitor.class.getSimpleName();
     private EventSubscriber eventSubscriber;
     private Long offlineTimestamp = null;

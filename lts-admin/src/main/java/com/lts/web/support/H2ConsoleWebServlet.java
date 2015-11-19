@@ -18,7 +18,9 @@ import java.util.Map;
  */
 public class H2ConsoleWebServlet extends WebServlet {
 
-    @Override
+	private static final long serialVersionUID = 7664716645859452731L;
+
+	@Override
     public void init(ServletConfig config) throws ServletException {
         ServletConfigFacade servletConfigFacade = new ServletConfigFacade(config);
 

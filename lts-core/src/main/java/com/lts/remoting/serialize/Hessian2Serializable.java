@@ -27,7 +27,8 @@ public class Hessian2Serializable implements RemotingSerializable {
         return bos.toByteArray();
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public <T> T deserialize(byte[] data, Class<T> clazz) throws Exception {
 
         UnsafeByteArrayInputStream bin = new UnsafeByteArrayInputStream(data);

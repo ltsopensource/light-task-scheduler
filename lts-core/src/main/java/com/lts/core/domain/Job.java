@@ -17,7 +17,9 @@ import java.util.Map;
  */
 public class Job implements Serializable{
 
-    @NotNull
+	private static final long serialVersionUID = 7881199011994149340L;
+	
+	@NotNull
     private String taskId;
     /**
      * 优先级 (数值越大 优先级越低)

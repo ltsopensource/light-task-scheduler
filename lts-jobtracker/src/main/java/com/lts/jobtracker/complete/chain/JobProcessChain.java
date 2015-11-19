@@ -27,13 +27,10 @@ public class JobProcessChain implements JobCompletedChain {
     private ClientNotifier clientNotifier;
     private final JobCompleteHandler retryHandler;
     private final JobCompleteHandler jobFinishHandler;
-    private final JobTrackerApplication application;
-
     // 任务的最大重试次数
     private final Integer maxRetryTimes;
 
     public JobProcessChain(final JobTrackerApplication application) {
-        this.application = application;
         this.retryHandler = new JobRetryHandler(application);
         this.jobFinishHandler = new JobFinishHandler(application);
 

@@ -105,20 +105,6 @@ public class ExtensionLoader<T> {
         return cachedNames.get(extensionClass);
     }
 
-    private boolean isMatchGroup(String group, String[] groups) {
-        if (group == null || group.length() == 0) {
-            return true;
-        }
-        if (groups != null && groups.length > 0) {
-            for (String g : groups) {
-                if (group.equals(g)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /**
      * 返回扩展点实例，如果没有指定的扩展点或是还没加载（即实例化）则返回<code>null</code>。注意：此方法不会触发扩展点的加载。
      * <p/>

@@ -6,7 +6,9 @@ package com.lts.queue.exception;
  */
 public class DuplicateJobException extends RuntimeException {
 
-    public DuplicateJobException() {
+	private static final long serialVersionUID = 2049995998886965479L;
+
+	public DuplicateJobException() {
         super();
     }
 

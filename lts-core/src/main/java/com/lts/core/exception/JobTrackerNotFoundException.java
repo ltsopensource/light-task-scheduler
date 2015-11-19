@@ -6,7 +6,9 @@ package com.lts.core.exception;
  */
 public class JobTrackerNotFoundException extends Exception{
 
-    public JobTrackerNotFoundException() {
+	private static final long serialVersionUID = -7804693020495753429L;
+
+	public JobTrackerNotFoundException() {
     }
 
     public JobTrackerNotFoundException(String message) {
@@ -21,7 +23,4 @@ public class JobTrackerNotFoundException extends Exception{
         super(cause);
     }
 
-    public JobTrackerNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }
