@@ -48,7 +48,6 @@
         <mina.version>2.0.9</mina.version>
         <hessian.version>4.0.38</hessian.version>
         <mapdb.version>2.0-beta10</mapdb.version>
-        <commons-codec.version>1.10</commons-codec.version>
         <groovy.version>2.4.5</groovy.version>
     </properties>
 
@@ -118,11 +117,6 @@
                 <groupId>commons-dbutils</groupId>
                 <artifactId>commons-dbutils</artifactId>
                 <version>${dbutils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
