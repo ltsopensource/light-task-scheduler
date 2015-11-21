@@ -1,6 +1,6 @@
 package com.lts.core.cluster;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.compiler.support.AdaptiveCompiler;
 import com.lts.core.constant.Constants;
 
@@ -265,6 +265,6 @@ public class Config implements Serializable {
 
     @Override
     public String toString() {
-        return JSONUtils.toJSONString(this);
+        return JSON.toJSONString(this);
     }
 }

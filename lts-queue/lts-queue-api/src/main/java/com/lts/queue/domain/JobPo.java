@@ -1,6 +1,6 @@
 package com.lts.queue.domain;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 
 import java.util.Map;
 
@@ -183,6 +183,6 @@ public class JobPo {
 
     @Override
     public String toString() {
-        return JSONUtils.toJSONString(this);
+        return JSON.toJSONString(this);
     }
 }

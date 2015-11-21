@@ -2,7 +2,7 @@ package com.lts.jobtracker.command;
 
 import com.lts.command.CommandProcessor;
 import com.lts.command.CommandRequest;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.logger.Logger;
@@ -39,7 +39,7 @@ public class AddJobCommand implements CommandProcessor {
             return;
         }
         try {
-            Job job = JSONUtils.parse(jobJSON, Job.class);
+            Job job = JSON.parse(jobJSON, Job.class);
             if (job == null) {
                 writer.println("job can not be null");
                 return;

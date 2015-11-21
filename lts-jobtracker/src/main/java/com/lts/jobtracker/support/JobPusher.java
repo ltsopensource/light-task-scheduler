@@ -1,7 +1,7 @@
 package com.lts.jobtracker.support;
 
 import com.lts.core.commons.utils.Holder;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.exception.RequestTimeoutException;
@@ -175,7 +175,7 @@ public class JobPusher {
                         jobPo.setIsRunning(true);
                         application.getExecutableJobQueue().add(jobPo);
                     } catch (DuplicateJobException e) {
-                        LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
+                        LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
                         needResume = false;
                     }
                     application.getExecutingJobQueue().remove(jobPo.getJobId());

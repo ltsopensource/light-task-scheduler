@@ -1,7 +1,7 @@
 package com.lts.core.domain;
 
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.exception.JobSubmitException;
 import com.lts.core.support.CronExpression;
@@ -134,7 +134,7 @@ public class Job implements Serializable{
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
     }
 
-    public void setTriggerTime(Date date) {
+    public void setTriggerDate(Date date) {
         if (date != null) {
             this.triggerTime = date.getTime();
         }
@@ -158,7 +158,7 @@ public class Job implements Serializable{
 
     @Override
     public String toString() {
-        return JSONUtils.toJSONString(this);
+        return JSON.toJSONString(this);
     }
 
     public void checkField() throws JobSubmitException {

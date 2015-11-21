@@ -1,7 +1,7 @@
 package com.lts.web.support.spring;
 
-import com.alibaba.fastjson.TypeReference;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
+import com.lts.core.json.TypeReference;
 import org.springframework.util.StringUtils;
 
 import java.beans.PropertyEditorSupport;
@@ -21,8 +21,7 @@ public class MapEditor extends PropertyEditorSupport {
         if (!StringUtils.hasText(text)) {
             setValue(null);
         } else {
-            setValue(JSONUtils.parse(text, new TypeReference<HashMap<String, String>>() {
-            }));
+            setValue(JSON.parse(text, new TypeReference<HashMap<String, String>>(){}));
         }
     }
 
@@ -33,6 +32,6 @@ public class MapEditor extends PropertyEditorSupport {
         if (value == null) {
             return "";
         }
-        return JSONUtils.toJSONString(value);
+        return JSON.toJSONString(value);
     }
 }

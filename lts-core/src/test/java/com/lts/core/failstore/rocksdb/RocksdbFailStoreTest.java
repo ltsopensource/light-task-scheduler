@@ -3,7 +3,7 @@ package com.lts.core.failstore.rocksdb;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.KVPair;
@@ -50,7 +50,7 @@ public class RocksdbFailStoreTest {
         List<KVPair<String, Job>> kvPairs = failStore.fetchTop(5, Job.class);
         if (CollectionUtils.isNotEmpty(kvPairs)) {
             for (KVPair<String, Job> kvPair : kvPairs) {
-                System.out.println(JSONUtils.toJSONString(kvPair));
+                System.out.println(JSON.toJSONString(kvPair));
             }
         }
     }

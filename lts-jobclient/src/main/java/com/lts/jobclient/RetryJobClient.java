@@ -1,6 +1,6 @@
 package com.lts.jobclient;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.Job;
 import com.lts.core.support.RetryScheduler;
 import com.lts.jobclient.domain.JobClientApplication;
@@ -65,7 +65,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
             response.setFailedJobs(jobs);
             response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
             response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
-            LOGGER.warn(JSONUtils.toJSONString(response));
+            LOGGER.warn(JSON.toJSONString(response));
             return response;
         }
         if (!response.isSuccess()) {
@@ -76,7 +76,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientApplicatio
                 response.setSuccess(true);
                 response.setCode(ResponseCode.SUBMIT_FAILED_AND_SAVE_FOR_LATER);
                 response.setMsg(response.getMsg() + ", save local fail store and send later !");
-                LOGGER.warn(JSONUtils.toJSONString(response));
+                LOGGER.warn(JSON.toJSONString(response));
             } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg(e.getMessage());
