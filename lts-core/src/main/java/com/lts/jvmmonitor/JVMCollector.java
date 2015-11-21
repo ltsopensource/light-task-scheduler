@@ -1,6 +1,6 @@
 package com.lts.jvmmonitor;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.monitor.JVMMonitorData;
 import com.lts.jvmmonitor.mbean.JVMGCMBean;
 import com.lts.jvmmonitor.mbean.JVMInfoMBean;
@@ -64,7 +64,7 @@ public class JVMCollector {
             public void run() {
                 while (true) {
                     JVMMonitorData jvmMonitorData = JVMCollector.collect();
-                    System.out.println(JSONUtils.toJSONString(jvmMonitorData));
+                    System.out.println(JSON.toJSONString(jvmMonitorData));
                     try {
                         Thread.sleep(10000L);
                     } catch (InterruptedException e) {

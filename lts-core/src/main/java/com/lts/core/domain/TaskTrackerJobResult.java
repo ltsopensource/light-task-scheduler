@@ -1,6 +1,6 @@
 package com.lts.core.domain;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 
 import java.io.Serializable;
 
@@ -54,6 +54,6 @@ public class TaskTrackerJobResult implements Serializable{
 
     @Override
     public String toString() {
-        return JSONUtils.toJSONString(this);
+        return JSON.toJSONString(this);
     }
 }

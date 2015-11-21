@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.2</version>
+    <version>1.6.3-SNAPSHOT</version>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
@@ -49,6 +49,8 @@
         <hessian.version>4.0.38</hessian.version>
         <mapdb.version>2.0-beta10</mapdb.version>
         <groovy.version>2.4.5</groovy.version>
+        <jackson.version>2.6.3</jackson.version>
+        <aspectj.version>1.7.2</aspectj.version>
     </properties>
 
     <dependencyManagement>
@@ -229,6 +231,16 @@
                         <artifactId>jansi</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

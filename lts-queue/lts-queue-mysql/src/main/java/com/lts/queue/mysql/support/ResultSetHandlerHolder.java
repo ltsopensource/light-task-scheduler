@@ -1,7 +1,7 @@
 package com.lts.queue.mysql.support;
 
-import com.alibaba.fastjson.TypeReference;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
+import com.lts.core.json.TypeReference;
 import com.lts.queue.domain.JobPo;
 import org.apache.commons.dbutils.ResultSetHandler;
 
@@ -47,8 +47,7 @@ public class ResultSetHandlerHolder {
         jobPo.setGmtModified(rs.getLong("gmt_modified"));
         jobPo.setSubmitNodeGroup(rs.getString("submit_node_group"));
         jobPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
-        jobPo.setExtParams(JSONUtils.parse(rs.getString("ext_params"), new TypeReference<HashMap<String, String>>() {
-        }));
+        jobPo.setExtParams(JSON.parse(rs.getString("ext_params"), new TypeReference<HashMap<String, String>>(){}));
         jobPo.setIsRunning(rs.getBoolean("is_running"));
         jobPo.setTaskTrackerIdentity(rs.getString("task_tracker_identity"));
         jobPo.setCronExpression(rs.getString("cron_expression"));

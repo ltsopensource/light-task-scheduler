@@ -152,4 +152,12 @@ public final class StringUtils {
             return false;
         return INT_PATTERN.matcher(str).matches();
     }
+
+    public static String toString(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        return value.toString();
+    }
 }

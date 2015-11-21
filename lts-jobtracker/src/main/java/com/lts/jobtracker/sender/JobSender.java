@@ -2,7 +2,7 @@ package com.lts.jobtracker.sender;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.constant.Level;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -41,7 +41,7 @@ public class JobSender {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            LOGGER.warn("Add Executing Job error, jobPo={}", JSONUtils.toJSONString(jobPo), e);
+            LOGGER.warn("Add Executing Job error, jobPo={}", JSON.toJSONString(jobPo), e);
             application.getExecutableJobQueue().resume(jobPo);
             return new SendResult(false, JobPushResult.FAILED);
         }

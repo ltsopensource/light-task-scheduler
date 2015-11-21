@@ -1,6 +1,7 @@
 package com.lts.core.cluster;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.domain.Job;
+import com.lts.core.json.JSON;
 import com.lts.core.registry.NodeRegistryUtils;
 
 import java.util.ArrayList;
@@ -32,6 +33,16 @@ public class Node {
     private List<NodeType> listenNodeTypes;
 
     private String fullString;
+
+    private Job job;
+
+    public Job getJob() {
+        return job;
+    }
+
+    public void setJob(Job job) {
+        this.job = job;
+    }
 
     public Integer getCommandPort() {
         return commandPort;
@@ -165,6 +176,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return JSONUtils.toJSONString(this);
+        return JSON.toJSONString(this);
     }
 }

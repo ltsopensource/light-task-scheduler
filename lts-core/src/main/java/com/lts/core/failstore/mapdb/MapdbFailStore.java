@@ -1,7 +1,7 @@
 package com.lts.core.failstore.mapdb;
 
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
@@ -60,7 +60,7 @@ public class MapdbFailStore extends AbstractFailStore {
     @Override
     public void put(String key, Object value) throws FailStoreException {
         try {
-            String valueString = JSONUtils.toJSONString(value);
+            String valueString = JSON.toJSONString(value);
             map.put(key, valueString);
             // persist changes into disk
             db.commit();
@@ -107,7 +107,7 @@ public class MapdbFailStore extends AbstractFailStore {
         }
         for (Map.Entry<String, String> entry : map.entrySet()) {
             String key = entry.getKey();
-            T value = JSONUtils.parse(entry.getValue(), type);
+            T value = JSON.parse(entry.getValue(), type);
             KVPair<String, T> pair = new KVPair<String, T>(key, value);
             list.add(pair);
             if (list.size() >= size) {

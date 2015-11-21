@@ -1,6 +1,6 @@
 package com.lts.remoting.protocol;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.remoting.RemotingCommandBody;
 
 import java.io.Serializable;
@@ -138,7 +138,7 @@ public class RemotingCommand implements Serializable{
                 ", flag=" + flag +
                 ", remark='" + remark + '\'' +
                 ", sid='" + sid + '\'' +
-                ", body=" + JSONUtils.toJSONString(body) +
+                ", body=" + JSON.toJSONString(body) +
                 '}';
     }
 

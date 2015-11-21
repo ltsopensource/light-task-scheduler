@@ -1,13 +1,13 @@
 package com.lts.web.service;
 
-import com.alibaba.fastjson.TypeReference;
 import com.lts.core.commons.utils.BeanUtils;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.monitor.JVMMonitorData;
 import com.lts.core.domain.monitor.JobTrackerMonitorData;
 import com.lts.core.domain.monitor.MonitorData;
 import com.lts.core.domain.monitor.TaskTrackerMonitorData;
+import com.lts.core.json.TypeReference;
 import com.lts.core.support.SystemClock;
 import com.lts.web.repository.domain.*;
 import com.lts.web.repository.mapper.*;
@@ -46,9 +46,8 @@ public class MonitorDataService {
      */
     public void addTaskTrackerMonitorData(MonitorDataAddRequest request) {
 
-        List<TaskTrackerMonitorData> mds = JSONUtils.parse(request.getData(),
-                new TypeReference<List<TaskTrackerMonitorData>>() {
-                });
+        List<TaskTrackerMonitorData> mds = JSON.parse(request.getData(),
+                new TypeReference<List<TaskTrackerMonitorData>>(){});
         if (CollectionUtils.isEmpty(mds)) {
             throw new IllegalArgumentException("monitorData can not be null");
         }
@@ -88,9 +87,8 @@ public class MonitorDataService {
      * 添加JobTracker监控数据
      */
     public void addJobTrackerMonitorData(MonitorDataAddRequest request) {
-        List<JobTrackerMonitorData> mds = JSONUtils.parse(request.getData(),
-                new TypeReference<List<JobTrackerMonitorData>>() {
-                });
+        List<JobTrackerMonitorData> mds = JSON.parse(request.getData(),
+                new TypeReference<List<JobTrackerMonitorData>>(){});
         if (CollectionUtils.isEmpty(mds)) {
             throw new IllegalArgumentException("monitorData can not be null");
         }

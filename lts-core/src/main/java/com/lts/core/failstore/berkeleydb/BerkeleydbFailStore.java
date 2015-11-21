@@ -2,7 +2,7 @@ package com.lts.core.failstore.berkeleydb;
 
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
@@ -71,7 +71,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     @Override
     public void put(String key, Object value) throws FailStoreException {
         try {
-            String valueString = JSONUtils.toJSONString(value);
+            String valueString = JSON.toJSONString(value);
             @SuppressWarnings("unused")
 			OperationStatus status = db.put(null, new DatabaseEntry(key.getBytes("UTF-8")),
                     new DatabaseEntry(valueString.getBytes("UTF-8")));
@@ -116,7 +116,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
                 String key = new String(foundKey.getData(), "UTF-8");
                 String valueString = new String(foundValue.getData(), "UTF-8");
 
-                T value = JSONUtils.parse(valueString, type);
+                T value = JSON.parse(valueString, type);
                 KVPair<String, T> pair = new KVPair<String, T>(key, value);
                 list.add(pair);
                 if (list.size() >= size) {
