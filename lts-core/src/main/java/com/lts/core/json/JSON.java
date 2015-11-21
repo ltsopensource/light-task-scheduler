@@ -11,14 +11,14 @@ import java.util.Map;
  */
 public class JSON {
 
-    private static JSONAdapter aware = JSONFactory.getJSONAdapter();
+    private static JSONAdapter adapter = JSONFactory.getJSONAdapter();
 
     public static final <T> T parse(String json, Type type) {
         try {
             if (StringUtils.isEmpty(json)) {
                 return null;
             }
-            return aware.parse(json, type);
+            return adapter.parse(json, type);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -26,7 +26,7 @@ public class JSON {
 
     public static final <T> T parse(String json, TypeReference<T> typeReference) {
         try {
-            return aware.parse(json, typeReference.getType());
+            return adapter.parse(json, typeReference.getType());
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -37,7 +37,7 @@ public class JSON {
             if (obj == null) {
                 return null;
             }
-            return aware.toJSONString(obj);
+            return adapter.toJSONString(obj);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -48,7 +48,7 @@ public class JSON {
             if (obj == null) {
                 return null;
             }
-            return aware.toJSONObject(obj);
+            return adapter.toJSONObject(obj);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -59,7 +59,7 @@ public class JSON {
             if (obj == null) {
                 return null;
             }
-            return aware.toJSONArray(obj);
+            return adapter.toJSONArray(obj);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -67,7 +67,7 @@ public class JSON {
 
     public static final JSONArray parseArray(String obj) {
         try {
-            return aware.parseArray(obj);
+            return adapter.parseArray(obj);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -75,7 +75,7 @@ public class JSON {
 
     public static final JSONObject parseObject(String obj) {
         try {
-            return aware.parseObject(obj);
+            return adapter.parseObject(obj);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -83,7 +83,7 @@ public class JSON {
 
     public static final JSONObject newJSONObject() {
         try {
-            return aware.newJSONObject();
+            return adapter.newJSONObject();
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -91,7 +91,7 @@ public class JSON {
 
     public static final JSONArray newJSONArray() {
         try {
-            return aware.newJSONArray();
+            return adapter.newJSONArray();
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -99,7 +99,7 @@ public class JSON {
 
     public static final JSONObject newJSONObject(Map<String, Object> map) {
         try {
-            return aware.newJSONObject(map);
+            return adapter.newJSONObject(map);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -107,7 +107,7 @@ public class JSON {
 
     public static final JSONObject newJSONObject(int initialCapacity) {
         try {
-            return aware.newJSONObject(initialCapacity);
+            return adapter.newJSONObject(initialCapacity);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -115,7 +115,7 @@ public class JSON {
 
     public static final JSONArray newJSONArray(List<Object> list) {
         try {
-            return aware.newJSONArray(list);
+            return adapter.newJSONArray(list);
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -123,7 +123,7 @@ public class JSON {
 
     public static final JSONArray newJSONArray(int initialCapacity) {
         try {
-            return aware.newJSONArray(initialCapacity);
+            return adapter.newJSONArray(initialCapacity);
         } catch (Exception e) {
             throw new JSONException(e);
         }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 任务完成 Chian
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
 public class JobProcessChain implements JobCompletedChain {
