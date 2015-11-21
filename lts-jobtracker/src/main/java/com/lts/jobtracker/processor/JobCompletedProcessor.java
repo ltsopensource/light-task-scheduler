@@ -26,9 +26,9 @@ public class JobCompletedProcessor extends AbstractRemotingProcessor {
         super(application);
 
         this.chains = new CopyOnWriteArrayList<JobCompletedChain>();
-        this.chains.add(new JobStatisticChain(application));
-        this.chains.add(new JobProcessChain(application));
-        this.chains.add(new GetNewJobChain(application));
+        this.chains.add(new JobStatisticChain(application));        // 统计
+        this.chains.add(new JobProcessChain(application));          // 完成处理
+        this.chains.add(new GetNewJobChain(application));           // 获取新任务
 
     }
 

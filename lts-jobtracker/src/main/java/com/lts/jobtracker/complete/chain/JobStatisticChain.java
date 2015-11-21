@@ -19,6 +19,7 @@ import com.lts.remoting.protocol.RemotingProtos;
 import java.util.List;
 
 /**
+ * 任务数据统计 Chain
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
 public class JobStatisticChain implements JobCompletedChain {
