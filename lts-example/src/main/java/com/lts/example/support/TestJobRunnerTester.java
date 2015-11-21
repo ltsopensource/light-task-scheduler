@@ -1,6 +1,6 @@
 package com.lts.example.support;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.runner.JobRunner;
@@ -18,7 +18,7 @@ public class TestJobRunnerTester extends JobRunnerTester {
         // 运行测试
         TestJobRunnerTester tester = new TestJobRunnerTester();
         Result result = tester.run(job);
-        System.out.println(JSONUtils.toJSONString(result));
+        System.out.println(JSON.toJSONString(result));
     }
 
     @Override

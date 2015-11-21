@@ -1,7 +1,7 @@
 package com.lts.ec.injvm;
 
 import com.lts.core.commons.collect.ConcurrentHashSet;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -62,7 +62,7 @@ public class InjvmEventCenter implements EventCenter {
                     subscriber.getObserver().onObserved(eventInfo);
                 } catch (Throwable t) {      // 防御性容错
                     LOGGER.error(" eventInfo:{}, subscriber:{}",
-                            JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
+                            JSON.toJSONString(eventInfo), JSON.toJSONString(subscriber), t);
                 }
             }
         }
@@ -82,7 +82,7 @@ public class InjvmEventCenter implements EventCenter {
                             subscriber.getObserver().onObserved(eventInfo);
                         } catch (Throwable t) {     // 防御性容错
                             LOGGER.error(" eventInfo:{}, subscriber:{}",
-                                    JSONUtils.toJSONString(eventInfo), JSONUtils.toJSONString(subscriber), t);
+                                    JSON.toJSONString(eventInfo), JSON.toJSONString(subscriber), t);
                         }
                     }
                 }

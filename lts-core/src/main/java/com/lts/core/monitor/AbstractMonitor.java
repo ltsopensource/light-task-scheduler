@@ -1,7 +1,7 @@
 package com.lts.core.monitor;
 
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
+import com.lts.core.json.JSONException;
+import com.lts.core.json.JSONObject;
 import com.lts.core.Application;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
@@ -9,6 +9,7 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.*;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.monitor.MonitorData;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -156,7 +157,7 @@ public abstract class AbstractMonitor implements Monitor {
                 List<MonitorData> subList = BatchUtils.getBatchList(i, BATCH_REPORT_SIZE, toSendMonitorDataList);
                 if (CollectionUtils.isNotEmpty(subList)) {
                     try {
-                        if (send(getPostParam(JSONUtils.toJSONString(subList)), Constants.MONITOR_DATA_ADD_URL)) {
+                        if (send(getPostParam(JSON.toJSONString(subList)), Constants.MONITOR_DATA_ADD_URL)) {
                             toIndex = toIndex + CollectionUtils.sizeOf(subList);
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("Report monitor data success ");
@@ -194,7 +195,7 @@ public abstract class AbstractMonitor implements Monitor {
         String result = WebUtils.doPost(url, params, 3000, 6000);
         if (StringUtils.isNotEmpty(result)) {
             try {
-                JSONObject json = JSONUtils.parseObject(result);
+                JSONObject json = JSON.parseObject(result);
                 if (json.getBoolean("success")) {
                     return true;
                 } else {
@@ -234,7 +235,7 @@ public abstract class AbstractMonitor implements Monitor {
         }
         Map<String, Object> infoMap = JVMCollector.getJVMInfo();
         try {
-            if (send(getPostParam(JSONUtils.toJSONString(infoMap)), Constants.MONITOR_JVM_INFO_DATA_ADD_URL)) {
+            if (send(getPostParam(JSON.toJSONString(infoMap)), Constants.MONITOR_JVM_INFO_DATA_ADD_URL)) {
                 jvmInfoSendSuccess = true;
             }
         } catch (Exception e) {

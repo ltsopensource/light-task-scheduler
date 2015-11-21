@@ -1,6 +1,6 @@
 package com.lts.web.support.spring;
 
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.web.support.AjaxUtils;
 import com.lts.web.vo.RestfulResponse;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class ExceptionHandlerResolver implements HandlerExceptionResolver {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
                 restfulResponse.setMsg(sw.toString());
-                writer.write(JSONUtils.toJSONString(restfulResponse));
+                writer.write(JSON.toJSONString(restfulResponse));
                 writer.flush();
             } catch (IOException e) {
                 LOGGER.error(e.getMessage(), e);

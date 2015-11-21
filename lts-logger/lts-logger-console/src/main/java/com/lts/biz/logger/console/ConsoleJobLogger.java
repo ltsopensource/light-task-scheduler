@@ -3,7 +3,7 @@ package com.lts.biz.logger.console;
 import com.lts.biz.logger.JobLogger;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.web.response.PageResponse;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -19,7 +19,7 @@ public class ConsoleJobLogger implements JobLogger {
 
     @Override
     public void log(JobLogPo jobLogPo) {
-        LOGGER.info(JSONUtils.toJSONString(jobLogPo));
+        LOGGER.info(JSON.toJSONString(jobLogPo));
     }
 
     @Override

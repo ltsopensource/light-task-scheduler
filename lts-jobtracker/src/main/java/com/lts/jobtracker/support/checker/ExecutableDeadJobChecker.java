@@ -1,7 +1,7 @@
 package com.lts.jobtracker.support.checker;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -76,7 +76,7 @@ public class ExecutableDeadJobChecker {
             if (CollectionUtils.isNotEmpty(deadJobPo)) {
                 for (JobPo jobPo : deadJobPo) {
                     application.getExecutableJobQueue().resume(jobPo);
-                    LOGGER.info("Fix executable job : {} ", JSONUtils.toJSONString(jobPo));
+                    LOGGER.info("Fix executable job : {} ", JSON.toJSONString(jobPo));
                 }
             }
         }

@@ -1,7 +1,7 @@
 package com.lts.core.failstore.leveldb;
 
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
@@ -61,7 +61,7 @@ public class LeveldbFailStore extends AbstractFailStore {
     @Override
     public void put(String key, Object value) throws FailStoreException {
         try {
-            String valueString = JSONUtils.toJSONString(value);
+            String valueString = JSON.toJSONString(value);
             db.put(key.getBytes("UTF-8"), valueString.getBytes("UTF-8"));
         } catch (Exception e) {
             throw new FailStoreException(e);
@@ -114,7 +114,7 @@ public class LeveldbFailStore extends AbstractFailStore {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 Map.Entry<byte[], byte[]> entry = iterator.peekNext();
                 String key = new String(entry.getKey(), "UTF-8");
-                T value = JSONUtils.parse(new String(entry.getValue(), "UTF-8"), type);
+                T value = JSON.parse(new String(entry.getValue(), "UTF-8"), type);
                 KVPair<String, T> pair = new KVPair<String, T>(key, value);
                 list.add(pair);
                 if (list.size() >= size) {

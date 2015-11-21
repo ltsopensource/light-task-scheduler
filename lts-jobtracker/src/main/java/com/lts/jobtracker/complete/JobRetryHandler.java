@@ -2,7 +2,7 @@ package com.lts.jobtracker.complete;
 
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.logger.Logger;
@@ -71,7 +71,7 @@ public class JobRetryHandler implements JobCompleteHandler {
             try {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
-                LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
+                LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
             }
             // 从正在执行的队列中移除
             application.getExecutingJobQueue().remove(jobPo.getJobId());

@@ -9,7 +9,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.logger.Logger;
@@ -327,12 +327,14 @@ public class JobQueueApiController extends AbstractController {
         job.setReplaceOnExist(true);
         // 这个是 cron expression 和 quartz 一样，可选
         job.setCronExpression(request.getCronExpression());
-        job.setTriggerTime(request.getTriggerTime());
+        if(request.getTriggerTime() != null){
+            job.setTriggerTime(request.getTriggerTime().getTime());
+        }
         job.setPriority(request.getPriority());
 
         Command command = new Command();
         command.setCommand(Commands.ADD_JOB);
-        command.addParam("job", JSONUtils.toJSONString(job));
+        command.addParam("job", JSON.toJSONString(job));
 
 
         NodeRequest nodeRequest = new NodeRequest();

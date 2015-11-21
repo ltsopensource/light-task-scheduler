@@ -4,7 +4,7 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.JSONUtils;
+import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
@@ -184,7 +184,7 @@ public class ExecutingDeadJobChecker {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
                 // ignore
-                LOGGER.warn("Add Executable Job error jobPo={}", JSONUtils.toJSONString(jobPo), e);
+                LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
             }
 
             // 2. remove from executing queue
@@ -201,7 +201,7 @@ public class ExecutingDeadJobChecker {
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }
-        LOGGER.info("fix dead job ! {}", JSONUtils.toJSONString(jobPo));
+        LOGGER.info("fix dead job ! {}", JSON.toJSONString(jobPo));
     }
 
     public void stop() {
