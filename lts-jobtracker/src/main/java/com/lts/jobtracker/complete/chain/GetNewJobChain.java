@@ -10,6 +10,8 @@ import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 
 /**
+ * 接受新任务Chain
+ *
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
 public class GetNewJobChain implements JobCompletedChain {
