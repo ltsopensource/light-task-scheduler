@@ -17,7 +17,7 @@ public class JSONFactory {
     private static volatile JSONAdapter JSON_ADAPTER;
 
     static {
-        String json = System.getProperty("lts.logger");
+        String json = System.getProperty("lts.json");
         if ("fastjson".equals(json)) {
             setJSONAdapter(new FastJSONAdapter());
         } else if ("jackson".equals(json)) {
@@ -29,7 +29,7 @@ public class JSONFactory {
                 try {
                     setJSONAdapter(new JacksonJSONAdapter());
                 } catch (Throwable ignored2) {
-                    LOGGER.error("Please check JSON lib");
+                    throw new JSONException("Please check JSON lib");
                 }
             }
         }
