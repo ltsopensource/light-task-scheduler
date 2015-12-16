@@ -87,6 +87,8 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
             if (e.getMessage().contains("doesn't exist Query:")) {
                 createQueue(jobPo.getTaskTrackerNodeGroup());
                 add(jobPo);
+            } else{
+                throw e;
             }
         }
         return true;
