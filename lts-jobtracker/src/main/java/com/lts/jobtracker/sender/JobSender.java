@@ -41,7 +41,7 @@ public class JobSender {
         try {
             application.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
-            LOGGER.warn("Add Executing Job error, jobPo={}", JSON.toJSONString(jobPo), e);
+            LOGGER.warn("ExecutingJobQueue already exist:" + JSON.toJSONString(jobPo));
             application.getExecutableJobQueue().resume(jobPo);
             return new SendResult(false, JobPushResult.FAILED);
         }

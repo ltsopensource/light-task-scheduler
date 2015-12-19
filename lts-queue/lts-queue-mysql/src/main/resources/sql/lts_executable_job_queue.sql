@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `is_running` tinyint(11) DEFAULT NULL COMMENT '是否正在执行',
   `task_tracker_identity` varchar(64) DEFAULT NULL COMMENT '执行的taskTracker的唯一标识',
   `need_feedback` tinyint(4) DEFAULT NULL COMMENT '是否需要反馈给客户端',
-  `cron_expression` varchar(32) DEFAULT NULL COMMENT '执行时间表达式 (和 quartz 表达式一样)',
+  `cron_expression` varchar(128) DEFAULT NULL COMMENT '执行时间表达式 (和 quartz 表达式一样)',
   `trigger_time` bigint(20) DEFAULT NULL COMMENT '下一次执行时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),

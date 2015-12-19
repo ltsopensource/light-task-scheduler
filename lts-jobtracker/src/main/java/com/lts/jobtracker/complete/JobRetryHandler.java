@@ -71,7 +71,7 @@ public class JobRetryHandler implements JobCompleteHandler {
             try {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
-                LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
+                LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
             // 从正在执行的队列中移除
             application.getExecutingJobQueue().remove(jobPo.getJobId());
