@@ -6,6 +6,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,16 +25,20 @@ public abstract class AbstractFailStore implements FailStore {
     private static final String dbLockName = "___db.lock";
 
     public AbstractFailStore(File dbPath, boolean needLock) {
-        this.dbPath = dbPath;
-        String path = dbPath.getPath();
-        this.home = path.substring(0, path.indexOf(getName())).concat(getName());
-        if (needLock) {
-            getLock(dbPath.getPath());
+        try {
+            this.dbPath = dbPath;
+            String path = dbPath.getPath();
+            this.home = path.substring(0, path.indexOf(getName())).concat(getName());
+            if (needLock) {
+                getLock(dbPath.getPath());
+            }
+            init();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        init();
     }
 
-    protected String getLock(String failStorePath) {
+    protected String getLock(String failStorePath) throws IOException {
         //  get sequence
         FileUtils.createDirIfNotExist(failStorePath);
         // 有可能两个进程同时创建这个目录，所以用文件锁来得到控制权
@@ -53,7 +58,7 @@ public abstract class AbstractFailStore implements FailStore {
         if (subFiles != null && subFiles.length != 0) {
             for (File subFile : subFiles) {
                 try {
-                    if(subFile.isDirectory()){
+                    if (subFile.isDirectory()) {
                         FileLock tmpLock = new FileLock(subFile.getPath().concat("/").concat(dbLockName));
                         boolean locked = tmpLock.tryLock();
                         if (locked) {
@@ -84,7 +89,7 @@ public abstract class AbstractFailStore implements FailStore {
         return null;
     }
 
-    protected abstract void init();
+    protected abstract void init() throws FailStoreException;
 
     protected abstract String getName();
 

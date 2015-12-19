@@ -1,8 +1,7 @@
 package com.lts.core.cluster;
 
-import com.lts.core.json.JSON;
-import com.lts.core.compiler.support.AdaptiveCompiler;
 import com.lts.core.constant.Constants;
+import com.lts.core.json.JSON;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -15,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Config implements Serializable {
 
-	private static final long serialVersionUID = -8283382582968938472L;
-	// 节点是否可用
+    private static final long serialVersionUID = -8283382582968938472L;
+    // 节点是否可用
     private boolean available = true;
     // 应用节点组
     private String nodeGroup;
@@ -36,8 +35,6 @@ public class Config implements Serializable {
     private String dataPath;
     // 集群名字
     private String clusterName;
-    // java编译器
-    private String compiler;
 
     private volatile transient Map<String, Number> numbers;
 
@@ -252,15 +249,6 @@ public class Config implements Serializable {
         byte b = Byte.parseByte(value);
         getNumbers().put(key, b);
         return b;
-    }
-
-    public void setCompiler(String compiler) {
-        this.compiler = compiler;
-        AdaptiveCompiler.setDefaultCompiler(compiler);
-    }
-
-    public String getCompiler() {
-        return compiler;
     }
 
     @Override

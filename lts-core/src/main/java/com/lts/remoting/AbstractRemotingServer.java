@@ -140,7 +140,7 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
         }
     }
 
-    protected abstract void serverShutdown();
+    protected abstract void serverShutdown() throws RemotingException;
 
     @Override
     protected ExecutorService getCallbackExecutor() {

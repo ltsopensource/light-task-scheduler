@@ -80,7 +80,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
     }
 
     @Override
-    protected void serverShutdown() {
+    protected void serverShutdown() throws RemotingException{
 
         this.eventLoopGroup.shutdownGracefully();
 

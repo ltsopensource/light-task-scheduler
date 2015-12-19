@@ -53,7 +53,7 @@ public class MinaRemotingServer extends AbstractRemotingServer {
     }
 
     @Override
-    protected void serverShutdown() {
+    protected void serverShutdown() throws RemotingException{
         if (acceptor != null) {
             acceptor.unbind(bindAddress);
             acceptor.dispose();

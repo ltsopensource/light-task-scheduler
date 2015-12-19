@@ -77,7 +77,7 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         for (Map.Entry<String, String> entry : AppConfigurer.allConfig().entrySet()) {
             // 将 config. 开头的配置都加入到config中
             if (entry.getKey().startsWith("configs.")) {
-                config.setParameter(entry.getKey().replace("configs.", ""), entry.getValue());
+                config.setParameter(entry.getKey().replaceFirst("configs.", ""), entry.getValue());
             }
         }
 

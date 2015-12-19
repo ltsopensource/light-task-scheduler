@@ -302,6 +302,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |lts.monitor.interval|可选|1|JobClient,TaskTracker,JobTracker|addConfig("lts.monitor.interval", "2")|分钟，整数，建议1-5分钟|
 |lts.remoting|可选|netty|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting", "netty")|底层通讯框架，可选值netty和mina，可以混用，譬如JobTracker是netty， JobClient采用mina|
 |lts.remoting.serializable.default|可选|fastjson|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting.serializable.default", "fastjson")|底层通讯默认序列化方式，可选值 fastjson, hessian2 ，java，底层会自动识别你请求的序列化方式，然后返回数据也是采用与请求的序列化方式返回，假设JobTracker设置的是fastjson，而JobClient是hessian2，那么JobClient提交任务的时候，序列化方式是hessian2，当JobTracker收到请求的时候采用hessian2解码，然后也会将响应数据采用hessian2编码返回给JobClient|
+|lts.compiler|可选|javassist|JobClient,TaskTracker,JobTracker|addConfig("lts.compiler", "javassist")|java编译器,可选值 jdk, javassist(需要引入javassist包)|
+
 
 
 
@@ -381,6 +383,9 @@ public class TestJobRunnerTester extends JobRunnerTester {
 
 ##打包成独立jar
 请在`lts-parent/lts` 下install即可，会在 `lts-parent/lts/target` 下生成`lts-{version}.jar`
+
+##关于节点标识问题
+如果在节点启动的时候设置节点标识,LTS会默认设置一个UUID为节点标识,可读性会比较差,但是能保证每个节点的唯一性,如果用户能自己保证节点标识的唯一性,可以通过 `setIdentity` 来设置,譬如如果每个节点都是部署在一台机器(一个虚拟机)上,那么可以将identity设置为主机名称
 
 ##SPI扩展说明
 ###LTS-Logger扩展

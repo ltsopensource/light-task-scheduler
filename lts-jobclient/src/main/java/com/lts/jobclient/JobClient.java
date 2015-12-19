@@ -157,12 +157,13 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     if (responseCommand == null) {
                         response.setFailedJobs(jobs);
                         response.setSuccess(false);
-                        LOGGER.warn("Submit job failed: {}, {}", jobs, "JobTracker is broken");
+                        response.setMsg("Submit Job failed: JobTracker is broken");
+                        LOGGER.warn("Submit Job failed: {}, {}", jobs, "JobTracker is broken");
                         return;
                     }
 
                     if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                        LOGGER.info("Submit job success: {}", jobs);
+                        LOGGER.info("Submit Job success: {}", jobs);
                         response.setSuccess(true);
                         return;
                     }
@@ -171,7 +172,8 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
                     response.setFailedJobs(jobSubmitResponse.getFailedJobs());
                     response.setSuccess(false);
                     response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
-                    LOGGER.warn("Submit job failed: {}, {}, {}", jobs, responseCommand.getRemark(), jobSubmitResponse.getMsg());
+                    response.setMsg("Submit Job failed: " + responseCommand.getRemark() + " " + jobSubmitResponse.getMsg());
+                    LOGGER.warn("Submit Job failed: {}, {}, {}", jobs, responseCommand.getRemark(), jobSubmitResponse.getMsg());
                 }
             };
 

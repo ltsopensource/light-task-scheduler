@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
  */
-@LtsJobRunner("1")
+@LtsJobRunner("21312") //taskId
 public class JobRunnerB implements JobRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerB.class);

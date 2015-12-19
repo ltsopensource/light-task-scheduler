@@ -1,9 +1,9 @@
 package com.lts.core.loadbalance;
 
+import com.lts.core.commons.utils.ThreadLocalRandom;
 import com.lts.core.support.ConsistentHashSelector;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 一致性hash算法

@@ -115,7 +115,7 @@ public class MysqlJobFeedbackQueue extends JdbcRepository implements JobFeedback
     @Override
     public long getCount(String jobClientNodeGroup) {
         try {
-            return getSqlTemplate().queryForValue(getRealSql(countSQL, jobClientNodeGroup));
+            return (Long)getSqlTemplate().queryForValue(getRealSql(countSQL, jobClientNodeGroup));
         } catch (SQLException e) {
             throw new JobQueueException(e);
         }

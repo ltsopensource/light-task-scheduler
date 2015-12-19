@@ -1,6 +1,9 @@
 package com.lts.core.commons.file;
 
+import com.lts.core.constant.Constants;
+
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 /**
@@ -21,41 +24,44 @@ public class FileUtils {
         return file;
     }
 
+    public static FileChannel newFileChannel(File file, String mode) throws FileNotFoundException {
+        return new RandomAccessFile(file, mode).getChannel();
+    }
+
     public static File createFileIfNotExist(String path) {
         return createFileIfNotExist(new File(path));
     }
 
-    public static File createDirIfNotExist(File file) {
-        if (!file.exists()) {
+    public static File createDirIfNotExist(File dir) throws IOException {
+        if (!dir.exists()) {
             // 创建父目录
-            file.getParentFile().mkdirs();
-            file.mkdir();
+            dir.getParentFile().mkdirs();
+            dir.mkdir();
+        } else if (!dir.isDirectory()) {
+            throw new IOException("Not a directory [" + dir.getAbsolutePath() + "]");
+        } else if (!dir.canWrite()) {
+            throw new IOException("Not writable [" + dir.getAbsolutePath() + "]");
         }
-        return file;
+        return dir.getAbsoluteFile();
     }
 
-    public static File createDirIfNotExist(String path) {
+    public static File createDirIfNotExist(String path) throws IOException {
         return createDirIfNotExist(new File(path));
     }
 
     public static String read(InputStream is) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        StringBuilder createTableSql = new StringBuilder();
-        String data = null;
-        while ((data = br.readLine()) != null) {
-            createTableSql.append(data);
-        }
-        return createTableSql.toString();
+        return read(is, Charset.defaultCharset().name());
     }
 
     public static String read(InputStream is, String encoding) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(is, encoding));
-        StringBuilder createTableSql = new StringBuilder();
+        StringBuilder content = new StringBuilder();
         String data = null;
         while ((data = br.readLine()) != null) {
-            createTableSql.append(data);
+            content.append(data);
+            content.append(Constants.LINE_SEPARATOR);
         }
-        return createTableSql.toString();
+        return content.toString();
     }
 
     public static void delete(File file) {

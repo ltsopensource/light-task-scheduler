@@ -372,12 +372,11 @@ public abstract class AbstractRemoting {
         @Override
         public void run() {
 
-
             LOGGER.info(this.getServiceName() + " service started");
 
             final ChannelEventListener listener = AbstractRemoting.this.getChannelEventListener();
 
-            while (!this.isStoped()) {
+            while (!this.isStopped()) {
                 try {
                     RemotingEvent event = this.eventQueue.poll(3000, TimeUnit.MILLISECONDS);
                     if (event != null) {
