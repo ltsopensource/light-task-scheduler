@@ -1,10 +1,10 @@
 package com.lts.core.failstore.leveldb;
 
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
+import com.lts.core.json.JSON;
 import org.fusesource.leveldbjni.JniDBFactory;
 import org.iq80.leveldb.*;
 
@@ -28,20 +28,20 @@ public class LeveldbFailStore extends AbstractFailStore {
 
     public static final String name = "leveldb";
 
-    public LeveldbFailStore(File dbPath) {
-        super(dbPath, true);
-    }
-
     public LeveldbFailStore(File dbPath, boolean needLock) {
         super(dbPath, needLock);
     }
 
     @Override
-    protected void init() {
-        options = new Options();
-        options.createIfMissing(true);
-        options.cacheSize(100 * 1024 * 1024);   // 100M
-        options.maxOpenFiles(400);
+    protected void init() throws FailStoreException {
+        try {
+            options = new Options();
+            options.createIfMissing(true);
+            options.cacheSize(100 * 1024 * 1024);   // 100M
+            options.maxOpenFiles(400);
+        } catch (Exception e) {
+            throw new FailStoreException(e);
+        }
     }
 
     protected String getName() {

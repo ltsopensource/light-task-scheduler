@@ -26,10 +26,6 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     private EnvironmentConfig envConfig;
     private DatabaseConfig dbConfig;
 
-    public BerkeleydbFailStore(File dbPath) {
-        super(dbPath, true);
-    }
-
     public BerkeleydbFailStore(File dbPath, boolean needLock) {
         super(dbPath, needLock);
     }
@@ -37,7 +33,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     public static final String name = "berkeleydb";
 
     @Override
-    protected void init() {
+    protected void init() throws FailStoreException{
         try {
             envConfig = new EnvironmentConfig();
             // 如果不存在则创建一个
@@ -54,7 +50,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
             dbConfig.setSortedDuplicates(false);
             dbConfig.setTransactional(true);
         } catch (DatabaseException e) {
-            throw new RuntimeException(e);
+            throw new FailStoreException(e);
         }
     }
 

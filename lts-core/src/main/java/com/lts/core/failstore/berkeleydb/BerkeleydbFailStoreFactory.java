@@ -16,7 +16,7 @@ public class BerkeleydbFailStoreFactory extends AbstractFailStoreFactory{
     }
 
     @Override
-    protected FailStore newInstance(File dbPath) {
-        return new BerkeleydbFailStore(dbPath);
+    protected FailStore newInstance(File dbPath, boolean needLock) {
+        return new BerkeleydbFailStore(dbPath, needLock);
     }
 }

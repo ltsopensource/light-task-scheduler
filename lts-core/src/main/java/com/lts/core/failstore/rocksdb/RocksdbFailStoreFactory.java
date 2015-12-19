@@ -16,7 +16,7 @@ public class RocksdbFailStoreFactory extends AbstractFailStoreFactory{
     }
 
     @Override
-    protected FailStore newInstance(File dbPath) {
-        return new RocksdbFailStore(dbPath);
+    protected FailStore newInstance(File dbPath, boolean needLock) {
+        return new RocksdbFailStore(dbPath, needLock);
     }
 }

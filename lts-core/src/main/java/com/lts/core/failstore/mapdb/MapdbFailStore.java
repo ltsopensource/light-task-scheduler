@@ -1,10 +1,10 @@
 package com.lts.core.failstore.mapdb;
 
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
+import com.lts.core.json.JSON;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 
@@ -26,21 +26,21 @@ public class MapdbFailStore extends AbstractFailStore {
     private DB db;
     private ConcurrentNavigableMap<String, String> map;
 
-    public MapdbFailStore(File dbPath) {
-        super(dbPath, true);
-    }
-
     public MapdbFailStore(File dbPath, boolean needLock) {
         super(dbPath, needLock);
     }
 
     @Override
-    protected void init() {
-        String dbName = dbPath.getPath() + "/lts.db";
-        db = DBMaker.fileDB(new File(dbName))
-                .closeOnJvmShutdown()
-                .encryptionEnable("lts")
-                .make();
+    protected void init() throws FailStoreException {
+        try {
+            String dbName = dbPath.getPath() + "/lts.db";
+            db = DBMaker.fileDB(new File(dbName))
+                    .closeOnJvmShutdown()
+                    .encryptionEnable("lts")
+                    .make();
+        } catch (Exception e) {
+            throw new FailStoreException(e);
+        }
     }
 
     @Override

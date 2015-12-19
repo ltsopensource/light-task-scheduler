@@ -8,20 +8,18 @@ import java.nio.ByteBuffer;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/5/15.
- *         <p/>
- *         // Remoting通信协议
- *         //
- *         // 协议格式 <length> <serializable id> <header length> <header data> <body length> <body data> <body class>
- *         //            1        2               3             4             5             6           7
- *         // 协议分4部分，含义分别如下
- *         //     1、大端4个字节整数，等于2、3、4、5、6, 7长度总和
- *         //     1、大端4个字节整数，等 serializable id
- *         //     3、header 信息长度 大端4个字节整数，等于3的长度
- *         //     4、header 信息内容
- *         //     5、body 信息长度  大端4个字节整数，等于5的长度
- *         //     6、body 信息内容
- *         //     7、body 的class名称
- *         </p>
+ *
+ * 协议格式
+ *    | <length> | <serializable id> | <header length> | <header data> | <body length> | <body data> | <body class> |
+ *    |    1     |        2          |        3        |       4       |       5       |      6      |      7       |
+ *
+ *    1、大端4个字节整数，等于2、3、4、5、6, 7长度总和
+ *    1、大端4个字节整数，等 serializable id
+ *    3、header 信息长度 大端4个字节整数，等于3的长度
+ *    4、header 信息内容
+ *    5、body 信息长度  大端4个字节整数，等于5的长度
+ *    6、body 信息内容
+ *    7、body 的class名称
  */
 public class DefaultCodec extends AbstractCodec {
 

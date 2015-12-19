@@ -46,8 +46,29 @@ public class Md5Encrypt {
         return new String(encodeHex(bytes));
     }
 
-    private static char[] encodeHex(byte[] data) {
+    public static String md5_16(String sourceStr) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(sourceStr.getBytes());
+            byte b[] = md.digest();
+            int i;
+            StringBuffer buf = new StringBuffer("");
+            for (int offset = 0; offset < b.length; offset++) {
+                i = b[offset];
+                if (i < 0)
+                    i += 256;
+                if (i < 16)
+                    buf.append("0");
+                buf.append(Integer.toHexString(i));
+            }
+            return buf.toString().substring(8, 24);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(
+                    "System doesn't support MD5 algorithm.");
+        }
+    }
 
+    private static char[] encodeHex(byte[] data) {
         int l = data.length;
 
         char[] out = new char[l << 1];
@@ -56,7 +77,6 @@ public class Md5Encrypt {
             out[j++] = DIGITS[(0xF0 & data[i]) >>> 4];
             out[j++] = DIGITS[0x0F & data[i]];
         }
-
         return out;
     }
 

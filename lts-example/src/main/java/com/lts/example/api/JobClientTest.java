@@ -85,8 +85,9 @@ public class JobClientTest extends BaseJobClientTest {
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         // 可选址  leveldb(默认), rocksdb, berkeleydb, mapdb
-//        jobClient.addConfig("job.fail.store", "mapdb");
+        jobClient.addConfig("job.fail.store", "mapdb");
         jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
+        jobClient.setIdentity("test_jobclient_0000001");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();

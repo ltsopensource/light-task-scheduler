@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.6.3"
+VERSION="1.6.4-SNAPSHOT"
 
 LTS_BIN="${BASH_SOURCE-$0}"
 LTS_BIN="$(dirname "${LTS_BIN}")"

@@ -4,11 +4,10 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 /**
  * 文件锁
@@ -18,18 +17,22 @@ import java.nio.file.StandardOpenOption;
 public class FileLock {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileLock.class);
-    private File file;
 
     private FileChannel channel = null;
     private java.nio.channels.FileLock lock = null;
+    private RandomAccessFile randomAccessFile;
 
     public FileLock(String filename) {
         this(new File(filename));
     }
 
     public FileLock(File file) {
-        this.file = file;
         FileUtils.createFileIfNotExist(file);
+        try {
+            randomAccessFile = new RandomAccessFile(file, "rw");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -38,11 +41,10 @@ public class FileLock {
     public boolean tryLock() {
         boolean success = false;
         try {
-            Path path = Paths.get(file.getPath());
             if (channel != null && channel.isOpen()) {
                 return false;
             }
-            channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.READ);
+            channel = randomAccessFile.getChannel();
             lock = channel.tryLock();
             if (lock != null) {
                 success = true;

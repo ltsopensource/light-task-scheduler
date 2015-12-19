@@ -24,7 +24,7 @@ public class JobAskRequest extends AbstractRemotingCommandBody {
     @Override
     public void checkFields() throws RemotingCommandFieldCheckException {
         if (jobIds == null || jobIds.size() == 0) {
-            throw new RemotingCommandFieldCheckException("jobIds 不能为空!");
+            throw new RemotingCommandFieldCheckException("jobIds could not be empty");
         }
     }
 }

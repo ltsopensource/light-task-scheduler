@@ -13,7 +13,11 @@ public interface Constants {
     // 可用的处理器个数
     int AVAILABLE_PROCESSOR = Runtime.getRuntime().availableProcessors();
 
+    String OS_NAME = System.getProperty("os.name");
+
     String USER_HOME = System.getProperty("user.home");
+
+    String LINE_SEPARATOR = System.getProperty("line.separator");
 
     int JOB_TRACKER_DEFAULT_LISTEN_PORT = 35001;
 
@@ -104,4 +108,5 @@ public interface Constants {
 
     String DEFAULT_REMOTING_SERIALIZABLE = "lts.remoting.serializable.default";
 
+    String COMPILER = "lts.compiler";
 }

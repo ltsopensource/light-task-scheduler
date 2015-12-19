@@ -16,7 +16,7 @@ public class LeveldbFailStoreFactory extends AbstractFailStoreFactory {
     }
 
     @Override
-    protected FailStore newInstance(File dbPath) {
-        return new LeveldbFailStore(dbPath);
+    protected FailStore newInstance(File dbPath, boolean needLock) {
+        return new LeveldbFailStore(dbPath, needLock);
     }
 }
