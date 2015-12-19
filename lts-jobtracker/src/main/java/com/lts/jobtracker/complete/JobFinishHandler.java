@@ -3,6 +3,7 @@ package com.lts.jobtracker.complete;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
@@ -66,7 +67,7 @@ public class JobFinishHandler implements JobCompleteHandler {
             cronJobPo.setGmtModified(SystemClock.now());
             application.getExecutableJobQueue().add(cronJobPo);
         } catch (DuplicateJobException e) {
-            LOGGER.warn(e.getMessage(), e);
+            LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(cronJobPo));
         }
     }
 }
