@@ -2,10 +2,10 @@ package com.lts.core.failstore.rocksdb;
 
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.json.JSON;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
+import com.lts.core.json.JSON;
 import org.rocksdb.*;
 import org.rocksdb.util.SizeUnit;
 
@@ -22,10 +22,6 @@ public class RocksdbFailStore extends AbstractFailStore {
     private RocksDB db = null;
     private Options options;
 
-    public RocksdbFailStore(File dbPath) {
-        super(dbPath, true);
-    }
-
     public RocksdbFailStore(File dbPath, boolean needLock) {
         super(dbPath, needLock);
     }
@@ -33,28 +29,32 @@ public class RocksdbFailStore extends AbstractFailStore {
     public static final String name = "rocksdb";
 
     @Override
-    protected void init() {
-        options = new Options();
-        options.setCreateIfMissing(true)
-                .setWriteBufferSize(8 * SizeUnit.KB)
-                .setMaxWriteBufferNumber(3)
-                .setMaxBackgroundCompactions(10)
-                .setCompressionType(CompressionType.SNAPPY_COMPRESSION)
-                .setCompactionStyle(CompactionStyle.UNIVERSAL);
+    protected void init() throws FailStoreException {
+        try {
+            options = new Options();
+            options.setCreateIfMissing(true)
+                    .setWriteBufferSize(8 * SizeUnit.KB)
+                    .setMaxWriteBufferNumber(3)
+                    .setMaxBackgroundCompactions(10)
+                    .setCompressionType(CompressionType.SNAPPY_COMPRESSION)
+                    .setCompactionStyle(CompactionStyle.UNIVERSAL);
 
-        Filter bloomFilter = new BloomFilter(10);
-        BlockBasedTableConfig tableConfig = new BlockBasedTableConfig();
-        tableConfig.setBlockCacheSize(64 * SizeUnit.KB)
-                .setFilter(bloomFilter)
-                .setCacheNumShardBits(6)
-                .setBlockSizeDeviation(5)
-                .setBlockRestartInterval(10)
-                .setCacheIndexAndFilterBlocks(true)
-                .setHashIndexAllowCollision(false)
-                .setBlockCacheCompressedSize(64 * SizeUnit.KB)
-                .setBlockCacheCompressedNumShardBits(10);
+            Filter bloomFilter = new BloomFilter(10);
+            BlockBasedTableConfig tableConfig = new BlockBasedTableConfig();
+            tableConfig.setBlockCacheSize(64 * SizeUnit.KB)
+                    .setFilter(bloomFilter)
+                    .setCacheNumShardBits(6)
+                    .setBlockSizeDeviation(5)
+                    .setBlockRestartInterval(10)
+                    .setCacheIndexAndFilterBlocks(true)
+                    .setHashIndexAllowCollision(false)
+                    .setBlockCacheCompressedSize(64 * SizeUnit.KB)
+                    .setBlockCacheCompressedNumShardBits(10);
 
-        options.setTableFormatConfig(tableConfig);
+            options.setTableFormatConfig(tableConfig);
+        } catch (Exception e) {
+            throw new FailStoreException(e);
+        }
     }
 
     @Override

@@ -8,7 +8,7 @@ import java.io.File;
 /**
  * @author Robert HG (254963746@qq.com) on 11/10/15.
  */
-public class MapdbFailStoreFactory extends AbstractFailStoreFactory{
+public class MapdbFailStoreFactory extends AbstractFailStoreFactory {
 
     @Override
     protected String getName() {
@@ -16,7 +16,7 @@ public class MapdbFailStoreFactory extends AbstractFailStoreFactory{
     }
 
     @Override
-    protected FailStore newInstance(File dbPath) {
-        return new MapdbFailStore(dbPath);
+    protected FailStore newInstance(File dbPath, boolean needLock) {
+        return new MapdbFailStore(dbPath, needLock);
     }
 }

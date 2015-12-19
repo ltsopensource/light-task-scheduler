@@ -34,9 +34,9 @@ public class ExtensionLoader<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionLoader.class);
 
-    private static final String DUBBO_DIRECTORY = "META-INF/lts/";
+    private static final String LTS_DIRECTORY = "META-INF/lts/";
 
-    private static final String DUBBO_INTERNAL_DIRECTORY = DUBBO_DIRECTORY + "internal/";
+    private static final String LTS_INTERNAL_DIRECTORY = LTS_DIRECTORY + "internal/";
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
 
@@ -384,8 +384,8 @@ public class ExtensionLoader<T> {
         }
 
         Map<String, Class<?>> extensionClasses = new HashMap<String, Class<?>>();
-        loadFile(extensionClasses, DUBBO_INTERNAL_DIRECTORY);
-        loadFile(extensionClasses, DUBBO_DIRECTORY);
+        loadFile(extensionClasses, LTS_INTERNAL_DIRECTORY);
+        loadFile(extensionClasses, LTS_DIRECTORY);
         return extensionClasses;
     }
 

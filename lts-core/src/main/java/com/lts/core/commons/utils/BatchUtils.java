@@ -11,11 +11,6 @@ public class BatchUtils {
 
     /**
      * 批量处理切分的时候，返回第index个List
-     *
-     * @param index
-     * @param batchSize
-     * @param collection
-     * @return
      */
     public static <E> List<E> getBatchList(Integer index, int batchSize, Collection<E> collection) {
         List<E> list = null;

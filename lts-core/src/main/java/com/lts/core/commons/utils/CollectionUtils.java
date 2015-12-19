@@ -10,11 +10,11 @@ public class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static boolean isNotEmpty(Map<?,?> map) {
+    public static boolean isNotEmpty(Map<?, ?> map) {
         return map != null && map.size() > 0;
     }
 
-    public static boolean isEmpty(Map<?,?> map) {
+    public static boolean isEmpty(Map<?, ?> map) {
         return !isNotEmpty(map);
     }
 
@@ -31,6 +31,13 @@ public class CollectionUtils {
             return 0;
         }
         return collection.size();
+    }
+
+    public static int sizeOf(Map<?, ?> map) {
+        if (map == null) {
+            return 0;
+        }
+        return map.size();
     }
 
     /**
@@ -55,8 +62,8 @@ public class CollectionUtils {
         return list;
     }
 
-    public static <T> List<T> setToList(Set<T> set){
-        if(set == null){
+    public static <T> List<T> setToList(Set<T> set) {
+        if (set == null) {
             return null;
         }
         return new ArrayList<T>(set);

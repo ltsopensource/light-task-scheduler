@@ -4,6 +4,7 @@ import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.compiler.support.AdaptiveCompiler;
 import com.lts.core.constant.Constants;
 import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.factory.JobNodeConfigFactory;
@@ -132,10 +133,20 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         // 监听自己节点变化（如，当前节点被禁用了）
         nodeChangeListeners.add(new SelfChangeListener(application));
 
+        setSpiConfig();
+    }
+
+    private void setSpiConfig() {
         // 设置默认序列化方式
         String defaultSerializable = config.getParameter(Constants.DEFAULT_REMOTING_SERIALIZABLE);
         if (StringUtils.isNotEmpty(defaultSerializable)) {
             AdaptiveSerializable.setDefaultSerializable(defaultSerializable);
+        }
+
+        // 设置编译器
+        String compiler = config.getParameter(Constants.COMPILER);
+        if (StringUtils.isNotEmpty(compiler)) {
+            AdaptiveCompiler.setDefaultCompiler(compiler);
         }
     }
 
