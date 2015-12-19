@@ -183,8 +183,7 @@ public class ExecutingDeadJobChecker {
             try {
                 application.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
-                // ignore
-                LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
+                LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
 
             // 2. remove from executing queue

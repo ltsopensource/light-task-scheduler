@@ -175,7 +175,7 @@ public class JobPusher {
                         jobPo.setIsRunning(true);
                         application.getExecutableJobQueue().add(jobPo);
                     } catch (DuplicateJobException e) {
-                        LOGGER.warn("Add Executable Job error jobPo={}", JSON.toJSONString(jobPo), e);
+                        LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
                         needResume = false;
                     }
                     application.getExecutingJobQueue().remove(jobPo.getJobId());
