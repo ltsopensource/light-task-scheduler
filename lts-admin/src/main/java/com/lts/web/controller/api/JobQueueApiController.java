@@ -9,6 +9,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.domain.KVPair;
 import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
@@ -16,7 +17,6 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.CronExpression;
 import com.lts.queue.domain.JobPo;
-import com.lts.remoting.common.Pair;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.controller.AbstractController;
 import com.lts.web.repository.memory.NodeMemoryDatabase;
@@ -304,13 +304,13 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
 
-        Pair<Boolean, String> pair = addJob(request);
-        response.setSuccess(pair.getObject1());
-        response.setMsg(pair.getObject2());
+        KVPair<Boolean, String> pair = addJob(request);
+        response.setSuccess(pair.getKey());
+        response.setMsg(pair.getValue());
         return response;
     }
 
-    private Pair<Boolean, String> addJob(JobQueueRequest request) {
+    private KVPair<Boolean, String> addJob(JobQueueRequest request) {
 
         Job job = new Job();
         job.setTaskId(request.getTaskId());
@@ -341,7 +341,7 @@ public class JobQueueApiController extends AbstractController {
         nodeRequest.setNodeType(NodeType.JOB_TRACKER);
         List<Node> jobTrackerNodeList = nodeMemoryDatabase.search(nodeRequest);
         if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
-            return new Pair<Boolean, String>(false, "Can not found JobTracker.");
+            return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
         }
 
         boolean success = false;
@@ -353,14 +353,14 @@ public class JobQueueApiController extends AbstractController {
         }
 
         if(!success){
-            return new Pair<Boolean, String>(false, "Can not found JobTracker.");
+            return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
         }
 
         String result = command.getResult();
         if ("true".equals(result)) {
-            return new Pair<Boolean, String>(true, "Add success");
+            return new KVPair<Boolean, String>(true, "Add success");
         }
-        return new Pair<Boolean, String>(false, result);
+        return new KVPair<Boolean, String>(false, result);
     }
 
     private boolean sendCommand(String host, int port, Command command) {
