@@ -9,11 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
  */
-public class JobDispatcher implements JobRunner {
+public class JobDispatcher implements JobRunner{
 
     private String shardField = "taskId";
-    @Autowired
-    private LtsJobRunnerScanner ltsJobRunnerScanner;
 
     @Override
     public Result run(Job job) throws Throwable {
@@ -27,10 +25,10 @@ public class JobDispatcher implements JobRunner {
 
         JobRunner jobRunner = null;
         if(StringUtils.isNotEmpty(value)){
-            jobRunner = ltsJobRunnerScanner.getJobRunner(value);
+            jobRunner = JobRunnerHolder.getJobRunner(value);
         }
         if (jobRunner == null) {
-            jobRunner = ltsJobRunnerScanner.getJobRunner("_LTS_DEFAULT");
+            jobRunner = JobRunnerHolder.getJobRunner("_LTS_DEFAULT");
 
             if (jobRunner == null) {
                 throw new JobDispatchException("Can not find JobRunner by Shard Value : [" + value + "]");
@@ -44,4 +42,5 @@ public class JobDispatcher implements JobRunner {
             this.shardField = shardField;
         }
     }
+
 }

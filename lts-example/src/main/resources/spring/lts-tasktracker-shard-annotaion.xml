@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd"
+>
+
+    <bean id="springBean" class="com.lts.example.support.SpringBean"/>
+
+    <!-- 方式1 -->
+    <!-- 注解方式 -->
+    <context:component-scan base-package="com.lts"/>
+
+    <bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+        <!-- 使用LtsJobRunner注解一定要使用 JobDispatcher -->
+        <property name="jobRunnerClass" value="com.lts.spring.tasktracker.JobDispatcher"/>
+        <!-- 如果指定为taskId, 取job.getTaskId() , 否则从 job.getParam("shardField") -->
+        <property name="shardField" value="taskId"/>
+        <property name="bizLoggerLevel" value="INFO"/>
+        <property name="clusterName" value="test_cluster"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+        <property name="nodeGroup" value="test_trade_TaskTracker"/>
+        <property name="workThreads" value="20"/>
+        <property name="masterChangeListeners">
+            <list>
+                <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+            </list>
+        </property>
+        <property name="configs">
+            <props>
+                <prop key="job.fail.store">leveldb</prop>
+            </props>
+        </property>
+    </bean>
+    <bean class="com.lts.spring.tasktracker.Scanner">
+        <!-- 要扫描的LtsJobRunner注解的包 -->
+        <property name="basePackage" value="com.lts.example"/>
+    </bean>
+
+</beans>

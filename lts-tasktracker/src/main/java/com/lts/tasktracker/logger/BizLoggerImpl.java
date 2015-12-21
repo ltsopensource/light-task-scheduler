@@ -4,6 +4,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.BizLog;
+import com.lts.core.domain.KVPair;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
@@ -12,7 +13,6 @@ import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
 import com.lts.remoting.AsyncCallback;
-import com.lts.remoting.common.Pair;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerApplication;
@@ -32,7 +32,7 @@ public class BizLoggerImpl implements BizLogger {
     private Level level;
     private RemotingClientDelegate remotingClient;
     private TaskTrackerApplication application;
-    private final ThreadLocal<Pair<String, String>> jobTL;
+    private final ThreadLocal<KVPair<String, String>> jobTL;
     private RetryScheduler<BizLog> retryScheduler;
 
     public BizLoggerImpl(Level level, final RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
@@ -42,7 +42,7 @@ public class BizLoggerImpl implements BizLogger {
         }
         this.application = application;
         this.remotingClient = remotingClient;
-        this.jobTL = new ThreadLocal<Pair<String, String>>();
+        this.jobTL = new ThreadLocal<KVPair<String, String>>();
         String storePath = getStorePath();
         this.retryScheduler = new RetryScheduler<BizLog>(application, storePath) {
             @Override
@@ -67,7 +67,7 @@ public class BizLoggerImpl implements BizLogger {
     }
 
     public void setId(String jobId, String taskId) {
-        jobTL.set(new Pair<String, String>(jobId, taskId));
+        jobTL.set(new KVPair<String, String>(jobId, taskId));
     }
 
     public void removeId() {
@@ -103,8 +103,8 @@ public class BizLoggerImpl implements BizLogger {
         bizLog.setTaskTrackerIdentity(requestBody.getIdentity());
         bizLog.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
         bizLog.setLogTime(SystemClock.now());
-        bizLog.setJobId(jobTL.get().getObject1());
-        bizLog.setTaskId(jobTL.get().getObject2());
+        bizLog.setJobId(jobTL.get().getKey());
+        bizLog.setTaskId(jobTL.get().getValue());
         bizLog.setMsg(msg);
         bizLog.setLevel(level);
 
