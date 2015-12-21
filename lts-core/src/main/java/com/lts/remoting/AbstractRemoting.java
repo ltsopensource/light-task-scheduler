@@ -1,12 +1,12 @@
 package com.lts.remoting;
 
 import com.lts.core.commons.utils.CommonUtils;
+import com.lts.core.domain.KVPair;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.remoting.codec.Codec;
 import com.lts.remoting.codec.DefaultCodec;
-import com.lts.remoting.common.Pair;
 import com.lts.remoting.common.RemotingHelper;
 import com.lts.remoting.common.SemaphoreReleaseOnlyOnce;
 import com.lts.remoting.common.ServiceThread;
@@ -39,11 +39,11 @@ public abstract class AbstractRemoting {
     protected final ConcurrentHashMap<Integer /* opaque */, ResponseFuture> responseTable =
             new ConcurrentHashMap<Integer, ResponseFuture>(256);
     // 注册的各个RPC处理器
-    protected final HashMap<Integer/* request code */, Pair<RemotingProcessor, ExecutorService>> processorTable =
-            new HashMap<Integer, Pair<RemotingProcessor, ExecutorService>>(64);
+    protected final HashMap<Integer/* request code */, KVPair<RemotingProcessor, ExecutorService>> processorTable =
+            new HashMap<Integer, KVPair<RemotingProcessor, ExecutorService>>(64);
     protected final RemotingEventExecutor remotingEventExecutor = new RemotingEventExecutor();
     // 默认请求代码处理器
-    protected Pair<RemotingProcessor, ExecutorService> defaultRequestProcessor;
+    protected KVPair<RemotingProcessor, ExecutorService> defaultRequestProcessor;
     protected final ChannelEventListener channelEventListener;
 
     public AbstractRemoting(final int permitsOneway, final int permitsAsync, ChannelEventListener channelEventListener) {
@@ -61,8 +61,8 @@ public abstract class AbstractRemoting {
     }
 
     public void processRequestCommand(final Channel channel, final RemotingCommand cmd) {
-        final Pair<RemotingProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
-        final Pair<RemotingProcessor, ExecutorService> pair =
+        final KVPair<RemotingProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
+        final KVPair<RemotingProcessor, ExecutorService> pair =
                 null == matched ? this.defaultRequestProcessor : matched;
 
         if (pair != null) {
@@ -70,7 +70,7 @@ public abstract class AbstractRemoting {
                 @Override
                 public void run() {
                     try {
-                        final RemotingCommand response = pair.getObject1().processRequest(channel, cmd);
+                        final RemotingCommand response = pair.getKey().processRequest(channel, cmd);
                         // Oneway形式忽略应答结果
                         if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                             if (response != null) {
@@ -113,11 +113,11 @@ public abstract class AbstractRemoting {
 
             try {
                 // 这里需要做流控，要求线程池对应的队列必须是有大小限制的
-                pair.getObject2().submit(run);
+                pair.getValue().submit(run);
             } catch (RejectedExecutionException e) {
                 LOGGER.warn(RemotingHelper.parseChannelRemoteAddr(channel) //
                         + ", too many requests and system thread pool busy, RejectedExecutionException " //
-                        + pair.getObject2().toString() //
+                        + pair.getKey().toString() //
                         + " request code: " + cmd.getCode());
                 if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                     final RemotingCommand response =

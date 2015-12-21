@@ -8,7 +8,6 @@ import com.lts.spring.tasktracker.JobDispatcher;
 import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -58,7 +57,7 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
     /**
      * 任务执行类
      */
-	private Class jobRunnerClass;
+    private Class jobRunnerClass;
     /**
      * 业务日志级别
      */
@@ -108,7 +107,7 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public void afterPropertiesSet() throws Exception {
 
         checkProperties();
@@ -230,4 +229,5 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
     public void setShardField(String shardField) {
         this.shardField = shardField;
     }
+
 }
