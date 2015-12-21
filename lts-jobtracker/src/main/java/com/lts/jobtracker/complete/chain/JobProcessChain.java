@@ -89,7 +89,7 @@ public class JobProcessChain implements JobCompletedChain {
             }
         } else {
             // 需要retry
-            jobFinishHandler.onComplete(results);
+            retryHandler.onComplete(results);
         }
     }
 
