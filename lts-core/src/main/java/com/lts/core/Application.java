@@ -1,6 +1,6 @@
 package com.lts.core;
 
-import com.lts.command.CommandCenter;
+import com.lts.core.command.CommandCenter;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;

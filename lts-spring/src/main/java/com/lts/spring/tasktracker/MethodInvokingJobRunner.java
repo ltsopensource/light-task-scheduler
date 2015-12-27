@@ -9,7 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.lang.reflect.Method;
 
 /**
- * Created by hugui.hg on 12/21/15.
+ * @author Robert HG (254963746@qq.com)on 12/21/15.
  */
 public class MethodInvokingJobRunner implements InitializingBean {
 

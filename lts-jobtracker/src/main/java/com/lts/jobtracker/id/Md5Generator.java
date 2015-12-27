@@ -1,6 +1,5 @@
 package com.lts.jobtracker.id;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.Md5Encrypt;
 import com.lts.queue.domain.JobPo;
 
@@ -9,7 +8,7 @@ import com.lts.queue.domain.JobPo;
  */
 public class Md5Generator implements IdGenerator{
     @Override
-    public String generate(Config config, JobPo jobPo) {
+    public String generate(JobPo jobPo) {
         return Md5Encrypt.md5(jobPo.getTaskId() + jobPo.getSubmitNodeGroup() + jobPo.getGmtCreated());
     }
 }

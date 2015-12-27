@@ -1,6 +1,5 @@
 package com.lts.jobtracker.id;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.queue.domain.JobPo;
 
@@ -9,7 +8,7 @@ import com.lts.queue.domain.JobPo;
  */
 public class UUIDGenerator implements IdGenerator{
     @Override
-    public String generate(Config config, JobPo jobPo) {
+    public String generate(JobPo jobPo) {
         return StringUtils.generateUUID();
     }
 }

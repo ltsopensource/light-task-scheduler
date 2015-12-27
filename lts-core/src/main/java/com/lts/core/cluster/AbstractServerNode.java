@@ -4,9 +4,11 @@ import com.lts.core.Application;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.RemotingServer;
 import com.lts.remoting.RemotingServerConfig;
+import com.lts.remoting.RemotingTransporter;
 
 import java.util.concurrent.Executors;
 
@@ -54,7 +56,7 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
     }
 
     private RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
-        return remotingTransporter.getRemotingServer(config, remotingServerConfig);
+        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingServer(remotingServerConfig);
     }
 
     @Override

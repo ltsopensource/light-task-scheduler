@@ -1,10 +1,10 @@
 package com.lts.jobtracker;
 
 import com.lts.biz.logger.JobLoggerDelegate;
-import com.lts.command.CommandCenter;
-import com.lts.command.Commands;
+import com.lts.core.command.CommandCenter;
+import com.lts.core.command.Commands;
 import com.lts.core.cluster.AbstractServerNode;
-import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelManager;
 import com.lts.jobtracker.command.AddJobCommand;
 import com.lts.jobtracker.command.LoadJobCommand;
@@ -26,19 +26,6 @@ import com.lts.remoting.RemotingProcessor;
  * @author Robert HG (254963746@qq.com) on 7/23/14.
  */
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApplication> {
-
-    private CronJobQueueFactory cronJobQueueFactory =
-            ExtensionLoader.getExtensionLoader(CronJobQueueFactory.class).getAdaptiveExtension();
-    private ExecutableJobQueueFactory executableJobQueueFactory =
-            ExtensionLoader.getExtensionLoader(ExecutableJobQueueFactory.class).getAdaptiveExtension();
-    private ExecutingJobQueueFactory executingJobQueueFactory =
-            ExtensionLoader.getExtensionLoader(ExecutingJobQueueFactory.class).getAdaptiveExtension();
-    private JobFeedbackQueueFactory jobFeedbackQueueFactory =
-            ExtensionLoader.getExtensionLoader(JobFeedbackQueueFactory.class).getAdaptiveExtension();
-    private NodeGroupStoreFactory nodeGroupStoreFactory =
-            ExtensionLoader.getExtensionLoader(NodeGroupStoreFactory.class).getAdaptiveExtension();
-    private PreLoaderFactory preLoaderFactory =
-            ExtensionLoader.getExtensionLoader(PreLoaderFactory.class).getAdaptiveExtension();
 
     public JobTracker() {
         // 监控中心
@@ -63,12 +50,12 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         // injectRemotingServer
         application.setRemotingServer(remotingServer);
         application.setJobLogger(new JobLoggerDelegate(config));
-        application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
-        application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
-        application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
-        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
-        application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
-        application.setPreLoader(preLoaderFactory.getPreLoader(config, application));
+        application.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class,config).getQueue(config));
+        application.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class,config).getQueue(config));
+        application.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
+        application.setJobFeedbackQueue(ServiceLoader.load(JobFeedbackQueueFactory.class, config).getQueue(config));
+        application.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
+        application.setPreLoader(ServiceLoader.load(PreLoaderFactory.class, config).getPreLoader(application));
         application.setJobReceiver(new JobReceiver(application));
         application.setJobSender(new JobSender(application));
 
