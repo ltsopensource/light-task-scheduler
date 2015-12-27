@@ -1,13 +1,14 @@
 package com.lts.ec;
 
 import com.lts.core.spi.SPI;
+import com.lts.core.spi.SKey;
 
 /**
  * 事件中心接口
  *
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
-@SPI(key = "event.center", dftValue = "injvm")
+@SPI(key = SKey.EVENT_CENTER, dftValue = "injvm")
 public interface EventCenter {
 
     /**
