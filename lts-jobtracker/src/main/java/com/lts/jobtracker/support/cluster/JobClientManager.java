@@ -4,10 +4,10 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.loadbalance.LoadBalance;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobClientNode;
 import com.lts.jobtracker.domain.JobTrackerApplication;
@@ -32,13 +32,11 @@ public class JobClientManager {
 
     public JobClientManager(JobTrackerApplication application) {
         this.application = application;
-        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, application.getConfig());
     }
 
     /**
      * get all connected node group
-     *
-     * @return
      */
     public Set<String> getNodeGroups() {
         return NODE_MAP.keySet();
@@ -106,7 +104,7 @@ public class JobClientManager {
 
         while (list.size() > 0) {
 
-            JobClientNode jobClientNode = loadBalance.select(application.getConfig(), list, null);
+            JobClientNode jobClientNode = loadBalance.select(list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
                 ChannelWrapper channel = application.getChannelManager().getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());

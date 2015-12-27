@@ -12,7 +12,7 @@ import com.lts.tasktracker.runner.LtsLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Created by hugui.hg on 12/21/15.
+ * @author Robert HG (254963746@qq.com)on 12/21/15.
  */
 public class XmlJobScheduler {
 

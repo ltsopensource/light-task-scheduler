@@ -2,9 +2,9 @@ package com.lts.web.controller.api;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.command.Command;
-import com.lts.command.CommandClient;
-import com.lts.command.Commands;
+import com.lts.core.command.Command;
+import com.lts.core.command.CommandClient;
+import com.lts.core.command.Commands;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;

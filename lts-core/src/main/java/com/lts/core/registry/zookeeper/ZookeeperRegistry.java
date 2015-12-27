@@ -4,11 +4,11 @@ import com.lts.core.Application;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.registry.FailbackRegistry;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.ZookeeperClient;
@@ -37,7 +37,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
         super(application);
         this.clusterName = application.getConfig().getClusterName();
         this.cachedChildrenNodeMap = new ConcurrentHashMap<String, List<String>>();
-        ZookeeperTransporter zookeeperTransporter = ExtensionLoader.getExtensionLoader(ZookeeperTransporter.class).getAdaptiveExtension();
+        ZookeeperTransporter zookeeperTransporter = ServiceLoader.load(ZookeeperTransporter.class, application.getConfig());
         this.zkClient = zookeeperTransporter.connect(application.getConfig());
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
         // 默认是连成功的(用zkclient时候，第一次不会有state changed时间暴露给用户，

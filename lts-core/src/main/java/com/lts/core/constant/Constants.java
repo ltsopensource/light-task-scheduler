@@ -108,5 +108,6 @@ public interface Constants {
 
     String DEFAULT_REMOTING_SERIALIZABLE = "lts.remoting.serializable.default";
 
-    String COMPILER = "lts.compiler";
+    String ADAPTIVE = "adaptive";
+
 }

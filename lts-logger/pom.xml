@@ -10,12 +10,38 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>lts-logger</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>lts-logger-console</module>
-        <module>lts-logger-mongo</module>
-        <module>lts-logger-api</module>
-        <module>lts-logger-mysql</module>
-    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-core</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb.morphia</groupId>
+            <artifactId>morphia</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>

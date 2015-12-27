@@ -7,10 +7,10 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.registry.RegistryStatMonitor;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.SystemClock;
-import com.lts.ec.EventCenterFactory;
+import com.lts.ec.EventCenter;
 import com.lts.queue.*;
 import com.lts.web.cluster.AdminApplication;
 import com.lts.web.support.AppConfigurer;
@@ -23,18 +23,6 @@ import java.util.Map;
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, InitializingBean {
-
-    CronJobQueueFactory cronJobQueueFactory = ExtensionLoader.getExtensionLoader(
-            CronJobQueueFactory.class).getAdaptiveExtension();
-    ExecutableJobQueueFactory executableJobQueueFactory = ExtensionLoader.getExtensionLoader(
-            ExecutableJobQueueFactory.class).getAdaptiveExtension();
-    ExecutingJobQueueFactory executingJobQueueFactory = ExtensionLoader.getExtensionLoader(
-            ExecutingJobQueueFactory.class).getAdaptiveExtension();
-    NodeGroupStoreFactory nodeGroupStoreFactory = ExtensionLoader.getExtensionLoader(
-            NodeGroupStoreFactory.class).getAdaptiveExtension();
-    JobFeedbackQueueFactory jobFeedbackQueueFactory = ExtensionLoader.getExtensionLoader(
-            JobFeedbackQueueFactory.class).getAdaptiveExtension();
-    private EventCenterFactory eventCenterFactory = ExtensionLoader.getExtensionLoader(EventCenterFactory.class).getAdaptiveExtension();
 
     private AdminApplication application;
 
@@ -84,13 +72,13 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
         application = new AdminApplication();
         application.setConfig(config);
         application.setNode(node);
-        application.setJobFeedbackQueue(jobFeedbackQueueFactory.getQueue(config));
-        application.setCronJobQueue(cronJobQueueFactory.getQueue(config));
-        application.setExecutableJobQueue(executableJobQueueFactory.getQueue(config));
-        application.setExecutingJobQueue(executingJobQueueFactory.getQueue(config));
-        application.setNodeGroupStore(nodeGroupStoreFactory.getStore(config));
+        application.setJobFeedbackQueue(ServiceLoader.load(JobFeedbackQueueFactory.class, config).getQueue(config));
+        application.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
+        application.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class, config).getQueue(config));
+        application.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class, config).getQueue(config));
+        application.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
         application.setJobLogger(new JobLoggerDelegate(config));
-        application.setEventCenter(eventCenterFactory.getEventCenter(config));
+        application.setEventCenter(ServiceLoader.load(EventCenter.class, config));
         application.setRegistryStatMonitor(new RegistryStatMonitor(application));
     }
 

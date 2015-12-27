@@ -3,16 +3,16 @@ package com.lts.core.support;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
-import com.lts.core.json.JSON;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.KVPair;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.failstore.FailStoreFactory;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
@@ -57,7 +57,7 @@ public abstract class RetryScheduler<T> {
     }
 
     public RetryScheduler(Application application, String storePath) {
-        FailStoreFactory failStoreFactory = ExtensionLoader.getExtensionLoader(FailStoreFactory.class).getAdaptiveExtension();
+        FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, application.getConfig());
         failStore = failStoreFactory.getFailStore(application.getConfig(), storePath);
         try {
             failStore.open();
