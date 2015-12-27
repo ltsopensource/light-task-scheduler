@@ -1,0 +1,2 @@
+mysql=com.lts.queue.mysql.MysqlPreLoaderFactory
+mongo=com.lts.queue.mongo.MongoPreLoaderFactory

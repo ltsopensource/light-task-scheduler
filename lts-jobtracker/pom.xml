@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-queue-api</artifactId>
+            <artifactId>lts-queue</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

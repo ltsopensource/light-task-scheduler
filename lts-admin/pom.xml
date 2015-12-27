@@ -41,32 +41,12 @@
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-queue-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-queue-mysql</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-queue-mongo</artifactId>
+            <artifactId>lts-queue</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
             <artifactId>lts-logger</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-logger-mysql</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-logger-mongo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -207,6 +187,26 @@
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb.morphia</groupId>
+            <artifactId>morphia</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-dbutils</groupId>
+            <artifactId>commons-dbutils</artifactId>
         </dependency>
     </dependencies>
 </project>
