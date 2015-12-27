@@ -16,6 +16,7 @@ import com.lts.core.logger.Logger;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,12 +33,13 @@ public class DataBlockEngine<K, V> {
 
     private final ConcurrentMap<Long/*fileId*/, DataBlock> NAME_BLOCK_MAP = new ConcurrentHashMap<Long, DataBlock>();
     private CopyOnWriteArrayList<DataBlock> writableBlocks = new CopyOnWriteArrayList<DataBlock>();
-    private CopyOnWriteArrayList<DataBlock> readableBlocks = new CopyOnWriteArrayList<DataBlock>();
+    private CopyOnWriteArrayList<DataBlock> readonlyBlocks = new CopyOnWriteArrayList<DataBlock>();
 
     private StoreSerializer serializer;
     private File dataPath;
     private StoreConfig storeConfig;
     private ReentrantLock lock = new ReentrantLock();
+    private DataCompactor dataCompactor;
 
     public DataBlockEngine(StoreSerializer serializer, StoreConfig storeConfig) {
         this.serializer = serializer;
@@ -75,7 +77,7 @@ public class DataBlockEngine<K, V> {
                 DataBlock dataBlock = new DataBlock(dataFile, storeConfig);
                 NAME_BLOCK_MAP.put(dataBlock.getFileId(), dataBlock);
                 if (dataBlock.isFull()) {
-                    readableBlocks.add(dataBlock);
+                    readonlyBlocks.add(dataBlock);
                 } else {
                     writableBlocks.add(dataBlock);
                 }
@@ -89,6 +91,10 @@ public class DataBlockEngine<K, V> {
             }
         }
         storeConfig.setLastTxLogPositionOnDataBlock(maxTxLog);
+    }
+
+    protected List<DataBlock> getReadonlyBlocks(){
+        return readonlyBlocks;
     }
 
     /**
@@ -169,8 +175,8 @@ public class DataBlockEngine<K, V> {
         try {
             return writeBlock.append(storeTxLogPosition, dataBytes);
         } catch (CapacityNotEnoughException e) {
-            if (!readableBlocks.contains(writeBlock)) {
-                readableBlocks.add(writeBlock);
+            if (!readonlyBlocks.contains(writeBlock)) {
+                readonlyBlocks.add(writeBlock);
             }
             writableBlocks.remove(writeBlock);
 
