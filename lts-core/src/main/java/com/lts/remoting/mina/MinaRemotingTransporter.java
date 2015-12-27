@@ -1,6 +1,5 @@
 package com.lts.remoting.mina;
 
-import com.lts.core.cluster.Config;
 import com.lts.remoting.*;
 
 /**
@@ -8,12 +7,12 @@ import com.lts.remoting.*;
  */
 public class MinaRemotingTransporter implements RemotingTransporter {
     @Override
-    public RemotingServer getRemotingServer(Config config, RemotingServerConfig remotingServerConfig) {
+    public RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
         return new MinaRemotingServer(remotingServerConfig);
     }
 
     @Override
-    public RemotingClient getRemotingClient(Config config, RemotingClientConfig remotingClientConfig) {
+    public RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
         return new MinaRemotingClient(remotingClientConfig);
     }
 }

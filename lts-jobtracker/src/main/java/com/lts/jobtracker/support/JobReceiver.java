@@ -8,10 +8,10 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobReceiveException;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerApplication;
@@ -38,7 +38,7 @@ public class JobReceiver {
     public JobReceiver(JobTrackerApplication application) {
         this.application = application;
         this.monitor = (JobTrackerMonitor) application.getMonitor();
-        this.idGenerator = ExtensionLoader.getExtensionLoader(IdGenerator.class).getAdaptiveExtension();
+        this.idGenerator = ServiceLoader.load(IdGenerator.class, application.getConfig());
     }
 
     /**
@@ -82,7 +82,7 @@ public class JobReceiver {
                 jobPo.setSubmitNodeGroup(request.getNodeGroup());
             }
             // 设置 jobId
-            jobPo.setJobId(idGenerator.generate(application.getConfig(), jobPo));
+            jobPo.setJobId(idGenerator.generate(jobPo));
 
             // 添加任务
             addJob(job, jobPo);

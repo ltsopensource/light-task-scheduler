@@ -1,6 +1,7 @@
 package com.lts.core.logger;
 
-import com.lts.core.extension.SPI;
+
+import com.lts.core.spi.SPI;
 
 import java.io.File;
 

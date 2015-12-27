@@ -5,9 +5,11 @@ import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.HeartBeatMonitor;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.remoting.RemotingClient;
 import com.lts.remoting.RemotingClientConfig;
 import com.lts.remoting.RemotingProcessor;
+import com.lts.remoting.RemotingTransporter;
 
 import java.util.concurrent.Executors;
 
@@ -74,9 +76,8 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     }
 
     private RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
-        return remotingTransporter.getRemotingClient(config, remotingClientConfig);
+        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingClient(remotingClientConfig);
     }
-
 
     @Override
     protected void afterRemotingStart() {

@@ -1,18 +1,15 @@
 package com.lts.core.loadbalance;
 
-import com.lts.core.cluster.Config;
-import com.lts.core.extension.Adaptive;
-import com.lts.core.extension.SPI;
+import com.lts.core.spi.SPI;
 
 import java.util.List;
 
 /**
  * Robert HG (254963746@qq.com) on 3/25/15.
  */
-@SPI("random")
+@SPI(key = "loadbalance", dftValue = "random")
 public interface LoadBalance {
 
-    @Adaptive("loadbalance")
-    public <S> S select(Config config, List<S> shards, String seed);
+    public <S> S select(List<S> shards, String seed);
 
 }

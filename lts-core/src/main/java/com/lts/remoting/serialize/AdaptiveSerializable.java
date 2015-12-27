@@ -1,9 +1,9 @@
 package com.lts.remoting.serialize;
 
-import com.lts.core.extension.Adaptive;
-import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.spi.ServiceLoader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,6 @@ import java.util.Set;
 /**
  * @author Robert HG (254963746@qq.com) on 11/6/15.
  */
-@Adaptive
 public class AdaptiveSerializable implements RemotingSerializable {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(RemotingSerializable.class);
@@ -23,11 +22,10 @@ public class AdaptiveSerializable implements RemotingSerializable {
             ID_SERIALIZABLE_MAP = new HashMap<Integer, RemotingSerializable>();
 
     static {
-        Set<String> names = ExtensionLoader.getExtensionLoader(RemotingSerializable.class).getSupportedExtensions();
+        Set<String> names = ServiceLoader.getServiceProviders(RemotingSerializable.class);
         for (String name : names) {
-            if (!"adaptive".equalsIgnoreCase(name)) {
-                RemotingSerializable serializable = ExtensionLoader
-                        .getExtensionLoader(RemotingSerializable.class).getExtension(name);
+            if (!Constants.ADAPTIVE.equalsIgnoreCase(name)) {
+                RemotingSerializable serializable = ServiceLoader.load(RemotingSerializable.class, name);
                 ID_SERIALIZABLE_MAP.put(serializable.getId(), serializable);
             }
         }
@@ -45,12 +43,11 @@ public class AdaptiveSerializable implements RemotingSerializable {
     private RemotingSerializable getRemotingSerializable() {
         RemotingSerializable remotingSerializable;
 
-        ExtensionLoader<RemotingSerializable> loader = ExtensionLoader.getExtensionLoader(RemotingSerializable.class);
         String serializable = defaultSerializable; // copy reference
         if (serializable != null) {
-            remotingSerializable = loader.getExtension(serializable);
+            remotingSerializable = ServiceLoader.load(RemotingSerializable.class, serializable);
         } else {
-            remotingSerializable = loader.getDefaultExtension();
+            remotingSerializable = ServiceLoader.loadDefault(RemotingSerializable.class);
         }
         return remotingSerializable;
     }

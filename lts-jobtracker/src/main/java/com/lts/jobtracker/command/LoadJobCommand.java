@@ -1,7 +1,7 @@
 package com.lts.jobtracker.command;
 
-import com.lts.command.CommandProcessor;
-import com.lts.command.CommandRequest;
+import com.lts.core.command.CommandProcessor;
+import com.lts.core.command.CommandRequest;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.domain.JobTrackerApplication;

@@ -4,10 +4,10 @@ import com.lts.core.Application;
 import com.lts.core.cluster.Node;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.exception.JobTrackerNotFoundException;
-import com.lts.core.extension.ExtensionLoader;
 import com.lts.core.loadbalance.LoadBalance;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.ec.EventInfo;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.RemotingClient;
@@ -27,8 +27,6 @@ public class RemotingClientDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingClientDelegate.class);
 
     private RemotingClient remotingClient;
-    // 连JobTracker的负载均衡算法
-    private LoadBalance loadBalance;
     private Application application;
 
     // JobTracker 是否可用
@@ -38,7 +36,6 @@ public class RemotingClientDelegate {
     public RemotingClientDelegate(RemotingClient remotingClient, Application application) {
         this.remotingClient = remotingClient;
         this.application = application;
-        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getAdaptiveExtension();
         this.jobTrackers = new CopyOnWriteArrayList<Node>();
     }
 
@@ -47,8 +44,9 @@ public class RemotingClientDelegate {
             if (jobTrackers.size() == 0) {
                 throw new JobTrackerNotFoundException("no available jobTracker!");
             }
-            return loadBalance.select(application.getConfig(), jobTrackers,
-                    application.getConfig().getIdentity());
+            // 连JobTracker的负载均衡算法
+            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, application.getConfig());
+            return loadBalance.select(jobTrackers, application.getConfig().getIdentity());
         } catch (JobTrackerNotFoundException e) {
             this.serverEnable = false;
             // publish msg

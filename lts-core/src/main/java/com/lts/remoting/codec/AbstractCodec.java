@@ -1,6 +1,7 @@
 package com.lts.remoting.codec;
 
-import com.lts.core.extension.ExtensionLoader;
+import com.lts.core.constant.Constants;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.remoting.serialize.AdaptiveSerializable;
 import com.lts.remoting.serialize.RemotingSerializable;
 
@@ -18,8 +19,7 @@ public abstract class AbstractCodec implements Codec {
                 throw new IllegalArgumentException("Can not support RemotingSerializable that serializableTypeId=" + serializableTypeId);
             }
         } else {
-            serializable =
-                    ExtensionLoader.getExtensionLoader(RemotingSerializable.class).getAdaptiveExtension();
+            serializable = ServiceLoader.load(RemotingSerializable.class, Constants.ADAPTIVE);
         }
         return serializable;
     }
