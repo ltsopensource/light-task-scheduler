@@ -1,0 +1,2 @@
+mysql=com.lts.queue.mysql.MysqlNodeGroupStoreFactory
+mongo=com.lts.queue.mongo.MongoNodeGroupStoreFactory

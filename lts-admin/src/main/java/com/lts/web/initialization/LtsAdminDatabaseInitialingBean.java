@@ -107,5 +107,4 @@ public class LtsAdminDatabaseInitialingBean implements InitializingBean {
         public List<String> indexes;
     }
 
-
 }

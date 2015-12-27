@@ -1,0 +1,2 @@
+mysql=com.lts.queue.mysql.MysqlExecutableJobQueueFactory
+mongo=com.lts.queue.mongo.MongoExecutableJobQueueFactory

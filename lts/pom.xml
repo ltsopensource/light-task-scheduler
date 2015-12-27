@@ -35,42 +35,8 @@
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-queue-api</artifactId>
+            <artifactId>lts-queue</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-queue-mysql</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-dbutils</groupId>
-                    <artifactId>commons-dbutils</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>mysql</groupId>
-                    <artifactId>mysql-connector-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.alibaba</groupId>
-                    <artifactId>druid</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-queue-mongo</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mongodb.morphia</groupId>
-                    <artifactId>morphia</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mongodb</groupId>
-                    <artifactId>mongo-java-driver</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
@@ -119,13 +85,8 @@
                                     <include>com.lts:lts-jobclient</include>
                                     <include>com.lts:lts-tasktracker</include>
                                     <include>com.lts:lts-jobtracker</include>
-                                    <include>com.lts:lts-logger-api</include>
-                                    <include>com.lts:lts-logger-console</include>
-                                    <include>com.lts:lts-logger-mysql</include>
-                                    <include>com.lts:lts-logger-mongo</include>
-                                    <include>com.lts:lts-queue-api</include>
-                                    <include>com.lts:lts-queue-mysql</include>
-                                    <include>com.lts:lts-queue-mongo</include>
+                                    <include>com.lts:lts-logger</include>
+                                    <include>com.lts:lts-queue</include>
                                     <include>com.lts:lts-spring</include>
                                 </includes>
                             </artifactSet>
