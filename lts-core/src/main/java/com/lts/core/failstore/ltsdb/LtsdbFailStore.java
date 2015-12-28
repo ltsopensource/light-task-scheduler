@@ -4,7 +4,10 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.domain.KVPair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
-import com.lts.core.failstore.ltsdb.iterator.DBIterator;
+import com.lts.kv.DB;
+import com.lts.kv.DBBuilder;
+import com.lts.kv.Entry;
+import com.lts.kv.iterator.DBIterator;
 import com.lts.core.json.JSON;
 
 import java.io.File;
