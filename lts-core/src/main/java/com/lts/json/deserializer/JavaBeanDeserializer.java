@@ -5,7 +5,7 @@ import com.lts.json.JSONObject;
 import com.lts.json.JSONParser;
 import com.lts.json.bean.FieldSetterInfo;
 import com.lts.json.bean.JavaBeanSetterInfo;
-import com.lts.json.bean.MethodSetterInfo;
+import com.lts.json.bean.MethodInfo;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -40,17 +40,17 @@ public class JavaBeanDeserializer implements Deserializer {
             try {
                 Object targetObject = setterInfo.getConstructor().newInstance();
 
-                Collection<MethodSetterInfo> methodSetterInfos = setterInfo.getMethodSetterInfos();
-                for (MethodSetterInfo methodSetterInfo : methodSetterInfos) {
-                    Class<?> parameterType = methodSetterInfo.getMethod().getParameterTypes()[0];
+                Collection<MethodInfo> methodInfos = setterInfo.getMethodSetterInfos();
+                for (MethodInfo methodInfo : methodInfos) {
+                    Class<?> parameterType = methodInfo.getMethod().getParameterTypes()[0];
                     Deserializer deserializer = JSONParser.getDeserializer(parameterType);
 
-                    Object value = json.get(methodSetterInfo.getFieldName());
+                    Object value = json.get(methodInfo.getFieldName());
                     Object param = null;
                     if (value != null) {
                         param = deserializer.deserialize(value, parameterType);
                     }
-                    methodSetterInfo.getMethod().invoke(targetObject, param);
+                    methodInfo.getMethod().invoke(targetObject, param);
                 }
 
                 Collection<FieldSetterInfo> fieldSetterInfos = setterInfo.getFieldSetterInfos();

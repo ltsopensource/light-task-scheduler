@@ -15,7 +15,7 @@ public class JavaBeanSetterInfo {
 
     private Constructor<?> constructor;
 
-    private Map<String, MethodSetterInfo> methodSetterInfos;
+    private Map<String, MethodInfo> methodSetterInfos;
 
     private Map<String, FieldSetterInfo> fieldSetterInfos;
 
@@ -38,7 +38,7 @@ public class JavaBeanSetterInfo {
         return constructor;
     }
 
-    public Collection<MethodSetterInfo> getMethodSetterInfos() {
+    public Collection<MethodInfo> getMethodSetterInfos() {
         if (methodSetterInfos == null) {
             return null;
         }
@@ -90,9 +90,9 @@ public class JavaBeanSetterInfo {
         }
     }
 
-    private Map<String, MethodSetterInfo> getMethodSettInfos() {
+    private Map<String, MethodInfo> getMethodSettInfos() {
 
-        Map<String, MethodSetterInfo> map = new HashMap<String, MethodSetterInfo>();
+        Map<String, MethodInfo> map = new HashMap<String, MethodInfo>();
 
         for (Method method : clazz.getMethods()) {
 
@@ -140,7 +140,7 @@ public class JavaBeanSetterInfo {
             }
             if (field != null) {
                 // 说明该方法是存在的
-                map.put(propertyName, new MethodSetterInfo(propertyName, method));
+                map.put(propertyName, new MethodInfo(propertyName, method));
             }
         }
         return map;
