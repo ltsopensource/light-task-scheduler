@@ -1,6 +1,8 @@
 package com.lts.json;
 
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.json.bean.MethodInfo;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -13,6 +15,8 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import static com.lts.core.json.TypeUtils.*;
 
@@ -36,6 +40,7 @@ public class JSONObject {
     }
 
     private final Map<String, Object> map;
+    private static final ConcurrentMap<Class<?>, Set<MethodInfo>> METHOD_MAP = new ConcurrentHashMap<Class<?>, Set<MethodInfo>>();
 
     public static final Object NULL = new Null();
 
@@ -190,49 +195,6 @@ public class JSONObject {
         return value;
     }
 
-    private void populateMap(Object bean) {
-        Class<?> clazz = bean.getClass();
-
-        boolean includeSuperClass = clazz.getClassLoader() != null;
-
-        Method[] methods = includeSuperClass ? clazz.getMethods() : clazz
-                .getDeclaredMethods();
-        for (Method method : methods) {
-            try {
-                if (Modifier.isPublic(method.getModifiers())) {
-                    String name = method.getName();
-                    String key = "";
-                    if (name.startsWith("get")) {
-                        if ("getClass".equals(name)
-                                || "getDeclaringClass".equals(name)) {
-                            key = "";
-                        } else {
-                            key = name.substring(3);
-                        }
-                    } else if (name.startsWith("is")) {
-                        key = name.substring(2);
-                    }
-                    if (key.length() > 0
-                            && Character.isUpperCase(key.charAt(0))
-                            && method.getParameterTypes().length == 0) {
-                        if (key.length() == 1) {
-                            key = key.toLowerCase();
-                        } else if (!Character.isUpperCase(key.charAt(1))) {
-                            key = key.substring(0, 1).toLowerCase()
-                                    + key.substring(1);
-                        }
-
-                        Object result = method.invoke(bean, (Object[]) null);
-                        if (result != null) {
-                            this.map.put(key, wrap(result));
-                        }
-                    }
-                }
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
     public JSONObject put(String key, Object value) throws JSONException {
         if (key == null) {
             throw new NullPointerException("Null key.");
@@ -262,6 +224,73 @@ public class JSONObject {
         } catch (IOException ignored) {
             return "";
         }
+    }
+
+    private void populateMap(Object bean) {
+        Class<?> clazz = bean.getClass();
+        Set<MethodInfo> methodInfos = getGetterMethodInfo(clazz);
+
+        if (CollectionUtils.isNotEmpty(methodInfos)) {
+            for (MethodInfo methodInfo : methodInfos) {
+                try {
+                    Object result = methodInfo.getMethod().invoke(bean, (Object[]) null);
+                    if (result != null) {
+                        this.map.put(methodInfo.getFieldName(), wrap(result));
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    private static Set<MethodInfo> getGetterMethodInfo(Class<?> clazz) {
+
+        Set<MethodInfo> methodInfos = METHOD_MAP.get(clazz);
+
+        if (methodInfos == null) {
+
+            methodInfos = new HashSet<MethodInfo>();
+
+            boolean includeSuperClass = clazz.getClassLoader() != null;
+
+            Method[] methods = includeSuperClass ? clazz.getMethods() : clazz
+                    .getDeclaredMethods();
+
+            for (Method method : methods) {
+                try {
+                    if (Modifier.isPublic(method.getModifiers())) {
+                        String name = method.getName();
+                        String key = "";
+                        if (name.startsWith("get")) {
+                            if ("getClass".equals(name)
+                                    || "getDeclaringClass".equals(name)) {
+                                key = "";
+                            } else {
+                                key = name.substring(3);
+                            }
+                        } else if (name.startsWith("is")) {
+                            key = name.substring(2);
+                        }
+                        if (key.length() > 0
+                                && Character.isUpperCase(key.charAt(0))
+                                && method.getParameterTypes().length == 0) {
+                            if (key.length() == 1) {
+                                key = key.toLowerCase();
+                            } else if (!Character.isUpperCase(key.charAt(1))) {
+                                key = key.substring(0, 1).toLowerCase()
+                                        + key.substring(1);
+                            }
+                            methodInfos.add(new MethodInfo(key, method));
+                        }
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            METHOD_MAP.putIfAbsent(clazz, methodInfos);
+        }
+
+        return methodInfos;
     }
 
     private static Writer quote(String string, Writer w) throws IOException {
