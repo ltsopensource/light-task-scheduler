@@ -41,7 +41,7 @@ public class JacksonJSONObject implements JSONObject {
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(String key) {
         return map.containsKey(key);
     }
 
@@ -51,7 +51,7 @@ public class JacksonJSONObject implements JSONObject {
     }
 
     @Override
-    public Object get(Object key) {
+    public Object get(String key) {
         return map.get(key);
     }
 
@@ -258,7 +258,7 @@ public class JacksonJSONObject implements JSONObject {
     }
 
     @Override
-    public Object remove(Object key) {
+    public Object remove(String key) {
         return map.remove(key);
     }
 

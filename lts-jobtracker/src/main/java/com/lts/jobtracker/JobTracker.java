@@ -1,13 +1,13 @@
 package com.lts.jobtracker;
 
 import com.lts.biz.logger.JobLoggerDelegate;
-import com.lts.core.command.CommandCenter;
-import com.lts.core.command.Commands;
+import com.lts.core.command.HttpCommandCenter;
+import com.lts.core.command.HttCommands;
 import com.lts.core.cluster.AbstractServerNode;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelManager;
-import com.lts.jobtracker.command.AddJobCommand;
-import com.lts.jobtracker.command.LoadJobCommand;
+import com.lts.jobtracker.command.AddJobHttpCommand;
+import com.lts.jobtracker.command.LoadJobHttpCommand;
 import com.lts.jobtracker.domain.JobTrackerApplication;
 import com.lts.jobtracker.domain.JobTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
@@ -37,7 +37,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         // TaskTracker 管理者
         application.setTaskTrackerManager(new TaskTrackerManager(application));
         // 命令中心
-        application.setCommandCenter(new CommandCenter(application.getConfig()));
+        application.setHttpCommandCenter(new HttpCommandCenter(application.getConfig()));
 
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(application));
@@ -64,14 +64,14 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     private void registerCommand() {
         // 先启动CommandCenter，中间看端口是否被占用
-        application.getCommandCenter().start();
+        application.getHttpCommandCenter().start();
         // 设置command端口，会暴露到注册中心上
-        node.setCommandPort(application.getCommandCenter().getPort());
+        node.setCommandPort(application.getHttpCommandCenter().getPort());
 
         // 手动加载任务
-        application.getCommandCenter().registerCommand(Commands.LOAD_JOB, new LoadJobCommand(application));
+        application.getHttpCommandCenter().registerCommand(HttCommands.LOAD_JOB, new LoadJobHttpCommand(application));
         // 添加任务
-        application.getCommandCenter().registerCommand(Commands.ADD_JOB, new AddJobCommand(application));
+        application.getHttpCommandCenter().registerCommand(HttCommands.ADD_JOB, new AddJobHttpCommand(application));
     }
 
     @Override
@@ -87,7 +87,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
         application.getMonitor().stop();
 
-        application.getCommandCenter().stop();
+        application.getHttpCommandCenter().stop();
     }
 
     @Override

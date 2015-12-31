@@ -1,2 +1,3 @@
 fastjson=com.lts.core.json.fastjson.FastJSONAdapter
 jackson=com.lts.core.json.jackson.JacksonJSONAdapter
+ltsjson=com.lts.core.json.ltsjson.LtsJSONAdapter

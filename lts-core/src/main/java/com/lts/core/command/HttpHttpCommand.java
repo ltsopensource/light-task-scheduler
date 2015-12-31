@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 /**
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class Command extends CommandRequest {
+public class HttpHttpCommand extends HttpCommandRequest {
 
     private String result;
 

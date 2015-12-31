@@ -4,9 +4,9 @@ import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Constants;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
+import com.lts.core.json.JSONFactory;
 import com.lts.core.listener.MasterChangeListener;
 import com.lts.core.listener.MasterElectionListener;
 import com.lts.core.listener.NodeChangeListener;
@@ -15,6 +15,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.*;
+import com.lts.core.spi.SpiKey;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.ec.EventCenter;
 import com.lts.remoting.serialize.AdaptiveSerializable;
@@ -132,9 +133,15 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
 
     private void setSpiConfig() {
         // 设置默认序列化方式
-        String defaultSerializable = config.getParameter(Constants.DEFAULT_REMOTING_SERIALIZABLE);
+        String defaultSerializable = config.getParameter(SpiKey.REMOTING_SERIALIZABLE_DFT);
         if (StringUtils.isNotEmpty(defaultSerializable)) {
             AdaptiveSerializable.setDefaultSerializable(defaultSerializable);
+        }
+
+        // 设置json
+        String ltsJson = config.getParameter(SpiKey.LTS_JSON);
+        if (StringUtils.isNotEmpty(ltsJson)) {
+            JSONFactory.setJSONAdapter(ltsJson);
         }
     }
 

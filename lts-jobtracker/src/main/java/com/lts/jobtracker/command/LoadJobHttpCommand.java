@@ -1,7 +1,7 @@
 package com.lts.jobtracker.command;
 
-import com.lts.core.command.CommandProcessor;
-import com.lts.core.command.CommandRequest;
+import com.lts.core.command.HttpCommandProcessor;
+import com.lts.core.command.HttpCommandRequest;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.domain.JobTrackerApplication;
@@ -14,18 +14,18 @@ import java.io.PrintWriter;
  *
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class LoadJobCommand implements CommandProcessor {
+public class LoadJobHttpCommand implements HttpCommandProcessor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(LoadJobCommand.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(LoadJobHttpCommand.class);
 
     private JobTrackerApplication application;
 
-    public LoadJobCommand(JobTrackerApplication application) {
+    public LoadJobHttpCommand(JobTrackerApplication application) {
         this.application = application;
     }
 
     @Override
-    public void execute(OutputStream out, CommandRequest request) throws Exception {
+    public void execute(OutputStream out, HttpCommandRequest request) throws Exception {
         PrintWriter writer = new PrintWriter(out);
 
         String taskTrackerNodeGroup = request.getParam("nodeGroup");
