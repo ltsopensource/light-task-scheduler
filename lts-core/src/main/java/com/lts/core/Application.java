@@ -1,6 +1,6 @@
 package com.lts.core;
 
-import com.lts.core.command.CommandCenter;
+import com.lts.core.command.HttpCommandCenter;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
@@ -30,7 +30,7 @@ public abstract class Application {
     // 注册中心状态监控
     private RegistryStatMonitor registryStatMonitor;
     // 命令中心
-    private CommandCenter commandCenter;
+    private HttpCommandCenter httpCommandCenter;
 
     public Monitor getMonitor() {
         return monitor;
@@ -88,11 +88,11 @@ public abstract class Application {
         this.registryStatMonitor = registryStatMonitor;
     }
 
-    public CommandCenter getCommandCenter() {
-        return commandCenter;
+    public HttpCommandCenter getHttpCommandCenter() {
+        return httpCommandCenter;
     }
 
-    public void setCommandCenter(CommandCenter commandCenter) {
-        this.commandCenter = commandCenter;
+    public void setHttpCommandCenter(HttpCommandCenter httpCommandCenter) {
+        this.httpCommandCenter = httpCommandCenter;
     }
 }

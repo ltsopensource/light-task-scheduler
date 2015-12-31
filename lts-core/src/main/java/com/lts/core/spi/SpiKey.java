@@ -1,9 +1,9 @@
 package com.lts.core.spi;
 
 /**
- * Created by hugui.hg on 12/27/15.
+ * @author Robert HG (254963746@qq.com) on 12/27/15.
  */
-public interface SKey {
+public interface SpiKey {
 
     String FAIL_STORE = "job.fail.store";
 
@@ -21,5 +21,9 @@ public interface SKey {
 
     String JOB_LOGGER = "job.logger";
 
+    String LTS_LOGGER = "lts.logger";
+
     String JOB_QUEUE = "job.queue";
+
+    String LTS_JSON = "lts.json";
 }

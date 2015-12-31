@@ -7,14 +7,14 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class CommandClient {
+public class HttpCommandClient {
 
-    public static void sendCommand(String ip, int port, Command command) throws Exception {
+    public static void sendCommand(String ip, int port, HttpHttpCommand httpCommand) throws Exception {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("http://").append(ip).append(":").append(port).append("/").append(command.getCommand());
+        sb.append("http://").append(ip).append(":").append(port).append("/").append(httpCommand.getCommand());
 
-        Map<String, String> params = command.getParams();
+        Map<String, String> params = httpCommand.getParams();
         if (params != null) {
             sb.append("?");
             boolean isFirst = true;
@@ -30,7 +30,7 @@ public class CommandClient {
 
         URL url = new URL(sb.toString());
         InputStream inputStream = url.openStream();
-        command.proceedRequest(inputStream);
+        httpCommand.proceedRequest(inputStream);
     }
 
 }

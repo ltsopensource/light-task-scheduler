@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class CommandRequest {
+public class HttpCommandRequest {
 
     private String command;
 
@@ -55,9 +55,9 @@ public class CommandRequest {
     /**
      * GET /xxxCommand?xxx=yyyyy HTTP/1.1
      */
-    protected static CommandRequest parse(String url) throws Exception {
+    protected static HttpCommandRequest parse(String url) throws Exception {
 
-        CommandRequest request = new CommandRequest();
+        HttpCommandRequest request = new HttpCommandRequest();
 
         if (StringUtils.isEmpty(url)) {
             return request;

@@ -1,7 +1,7 @@
 package com.lts.jobtracker.command;
 
-import com.lts.core.command.CommandProcessor;
-import com.lts.core.command.CommandRequest;
+import com.lts.core.command.HttpCommandProcessor;
+import com.lts.core.command.HttpCommandRequest;
 import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
@@ -18,18 +18,18 @@ import java.util.Collections;
  * 添加任务
  * @author Robert HG (254963746@qq.com) on 10/27/15.
  */
-public class AddJobCommand implements CommandProcessor {
+public class AddJobHttpCommand implements HttpCommandProcessor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(AddJobCommand.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(AddJobHttpCommand.class);
 
     private JobTrackerApplication application;
 
-    public AddJobCommand(JobTrackerApplication application) {
+    public AddJobHttpCommand(JobTrackerApplication application) {
         this.application = application;
     }
 
     @Override
-    public void execute(OutputStream out, CommandRequest request) throws Exception {
+    public void execute(OutputStream out, HttpCommandRequest request) throws Exception {
 
         PrintWriter writer = new PrintWriter(out);
 

@@ -100,8 +100,6 @@ public interface Constants {
     // 延迟批量刷盘日志 检查频率
     String LAZY_JOB_LOGGER_CHECK_PERIOD = "lazy.job.logger.check.period";
 
-    String DEFAULT_REMOTING_SERIALIZABLE = "lts.remoting.serializable.default";
-
     String ADAPTIVE = "adaptive";
 
 }

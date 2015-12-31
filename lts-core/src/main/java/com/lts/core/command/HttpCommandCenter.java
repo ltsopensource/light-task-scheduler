@@ -23,21 +23,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class CommandCenter {
+public class HttpCommandCenter {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(CommandCenter.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(HttpCommandCenter.class);
     private ExecutorService commandExecutor;
     private AtomicBoolean start = new AtomicBoolean(false);
-    private final Map<String, CommandProcessor> processorMap = new HashMap<String, CommandProcessor>();
+    private final Map<String, HttpCommandProcessor> processorMap = new HashMap<String, HttpCommandProcessor>();
 
     private Config config;
     private int port;
 
-    public CommandCenter(Config config) {
+    public HttpCommandCenter(Config config) {
         this.config = config;
     }
 
-    public void start() throws CommandException {
+    public void start() throws HttpCommandException {
         try {
             if (start.compareAndSet(false, true)) {
 
@@ -56,7 +56,7 @@ public class CommandCenter {
             }
         } catch (Exception t) {
             LOGGER.error("Start CommandCenter error at port {} , use lts.command.port config change the port.", port, t);
-            throw new CommandException(t);
+            throw new HttpCommandException(t);
         }
     }
 
@@ -120,7 +120,7 @@ public class CommandCenter {
         return port;
     }
 
-    public void registerCommand(String command, CommandProcessor processor) {
+    public void registerCommand(String command, HttpCommandProcessor processor) {
 
         if (StringUtils.isEmpty(command)) {
             return;
@@ -128,7 +128,7 @@ public class CommandCenter {
         processorMap.put(command, processor);
     }
 
-    private CommandProcessor getCommandProcessor(String command) {
+    private HttpCommandProcessor getCommandProcessor(String command) {
         return processorMap.get(command);
     }
 
@@ -152,7 +152,7 @@ public class CommandCenter {
                 out = new PrintWriter(outputStream);
 
                 String line = in.readLine();
-                CommandRequest request = CommandRequest.parse(line);
+                HttpCommandRequest request = HttpCommandRequest.parse(line);
 
                 out.print("HTTP/1.1 200 OK\r\n\r\n");
                 out.flush();
@@ -162,9 +162,9 @@ public class CommandCenter {
                     return;
                 }
 
-                CommandProcessor commandProcessor = getCommandProcessor(request.getCommand());
-                if (commandProcessor != null) {
-                    commandProcessor.execute(outputStream, request);
+                HttpCommandProcessor httpCommandProcessor = getCommandProcessor(request.getCommand());
+                if (httpCommandProcessor != null) {
+                    httpCommandProcessor.execute(outputStream, request);
                 } else {
                     out.println("Can not find the command:[" + request.getCommand() + "]");
                 }
