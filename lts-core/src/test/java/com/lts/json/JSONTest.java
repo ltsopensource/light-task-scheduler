@@ -87,7 +87,7 @@ public class JSONTest {
             com.alibaba.fastjson.JSONObject.toJSONString(job);
         }
 
-        // 2585
+        // 2969
         System.out.println(System.currentTimeMillis() - start);
     }
 
@@ -103,7 +103,7 @@ public class JSONTest {
             JSONObject.toJSONString(job);
         }
 
-        // 10707
+        // 6940
         System.out.println(System.currentTimeMillis() - start);
     }
 }
