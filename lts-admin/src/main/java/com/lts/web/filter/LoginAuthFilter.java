@@ -3,6 +3,7 @@ package com.lts.web.filter;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import org.springframework.util.AntPathMatcher;
 import sun.misc.BASE64Decoder;
 
 import javax.servlet.*;
@@ -21,6 +22,7 @@ public class LoginAuthFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(LoginAuthFilter.class);
 
     private static final String AUTH_PREFIX = "Basic ";
+    private AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private String username = "admin";
 
@@ -78,7 +80,7 @@ public class LoginAuthFilter implements Filter {
         if (excludedURLArray != null) {
             for (String page : excludedURLArray) {
                 //判断是否在过滤url中
-                if (path.equals(page)) {
+                if(pathMatcher.match(page, path)){
                     return true;
                 }
             }
