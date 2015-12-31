@@ -25,7 +25,7 @@
         </init-param>
         <init-param>
             <param-name>excludedURLs</param-name>
-            <param-value>/api/monitor/monitor-data-add.do,/api/monitor/jvm-info-data-add.do,/api/monitor/command-info-add.do</param-value>
+            <param-value>/**/api/monitor/monitor-data-add.do,/**/api/monitor/jvm-info-data-add.do,/**/api/monitor/command-info-add.do</param-value>
         </init-param>
     </filter>
     <filter-mapping>
