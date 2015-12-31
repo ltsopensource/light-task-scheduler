@@ -16,11 +16,11 @@ public interface JSONObject {
 
     public boolean isEmpty();
 
-    public boolean containsKey(Object key);
+    public boolean containsKey(String key);
 
     public boolean containsValue(Object value);
 
-    public Object get(Object key);
+    public Object get(String key);
 
     public JSONObject getJSONObject(String key);
 
@@ -76,7 +76,7 @@ public interface JSONObject {
 
     public void clear();
 
-    public Object remove(Object key);
+    public Object remove(String key);
 
     public Set<String> keySet();
 

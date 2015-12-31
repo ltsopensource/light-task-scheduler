@@ -33,7 +33,7 @@ public class FastJSONObject implements JSONObject {
     }
 
     @Override
-    public boolean containsKey(Object key) {
+    public boolean containsKey(String key) {
         return jsonObject.containsKey(key);
     }
 
@@ -43,7 +43,7 @@ public class FastJSONObject implements JSONObject {
     }
 
     @Override
-    public Object get(Object key) {
+    public Object get(String key) {
         return jsonObject.get(key);
     }
 
@@ -183,7 +183,7 @@ public class FastJSONObject implements JSONObject {
     }
 
     @Override
-    public Object remove(Object key) {
+    public Object remove(String key) {
         return jsonObject.remove(key);
     }
 

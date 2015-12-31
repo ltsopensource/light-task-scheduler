@@ -1,5 +1,6 @@
 package com.lts.example.api;
 
+import com.lts.core.spi.SpiKey;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.example.support.TestJobRunner;
 import com.lts.tasktracker.TaskTracker;
@@ -32,6 +33,7 @@ public class TaskTrackerTest {
         taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
 //         taskTracker.addConfig("lts.remoting", "mina");
 //        taskTracker.addConfig("lts.remoting.serializable.default", "fastjson");
+        taskTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
         taskTracker.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

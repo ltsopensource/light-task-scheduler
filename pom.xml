@@ -8,6 +8,7 @@
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.6.4-SNAPSHOT</version>
+    <url>https://github.com/qq254963746/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
@@ -24,12 +25,11 @@
 
     <properties>
         <jedis.version>2.7.3</jedis.version>
-        <fastjson.version>1.1.41</fastjson.version>
+        <fastjson.version>1.2.7</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
         <curator.version>1.1.10</curator.version>
         <zkclient.version>0.1</zkclient.version>
         <zk.version>3.4.5</zk.version>
-        <javassist.version>3.19.0-GA</javassist.version>
         <mongo.driver.version>3.0.2</mongo.driver.version>
         <morphia.version>1.0.0-rc1</morphia.version>
         <junit.version>4.11</junit.version>
@@ -164,11 +164,6 @@
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging-api</artifactId>
                 <version>${jcl_version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sleepycat</groupId>

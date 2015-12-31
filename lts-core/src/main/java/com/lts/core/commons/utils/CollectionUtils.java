@@ -42,10 +42,6 @@ public class CollectionUtils {
 
     /**
      * 返回第一个列表中比第二个多出来的元素
-     *
-     * @param list1
-     * @param list2
-     * @return
      */
     public static <T> List<T> getLeftDiff(List<T> list1, List<T> list2) {
         if (isEmpty(list2)) {

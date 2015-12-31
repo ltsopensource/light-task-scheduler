@@ -1,13 +1,13 @@
 package com.lts.jobtracker.id;
 
 import com.lts.core.spi.SPI;
-import com.lts.core.spi.SKey;
+import com.lts.core.spi.SpiKey;
 import com.lts.queue.domain.JobPo;
 
 /**
  * Robert HG (254963746@qq.com) on 5/27/15.
  */
-@SPI(key = SKey.JOB_ID_GENERATOR, dftValue = "md5")
+@SPI(key = SpiKey.JOB_ID_GENERATOR, dftValue = "md5")
 public interface IdGenerator {
 
     /**

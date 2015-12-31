@@ -2,9 +2,9 @@ package com.lts.web.controller.api;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.core.command.Command;
-import com.lts.core.command.CommandClient;
-import com.lts.core.command.Commands;
+import com.lts.core.command.HttpHttpCommand;
+import com.lts.core.command.HttpCommandClient;
+import com.lts.core.command.HttCommands;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.Assert;
@@ -242,9 +242,9 @@ public class JobQueueApiController extends AbstractController {
 
         String nodeGroup = request.getTaskTrackerNodeGroup();
 
-        Command command = new Command();
-        command.setCommand(Commands.LOAD_JOB);
-        command.addParam("nodeGroup", nodeGroup);
+        HttpHttpCommand httpCommand = new HttpHttpCommand();
+        httpCommand.setCommand(HttCommands.LOAD_JOB);
+        httpCommand.addParam("nodeGroup", nodeGroup);
 
         NodeRequest nodeRequest = new NodeRequest();
         nodeRequest.setNodeType(NodeType.JOB_TRACKER);
@@ -257,7 +257,7 @@ public class JobQueueApiController extends AbstractController {
 
         boolean success = false;
         for (Node node : jobTrackerNodeList) {
-            if(sendCommand(node.getIp(), node.getCommandPort(), command)){
+            if(sendCommand(node.getIp(), node.getCommandPort(), httpCommand)){
                 success = true;
             }
         }
@@ -332,9 +332,9 @@ public class JobQueueApiController extends AbstractController {
         }
         job.setPriority(request.getPriority());
 
-        Command command = new Command();
-        command.setCommand(Commands.ADD_JOB);
-        command.addParam("job", JSON.toJSONString(job));
+        HttpHttpCommand httpCommand = new HttpHttpCommand();
+        httpCommand.setCommand(HttCommands.ADD_JOB);
+        httpCommand.addParam("job", JSON.toJSONString(job));
 
 
         NodeRequest nodeRequest = new NodeRequest();
@@ -346,7 +346,7 @@ public class JobQueueApiController extends AbstractController {
 
         boolean success = false;
         for (Node node : jobTrackerNodeList) {
-            success = sendCommand(node.getIp(), node.getCommandPort(), command);
+            success = sendCommand(node.getIp(), node.getCommandPort(), httpCommand);
             if (success) {
                 break;
             }
@@ -356,18 +356,18 @@ public class JobQueueApiController extends AbstractController {
             return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
         }
 
-        String result = command.getResult();
+        String result = httpCommand.getResult();
         if ("true".equals(result)) {
             return new KVPair<Boolean, String>(true, "Add success");
         }
         return new KVPair<Boolean, String>(false, result);
     }
 
-    private boolean sendCommand(String host, int port, Command command) {
+    private boolean sendCommand(String host, int port, HttpHttpCommand httpCommand) {
         try {
-            CommandClient.sendCommand(host, port, command);
+            HttpCommandClient.sendCommand(host, port, httpCommand);
         } catch (Exception e) {
-            LOGGER.warn("send command[{}] error host:{}, port:{}", command.getCommand(), host, port);
+            LOGGER.warn("send command[{}] error host:{}, port:{}", httpCommand.getCommand(), host, port);
             return false;
         }
         return true;

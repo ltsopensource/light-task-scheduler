@@ -1,5 +1,6 @@
 package com.lts.example.api;
 
+import com.lts.core.spi.SpiKey;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
@@ -87,6 +88,7 @@ public class JobTrackerTest {
 //        jobTracker.addConfig("zk.client", "curator");
 
         jobTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
+//        jobTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
 
         // 启动节点
         jobTracker.start();
