@@ -26,7 +26,8 @@ public class NettyRemotingServer extends AbstractRemotingServer {
     public static final Logger LOGGER = AbstractRemotingServer.LOGGER;
 
     private final ServerBootstrap serverBootstrap;
-    private final EventLoopGroup eventLoopGroup;
+    private final EventLoopGroup bossSelectorGroup;
+    private final EventLoopGroup workerSelectorGroup;
     private DefaultEventExecutorGroup defaultEventExecutorGroup;
 
     public NettyRemotingServer(RemotingServerConfig remotingServerConfig) {
@@ -36,7 +37,8 @@ public class NettyRemotingServer extends AbstractRemotingServer {
     public NettyRemotingServer(RemotingServerConfig remotingServerConfig, final ChannelEventListener channelEventListener) {
         super(remotingServerConfig, channelEventListener);
         this.serverBootstrap = new ServerBootstrap();
-        this.eventLoopGroup = new NioEventLoopGroup(remotingServerConfig.getServerSelectorThreads());
+        this.bossSelectorGroup = new NioEventLoopGroup(1, new NamedThreadFactory("NettyBossSelectorThread_"));
+        this.workerSelectorGroup = new NioEventLoopGroup(remotingServerConfig.getServerSelectorThreads(), new NamedThreadFactory("NettyServerSelectorThread_"));
     }
 
     @Override
@@ -51,20 +53,19 @@ public class NettyRemotingServer extends AbstractRemotingServer {
 
         final NettyCodecFactory nettyCodecFactory = new NettyCodecFactory(getCodec());
 
-        this.serverBootstrap.group(this.eventLoopGroup, new NioEventLoopGroup())
+        this.serverBootstrap.group(this.bossSelectorGroup, this.workerSelectorGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 65536)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                        //
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .localAddress(new InetSocketAddress(this.remotingServerConfig.getListenPort()))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(
-                                defaultEventExecutorGroup, //
-                                nettyCodecFactory.getEncoder(), //
-                                nettyCodecFactory.getDecoder(), //
+                                defaultEventExecutorGroup,
+                                nettyCodecFactory.getEncoder(),
+                                nettyCodecFactory.getDecoder(),
                                 new IdleStateHandler(remotingServerConfig.getReaderIdleTimeSeconds(),
                                         remotingServerConfig.getWriterIdleTimeSeconds(), remotingServerConfig.getServerChannelMaxIdleTimeSeconds()),//
                                 new NettyConnectManageHandler(), //
@@ -82,7 +83,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
     @Override
     protected void serverShutdown() throws RemotingException{
 
-        this.eventLoopGroup.shutdownGracefully();
+        this.bossSelectorGroup.shutdownGracefully();
 
         if (this.defaultEventExecutorGroup != null) {
             this.defaultEventExecutorGroup.shutdownGracefully();
