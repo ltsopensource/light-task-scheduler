@@ -76,7 +76,7 @@ public class JSONTest {
     }
 
     @Test
-    public void fastjsonTest(){
+    public void fastjsonWriterTest(){
         Job job = new Job();
         job.setCronExpression("xcvxcvxfadsf");
         job.setParam("xxx", "fadsfads");
@@ -92,7 +92,7 @@ public class JSONTest {
     }
 
     @Test
-    public void ltsjsonTest(){
+    public void ltsjsonWriterTest(){
         Job job = new Job();
         job.setCronExpression("xcvxcvxfadsf");
         job.setParam("xxx", "fadsfads");
@@ -104,6 +104,30 @@ public class JSONTest {
         }
 
         // 6940
+        System.out.println(System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void ltsjsonParseTest(){
+        String json = "{\"needFeedback\":false,\"schedule\":true,\"extParams\":{\"xxx\":\"fadsfads\"},\"replaceOnExist\":false,\"priority\":100,\"cronExpression\":\"xcvxcvxfadsf\",\"retryTimes\":0}";
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 1000000; i++) {
+            Job job = JSONObject.parseObject(json, new TypeReference<Job>(){}.getType());
+        }
+        // 7255
+        System.out.println(System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void fastjsonParseTest(){
+        String json = "{\"needFeedback\":false,\"schedule\":true,\"extParams\":{\"xxx\":\"fadsfads\"},\"replaceOnExist\":false,\"priority\":100,\"cronExpression\":\"xcvxcvxfadsf\",\"retryTimes\":0}";
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 1000000; i++) {
+            Job job = com.alibaba.fastjson.JSONObject.parseObject(json, new TypeReference<Job>(){}.getType());
+        }
+        // 4724
         System.out.println(System.currentTimeMillis() - start);
     }
 }

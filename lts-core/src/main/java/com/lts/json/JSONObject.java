@@ -217,7 +217,7 @@ public class JSONObject {
         return this;
     }
 
-    private static String quote(String string) {
+    private String quote(String string) {
         StringWriter sw = new StringWriter();
         try {
             return quote(string, sw).toString();
@@ -298,7 +298,6 @@ public class JSONObject {
             w.write("\"\"");
             return w;
         }
-
         char b;
         char c = 0;
         String hhhh;
@@ -359,7 +358,7 @@ public class JSONObject {
     public String toString() {
         try {
             StringWriter w = new StringWriter();
-            return this.write(w, 0, 0).toString();
+            return this.write(w).toString();
         } catch (Exception e) {
             throw new JSONException(e);
         }
@@ -411,22 +410,21 @@ public class JSONObject {
         }
     }
 
-    static final Writer writeValue(Writer writer, Object value,
-                                   int indentFactor, int indent) throws JSONException, IOException {
+    static Writer writeValue(Writer writer, Object value) throws JSONException, IOException {
         if (value == null) {
             writer.write("null");
         } else if (value instanceof JSONObject) {
-            ((JSONObject) value).write(writer, indentFactor, indent);
+            ((JSONObject) value).write(writer);
         } else if (value instanceof JSONArray) {
-            ((JSONArray) value).write(writer, indentFactor, indent);
+            ((JSONArray) value).write(writer);
         } else if (value instanceof Map) {
             Map<?, ?> map = (Map<?, ?>) value;
-            new JSONObject(map).write(writer, indentFactor, indent);
+            new JSONObject(map).write(writer);
         } else if (value instanceof Collection) {
             Collection<?> coll = (Collection<?>) value;
-            new JSONArray(coll).write(writer, indentFactor, indent);
+            new JSONArray(coll).write(writer);
         } else if (value.getClass().isArray()) {
-            new JSONArray(value).write(writer, indentFactor, indent);
+            new JSONArray(value).write(writer);
         } else if (value instanceof Number) {
             writer.write(numberToString((Number) value));
         } else if (value instanceof Boolean) {
@@ -437,13 +435,7 @@ public class JSONObject {
         return writer;
     }
 
-    static final void indent(Writer writer, int indent) throws IOException {
-        for (int i = 0; i < indent; i += 1) {
-            writer.write(' ');
-        }
-    }
-
-    Writer write(Writer writer, int indentFactor, int indent)
+    private Writer write(Writer writer)
             throws JSONException {
         try {
             boolean commanate = false;
@@ -455,33 +447,18 @@ public class JSONObject {
                 String key = keys.next();
                 writer.write(quote(key));
                 writer.write(':');
-                if (indentFactor > 0) {
-                    writer.write(' ');
-                }
-                writeValue(writer, this.map.get(key), indentFactor, indent);
+                writeValue(writer, this.map.get(key));
             } else if (length != 0) {
-                final int newindent = indent + indentFactor;
                 while (keys.hasNext()) {
                     String key = keys.next();
                     if (commanate) {
                         writer.write(',');
                     }
-                    if (indentFactor > 0) {
-                        writer.write('\n');
-                    }
-                    indent(writer, newindent);
                     writer.write(quote(key));
                     writer.write(':');
-                    if (indentFactor > 0) {
-                        writer.write(' ');
-                    }
-                    writeValue(writer, this.map.get(key), indentFactor, newindent);
+                    writeValue(writer, this.map.get(key));
                     commanate = true;
                 }
-                if (indentFactor > 0) {
-                    writer.write('\n');
-                }
-                indent(writer, indent);
             }
             writer.write('}');
             return writer;
@@ -501,7 +478,6 @@ public class JSONObject {
     public boolean containsValue(Object value) {
         return map.containsValue(value);
     }
-
 
     public <T> T getObject(String key, Class<T> clazz) {
         Object value = map.get(key);

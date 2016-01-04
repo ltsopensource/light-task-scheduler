@@ -161,14 +161,13 @@ public class JSONArray implements Iterable<Object> {
 
     public String toString() {
         try {
-            StringWriter sw = new StringWriter();
-            return this.write(sw, 0, 0).toString();
+            return this.write(new StringWriter()).toString();
         } catch (Exception e) {
             throw new JSONException(e);
         }
     }
 
-    Writer write(Writer writer, int indentFactor, int indent)
+    Writer write(Writer writer)
             throws JSONException {
         try {
             boolean commanate = false;
@@ -176,27 +175,15 @@ public class JSONArray implements Iterable<Object> {
             writer.write('[');
 
             if (length == 1) {
-                JSONObject.writeValue(writer, this.list.get(0),
-                        indentFactor, indent);
+                JSONObject.writeValue(writer, this.list.get(0));
             } else if (length != 0) {
-                final int newindent = indent + indentFactor;
-
                 for (int i = 0; i < length; i += 1) {
                     if (commanate) {
                         writer.write(',');
                     }
-                    if (indentFactor > 0) {
-                        writer.write('\n');
-                    }
-                    JSONObject.indent(writer, newindent);
-                    JSONObject.writeValue(writer, this.list.get(i),
-                            indentFactor, newindent);
+                    JSONObject.writeValue(writer, this.list.get(i));
                     commanate = true;
                 }
-                if (indentFactor > 0) {
-                    writer.write('\n');
-                }
-                JSONObject.indent(writer, indent);
             }
             writer.write(']');
             return writer;
