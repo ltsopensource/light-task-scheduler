@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class HttpCommandClient {
 
-    public static void sendCommand(String ip, int port, HttpHttpCommand httpCommand) throws Exception {
+    public static void sendCommand(String ip, int port, HttpCommand httpCommand) throws Exception {
 
         StringBuilder sb = new StringBuilder();
         sb.append("http://").append(ip).append(":").append(port).append("/").append(httpCommand.getCommand());

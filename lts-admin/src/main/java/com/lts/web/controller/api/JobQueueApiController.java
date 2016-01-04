@@ -2,7 +2,7 @@ package com.lts.web.controller.api;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.core.command.HttpHttpCommand;
+import com.lts.core.command.HttpCommand;
 import com.lts.core.command.HttpCommandClient;
 import com.lts.core.command.HttCommands;
 import com.lts.core.cluster.Node;
@@ -242,7 +242,7 @@ public class JobQueueApiController extends AbstractController {
 
         String nodeGroup = request.getTaskTrackerNodeGroup();
 
-        HttpHttpCommand httpCommand = new HttpHttpCommand();
+        HttpCommand httpCommand = new HttpCommand();
         httpCommand.setCommand(HttCommands.LOAD_JOB);
         httpCommand.addParam("nodeGroup", nodeGroup);
 
@@ -332,7 +332,7 @@ public class JobQueueApiController extends AbstractController {
         }
         job.setPriority(request.getPriority());
 
-        HttpHttpCommand httpCommand = new HttpHttpCommand();
+        HttpCommand httpCommand = new HttpCommand();
         httpCommand.setCommand(HttCommands.ADD_JOB);
         httpCommand.addParam("job", JSON.toJSONString(job));
 
@@ -363,7 +363,7 @@ public class JobQueueApiController extends AbstractController {
         return new KVPair<Boolean, String>(false, result);
     }
 
-    private boolean sendCommand(String host, int port, HttpHttpCommand httpCommand) {
+    private boolean sendCommand(String host, int port, HttpCommand httpCommand) {
         try {
             HttpCommandClient.sendCommand(host, port, httpCommand);
         } catch (Exception e) {
