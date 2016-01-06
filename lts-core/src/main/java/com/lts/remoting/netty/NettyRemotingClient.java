@@ -57,12 +57,12 @@ public class NettyRemotingClient extends AbstractRemotingClient {
                 .option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {
             @Override
             public void initChannel(SocketChannel ch) throws Exception {
-                ch.pipeline().addLast(//
-                        defaultEventExecutorGroup, //
-                        nettyCodecFactory.getEncoder(), //
-                        nettyCodecFactory.getDecoder(), //
+                ch.pipeline().addLast(
+                        defaultEventExecutorGroup,
+                        nettyCodecFactory.getEncoder(),
+                        nettyCodecFactory.getDecoder(),
                         new IdleStateHandler(remotingClientConfig.getReaderIdleTimeSeconds(), remotingClientConfig.getWriterIdleTimeSeconds(), remotingClientConfig.getClientChannelMaxIdleTimeSeconds()),//
-                        new NettyConnectManageHandler(), //
+                        new NettyConnectManageHandler(),
                         new NettyClientHandler());
             }
         });

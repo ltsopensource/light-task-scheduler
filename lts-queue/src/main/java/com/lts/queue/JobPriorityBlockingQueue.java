@@ -19,8 +19,8 @@ public class JobPriorityBlockingQueue {
 
     private int capacity;
 
-    private transient int size;
-    private transient JobPo[] queue;
+    private volatile int size;
+    private JobPo[] queue;
     private ConcurrentHashSet<String/*jobId*/> JOB_ID_SET = new ConcurrentHashSet<String>();
 
     public JobPriorityBlockingQueue(int capacity) {
