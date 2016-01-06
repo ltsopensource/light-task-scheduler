@@ -104,6 +104,8 @@ public class DBImpl<K, V> implements DB<K, V>, Closeable {
     }
 
     public void remove(K key) {
+        // 先移除缓存
+        dataCache.remove(key);
 
         // 1. 先写Log
         StoreTxLogPosition storeTxLogPosition = storeTxLogEngine.append(Operation.REMOVE, key);
@@ -115,8 +117,6 @@ public class DBImpl<K, V> implements DB<K, V>, Closeable {
             // 3. 移除Data
             dataBlockEngine.remove(storeTxLogPosition, indexItem);
         }
-        // 4. 移除缓存
-        dataCache.remove(key);
     }
 
     public DBIterator<Entry<K, V>> iterator() {
