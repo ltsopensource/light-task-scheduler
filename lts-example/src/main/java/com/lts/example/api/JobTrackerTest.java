@@ -76,6 +76,7 @@ public class JobTrackerTest {
         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
         jobTracker.addConfig("jdbc.username", "root");
         jobTracker.addConfig("jdbc.password", "root");
+//        jobTracker.setBindIp("127.0.0.1");
         // 可选值 mina netty
 //         jobTracker.addConfig("lts.remoting", "mina");
         // 可选值 fastjson hessian2 java

@@ -56,8 +56,6 @@ public class JobProtos {
         JOB_RECEIVE_SUCCESS(11),
         // 接收任务失败
         JOB_RECEIVE_FAILED(12),
-        // 任务执行错误
-        JOB_RUN_ERROR(12),
         // 任务执行失败
         JOB_RUN_FAILURE(13),
         // 没有任务节点执行
@@ -79,7 +77,9 @@ public class JobProtos {
         // 任务删除成功
         JOB_CANCEL_SUCCESS(23),
         // 任务删除失败
-        JOB_CANCEL_FAILED(24);
+        JOB_CANCEL_FAILED(24),
+        // 任务执行错误
+        JOB_RUN_ERROR(25),;
 
 
         private int code;
