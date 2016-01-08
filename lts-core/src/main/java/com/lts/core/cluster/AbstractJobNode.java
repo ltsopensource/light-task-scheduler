@@ -3,6 +3,7 @@ package com.lts.core.cluster;
 import com.lts.core.Application;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
+import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
@@ -15,8 +16,8 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.*;
-import com.lts.core.spi.SpiKey;
 import com.lts.core.spi.ServiceLoader;
+import com.lts.core.spi.SpiKey;
 import com.lts.ec.EventCenter;
 import com.lts.remoting.serialize.AdaptiveSerializable;
 
@@ -114,6 +115,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         application.getMasterElector().addMasterChangeListener(masterChangeListeners);
         application.setRegistryStatMonitor(new RegistryStatMonitor(application));
 
+        if (StringUtils.isEmpty(config.getIp())) {
+            config.setIp(NetUtils.getLocalHost());
+        }
         node = NodeFactory.create(getNodeClass(), config);
         config.setNodeType(node.getNodeType());
 
@@ -250,6 +254,18 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         if (notifyListener != null) {
             nodeChangeListeners.add(notifyListener);
         }
+    }
+
+    /**
+     * 显示设置绑定ip
+     */
+    public void setBindIp(String bindIp) {
+        if (StringUtils.isEmpty(bindIp)
+                || !NetUtils.isValidHost(bindIp)
+                ) {
+            throw new IllegalArgumentException("Invalided bind ip:" + bindIp);
+        }
+        config.setIp(bindIp);
     }
 
     /**
