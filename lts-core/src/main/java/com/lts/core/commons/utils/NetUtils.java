@@ -119,6 +119,10 @@ public class NetUtils {
                 && IP_PATTERN.matcher(name).matches());
     }
 
+    public static boolean isValidHost(String host){
+        return IP_PATTERN.matcher(host).matches();
+    }
+
     public static String getLocalHost() {
         InetAddress address = getLocalAddress();
         return address == null ? LOCALHOST : address.getHostAddress();

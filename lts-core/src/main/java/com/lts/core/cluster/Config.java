@@ -31,6 +31,7 @@ public class Config implements Serializable {
     private int invokeTimeoutMillis;
     // 监听端口
     private int listenPort;
+    private String ip;
     // 任务信息存储路径(譬如TaskTracker反馈任务信息给JobTracker, JobTracker down掉了, 那么存储下来等待JobTracker可用时再发送)
     private String dataPath;
     // 集群名字
@@ -102,6 +103,14 @@ public class Config implements Serializable {
 
     public void setListenPort(int listenPort) {
         this.listenPort = listenPort;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public String getFailStorePath() {

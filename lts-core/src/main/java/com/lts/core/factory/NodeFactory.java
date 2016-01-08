@@ -15,7 +15,7 @@ public class NodeFactory {
         try {
             T node = clazz.newInstance();
             node.setCreateTime(SystemClock.now());
-            node.setIp(NetUtils.getLocalHost());
+            node.setIp(config.getIp());
             node.setHostName(NetUtils.getLocalHostName());
             node.setGroup(config.getNodeGroup());
             node.setThreads(config.getWorkThreads());
