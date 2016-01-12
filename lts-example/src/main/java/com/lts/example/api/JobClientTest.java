@@ -24,7 +24,6 @@ public class JobClientTest extends BaseJobClientTest {
     public static void main(String[] args) throws IOException {
 //        submitWidthReplaceOnExist();
         console();
-        System.out.println("Hello Worls charles.");
 //        testProtector();
 //        cancelJob();
     }
