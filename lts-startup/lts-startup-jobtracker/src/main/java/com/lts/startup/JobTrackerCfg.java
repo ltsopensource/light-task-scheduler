@@ -10,11 +10,21 @@ public class JobTrackerCfg {
 
     private String registryAddress;
 
+    private String bindIp;
+
     private int listenPort;
 
     private String clusterName;
 
     private Map<String, String> configs;
+
+    public String getBindIp() {
+        return bindIp;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
 
     public String getRegistryAddress() {
         return registryAddress;

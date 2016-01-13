@@ -1,5 +1,6 @@
 package com.lts.startup;
 
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
 
@@ -14,13 +15,16 @@ public class JobTrackerStartup {
         try {
 
             String confPath = args[0];
-            
+
             JobTrackerCfg cfg = JobTrackerCfgLoader.load(confPath);
 
             final JobTracker jobTracker = new JobTracker();
             jobTracker.setRegistryAddress(cfg.getRegistryAddress());
             jobTracker.setListenPort(cfg.getListenPort());
             jobTracker.setClusterName(cfg.getClusterName());
+            if (StringUtils.isNotEmpty(cfg.getBindIp())) {
+                jobTracker.setBindIp(cfg.getBindIp());
+            }
 
             jobTracker.setOldDataHandler(new OldDataDeletePolicy());
 
