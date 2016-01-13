@@ -46,6 +46,11 @@ public class JobTrackerCfgLoader {
         }
         cfg.setClusterName(clusterName);
 
+        String bindIp = conf.getProperty("bindIp");
+        if (StringUtils.isNotEmpty(clusterName)) {
+            cfg.setBindIp(bindIp);
+        }
+
         String listenPort = conf.getProperty("listenPort");
         if (StringUtils.isEmpty(listenPort) || !StringUtils.isInteger(listenPort)) {
             throw new CfgException("listenPort can not be null.");
