@@ -214,7 +214,7 @@ public class HeartBeatMonitor {
                 return true;
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.warn(e.getMessage());
         }
         return false;
     }
