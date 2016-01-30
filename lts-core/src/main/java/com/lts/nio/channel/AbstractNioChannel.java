@@ -1,37 +1,31 @@
 package com.lts.nio.channel;
 
-import com.lts.core.constant.Constants;
-import com.lts.core.factory.NamedThreadFactory;
 import com.lts.nio.handler.NioHandler;
 import com.lts.nio.handler.WriteFuture;
-import com.lts.nio.processor.AbstractNioProcessor;
 import com.lts.nio.processor.NioProcessor;
 
 import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
-public abstract class AbstractNioConnection implements NioConnection {
+public abstract class AbstractNioChannel implements NioChannel {
 
     private final long id;
     private static final AtomicInteger CONN_ID = new AtomicInteger(0);
-    private NioProcessor processor;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
+    private NioProcessor processor;
 
     protected SocketChannel channel;
 
     private NioHandler eventHandler;
 
-    public AbstractNioConnection(SocketChannel channel, NioHandler eventHandler) {
+    public AbstractNioChannel(NioProcessor processor, SocketChannel channel, NioHandler eventHandler) {
         this.channel = channel;
+        this.processor = processor;
         this.eventHandler = eventHandler;
         this.id = CONN_ID.incrementAndGet();
     }
@@ -52,13 +46,9 @@ public abstract class AbstractNioConnection implements NioConnection {
         return id;
     }
 
-    public void setProcessor(NioProcessor processor) {
-        this.processor = processor;
-    }
-
     @Override
     public WriteFuture writeAndFlush(Object msg) {
-        return ((AbstractNioProcessor) processor).write(this, msg);
+        return processor.writeAndFlush(this, msg);
     }
 
     public long getLastReadTime() {

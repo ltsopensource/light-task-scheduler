@@ -3,8 +3,8 @@ package com.lts.nio.processor;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.NioException;
-import com.lts.nio.channel.NioConnection;
-import com.lts.nio.channel.NioServerConnection;
+import com.lts.nio.channel.NioChannel;
+import com.lts.nio.channel.NioServerChannel;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
@@ -13,7 +13,10 @@ import com.lts.nio.loop.NioSelectorLoop;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.*;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
@@ -40,10 +43,10 @@ public class NioServerProcessor extends AbstractNioProcessor {
         }
     }
 
-    public void accept(SelectionKey key, Selector selector) {
+    public NioChannel doAccept() {
 
         SocketChannel socketChannel = null;
-        NioConnection connection = null;
+        NioChannel connection = null;
         try {
             socketChannel = serverSocketChannel.accept();
             socketChannel.configureBlocking(false);
@@ -54,19 +57,18 @@ public class NioServerProcessor extends AbstractNioProcessor {
             socketChannel.socket().setReuseAddress(serverConfig.getReuseAddress());
             socketChannel.socket().setTrafficClass(serverConfig.getIpTos());
 
-            socketChannel.register(selector, SelectionKey.OP_READ);
+            socketChannel.register(selector(), SelectionKey.OP_READ);
 
-            connection = new NioServerConnection(socketChannel, eventHandler());
+            connection = new NioServerChannel(this, socketChannel, eventHandler());
 
         } catch (IOException e) {
             LOGGER.info("accept the connection IOE", e);
         }
 
         if (connection != null) {
-            container.addConnection(socketChannel, connection);
+            eventHandler().channelConnected(connection);
         }
-
-        eventHandler().channelConnected(connection);
+        return connection;
     }
 
     public ServerSocketChannel javaChannel() {

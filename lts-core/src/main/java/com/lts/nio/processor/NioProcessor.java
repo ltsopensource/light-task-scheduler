@@ -1,19 +1,23 @@
 package com.lts.nio.processor;
 
+import com.lts.nio.channel.NioChannel;
+import com.lts.nio.handler.WriteFuture;
+
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
 public interface NioProcessor {
 
-    void accept(SelectionKey key, Selector selector);
+    NioChannel accept();
 
-    void write(SelectionKey key);
+    WriteFuture writeAndFlush(NioChannel connection, Object msg);
 
-    void read(SelectionKey key, ByteBuffer readBuffer);
+    void flush(NioChannel connection);
 
-    void connect(SelectionKey key);
+    void read(NioChannel connection, ByteBuffer readBuffer);
+
+    void connect(NioChannel connection);
+
 }

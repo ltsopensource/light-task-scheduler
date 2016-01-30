@@ -4,6 +4,8 @@ import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.NioException;
+import com.lts.nio.channel.ChannelContainer;
+import com.lts.nio.channel.NioChannel;
 import com.lts.nio.processor.NioProcessor;
 
 import java.io.IOException;
@@ -223,6 +225,7 @@ public class NioSelectorLoop {
     private class SelectorWorker extends Thread {
 
         private NioProcessor processor;
+        protected final ChannelContainer container = new ChannelContainer();
 
         public SelectorWorker(String name, NioProcessor processor) {
             super(name);
@@ -258,19 +261,19 @@ public class NioSelectorLoop {
                         }
 
                         if (key.isAcceptable()) {
-                            processor.accept(key, selector());
+                            doAccept(key);
                         }
 
                         if (key.isConnectable()) {
-                            processor.connect(key);
+                            doConnect(key);
                         }
 
                         if (key.isValid() && key.isReadable()) {
-                            processor.read(key, readBuffer);
+                            doRead(key, readBuffer);
                         }
 
                         if (key.isValid() && key.isWritable()) {
-                            processor.write(key);
+                            doWrite(key);
                         }
                     }
 
@@ -284,6 +287,28 @@ public class NioSelectorLoop {
                     }
                 }
             }
+        }
+
+        private void doAccept(SelectionKey key) {
+            NioChannel channel = processor.accept();
+            if (channel != null) {
+                container.addChannel(key.channel(), channel);
+            }
+        }
+
+        private void doConnect(SelectionKey key) {
+            NioChannel channel = container.getChannel(key.channel());
+            processor.connect(channel);
+        }
+
+        private void doRead(SelectionKey key, ByteBuffer byteBuffer) {
+            NioChannel channel = container.getChannel(key.channel());
+            processor.read(channel, byteBuffer);
+        }
+
+        private void doWrite(SelectionKey key) {
+            NioChannel channel = container.getChannel(key.channel());
+            processor.flush(channel);
         }
     }
 

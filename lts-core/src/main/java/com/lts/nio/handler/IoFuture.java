@@ -17,7 +17,7 @@ public class IoFuture implements Future {
     private Throwable cause;
     private String msg;
     private List<IoFutureListener> listeners;
-    private boolean completed = false;
+    private boolean done = false;
 
     @Override
     public boolean isSuccess() {
@@ -44,12 +44,16 @@ public class IoFuture implements Future {
         this.msg = msg;
     }
 
+    public boolean isDone() {
+        return done;
+    }
+
     public void addListener(IoFutureListener listener) {
         if (listeners == null) {
             listeners = new ArrayList<IoFutureListener>();
         }
         listeners.add(listener);
-        if (completed) {
+        if (done) {
             complete(listener);
         }
     }
@@ -60,10 +64,11 @@ public class IoFuture implements Future {
                 this.listeners = new ArrayList<IoFutureListener>();
             }
             this.listeners.addAll(listeners);
-        }
-        if (completed) {
-            for (IoFutureListener listener : listeners) {
-                complete(listener);
+
+            if (done) {
+                for (IoFutureListener listener : listeners) {
+                    complete(listener);
+                }
             }
         }
     }
@@ -75,7 +80,7 @@ public class IoFuture implements Future {
     }
 
     public void notifyListeners() {
-        completed = true;
+        done = true;
         if (this.listeners != null) {
             for (IoFutureListener ioFutureListener : listeners) {
                 complete(ioFutureListener);

@@ -6,8 +6,9 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.NioException;
-import com.lts.nio.channel.ConnectionContainer;
-import com.lts.nio.channel.NioConnection;
+import com.lts.nio.channel.ChannelContainer;
+import com.lts.nio.channel.NioChannel;
+import com.lts.nio.channel.WriteQueue;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.handler.NioHandler;
@@ -18,23 +19,23 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
-public class AbstractNioProcessor implements NioProcessor {
+public abstract class AbstractNioProcessor implements NioProcessor {
 
-    protected final ConnectionContainer container = new ConnectionContainer();
+    protected final ChannelContainer channelContainer = new ChannelContainer();
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(NioProcessor.class);
     private NioHandler eventHandler;
     private NioSelectorLoop selectorLoop;
     private Executor executor;
-
-    private ConcurrentLinkedQueue<WriteMessage> writeQueue = new ConcurrentLinkedQueue<WriteMessage>();
+    private ConcurrentMap<NioChannel, WriteQueue> QUEUE_MAP = new ConcurrentHashMap<NioChannel, WriteQueue>();
 
     private Encoder encoder;
     private Decoder decoder;
@@ -48,7 +49,11 @@ public class AbstractNioProcessor implements NioProcessor {
                 new NamedThreadFactory("NioProcessorExecutor-"));
     }
 
-    public WriteFuture write(NioConnection connection, Object msg) {
+    public WriteFuture writeAndFlush(NioChannel channel, Object msg) {
+        return write(channel, msg, true);
+    }
+
+    private WriteFuture write(NioChannel channel, Object msg, boolean flush) {
 
         WriteFuture future = new WriteFuture();
 
@@ -59,72 +64,82 @@ public class AbstractNioProcessor implements NioProcessor {
         }
         try {
             ByteBuffer buf = encoder.encode(msg);
-            writeQueue.offer(new WriteMessage(buf, future));
+            QUEUE_MAP.get(channel).offer(new WriteMessage(buf, future));
         } catch (Exception e) {
             throw new NioException("encode msg " + msg + " error", e);
         }
 
-        SelectionKey key = connection.socketChannel().keyFor(selector());
-        key.interestOps(SelectionKey.OP_READ);
+        if (flush) {
+            flush(channel);
+        }
+        SelectionKey key = channel.socketChannel().keyFor(selector());
+        key.interestOps(SelectionKey.OP_WRITE);
 
         return future;
     }
 
-    @Override
-    public void write(SelectionKey key) {
+    public void flush(NioChannel channel) {
 
-        NioConnection connection = container.getConnection(key.channel());
+        WriteQueue queue = QUEUE_MAP.get(channel);
+
+        boolean ok = queue.tryLock();
+        if (!ok) {
+            // 说明有线程在写
+            return;
+        }
 
         try {
-
-            while (!writeQueue.isEmpty()) {
-
-                WriteMessage msg = writeQueue.peek();
-
-                ByteBuffer buf = msg.getMessage();
-
-                // 已经写的字节数
-                int written = connection.socketChannel().write(buf);
-
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("wrote bytes {}", written);
-                }
-
-                connection.setLastWriteTime(SystemClock.now());
-
-                if (buf.remaining() == 0) {
-
-                    writeQueue.poll();
-
-                    WriteFuture writeFuture = msg.getWriteFuture();
-                    writeFuture.setSuccess(true);
-                    writeFuture.notifyListeners();
-
-                } else {
-                    // 输出socket buffer已经满了 等下一个周期
-                    break;
-                }
-            }
-
-            if (writeQueue.isEmpty()) {
-
-                // 已经写完了队列中所有的数据,重新关注下读
-                key.interestOps(SelectionKey.OP_READ);
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("IOE while writing : ", e);
-            eventHandler().exceptionCaught(connection, e);
+            doFlush(queue, channel);
+        } finally {
+            queue.unlock();
         }
     }
 
-    @Override
-    public void read(SelectionKey key, ByteBuffer readBuffer) {
+    private void doFlush(final WriteQueue queue, final NioChannel channel) {
 
-        NioConnection connection = container.getConnection(key.channel());
+        executor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (!queue.isEmpty()) {
+
+                        WriteMessage msg = queue.peek();
+                        ByteBuffer buf = msg.getMessage();
+
+                        // 已经写的字节数
+                        int written = channel.socketChannel().write(buf);
+
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("wrote bytes {}", written);
+                        }
+
+                        channel.setLastWriteTime(SystemClock.now());
+
+                        if (buf.remaining() == 0) {
+
+                            queue.poll();
+
+                            WriteFuture writeFuture = msg.getWriteFuture();
+                            writeFuture.setSuccess(true);
+                            writeFuture.notifyListeners();
+
+                        } else {
+                            // 输出socket buffer已经满了 等下一个周期
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("IOE while writing : ", e);
+                    eventHandler().exceptionCaught(channel, e);
+                }
+            }
+        });
+    }
+
+    public void read(NioChannel channel, ByteBuffer readBuffer) {
 
         try {
-            final int readCount = connection.socketChannel().read(readBuffer);
+            final int readCount = channel.socketChannel().read(readBuffer);
 
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("read {} bytes", readCount);
@@ -132,9 +147,9 @@ public class AbstractNioProcessor implements NioProcessor {
 
             if (readCount < 0) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("connection closed by the remote peer");
-                    connection.close();
-                    container.removeConnection(connection.socketChannel());
+                    LOGGER.debug("channel closed by the remote peer");
+                    channel.close();
+                    channelContainer.removeChannel(channel.socketChannel());
                 }
             } else if (readCount > 0) {
 
@@ -142,52 +157,45 @@ public class AbstractNioProcessor implements NioProcessor {
 
                 //  TODO SSL处理
 
-                doMessageReceived(connection, readBuffer);
+                doMessageReceived(channel, readBuffer);
 
                 readBuffer.clear();
             }
 
         } catch (IOException e) {
             LOGGER.error("IOE while reading : ", e);
-            eventHandler().exceptionCaught(connection, e);
+            eventHandler().exceptionCaught(channel, e);
         }
     }
 
-    private void doMessageReceived(final NioConnection connection, ByteBuffer message) {
-
-        Executor executor = executor();
-
-        Object msg = null;
-        try {
-            msg = decoder.decode(message);
-        } catch (Exception e) {
-            throw new NioException("decode error", e);
-        }
-        if (msg != null) {
-            final Object finalMsg = msg;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        eventHandler().messageReceived(connection, finalMsg);
-                    } catch (Exception e) {
-                        eventHandler().exceptionCaught(connection, e);
-                    }
+    private void doMessageReceived(final NioChannel channel, final ByteBuffer message) {
+        executor().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Object msg = decoder.decode(message);
+                    eventHandler().messageReceived(channel, msg);
+                    channel.setLastReadTime(SystemClock.now());
+                } catch (Exception e) {
+                    eventHandler().exceptionCaught(channel, e);
                 }
-            });
-        }
-        connection.setLastReadTime(SystemClock.now());
+            }
+        });
     }
 
     @Override
-    public void connect(SelectionKey key) {
-        // do noting , 留给子类去覆盖
+    public void connect(NioChannel channel) {
+        throw new UnsupportedOperationException("sub-class must override this method");
     }
 
     @Override
-    public void accept(SelectionKey key, Selector selector) {
-        // do noting , 留给子类去覆盖
+    public NioChannel accept() {
+        NioChannel channel = doAccept();
+        QUEUE_MAP.putIfAbsent(channel, new WriteQueue());
+        return channel;
     }
+
+    protected abstract NioChannel doAccept();
 
     protected NioHandler eventHandler() {
         return this.eventHandler;
@@ -197,7 +205,7 @@ public class AbstractNioProcessor implements NioProcessor {
         return selectorLoop.selector();
     }
 
-    protected Executor executor(){
+    protected Executor executor() {
         return this.executor;
     }
 }
