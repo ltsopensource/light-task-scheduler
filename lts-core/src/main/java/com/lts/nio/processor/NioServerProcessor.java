@@ -4,10 +4,11 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.NioException;
 import com.lts.nio.channel.NioChannel;
-import com.lts.nio.channel.NioServerChannel;
+import com.lts.nio.channel.NioTcpChannel;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
+import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
 import com.lts.nio.loop.NioSelectorLoop;
 
@@ -27,8 +28,8 @@ public class NioServerProcessor extends AbstractNioProcessor {
     private NioServerConfig serverConfig;
     private ServerSocketChannel serverSocketChannel;
 
-    public NioServerProcessor(NioSelectorLoop selectorLoop, NioServerConfig serverConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
-        super(selectorLoop, eventHandler, encoder, decoder);
+    public NioServerProcessor(NioServerConfig serverConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
+        super(eventHandler, encoder, decoder);
         this.serverConfig = serverConfig;
         this.serverSocketChannel = newSocket();
     }
@@ -43,32 +44,52 @@ public class NioServerProcessor extends AbstractNioProcessor {
         }
     }
 
-    public NioChannel doAccept() {
+    public NioChannel doAccept(NioSelectorLoop selectorLoop) {
 
         SocketChannel socketChannel = null;
-        NioChannel connection = null;
+        NioChannel channel = null;
         try {
             socketChannel = serverSocketChannel.accept();
             socketChannel.configureBlocking(false);
 
-            socketChannel.socket().setTcpNoDelay(serverConfig.getTcpNoDelay());
-            socketChannel.socket().setReceiveBufferSize(serverConfig.getReceiveBufferSize());
-            socketChannel.socket().setKeepAlive(serverConfig.getKeepAlive());
-            socketChannel.socket().setReuseAddress(serverConfig.getReuseAddress());
-            socketChannel.socket().setTrafficClass(serverConfig.getIpTos());
+            if (serverConfig.getTcpNoDelay() != null) {
+                socketChannel.socket().setTcpNoDelay(serverConfig.getTcpNoDelay());
+            }
+            if (serverConfig.getReceiveBufferSize() != null) {
+                socketChannel.socket().setReceiveBufferSize(serverConfig.getReceiveBufferSize());
+            }
+            if (serverConfig.getKeepAlive() != null) {
+                socketChannel.socket().setKeepAlive(serverConfig.getKeepAlive());
+            }
+            if (serverConfig.getReuseAddress() != null) {
+                socketChannel.socket().setReuseAddress(serverConfig.getReuseAddress());
+            }
+            if (serverConfig.getIpTos() != null) {
+                socketChannel.socket().setTrafficClass(serverConfig.getIpTos());
+            }
+            if (serverConfig.getOobInline() != null) {
+                socketChannel.socket().setOOBInline(serverConfig.getOobInline());
+            }
+            if (serverConfig.getSoLinger() != null) {
+                socketChannel.socket().setSoLinger(true, serverConfig.getSoLinger());
+            }
+            channel = new NioTcpChannel(selectorLoop, this, socketChannel, eventHandler());
 
-            socketChannel.register(selector(), SelectionKey.OP_READ);
-
-            connection = new NioServerChannel(this, socketChannel, eventHandler());
+            socketChannel.register(selectorLoop.selector(), SelectionKey.OP_READ, channel);
 
         } catch (IOException e) {
             LOGGER.info("accept the connection IOE", e);
         }
 
-        if (connection != null) {
-            eventHandler().channelConnected(connection);
+        if (channel != null) {
+            eventHandler().channelConnected(channel);
         }
-        return connection;
+        return channel;
+    }
+
+    @Override
+    protected NioChannel doConnect(InetSocketAddress remoteAddress, NioSelectorLoop selectorLoop, Futures.ConnectFuture connectFuture) {
+        throw new UnsupportedOperationException();
     }
 
     public ServerSocketChannel javaChannel() {
@@ -76,11 +97,19 @@ public class NioServerProcessor extends AbstractNioProcessor {
     }
 
     public void register() throws ClosedChannelException {
-        javaChannel().register(selector(), SelectionKey.OP_ACCEPT);
+        javaChannel().register(acceptSelectorLoop().selector(), SelectionKey.OP_ACCEPT);
     }
 
     public void bind(InetSocketAddress localAddress, NioServerConfig config) throws IOException {
         javaChannel().socket().bind(localAddress, config.getBacklog());
     }
 
+    protected NioSelectorLoop acceptSelectorLoop() {
+        return selectorLoop;
+    }
+
+    @Override
+    public void connect(SelectionKey key) {
+        throw new UnsupportedOperationException();
+    }
 }

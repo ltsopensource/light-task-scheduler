@@ -19,7 +19,6 @@ public class IoFuture implements Future {
     private List<IoFutureListener> listeners;
     private boolean done = false;
 
-    @Override
     public boolean isSuccess() {
         return success;
     }
@@ -94,5 +93,10 @@ public class IoFuture implements Future {
         } catch (Exception e) {
             LOGGER.error("notify listener {} error ", listener, e);
         }
+    }
+
+    public boolean awaitUninterruptibly(long timeoutMillis) {
+        // TODO
+        return false;
     }
 }

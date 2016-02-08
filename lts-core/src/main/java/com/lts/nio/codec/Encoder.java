@@ -1,5 +1,7 @@
 package com.lts.nio.codec;
 
+import com.lts.nio.channel.NioChannel;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -7,6 +9,6 @@ import java.nio.ByteBuffer;
  */
 public interface Encoder {
 
-    ByteBuffer encode(Object msg) throws Exception;
+    ByteBuffer encode(NioChannel channel, Object msg);
 
 }

@@ -1,23 +1,25 @@
 package com.lts.nio.processor;
 
 import com.lts.nio.channel.NioChannel;
-import com.lts.nio.handler.WriteFuture;
+import com.lts.nio.handler.Futures;
 
-import java.nio.ByteBuffer;
+import java.net.SocketAddress;
+import java.nio.channels.SelectionKey;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
 public interface NioProcessor {
 
-    NioChannel accept();
+    void accept(SelectionKey key);
 
-    WriteFuture writeAndFlush(NioChannel connection, Object msg);
+    Futures.WriteFuture writeAndFlush(NioChannel channel, Object msg);
 
-    void flush(NioChannel connection);
+    void flush(NioChannel channel);
 
-    void read(NioChannel connection, ByteBuffer readBuffer);
+    void read(NioChannel channel);
 
-    void connect(NioChannel connection);
+    Futures.ConnectFuture connect(SocketAddress remoteAddress);
 
+    void connect(SelectionKey key);
 }

@@ -1,9 +1,11 @@
 package com.lts.nio.config;
 
 /**
- * @author Robert HG (254963746@qq.com) on 1/9/16.
+ * @author Robert HG (254963746@qq.com) on 2/3/16.
  */
-public class NioServerConfig {
+public class NioClientConfig {
+
+    private int connectTimeout;
 
     private Integer receiveBufferSize;
 
@@ -21,21 +23,14 @@ public class NioServerConfig {
 
     private Integer soLinger;
 
-    public Boolean getOobInline() {
-        return oobInline;
+    public int getConnectTimeout() {
+        return connectTimeout;
     }
 
-    public void setOobInline(Boolean oobInline) {
-        this.oobInline = oobInline;
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
     }
 
-    public Integer getSoLinger() {
-        return soLinger;
-    }
-
-    public void setSoLinger(Integer soLinger) {
-        this.soLinger = soLinger;
-    }
     public Integer getReceiveBufferSize() {
         return receiveBufferSize;
     }
@@ -82,5 +77,21 @@ public class NioServerConfig {
 
     public void setIpTos(Integer ipTos) {
         this.ipTos = ipTos;
+    }
+
+    public Boolean getOobInline() {
+        return oobInline;
+    }
+
+    public void setOobInline(Boolean oobInline) {
+        this.oobInline = oobInline;
+    }
+
+    public Integer getSoLinger() {
+        return soLinger;
+    }
+
+    public void setSoLinger(Integer soLinger) {
+        this.soLinger = soLinger;
     }
 }

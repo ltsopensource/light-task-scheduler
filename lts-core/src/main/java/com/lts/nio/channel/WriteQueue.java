@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by hugui.hg on 1/31/16.
+ * @author Robert HG (254963746@qq.com) on 1/31/16.
  */
 public class WriteQueue {
 
@@ -33,7 +33,8 @@ public class WriteQueue {
         lock.unlock();
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return queue.isEmpty();
     }
+
 }

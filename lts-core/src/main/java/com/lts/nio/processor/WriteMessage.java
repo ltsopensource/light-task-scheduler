@@ -1,6 +1,6 @@
 package com.lts.nio.processor;
 
-import com.lts.nio.handler.WriteFuture;
+import com.lts.nio.handler.Futures;
 
 import java.nio.ByteBuffer;
 
@@ -10,18 +10,18 @@ import java.nio.ByteBuffer;
 public class WriteMessage {
 
     private ByteBuffer message;
-    private WriteFuture writeFuture;
+    private Futures.WriteFuture writeFuture;
 
-    public WriteMessage(ByteBuffer message, WriteFuture writeFuture) {
+    public WriteMessage(ByteBuffer message, Futures.WriteFuture writeFuture) {
         this.message = message;
         this.writeFuture = writeFuture;
     }
 
-    public WriteFuture getWriteFuture() {
+    public Futures.WriteFuture getWriteFuture() {
         return writeFuture;
     }
 
-    public void setWriteFuture(WriteFuture writeFuture) {
+    public void setWriteFuture(Futures.WriteFuture writeFuture) {
         this.writeFuture = writeFuture;
     }
 

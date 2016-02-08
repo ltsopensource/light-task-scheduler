@@ -6,75 +6,80 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.NioException;
-import com.lts.nio.channel.ChannelContainer;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.channel.WriteQueue;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
+import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
-import com.lts.nio.handler.WriteFuture;
 import com.lts.nio.loop.NioSelectorLoop;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
 public abstract class AbstractNioProcessor implements NioProcessor {
 
-    protected final ChannelContainer channelContainer = new ChannelContainer();
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(NioProcessor.class);
     private NioHandler eventHandler;
-    private NioSelectorLoop selectorLoop;
+    protected NioSelectorLoop selectorLoop;
     private Executor executor;
     private ConcurrentMap<NioChannel, WriteQueue> QUEUE_MAP = new ConcurrentHashMap<NioChannel, WriteQueue>();
+    //    protected NioSelectorLoopPool readWriteSelectorPool;
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     private Encoder encoder;
     private Decoder decoder;
 
-    public AbstractNioProcessor(NioSelectorLoop selectorLoop, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
-        this.selectorLoop = selectorLoop;
+    public AbstractNioProcessor(NioHandler eventHandler, Encoder encoder, Decoder decoder) {
         this.eventHandler = eventHandler;
         this.encoder = encoder;
         this.decoder = decoder;
         this.executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR,
-                new NamedThreadFactory("NioProcessorExecutor-"));
+                new NamedThreadFactory("NioProcessorExecutor"));
+        this.selectorLoop = new NioSelectorLoop("AcceptSelectorLoop-I/O", this);
+//        this.readWriteSelectorPool = new FixedNioSelectorLoopPool(Constants.AVAILABLE_PROCESSOR + 1, "Server", this);
     }
 
-    public WriteFuture writeAndFlush(NioChannel channel, Object msg) {
+    public Futures.WriteFuture writeAndFlush(NioChannel channel, Object msg) {
         return write(channel, msg, true);
     }
 
-    private WriteFuture write(NioChannel channel, Object msg, boolean flush) {
+    private Futures.WriteFuture write(NioChannel channel, Object msg, boolean flush) {
 
-        WriteFuture future = new WriteFuture();
+        Futures.WriteFuture future = Futures.newWriteFuture();
 
         if (msg == null) {
             future.setSuccess(true);
             future.setMsg("msg is null");
+            future.notifyListeners();
             return future;
         }
+        ByteBuffer buf = null;
         try {
-            ByteBuffer buf = encoder.encode(msg);
+            buf = encoder.encode(channel, msg);
+            if (buf == null) {
+                future.setSuccess(false);
+                future.setMsg("encode msg error");
+                future.notifyListeners();
+                return future;
+            }
             QUEUE_MAP.get(channel).offer(new WriteMessage(buf, future));
         } catch (Exception e) {
             throw new NioException("encode msg " + msg + " error", e);
         }
-
         if (flush) {
             flush(channel);
         }
-        SelectionKey key = channel.socketChannel().keyFor(selector());
-        key.interestOps(SelectionKey.OP_WRITE);
-
         return future;
     }
 
@@ -82,17 +87,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
 
         WriteQueue queue = QUEUE_MAP.get(channel);
 
-        boolean ok = queue.tryLock();
-        if (!ok) {
-            // 说明有线程在写
-            return;
-        }
-
-        try {
-            doFlush(queue, channel);
-        } finally {
-            queue.unlock();
-        }
+        doFlush(queue, channel);
     }
 
     private void doFlush(final WriteQueue queue, final NioChannel channel) {
@@ -100,45 +95,65 @@ public abstract class AbstractNioProcessor implements NioProcessor {
         executor().execute(new Runnable() {
             @Override
             public void run() {
+
+                if (!queue.tryLock()) {
+                    // 说明有线程在写
+                    return;
+                }
                 try {
                     while (!queue.isEmpty()) {
-
                         WriteMessage msg = queue.peek();
-                        ByteBuffer buf = msg.getMessage();
-
-                        // 已经写的字节数
-                        int written = channel.socketChannel().write(buf);
-
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("wrote bytes {}", written);
+                        if (msg == null) {
+                            continue;
                         }
+                        Futures.WriteFuture writeFuture = msg.getWriteFuture();
 
-                        channel.setLastWriteTime(SystemClock.now());
+                        try {
 
-                        if (buf.remaining() == 0) {
+                            ByteBuffer buf = msg.getMessage();
+                            buf.flip();
 
-                            queue.poll();
+                            // 已经写的字节数
+                            int written = channel.socketChannel().write(buf);
 
-                            WriteFuture writeFuture = msg.getWriteFuture();
-                            writeFuture.setSuccess(true);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("wrote bytes {}", written);
+                            }
+
+                            channel.setLastWriteTime(SystemClock.now());
+
+                            if (buf.remaining() == 0) {
+
+                                queue.poll();
+
+                                writeFuture.setSuccess(true);
+                                writeFuture.notifyListeners();
+
+                            } else {
+                                // 输出socket buffer已经满了 等下一个周期
+                                break;
+                            }
+                        } catch (Exception e) {
+                            LOGGER.error("IOE while writing", e);
+                            writeFuture.setSuccess(false);
+                            writeFuture.setCause(e);
                             writeFuture.notifyListeners();
-
-                        } else {
-                            // 输出socket buffer已经满了 等下一个周期
-                            break;
+                            eventHandler().exceptionCaught(channel, e);
                         }
                     }
-                } catch (Exception e) {
-                    LOGGER.error("IOE while writing : ", e);
-                    eventHandler().exceptionCaught(channel, e);
+                } finally {
+                    queue.unlock();
                 }
             }
         });
     }
 
-    public void read(NioChannel channel, ByteBuffer readBuffer) {
-
+    public void read(NioChannel channel) {
         try {
+
+            // TODO 优化
+            ByteBuffer readBuffer = ByteBuffer.allocateDirect(64 * 1024);
+
             final int readCount = channel.socketChannel().read(readBuffer);
 
             if (LOGGER.isDebugEnabled()) {
@@ -148,9 +163,8 @@ public abstract class AbstractNioProcessor implements NioProcessor {
             if (readCount < 0) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("channel closed by the remote peer");
-                    channel.close();
-                    channelContainer.removeChannel(channel.socketChannel());
                 }
+                channel.close();
             } else if (readCount > 0) {
 
                 readBuffer.flip();
@@ -183,26 +197,30 @@ public abstract class AbstractNioProcessor implements NioProcessor {
         });
     }
 
-    @Override
-    public void connect(NioChannel channel) {
-        throw new UnsupportedOperationException("sub-class must override this method");
-    }
-
-    @Override
-    public NioChannel accept() {
-        NioChannel channel = doAccept();
+    public Futures.ConnectFuture connect(SocketAddress remoteAddress) {
+        Futures.ConnectFuture connectFuture = Futures.newConnectFuture();
+        NioChannel channel = doConnect(remoteAddress, selectorLoop, connectFuture);
         QUEUE_MAP.putIfAbsent(channel, new WriteQueue());
-        return channel;
+        return connectFuture;
     }
 
-    protected abstract NioChannel doAccept();
+    public void accept(SelectionKey key) {
+        NioChannel channel = doAccept(selectorLoop);
+        QUEUE_MAP.putIfAbsent(channel, new WriteQueue());
+    }
+
+    public void start() {
+        if (started.compareAndSet(false, true)) {
+            selectorLoop.start();
+        }
+    }
+
+    protected abstract NioChannel doAccept(NioSelectorLoop selectorLoop);
+
+    protected abstract NioChannel doConnect(SocketAddress remoteAddress, NioSelectorLoop selectorLoop, Futures.ConnectFuture connectFuture);
 
     protected NioHandler eventHandler() {
         return this.eventHandler;
-    }
-
-    protected Selector selector() {
-        return selectorLoop.selector();
     }
 
     protected Executor executor() {

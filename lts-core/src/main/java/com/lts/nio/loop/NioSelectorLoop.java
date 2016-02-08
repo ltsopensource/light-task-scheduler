@@ -4,13 +4,11 @@ import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.NioException;
-import com.lts.nio.channel.ChannelContainer;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.processor.NioProcessor;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -31,8 +29,6 @@ public class NioSelectorLoop {
     private Selector selector;
     private SelectorWorker selectorWorker;
     private volatile boolean running = false;
-    // 默认64kb,需要优化
-    private final ByteBuffer readBuffer = ByteBuffer.allocateDirect(64 * 1024);
 
     private static boolean isLinuxPlatform = false;
 
@@ -225,7 +221,6 @@ public class NioSelectorLoop {
     private class SelectorWorker extends Thread {
 
         private NioProcessor processor;
-        protected final ChannelContainer container = new ChannelContainer();
 
         public SelectorWorker(String name, NioProcessor processor) {
             super(name);
@@ -248,13 +243,10 @@ public class NioSelectorLoop {
                     }
 
                     Iterator<SelectionKey> iterator = selectionKeys.iterator();
-                    for (; ; ) {
+                    while (iterator.hasNext()) {
+
                         final SelectionKey key = iterator.next();
                         iterator.remove();
-
-                        if (!iterator.hasNext()) {
-                            break;
-                        }
 
                         if (!key.isValid()) {
                             continue;
@@ -269,7 +261,7 @@ public class NioSelectorLoop {
                         }
 
                         if (key.isValid() && key.isReadable()) {
-                            doRead(key, readBuffer);
+                            doRead(key);
                         }
 
                         if (key.isValid() && key.isWritable()) {
@@ -290,24 +282,32 @@ public class NioSelectorLoop {
         }
 
         private void doAccept(SelectionKey key) {
-            NioChannel channel = processor.accept();
-            if (channel != null) {
-                container.addChannel(key.channel(), channel);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("doAccept:" + key.toString());
             }
+            processor.accept(key);
         }
 
         private void doConnect(SelectionKey key) {
-            NioChannel channel = container.getChannel(key.channel());
-            processor.connect(channel);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("doConnect:" + key.toString());
+            }
+            processor.connect(key);
         }
 
-        private void doRead(SelectionKey key, ByteBuffer byteBuffer) {
-            NioChannel channel = container.getChannel(key.channel());
-            processor.read(channel, byteBuffer);
+        private void doRead(SelectionKey key) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("doRead:" + key.toString());
+            }
+            NioChannel channel = (NioChannel) key.attachment();
+            processor.read(channel);
         }
 
         private void doWrite(SelectionKey key) {
-            NioChannel channel = container.getChannel(key.channel());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("doWrite:" + key.toString());
+            }
+            NioChannel channel = (NioChannel) key.attachment();
             processor.flush(channel);
         }
     }

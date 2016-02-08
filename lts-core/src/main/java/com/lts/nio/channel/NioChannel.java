@@ -1,7 +1,6 @@
 package com.lts.nio.channel;
 
-import com.lts.nio.handler.CloseFuture;
-import com.lts.nio.handler.WriteFuture;
+import com.lts.nio.handler.Futures;
 
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -15,9 +14,11 @@ public interface NioChannel {
 
     SocketAddress remoteAddress();
 
-    WriteFuture writeAndFlush(Object msg);
+    SocketAddress localAddress();
 
-    CloseFuture close();
+    Futures.WriteFuture writeAndFlush(Object msg);
+
+    Futures.CloseFuture close();
 
     boolean isConnected();
 
@@ -30,5 +31,4 @@ public interface NioChannel {
     void setLastReadTime(long lastReadTime);
 
     void setLastWriteTime(long lastWriteTime);
-
 }

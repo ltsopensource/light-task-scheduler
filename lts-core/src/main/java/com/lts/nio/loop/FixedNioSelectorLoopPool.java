@@ -21,7 +21,9 @@ public class FixedNioSelectorLoopPool implements NioSelectorLoopPool {
         pool = new NioSelectorLoop[size];
 
         for (int i = 0; i < size; i++) {
-            pool[i] = new NioSelectorLoop(prefix + "-NioSelectorLoop-I/O-" + i, processor);
+            NioSelectorLoop selectorLoop = new NioSelectorLoop(prefix + "-NioSelectorLoop-I/O-" + i, processor);
+            pool[i] = selectorLoop;
+            selectorLoop.start();
         }
     }
 
