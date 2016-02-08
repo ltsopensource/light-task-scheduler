@@ -14,6 +14,7 @@ import com.lts.nio.loop.NioSelectorLoop;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -88,7 +89,7 @@ public class NioServerProcessor extends AbstractNioProcessor {
     }
 
     @Override
-    protected NioChannel doConnect(InetSocketAddress remoteAddress, NioSelectorLoop selectorLoop, Futures.ConnectFuture connectFuture) {
+    protected NioChannel doConnect(SocketAddress remoteAddress, NioSelectorLoop selectorLoop, Futures.ConnectFuture connectFuture) {
         throw new UnsupportedOperationException();
     }
 
