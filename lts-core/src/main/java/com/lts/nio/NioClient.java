@@ -20,7 +20,6 @@ public class NioClient {
         this.processor = new NioClientProcessor(clientConfig, eventHandler, encoder, decoder);
     }
 
-
     public Futures.ConnectFuture connect(SocketAddress remoteAddress) {
 
         processor.start();

@@ -36,6 +36,7 @@ public class NioServerConfig {
     public void setSoLinger(Integer soLinger) {
         this.soLinger = soLinger;
     }
+
     public Integer getReceiveBufferSize() {
         return receiveBufferSize;
     }

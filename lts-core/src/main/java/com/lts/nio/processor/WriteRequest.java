@@ -7,12 +7,12 @@ import java.nio.ByteBuffer;
 /**
  * @author Robert HG (254963746@qq.com) on 1/30/16.
  */
-public class WriteMessage {
+public class WriteRequest {
 
     private ByteBuffer message;
     private Futures.WriteFuture writeFuture;
 
-    public WriteMessage(ByteBuffer message, Futures.WriteFuture writeFuture) {
+    public WriteRequest(ByteBuffer message, Futures.WriteFuture writeFuture) {
         this.message = message;
         this.writeFuture = writeFuture;
     }

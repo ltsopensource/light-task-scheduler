@@ -75,7 +75,6 @@ public class RemotingServerDelegate {
         }
     }
 
-
     public void shutdown() {
         remotingServer.shutdown();
     }

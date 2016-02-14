@@ -7,7 +7,6 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.NioException;
 import com.lts.nio.channel.NioChannel;
-import com.lts.nio.channel.WriteQueue;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.handler.Futures;
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
 public abstract class AbstractNioProcessor implements NioProcessor {
-
     protected static final Logger LOGGER = LoggerFactory.getLogger(NioProcessor.class);
     private NioHandler eventHandler;
     protected NioSelectorLoop selectorLoop;
@@ -73,7 +71,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
                 future.notifyListeners();
                 return future;
             }
-            QUEUE_MAP.get(channel).offer(new WriteMessage(buf, future));
+            QUEUE_MAP.get(channel).offer(new WriteRequest(buf, future));
         } catch (Exception e) {
             throw new NioException("encode msg " + msg + " error", e);
         }
@@ -102,7 +100,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
                 }
                 try {
                     while (!queue.isEmpty()) {
-                        WriteMessage msg = queue.peek();
+                        WriteRequest msg = queue.peek();
                         if (msg == null) {
                             continue;
                         }

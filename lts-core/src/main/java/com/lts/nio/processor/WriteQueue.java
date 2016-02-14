@@ -1,6 +1,4 @@
-package com.lts.nio.channel;
-
-import com.lts.nio.processor.WriteMessage;
+package com.lts.nio.processor;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -10,18 +8,18 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class WriteQueue {
 
-    private ConcurrentLinkedQueue<WriteMessage> queue = new ConcurrentLinkedQueue<WriteMessage>();
+    private ConcurrentLinkedQueue<WriteRequest> queue = new ConcurrentLinkedQueue<WriteRequest>();
     private volatile ReentrantLock lock = new ReentrantLock();
 
-    public void offer(WriteMessage message) {
+    public void offer(WriteRequest message) {
         queue.offer(message);
     }
 
-    public WriteMessage peek() {
+    public WriteRequest peek() {
         return queue.peek();
     }
 
-    public WriteMessage poll() {
+    public WriteRequest poll() {
         return queue.poll();
     }
 

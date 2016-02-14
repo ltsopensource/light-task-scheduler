@@ -1,6 +1,6 @@
 package com.lts.remoting;
 
-import com.lts.core.commons.utils.CommonUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.KVPair;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -103,7 +103,7 @@ public abstract class AbstractRemoting {
                         if (!RemotingCommandHelper.isOnewayRPC(cmd)) {
                             final RemotingCommand response =
                                     RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_ERROR.code(),//
-                                            CommonUtils.exceptionSimpleDesc(e));
+                                            StringUtils.toString(e));
                             response.setOpaque(cmd.getOpaque());
                             channel.writeAndFlush(response);
                         }
