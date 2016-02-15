@@ -3,8 +3,11 @@ package com.lts.nio.idle;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.channel.NioChannel;
-
-import java.util.Iterator;
+import com.lts.nio.channel.NioChannelImpl;
+import com.lts.nio.config.NioConfig;
+import com.lts.nio.handler.Futures;
+import com.lts.nio.handler.IoFutureListener;
+import com.lts.remoting.Future;
 
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
@@ -15,10 +18,27 @@ public class IdleDetector {
 
     public void addChannel(NioChannel channel) {
         channels.add(channel);
+
+        channel.getCloseFuture().addListener(new IoFutureListener() {
+            @Override
+            public void operationComplete(Future future) throws Exception {
+                removeChannel(((Futures.CloseFuture) future).channel());
+            }
+        });
     }
 
     public void removeChannel(NioChannel channel) {
         channels.remove(channel);
+    }
+
+    private DetectorTask task = new DetectorTask();
+
+    public void start() {
+        new Thread(task).start();
+    }
+
+    public void stop() {
+        task.stop();
     }
 
     private class DetectorTask implements Runnable {
@@ -31,11 +51,12 @@ public class IdleDetector {
             thread = Thread.currentThread();
 
             while (!stop) {
-
                 long currentTime = SystemClock.now();
-
-                checkIdles(currentTime);
-
+                for (NioChannel channel : channels) {
+                    if (channel.isConnected()) {
+                        idleCheck0((NioChannelImpl) channel, currentTime);
+                    }
+                }
                 try {
                     Thread.sleep(1000L);
                 } catch (InterruptedException ignored) {
@@ -51,16 +72,44 @@ public class IdleDetector {
             }
         }
 
-        private void checkIdles(long currentTime) {
-            Iterator<NioChannel> it = channels.iterator();
-            while (it.hasNext()) {
-                NioChannel channel = it.next();
-                if (channel.isConnected()) {
+        private void idleCheck0(NioChannelImpl channel, long currentTime) {
 
-                }
+            IdleInfo idle = channel.getIdleInfo();
+
+            long lastReadTime = idle.getLastReadTime();
+            long lastWriteTime = idle.getLastWriteTime();
+
+            long lastIoTime = Math.max(lastReadTime, lastWriteTime);
+            NioConfig config = channel.getConfig();
+
+            if (config.getIdleTimeBoth() > 0) {
+                notifyIdle(channel, IdleState.BOTH_IDLE, currentTime, config.getIdleTimeBoth(),
+                        Math.max(lastIoTime, idle.getLastBothIdleTime()));
+            }
+
+            if (config.getIdleTimeRead() > 0) {
+                notifyIdle(channel, IdleState.READER_IDLE, currentTime, config.getIdleTimeRead(),
+                        Math.max(lastIoTime, idle.getLastReadIdleTime()));
+            }
+
+            if (config.getIdleTimeWrite() > 0) {
+                notifyIdle(channel, IdleState.WRITER_IDLE, currentTime, config.getIdleTimeWrite(),
+                        Math.max(lastIoTime, idle.getLastWriteIdleTime()));
+            }
+
+            notifyWriteTimeout(channel, currentTime);
+        }
+
+        private void notifyWriteTimeout(NioChannelImpl channel, long currentTime) {
+            // 将正在写的请求置为timeout
+            // TODO
+        }
+
+        private void notifyIdle(NioChannelImpl channel, IdleState state, long currentTime, long idleTime, long lastIoTime) {
+            if ((idleTime > 0) && (lastIoTime != 0) && (currentTime - lastIoTime >= idleTime)) {
+                channel.fireChannelIdle(state, currentTime);
             }
         }
     }
-
 
 }

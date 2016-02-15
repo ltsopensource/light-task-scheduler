@@ -11,6 +11,7 @@ import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
+import com.lts.nio.idle.IdleDetector;
 import com.lts.nio.loop.NioSelectorLoop;
 
 import java.io.IOException;
@@ -38,6 +39,8 @@ public abstract class AbstractNioProcessor implements NioProcessor {
     private Encoder encoder;
     private Decoder decoder;
 
+    protected IdleDetector idleDetector;
+
     public AbstractNioProcessor(NioHandler eventHandler, Encoder encoder, Decoder decoder) {
         this.eventHandler = eventHandler;
         this.encoder = encoder;
@@ -46,6 +49,8 @@ public abstract class AbstractNioProcessor implements NioProcessor {
                 new NamedThreadFactory("NioProcessorExecutor"));
         this.selectorLoop = new NioSelectorLoop("AcceptSelectorLoop-I/O", this);
 //        this.readWriteSelectorPool = new FixedNioSelectorLoopPool(Constants.AVAILABLE_PROCESSOR + 1, "Server", this);
+        this.idleDetector = new IdleDetector();
+        this.idleDetector.start();
     }
 
     public Futures.WriteFuture writeAndFlush(NioChannel channel, Object msg) {

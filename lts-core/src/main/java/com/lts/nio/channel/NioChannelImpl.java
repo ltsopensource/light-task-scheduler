@@ -2,8 +2,11 @@ package com.lts.nio.channel;
 
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.nio.config.NioConfig;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
+import com.lts.nio.idle.IdleInfo;
+import com.lts.nio.idle.IdleState;
 import com.lts.nio.loop.NioSelectorLoop;
 import com.lts.nio.processor.NioProcessor;
 
@@ -17,28 +20,31 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Robert HG (254963746@qq.com) on 1/24/16.
  */
-public class NioTcpChannel implements NioChannel {
+public class NioChannelImpl implements NioChannel {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NioTcpChannel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NioChannelImpl.class);
 
     private final long id;
     private static final AtomicInteger CONN_ID = new AtomicInteger(0);
-    private volatile long lastReadTime;
-    private volatile long lastWriteTime;
     private NioProcessor processor;
     private NioSelectorLoop selectorLoop;
     protected Futures.CloseFuture closeFuture = Futures.newCloseFuture();
+    private IdleInfo idleInfo;
+    private NioConfig config;
 
     protected SocketChannel channel;
 
     private NioHandler eventHandler;
 
-    public NioTcpChannel(NioSelectorLoop selectorLoop, NioProcessor processor, SocketChannel channel, NioHandler eventHandler) {
+    public NioChannelImpl(NioSelectorLoop selectorLoop, NioProcessor processor, SocketChannel channel, NioHandler eventHandler, NioConfig config) {
         this.channel = channel;
         this.selectorLoop = selectorLoop;
         this.processor = processor;
         this.eventHandler = eventHandler;
         this.id = CONN_ID.incrementAndGet();
+        this.idleInfo = new IdleInfo();
+        this.config = config;
+        closeFuture.setChannel(this);
     }
 
     public SelectableChannel javaChannel() {
@@ -62,20 +68,12 @@ public class NioTcpChannel implements NioChannel {
         return processor.writeAndFlush(this, msg);
     }
 
-    public long getLastReadTime() {
-        return lastReadTime;
-    }
-
     public void setLastReadTime(long lastReadTime) {
-        this.lastReadTime = lastReadTime;
-    }
-
-    public long getLastWriteTime() {
-        return lastWriteTime;
+        idleInfo.setLastReadTime(lastReadTime);
     }
 
     public void setLastWriteTime(long lastWriteTime) {
-        this.lastWriteTime = lastWriteTime;
+        idleInfo.setLastWriteTime(lastWriteTime);
     }
 
     public Selector selector() {
@@ -95,6 +93,11 @@ public class NioTcpChannel implements NioChannel {
             eventHandler().exceptionCaught(this, e);
         }
         closeFuture.notifyListeners();
+        return closeFuture;
+    }
+
+    @Override
+    public Futures.CloseFuture getCloseFuture() {
         return closeFuture;
     }
 
@@ -122,4 +125,26 @@ public class NioTcpChannel implements NioChannel {
         return !closeFuture.isDone();
     }
 
+    public IdleInfo getIdleInfo() {
+        return idleInfo;
+    }
+
+    public NioConfig getConfig() {
+        return config;
+    }
+
+    public void fireChannelIdle(IdleState state, long currentTime) {
+        switch (state) {
+            case BOTH_IDLE:
+                idleInfo.setLastBothIdleTime(currentTime);
+                break;
+            case WRITER_IDLE:
+                idleInfo.setLastWriteIdleTime(currentTime);
+                break;
+            case READER_IDLE:
+                idleInfo.setLastReadIdleTime(currentTime);
+                break;
+        }
+        eventHandler().channelIdle(this, state);
+    }
 }

@@ -20,6 +20,8 @@ public interface NioChannel {
 
     Futures.CloseFuture close();
 
+    Futures.CloseFuture getCloseFuture();
+
     boolean isConnected();
 
     boolean isOpen();

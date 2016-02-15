@@ -2,7 +2,7 @@ package com.lts.nio.processor;
 
 import com.lts.nio.NioException;
 import com.lts.nio.channel.NioChannel;
-import com.lts.nio.channel.NioTcpChannel;
+import com.lts.nio.channel.NioChannelImpl;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioClientConfig;
@@ -21,7 +21,7 @@ import java.nio.channels.SocketChannel;
 public class NioClientProcessor extends AbstractNioProcessor {
 
     private NioClientConfig clientConfig;
-    private NioTcpChannel channel;
+    private NioChannelImpl channel;
 
     public NioClientProcessor(NioClientConfig clientConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
         super(eventHandler, encoder, decoder);
@@ -78,7 +78,8 @@ public class NioClientProcessor extends AbstractNioProcessor {
             return null;
         }
 
-        this.channel = new NioTcpChannel(selectorLoop, this, socketChannel, eventHandler());
+        this.channel = new NioChannelImpl(selectorLoop, this, socketChannel, eventHandler(), clientConfig);
+        idleDetector.addChannel(channel);
         connectFuture.setSuccess(true);
         connectFuture.setChannel(channel);
         return channel;
