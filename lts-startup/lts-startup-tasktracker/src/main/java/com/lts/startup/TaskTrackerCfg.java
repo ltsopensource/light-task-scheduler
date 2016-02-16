@@ -28,6 +28,8 @@ public class TaskTrackerCfg {
 
     private boolean useSpring = false;
 
+    private String[] springXmlPaths;
+
     private Map<String, String> configs;
 
     public String getRegistryAddress() {
@@ -100,5 +102,13 @@ public class TaskTrackerCfg {
 
     public void setJobRunnerClass(Class jobRunnerClass) {
         this.jobRunnerClass = jobRunnerClass;
+    }
+
+    public String[] getSpringXmlPaths() {
+        return springXmlPaths;
+    }
+
+    public void setSpringXmlPaths(String[] springXmlPaths) {
+        this.springXmlPaths = springXmlPaths;
     }
 }

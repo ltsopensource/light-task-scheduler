@@ -79,7 +79,7 @@ public class MinaCodecFactory implements ProtocolCodecFactory {
                 int length = ByteBuffer.wrap(lengthBytes).getInt();
 
                 // 数据不够，返回false，需要继续读取
-                if (length > in.remaining()) {
+                if (length == 0 || length > in.remaining()) {
                     in.reset();
                     return false;
                 }

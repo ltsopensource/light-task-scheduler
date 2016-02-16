@@ -68,6 +68,19 @@ public class TaskTrackerCfgLoader {
                 cfg.setBizLoggerLevel(Level.valueOf(bizLoggerLevel));
             }
 
+            String springXmlPaths = conf.getProperty("springXmlPaths");
+            if (StringUtils.isNotEmpty(springXmlPaths)) {
+                // 都好分割
+                String[] tmpArr = springXmlPaths.split(",");
+                if (tmpArr.length > 0) {
+                    String[] springXmlPathArr = new String[tmpArr.length];
+                    for (int i = 0; i < tmpArr.length; i++) {
+                        springXmlPathArr[i] = StringUtils.trim(tmpArr[i]);
+                    }
+                    cfg.setSpringXmlPaths(springXmlPathArr);
+                }
+            }
+
             Map<String, String> configs = new HashMap<String, String>();
             for (Map.Entry<Object, Object> entry : conf.entrySet()) {
                 String key = entry.getKey().toString();

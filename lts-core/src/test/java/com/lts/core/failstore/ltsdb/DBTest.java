@@ -1,25 +1,75 @@
 package com.lts.core.failstore.ltsdb;
 
+import com.lts.core.commons.file.FileUtils;
 import com.lts.kv.DB;
 import com.lts.kv.DBBuilder;
 import com.lts.kv.Entry;
 import com.lts.kv.iterator.DBIterator;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.Options;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * @author Robert HG (254963746@qq.com) on 12/13/15.
  */
 public class DBTest {
 
+    String path = System.getProperty("user.home") + "/tmp/dbtest";
 
     private DB<String, String> getDB() {
-        String path = System.getProperty("user.home") + "/tmp/ltsdb";
+
+        try {
+            FileUtils.createDirIfNotExist(path + "/ltsdb");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         final DB<String, String> db =
                 new DBBuilder<String, String>()
-                        .setPath(path)
+                        .setPath(path + "/ltsdb")
                         .create();
         return db;
+    }
+
+    @Test
+    public void testLtsDbPut() {
+
+        DB<String, String> db = getDB();
+        db.init();
+
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 1000000; i++) {
+            db.put("testKey" + i, "testvalue" + i);
+        }
+        // 17458 待优化
+        System.out.println(System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testLeveldbPut() throws IOException {
+
+        org.iq80.leveldb.DB db;
+
+        Options options;
+        options = new Options();
+        options.createIfMissing(true);
+        options.cacheSize(100 * 1024 * 1024);   // 100M
+        options.maxOpenFiles(400);
+        FileUtils.createDirIfNotExist(new File(path + "/leveldb"));
+        JniDBFactory.factory.repair(new File(path + "/leveldb"), options);
+        db = JniDBFactory.factory.open(new File(path + "/leveldb"), options);
+
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 1000000; i++) {
+            db.put(("testKey" + i).getBytes("UTF-8"), ("testvalue" + i).getBytes("UTF-8"));
+        }
+        //3856
+        System.out.println(System.currentTimeMillis() - start);
     }
 
     @Test

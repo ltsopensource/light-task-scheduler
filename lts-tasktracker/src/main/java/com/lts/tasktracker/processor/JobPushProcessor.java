@@ -158,9 +158,6 @@ public class JobPushProcessor extends AbstractProcessor {
 
     /**
      * 发送JobResults
-     *
-     * @param results
-     * @return
      */
     private boolean retrySendJobResults(List<TaskTrackerJobResult> results) {
         // 发送消息给 JobTracker

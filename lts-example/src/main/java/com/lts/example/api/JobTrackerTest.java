@@ -78,7 +78,7 @@ public class JobTrackerTest {
         jobTracker.addConfig("jdbc.password", "root");
 //        jobTracker.setBindIp("127.0.0.1");
         // 可选值 mina netty
-//         jobTracker.addConfig("lts.remoting", "mina");
+         jobTracker.addConfig("lts.remoting", "netty");
         // 可选值 fastjson hessian2 java
 //         jobTracker.addConfig("lts.remoting.serializable.default", "fastjson");
         // 延迟批量刷盘业务日志开关
