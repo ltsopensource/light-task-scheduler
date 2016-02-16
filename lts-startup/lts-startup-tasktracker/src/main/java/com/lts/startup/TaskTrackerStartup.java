@@ -9,7 +9,6 @@ public class TaskTrackerStartup {
 
     public static void main(String[] args) {
         String cfgPath = args[0];
-//        String cfgPath = "/Users/hugui/Data/Workspace/github/light-task-scheduler/lts-startup/lts-startup-tasktracker/src/main/resources/conf";
         start(cfgPath);
     }
 
@@ -20,7 +19,7 @@ public class TaskTrackerStartup {
             final TaskTracker taskTracker;
 
             if (cfg.isUseSpring()) {
-                taskTracker = SpringStartup.start(cfgPath);
+                taskTracker = SpringStartup.start(cfg, cfgPath);
             } else {
                 taskTracker = DefaultStartup.start(cfg);
             }
