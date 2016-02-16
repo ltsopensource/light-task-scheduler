@@ -14,43 +14,43 @@ import java.util.concurrent.ExecutorService;
  */
 public interface RemotingServer {
 
-    public void start() throws RemotingException;
+    void start() throws RemotingException;
 
 
     /**
      * 注册请求处理器，ExecutorService必须要对应一个队列大小有限制的阻塞队列，防止OOM
      */
-    public void registerProcessor(final int requestCode, final RemotingProcessor processor,
-                                  final ExecutorService executor);
+    void registerProcessor(final int requestCode, final RemotingProcessor processor,
+                           final ExecutorService executor);
 
     /**
      * 注册默认请求处理器
      */
-    public void registerDefaultProcessor(final RemotingProcessor processor, final ExecutorService executor);
+    void registerDefaultProcessor(final RemotingProcessor processor, final ExecutorService executor);
 
 
     /**
      * 同步调用
      */
-    public RemotingCommand invokeSync(final Channel channel, final RemotingCommand request,
-                                      final long timeoutMillis) throws InterruptedException, RemotingSendRequestException,
+    RemotingCommand invokeSync(final Channel channel, final RemotingCommand request,
+                               final long timeoutMillis) throws InterruptedException, RemotingSendRequestException,
             RemotingTimeoutException;
 
     /**
      * 异步调用
      */
-    public void invokeAsync(final Channel channel, final RemotingCommand request, final long timeoutMillis,
-                            final AsyncCallback asyncCallback) throws InterruptedException,
+    void invokeAsync(final Channel channel, final RemotingCommand request, final long timeoutMillis,
+                     final AsyncCallback asyncCallback) throws InterruptedException,
             RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException;
 
     /**
      * 单向调用
      */
-    public void invokeOneway(final Channel channel, final RemotingCommand request, final long timeoutMillis)
+    void invokeOneway(final Channel channel, final RemotingCommand request, final long timeoutMillis)
             throws InterruptedException, RemotingTooMuchRequestException, RemotingTimeoutException,
             RemotingSendRequestException;
 
 
-    public void shutdown();
+    void shutdown();
 
 }

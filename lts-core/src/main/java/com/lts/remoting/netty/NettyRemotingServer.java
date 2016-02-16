@@ -170,8 +170,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
             com.lts.remoting.Channel channel = new NettyChannel(ctx);
 
             final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(channel);
-            LOGGER.warn("SERVER: exceptionCaught {}", remoteAddress);
-            LOGGER.warn("SERVER: exceptionCaught exception.", cause);
+            LOGGER.warn("SERVER: exceptionCaught {}", remoteAddress, cause);
 
             if (channelEventListener != null) {
                 putRemotingEvent(new RemotingEvent(RemotingEventType.EXCEPTION, remoteAddress, channel));

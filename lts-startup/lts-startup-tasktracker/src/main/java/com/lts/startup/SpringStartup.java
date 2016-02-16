@@ -1,7 +1,6 @@
 package com.lts.startup;
 
 import com.lts.tasktracker.TaskTracker;
-
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -10,13 +9,23 @@ import org.springframework.context.ApplicationContext;
 public class SpringStartup {
 
     @SuppressWarnings("resource")
-	public static TaskTracker start(String cfgPath) {
+    public static TaskTracker start(TaskTrackerCfg cfg, String cfgPath) {
 
         System.setProperty("lts.tasktracker.cfg.path", cfgPath);
 
-        ApplicationContext context = new LTSXmlApplicationContext(
-                new String[]{"classpath*:spring/*.xml"}
-        );
+        String[] springXmlPaths = cfg.getSpringXmlPaths();
+
+        String[] paths;
+
+        if (springXmlPaths != null) {
+            paths = new String[springXmlPaths.length + 1];
+            paths[0] = "classpath:spring/lts-startup.xml";
+            System.arraycopy(springXmlPaths, 0, paths, 1, springXmlPaths.length);
+        } else {
+            paths = new String[]{"classpath*:spring/*.xml"};
+        }
+
+        ApplicationContext context = new LTSXmlApplicationContext(paths);
         return (TaskTracker) context.getBean("ltsTaskTracker");
     }
 

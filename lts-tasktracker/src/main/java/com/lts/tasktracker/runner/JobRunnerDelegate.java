@@ -21,6 +21,7 @@ import java.io.StringWriter;
  * 1. 做一些错误处理之类的
  * 2. 监控统计
  * 3. Context信息设置
+ *
  * @author Robert HG (254963746@qq.com) on 8/16/14.
  */
 public class JobRunnerDelegate implements Runnable {
@@ -64,7 +65,7 @@ public class JobRunnerDelegate implements Runnable {
                     } else {
                         if (result.getAction() == null) {
                             response.setAction(Action.EXECUTE_SUCCESS);
-                        }else{
+                        } else {
                             response.setAction(result.getAction());
                         }
                         response.setMsg(result.getMsg());
@@ -79,15 +80,18 @@ public class JobRunnerDelegate implements Runnable {
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
                     monitor.addRunningTime(time);
-                    LOGGER.info("Job execute error : {}, time: {}, {}",
-                            jobWrapper, time, t.getMessage(), t);
+                    LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, time, t.getMessage(), t);
                 } finally {
                     logger.removeId();
                     application.getRunnerPool().getRunningJobManager()
                             .out(jobWrapper.getJobId());
                 }
                 // 统计数据
-                monitor(response.getAction());
+                try {
+                    monitor(response.getAction());
+                } catch (Throwable t) {
+                    LOGGER.warn("monitor error:" + t.getMessage(), t);
+                }
 
                 jobWrapper = callback.runComplete(response);
             }

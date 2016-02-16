@@ -1,10 +1,10 @@
 package com.lts.web.filter;
 
+import com.lts.core.commons.utils.Base64;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
-import sun.misc.BASE64Decoder;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +16,7 @@ import java.util.Properties;
 /**
  * Created by ztajy on 2015-11-11.
  * @author ztajy
- * @author hugui
+ * @author Robert HG (254963746@qq.com)
  */
 public class LoginAuthFilter implements Filter {
     private static final Logger log = LoggerFactory.getLogger(LoginAuthFilter.class);
@@ -65,7 +65,7 @@ public class LoginAuthFilter implements Filter {
         String authorization = httpRequest.getHeader("authorization");
         if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
             authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
-            if ((username + ":" + password).equals(new String(new BASE64Decoder().decodeBuffer(authorization)))) {
+            if ((username + ":" + password).equals(new String(Base64.decodeFast(authorization)))) {
                 authenticateSuccess(httpResponse);
                 chain.doFilter(httpRequest, httpResponse);
             } else {

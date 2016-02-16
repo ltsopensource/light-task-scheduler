@@ -2,10 +2,7 @@ package com.lts.jobclient;
 
 import com.lts.core.Application;
 import com.lts.core.cluster.AbstractClientNode;
-import com.lts.core.commons.utils.Assert;
-import com.lts.core.commons.utils.BatchUtils;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.CommonUtils;
+import com.lts.core.commons.utils.*;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
@@ -189,7 +186,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         } catch (Exception e) {
             response.setSuccess(false);
             response.setCode(ResponseCode.SYSTEM_ERROR);
-            response.setMsg(CommonUtils.exceptionSimpleDesc(e));
+            response.setMsg(StringUtils.toString(e));
         }
 
         return response;

@@ -55,7 +55,7 @@ public final class StringUtils {
         int increase = with.length() - replLength;
         increase = (increase < 0 ? 0 : increase);
         increase *= (max < 0 ? 16 : (max > 64 ? 64 : max));
-        StringBuffer buf = new StringBuffer(text.length() + increase);
+        StringBuilder buf = new StringBuilder(text.length() + increase);
         while (end != -1) {
             buf.append(text.substring(start, end)).append(with);
             start = end + replLength;
@@ -90,10 +90,6 @@ public final class StringUtils {
         return ft.getMessage();
     }
 
-    /**
-     * @param e
-     * @return string
-     */
     public static String toString(Throwable e) {
         StringWriter w = new StringWriter();
         PrintWriter p = new PrintWriter(w);
@@ -110,11 +106,6 @@ public final class StringUtils {
         }
     }
 
-    /**
-     * @param msg
-     * @param e
-     * @return string
-     */
     public static String toString(String msg, Throwable e) {
         StringWriter w = new StringWriter();
         w.write(msg + "\n");
@@ -148,9 +139,7 @@ public final class StringUtils {
     }
 
     public static boolean isInteger(String str) {
-        if (str == null || str.length() == 0)
-            return false;
-        return INT_PATTERN.matcher(str).matches();
+        return !(str == null || str.length() == 0) && INT_PATTERN.matcher(str).matches();
     }
 
     public static String toString(Object value) {
@@ -160,4 +149,5 @@ public final class StringUtils {
 
         return value.toString();
     }
+
 }
