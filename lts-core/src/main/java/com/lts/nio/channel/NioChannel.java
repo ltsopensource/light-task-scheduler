@@ -1,5 +1,7 @@
 package com.lts.nio.channel;
 
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.handler.Futures;
 
 import java.net.SocketAddress;
@@ -33,4 +35,8 @@ public interface NioChannel {
     void setLastReadTime(long lastReadTime);
 
     void setLastWriteTime(long lastWriteTime);
+
+    Decoder getDecoder();
+
+    Encoder getEncoder();
 }

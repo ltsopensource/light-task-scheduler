@@ -3,10 +3,9 @@ package com.lts.nio.processor;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.NioException;
+import com.lts.nio.channel.ChannelInitializer;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.channel.NioChannelImpl;
-import com.lts.nio.codec.Decoder;
-import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
@@ -29,8 +28,8 @@ public class NioServerProcessor extends AbstractNioProcessor {
     private NioServerConfig serverConfig;
     private ServerSocketChannel serverSocketChannel;
 
-    public NioServerProcessor(NioServerConfig serverConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
-        super(eventHandler, encoder, decoder);
+    public NioServerProcessor(NioServerConfig serverConfig, NioHandler eventHandler, ChannelInitializer channelInitializer) {
+        super(eventHandler, channelInitializer);
         this.serverConfig = serverConfig;
         this.serverSocketChannel = newSocket();
     }
@@ -75,6 +74,7 @@ public class NioServerProcessor extends AbstractNioProcessor {
                 socketChannel.socket().setSoLinger(true, serverConfig.getSoLinger());
             }
             channel = new NioChannelImpl(selectorLoop, this, socketChannel, eventHandler(), serverConfig);
+            channelInitializer.initChannel(channel);
             this.idleDetector.addChannel(channel);
 
             socketChannel.register(selectorLoop.selector(), SelectionKey.OP_READ, channel);

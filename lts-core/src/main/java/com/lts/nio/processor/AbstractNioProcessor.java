@@ -1,14 +1,14 @@
 package com.lts.nio.processor;
 
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.NioException;
+import com.lts.nio.channel.ChannelInitializer;
 import com.lts.nio.channel.NioChannel;
-import com.lts.nio.codec.Decoder;
-import com.lts.nio.codec.Encoder;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
 import com.lts.nio.idle.IdleDetector;
@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
@@ -36,20 +37,17 @@ public abstract class AbstractNioProcessor implements NioProcessor {
     //    protected NioSelectorLoopPool readWriteSelectorPool;
     private AtomicBoolean started = new AtomicBoolean(false);
 
-    private Encoder encoder;
-    private Decoder decoder;
-
     protected IdleDetector idleDetector;
+    protected ChannelInitializer channelInitializer;
 
-    public AbstractNioProcessor(NioHandler eventHandler, Encoder encoder, Decoder decoder) {
+    public AbstractNioProcessor(NioHandler eventHandler, ChannelInitializer channelInitializer) {
         this.eventHandler = eventHandler;
-        this.encoder = encoder;
-        this.decoder = decoder;
         this.executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR,
                 new NamedThreadFactory("NioProcessorExecutor"));
         this.selectorLoop = new NioSelectorLoop("AcceptSelectorLoop-I/O", this);
 //        this.readWriteSelectorPool = new FixedNioSelectorLoopPool(Constants.AVAILABLE_PROCESSOR + 1, "Server", this);
         this.idleDetector = new IdleDetector();
+        this.channelInitializer = channelInitializer;
         this.idleDetector.start();
     }
 
@@ -69,7 +67,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
         }
         ByteBuffer buf = null;
         try {
-            buf = encoder.encode(channel, msg);
+            buf = channel.getEncoder().encode(channel, msg);
             if (buf == null) {
                 future.setSuccess(false);
                 future.setMsg("encode msg error");
@@ -114,7 +112,6 @@ public abstract class AbstractNioProcessor implements NioProcessor {
                         try {
 
                             ByteBuffer buf = msg.getMessage();
-                            buf.flip();
 
                             // 已经写的字节数
                             int written = channel.socketChannel().write(buf);
@@ -155,7 +152,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
         try {
 
             // TODO 优化
-            ByteBuffer readBuffer = ByteBuffer.allocateDirect(64 * 1024);
+            ByteBuffer readBuffer = ByteBuffer.allocate(64 * 1024);
 
             final int readCount = channel.socketChannel().read(readBuffer);
 
@@ -190,8 +187,12 @@ public abstract class AbstractNioProcessor implements NioProcessor {
             @Override
             public void run() {
                 try {
-                    Object msg = decoder.decode(message);
-                    eventHandler().messageReceived(channel, msg);
+                    List<Object> objs = channel.getDecoder().decode(channel, message);
+                    if (CollectionUtils.isNotEmpty(objs)) {
+                        for (Object obj : objs) {
+                            eventHandler().messageReceived(channel, obj);
+                        }
+                    }
                     channel.setLastReadTime(SystemClock.now());
                 } catch (Exception e) {
                     eventHandler().exceptionCaught(channel, e);

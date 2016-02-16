@@ -1,7 +1,7 @@
 package com.lts.nio.idle;
 
 /**
- * Created by hugui.hg on 2/15/16.
+ * @author Robert HG (254963746@qq.com) on 2/15/16.
  */
 public class IdleInfo {
 

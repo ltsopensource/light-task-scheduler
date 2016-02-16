@@ -50,4 +50,20 @@ public class LtsChannel implements Channel {
     public boolean isClosed() {
         return channel.isClosed();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LtsChannel that = (LtsChannel) o;
+
+        return channel != null ? channel.equals(that.channel) : that.channel == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return channel != null ? channel.hashCode() : 0;
+    }
 }

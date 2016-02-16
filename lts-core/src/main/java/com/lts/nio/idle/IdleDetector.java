@@ -83,17 +83,17 @@ public class IdleDetector {
             NioConfig config = channel.getConfig();
 
             if (config.getIdleTimeBoth() > 0) {
-                notifyIdle(channel, IdleState.BOTH_IDLE, currentTime, config.getIdleTimeBoth(),
+                notifyIdle(channel, IdleState.BOTH_IDLE, currentTime, config.getIdleTimeBoth() * 1000,
                         Math.max(lastIoTime, idle.getLastBothIdleTime()));
             }
 
             if (config.getIdleTimeRead() > 0) {
-                notifyIdle(channel, IdleState.READER_IDLE, currentTime, config.getIdleTimeRead(),
+                notifyIdle(channel, IdleState.READER_IDLE, currentTime, config.getIdleTimeRead() * 1000,
                         Math.max(lastIoTime, idle.getLastReadIdleTime()));
             }
 
             if (config.getIdleTimeWrite() > 0) {
-                notifyIdle(channel, IdleState.WRITER_IDLE, currentTime, config.getIdleTimeWrite(),
+                notifyIdle(channel, IdleState.WRITER_IDLE, currentTime, config.getIdleTimeWrite() * 1000,
                         Math.max(lastIoTime, idle.getLastWriteIdleTime()));
             }
 

@@ -2,6 +2,7 @@ package com.lts.nio.handler;
 
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.SystemClock;
 import com.lts.remoting.Future;
 
 import java.util.ArrayList;
@@ -13,11 +14,16 @@ import java.util.List;
 public class IoFuture implements Future {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IoFuture.class);
+    private static final long DEAD_LOCK_CHECK_INTERVAL = 5000L;
     private boolean success = false;
     private Throwable cause;
     private String msg;
     private List<IoFutureListener> listeners;
     private boolean done = false;
+    /**
+     * A lock used by the wait() method
+     */
+    private final Object lock = this;
 
     public boolean isSuccess() {
         return success;
@@ -48,23 +54,32 @@ public class IoFuture implements Future {
     }
 
     public void addListener(IoFutureListener listener) {
-        if (listeners == null) {
-            listeners = new ArrayList<IoFutureListener>();
+        if (listener == null) {
+            return;
         }
-        listeners.add(listener);
-        if (done) {
-            complete(listener);
+        synchronized (lock) {
+            if (listeners == null) {
+                listeners = new ArrayList<IoFutureListener>();
+            }
+            listeners.add(listener);
+            if (isDone()) {
+                complete(listener);
+            }
         }
     }
 
     public void addListener(List<IoFutureListener> listeners) {
-        if (listeners != null) {
+        if (listeners == null) {
+            return;
+        }
+
+        synchronized (lock) {
             if (this.listeners == null) {
                 this.listeners = new ArrayList<IoFutureListener>();
             }
             this.listeners.addAll(listeners);
 
-            if (done) {
+            if (isDone()) {
                 for (IoFutureListener listener : listeners) {
                     complete(listener);
                 }
@@ -73,16 +88,23 @@ public class IoFuture implements Future {
     }
 
     public void removeListener(IoFutureListener listener) {
-        if (this.listeners != null) {
-            this.listeners.remove(listener);
+        if (listener == null) {
+            return;
+        }
+        synchronized (lock) {
+            if (this.listeners != null) {
+                this.listeners.remove(listener);
+            }
         }
     }
 
     public void notifyListeners() {
-        done = true;
-        if (this.listeners != null) {
-            for (IoFutureListener ioFutureListener : listeners) {
-                complete(ioFutureListener);
+        synchronized (lock) {
+            done = true;
+            if (this.listeners != null) {
+                for (IoFutureListener ioFutureListener : listeners) {
+                    complete(ioFutureListener);
+                }
             }
         }
     }
@@ -96,7 +118,68 @@ public class IoFuture implements Future {
     }
 
     public boolean awaitUninterruptibly(long timeoutMillis) {
-        // TODO
-        return false;
+        try {
+            return await0(timeoutMillis, false);
+        } catch (InterruptedException e) {
+            throw new InternalError();
+        }
     }
+
+    private boolean await0(long timeoutMillis, boolean interruptable) throws InterruptedException {
+        if (isDone()) {
+            return true;
+        }
+
+        if (timeoutMillis <= 0) {
+            return isDone();
+        }
+
+        if (interruptable && Thread.interrupted()) {
+            throw new InterruptedException(toString());
+        }
+
+        long endTime = SystemClock.now() + timeoutMillis;
+
+        boolean interrupted = false;
+
+        synchronized (lock) {
+            if (isDone()) {
+                return true;
+            }
+
+            if (timeoutMillis <= 0) {
+                return isDone();
+            }
+
+            try {
+                for (; ; ) {
+
+                    long timeOut = Math.min(timeoutMillis, DEAD_LOCK_CHECK_INTERVAL);
+                    try {
+                        lock.wait(timeOut);
+                    } catch (InterruptedException e) {
+                        if (interruptable) {
+                            throw e;
+                        } else {
+                            interrupted = true;
+                        }
+
+                    }
+
+                    if (isDone()) {
+                        return true;
+                    }
+
+                    if (endTime < SystemClock.now()) {
+                        return isDone();
+                    }
+                }
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
 }

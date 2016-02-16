@@ -1,5 +1,8 @@
 package com.lts.nio;
 
+import com.lts.nio.channel.ChannelInitializer;
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
 
 import java.net.InetSocketAddress;
@@ -16,7 +19,17 @@ public class NioServerTest {
         serverConfig.setReuseAddress(true);
         serverConfig.setTcpNoDelay(true);
 
-        NioServer server = new NioServer(serverConfig, new EventHandler(), CodecFactory.getEncoder(), CodecFactory.getDecoder());
+        NioServer server = new NioServer(serverConfig, new EventHandler(), new ChannelInitializer() {
+            @Override
+            protected Decoder getDecoder() {
+                return CodecFactory.getDecoder();
+            }
+
+            @Override
+            protected Encoder getEncoder() {
+                return CodecFactory.getEncoder();
+            }
+        });
 
         server.bind(new InetSocketAddress(8221));
 

@@ -1,7 +1,7 @@
 package com.lts.nio.config;
 
 /**
- * Created by hugui.hg on 2/15/16.
+ * @author Robert HG (254963746@qq.com) on 2/15/16.
  */
 public class NioConfig {
 
@@ -21,13 +21,13 @@ public class NioConfig {
 
     private Integer soLinger;
 
-    private long idleTimeBoth;
+    private int idleTimeBoth;
 
-    private long idleTimeWrite;
+    private int idleTimeWrite;
 
-    private long idleTimeRead;
+    private int idleTimeRead;
 
-    private long writeTimeoutInMillis;
+    private int writeTimeoutInMillis;
 
     public Integer getReceiveBufferSize() {
         return receiveBufferSize;
@@ -97,31 +97,31 @@ public class NioConfig {
         return idleTimeBoth;
     }
 
-    public void setIdleTimeBoth(long idleTimeBoth) {
+    public void setIdleTimeBoth(int idleTimeBoth) {
         this.idleTimeBoth = idleTimeBoth;
     }
 
-    public long getIdleTimeWrite() {
+    public int getIdleTimeWrite() {
         return idleTimeWrite;
     }
 
-    public void setIdleTimeWrite(long idleTimeWrite) {
+    public void setIdleTimeWrite(int idleTimeWrite) {
         this.idleTimeWrite = idleTimeWrite;
     }
 
-    public long getIdleTimeRead() {
+    public int getIdleTimeRead() {
         return idleTimeRead;
     }
 
-    public void setIdleTimeRead(long idleTimeRead) {
+    public void setIdleTimeRead(int idleTimeRead) {
         this.idleTimeRead = idleTimeRead;
     }
 
-    public long getWriteTimeoutInMillis() {
+    public int getWriteTimeoutInMillis() {
         return writeTimeoutInMillis;
     }
 
-    public void setWriteTimeoutInMillis(long writeTimeoutInMillis) {
+    public void setWriteTimeoutInMillis(int writeTimeoutInMillis) {
         this.writeTimeoutInMillis = writeTimeoutInMillis;
     }
 }

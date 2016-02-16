@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by hugui.hg on 2/16/16.
+ * @author Robert HG (254963746@qq.com) on 2/16/16.
  */
 public class TaskTrackerStartupTest {
 

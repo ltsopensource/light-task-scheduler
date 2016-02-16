@@ -2,6 +2,8 @@ package com.lts.nio.channel;
 
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioConfig;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.NioHandler;
@@ -9,6 +11,7 @@ import com.lts.nio.idle.IdleInfo;
 import com.lts.nio.idle.IdleState;
 import com.lts.nio.loop.NioSelectorLoop;
 import com.lts.nio.processor.NioProcessor;
+import io.netty.util.internal.ThreadLocalRandom;
 
 import java.io.IOException;
 import java.net.SocketAddress;
@@ -31,6 +34,9 @@ public class NioChannelImpl implements NioChannel {
     protected Futures.CloseFuture closeFuture = Futures.newCloseFuture();
     private IdleInfo idleInfo;
     private NioConfig config;
+    private Decoder decoder;
+    private Encoder encoder;
+    private final long hashCode = ThreadLocalRandom.current().nextLong();
 
     protected SocketChannel channel;
 
@@ -147,4 +153,31 @@ public class NioChannelImpl implements NioChannel {
         }
         eventHandler().channelIdle(this, state);
     }
+
+    public Decoder getDecoder() {
+        return decoder;
+    }
+
+    public void setDecoder(Decoder decoder) {
+        this.decoder = decoder;
+    }
+
+    public Encoder getEncoder() {
+        return encoder;
+    }
+
+    public void setEncoder(Encoder encoder) {
+        this.encoder = encoder;
+    }
+
+    @Override
+    public final int hashCode() {
+        return (int) hashCode;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        return this == o;
+    }
+
 }

@@ -1,6 +1,9 @@
 package com.lts.remoting.lts;
 
 import com.lts.nio.NioClient;
+import com.lts.nio.channel.ChannelInitializer;
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioClientConfig;
 import com.lts.nio.handler.Futures;
 import com.lts.remoting.AbstractRemotingClient;
@@ -30,11 +33,23 @@ public class LtsRemotingClient extends AbstractRemotingClient {
     protected void clientStart() throws RemotingException {
         NioClientConfig clientConfig = new NioClientConfig();
         clientConfig.setTcpNoDelay(true);
+        clientConfig.setIdleTimeBoth(remotingClientConfig.getClientChannelMaxIdleTimeSeconds());
+        clientConfig.setIdleTimeRead(remotingClientConfig.getReaderIdleTimeSeconds());
+        clientConfig.setIdleTimeWrite(remotingClientConfig.getWriterIdleTimeSeconds());
 
-        LtsCodecFactory codecFactory = new LtsCodecFactory(getCodec());
+        final LtsCodecFactory codecFactory = new LtsCodecFactory(getCodec());
 
-        this.client = new NioClient(clientConfig, new LtsEventHandler(this, "CLIENT")
-                , codecFactory.getEncoder(), codecFactory.getDecoder());
+        this.client = new NioClient(clientConfig, new LtsEventHandler(this, "CLIENT"), new ChannelInitializer() {
+            @Override
+            protected Decoder getDecoder() {
+                return codecFactory.getDecoder();
+            }
+
+            @Override
+            protected Encoder getEncoder() {
+                return codecFactory.getEncoder();
+            }
+        });
     }
 
     @Override

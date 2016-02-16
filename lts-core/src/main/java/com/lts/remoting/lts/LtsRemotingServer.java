@@ -1,6 +1,9 @@
 package com.lts.remoting.lts;
 
 import com.lts.nio.NioServer;
+import com.lts.nio.channel.ChannelInitializer;
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
 import com.lts.remoting.AbstractRemotingServer;
 import com.lts.remoting.ChannelEventListener;
@@ -30,10 +33,24 @@ public class LtsRemotingServer extends AbstractRemotingServer {
         serverConfig.setBacklog(65536);
         serverConfig.setReuseAddress(true);
         serverConfig.setTcpNoDelay(true);
-        LtsCodecFactory codecFactory = new LtsCodecFactory(getCodec());
 
-        server = new NioServer(serverConfig, new LtsEventHandler(this, "SERVER"),
-                codecFactory.getEncoder(), codecFactory.getDecoder());
+        serverConfig.setIdleTimeBoth(remotingServerConfig.getServerChannelMaxIdleTimeSeconds());
+        serverConfig.setIdleTimeWrite(remotingServerConfig.getWriterIdleTimeSeconds());
+        serverConfig.setIdleTimeRead(remotingServerConfig.getReaderIdleTimeSeconds());
+
+        final LtsCodecFactory codecFactory = new LtsCodecFactory(getCodec());
+
+        server = new NioServer(serverConfig, new LtsEventHandler(this, "SERVER"), new ChannelInitializer() {
+            @Override
+            protected Decoder getDecoder() {
+                return codecFactory.getDecoder();
+            }
+
+            @Override
+            protected Encoder getEncoder() {
+                return codecFactory.getEncoder();
+            }
+        });
 
         server.bind(new InetSocketAddress(this.remotingServerConfig.getListenPort()));
     }

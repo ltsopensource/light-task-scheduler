@@ -5,6 +5,7 @@ import com.lts.core.json.TypeReference;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
+import com.lts.nio.codec.FrameDecoder;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
@@ -37,25 +38,19 @@ public class CodecFactory {
         }
     };
 
-    static Decoder decoder = new Decoder() {
-        @Override
-        public Object decode(ByteBuffer in) throws Exception {
-
-            int length = in.getInt();
-            byte[] b = new byte[length];
-            in.get(b);
-            String json = new String(b, "UTF-8");
-            RemotingMsg msg = JSON.parse(json, new TypeReference<RemotingMsg>() {
-            });
-            return msg;
-        }
-    };
-
     public static Encoder getEncoder() {
         return encoder;
     }
 
     public static Decoder getDecoder() {
-        return decoder;
+        return new FrameDecoder() {
+            @Override
+            protected Object decode(NioChannel channel, byte[] frame) throws Exception {
+                String json = new String(frame, "UTF-8");
+                RemotingMsg msg = JSON.parse(json, new TypeReference<RemotingMsg>() {
+                });
+                return msg;
+            }
+        };
     }
 }

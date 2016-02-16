@@ -1,6 +1,9 @@
 package com.lts.nio;
 
+import com.lts.nio.channel.ChannelInitializer;
 import com.lts.nio.channel.NioChannel;
+import com.lts.nio.codec.Decoder;
+import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioClientConfig;
 import com.lts.nio.handler.Futures;
 import com.lts.nio.handler.IoFutureListener;
@@ -17,8 +20,17 @@ public class NioClientTest {
 
         NioClientConfig clientConfig = new NioClientConfig();
 
-        NioClient client = new NioClient(clientConfig, new EventHandler(), CodecFactory.encoder, CodecFactory.decoder);
+        NioClient client = new NioClient(clientConfig, new EventHandler(), new ChannelInitializer() {
+            @Override
+            protected Decoder getDecoder() {
+                return CodecFactory.getDecoder();
+            }
 
+            @Override
+            protected Encoder getEncoder() {
+                return CodecFactory.getEncoder();
+            }
+        });
         Futures.ConnectFuture connectFuture = client.connect(new InetSocketAddress("127.0.0.1", 8221));
 
         NioChannel channel = connectFuture.channel();
@@ -30,7 +42,7 @@ public class NioClientTest {
         }
 
         RemotingMsg msg = new RemotingMsg();
-        msg.setName("fdasfhasfjlasj");
+        msg.setName("fdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasjfdasfhasfjlasj");
         msg.setB(true);
         msg.setType(1);
 

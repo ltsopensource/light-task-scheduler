@@ -1,6 +1,7 @@
 package com.lts.nio.processor;
 
 import com.lts.nio.NioException;
+import com.lts.nio.channel.ChannelInitializer;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.channel.NioChannelImpl;
 import com.lts.nio.codec.Decoder;
@@ -23,8 +24,8 @@ public class NioClientProcessor extends AbstractNioProcessor {
     private NioClientConfig clientConfig;
     private NioChannelImpl channel;
 
-    public NioClientProcessor(NioClientConfig clientConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
-        super(eventHandler, encoder, decoder);
+    public NioClientProcessor(NioClientConfig clientConfig, NioHandler eventHandler, ChannelInitializer channelInitializer) {
+        super(eventHandler, channelInitializer);
         this.clientConfig = clientConfig;
     }
 
@@ -68,6 +69,8 @@ public class NioClientProcessor extends AbstractNioProcessor {
             throw new NioException("connect IOE", e);
         }
 
+        this.channel = new NioChannelImpl(selectorLoop, this, socketChannel, eventHandler(), clientConfig);
+
         try {
             socketChannel.connect(remoteAddress);
             socketChannel.register(this.selectorLoop.selector(), SelectionKey.OP_CONNECT);
@@ -75,13 +78,15 @@ public class NioClientProcessor extends AbstractNioProcessor {
             connectFuture.setCause(e);
             connectFuture.setSuccess(false);
             connectFuture.notifyListeners();
+            this.channel = null;
             return null;
         }
 
-        this.channel = new NioChannelImpl(selectorLoop, this, socketChannel, eventHandler(), clientConfig);
+        channelInitializer.initChannel(this.channel);
         idleDetector.addChannel(channel);
         connectFuture.setSuccess(true);
         connectFuture.setChannel(channel);
+        connectFuture.notifyListeners();
         return channel;
     }
 

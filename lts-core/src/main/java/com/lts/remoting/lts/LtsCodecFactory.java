@@ -5,6 +5,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
+import com.lts.nio.codec.FrameDecoder;
 import com.lts.remoting.Channel;
 import com.lts.remoting.codec.Codec;
 import com.lts.remoting.common.RemotingHelper;
@@ -50,11 +51,18 @@ public class LtsCodecFactory {
         }
     }
 
-    public class NioDecoder implements Decoder {
-
+    public class NioDecoder extends FrameDecoder {
         @Override
-        public Object decode(ByteBuffer in) throws Exception {
-            return null;
+        protected Object decode(NioChannel ch, byte[] frame) throws Exception {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(frame);
+            try {
+                return codec.decode(byteBuffer);
+            } catch (Exception e) {
+                Channel channel = new LtsChannel(ch);
+                LOGGER.error("decode exception, {}", RemotingHelper.parseChannelRemoteAddr(channel), e);
+                RemotingHelper.closeChannel(channel);
+                throw e;
+            }
         }
     }
 

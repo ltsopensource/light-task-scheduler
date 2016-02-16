@@ -1,5 +1,6 @@
 package com.lts.nio;
 
+import com.lts.nio.channel.ChannelInitializer;
 import com.lts.nio.codec.Decoder;
 import com.lts.nio.codec.Encoder;
 import com.lts.nio.config.NioServerConfig;
@@ -23,10 +24,10 @@ public class NioServer {
     private NioServerProcessor processor;
     private NioHandler eventHandler;
 
-    public NioServer(NioServerConfig serverConfig, NioHandler eventHandler, Encoder encoder, Decoder decoder) {
+    public NioServer(NioServerConfig serverConfig, NioHandler eventHandler, ChannelInitializer channelInitializer) {
         this.serverConfig = serverConfig;
         setEventHandler(eventHandler);
-        this.processor = new NioServerProcessor(serverConfig, this.eventHandler, encoder, decoder);
+        this.processor = new NioServerProcessor(serverConfig, this.eventHandler, channelInitializer);
     }
 
     private void setEventHandler(NioHandler eventHandler) {
