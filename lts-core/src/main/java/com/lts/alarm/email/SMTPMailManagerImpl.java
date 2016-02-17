@@ -32,6 +32,11 @@ public class SMTPMailManagerImpl implements MailManager {
 
     private Properties properties;
 
+    public SMTPMailManagerImpl(String host, String userName, String password,
+                               String adminAddress, boolean sslEnabled) {
+        this(host, "", userName, password, adminAddress, sslEnabled);
+    }
+
     public SMTPMailManagerImpl(String host, String port, String userName, String password,
                                String adminAddress, boolean sslEnabled) {
         this.host = host;
@@ -42,6 +47,7 @@ public class SMTPMailManagerImpl implements MailManager {
 
         properties = new Properties();
         properties.setProperty("mail.transport.protocol", "smtp");
+        properties.setProperty("mail.smtp.auth", "true");
         if (!StringUtils.isEmpty(host)) {
             properties.setProperty("mail.smtp.host", host);
         }
