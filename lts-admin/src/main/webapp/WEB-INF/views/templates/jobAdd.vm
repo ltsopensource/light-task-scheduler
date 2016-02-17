@@ -147,7 +147,7 @@
             var params = {};
             $.each($('#form').parent().find(".form-control"), function () {
                 var name = $(this).attr("name");
-                var value = $(this).val();
+                var value = $(this).val().trim();
                 params[name] = value;
             });
 
@@ -228,19 +228,22 @@
         });
 
         $(document).on("click", "#cronGeneratorBtn", function () {
-//            var cron = $("input[name='cronExpression']").val();
-//            if (cron) {
-//                $(window.frames["cronGeneratorIframe"]).contents().find("#cron").val(cron);
-//            }
+            var cron = $("input[name='cronExpression']").val().trim();
+            if (isCronExpress(cron)) {
+                $(window.frames["cronGeneratorIframe"]).contents().find("#cron").val(cron);
+                $(window.frames["cronGeneratorIframe"]).contents().find("#btnFan").click();
+            }
             $("#cronGeneratorDialog").modal("show");
         });
 
         $('body').bind('Event_CronExpression_Generated', function (event, data) {
-            $("input[name='cronExpression']").val(data['cron']);
+            $("input[name='cronExpression']").val(data['cron'].trim());
             $("#cronGeneratorDialog").modal("hide");
         });
     });
 </script>
+<script src="assets/js/cronValidate.js" type="text/javascript"></script>
+
 
 <div class="modal inmodal" id="cronGeneratorDialog" role="dialog" aria-hidden="true" style="display: none;">
     <div class="modal-dialog" style="width: 600px;">

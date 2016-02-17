@@ -27,7 +27,8 @@
             overflow-x: hidden;
             overflow-y: hidden;
         }
-        .btn{
+
+        .btn {
             background-color: #1ab394;
             border-color: #1ab394;
             color: #fff;
