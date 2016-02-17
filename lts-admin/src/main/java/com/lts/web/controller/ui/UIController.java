@@ -99,6 +99,11 @@ public class UIController {
         return "loadJob";
     }
 
+    @RequestMapping("cron_generator_iframe")
+    public String cronGeneratorIframe(Model model){
+        return "cron/cronGenerator";
+    }
+
     private void setAttr(Model model) {
         List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);
