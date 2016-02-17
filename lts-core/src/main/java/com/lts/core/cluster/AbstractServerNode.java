@@ -1,6 +1,6 @@
 package com.lts.core.cluster;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.RemotingServerDelegate;
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         抽象服务端
  */
-public abstract class AbstractServerNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
+public abstract class AbstractServerNode<T extends Node, App extends AppContext> extends AbstractJobNode<T, App> {
 
     protected RemotingServerDelegate remotingServer;
 
@@ -50,7 +50,7 @@ public abstract class AbstractServerNode<T extends Node, App extends Application
         }
         remotingServerConfig.setListenPort(config.getListenPort());
 
-        remotingServer = new RemotingServerDelegate(getRemotingServer(remotingServerConfig), application);
+        remotingServer = new RemotingServerDelegate(getRemotingServer(remotingServerConfig), appContext);
 
         beforeStart();
     }

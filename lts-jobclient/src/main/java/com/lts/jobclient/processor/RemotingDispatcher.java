@@ -1,7 +1,7 @@
 package com.lts.jobclient.processor;
 
 import com.lts.core.protocol.JobProtos;
-import com.lts.jobclient.domain.JobClientApplication;
+import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -22,8 +22,8 @@ public class RemotingDispatcher implements RemotingProcessor {
 
     private final Map<JobProtos.RequestCode, RemotingProcessor> processors = new HashMap<JobProtos.RequestCode, RemotingProcessor>();
 
-    public RemotingDispatcher(JobClientApplication application) {
-        processors.put(JOB_COMPLETED, new JobFinishedProcessor(application));
+    public RemotingDispatcher(JobClientAppContext appContext) {
+        processors.put(JOB_COMPLETED, new JobFinishedProcessor(appContext));
     }
 
     @Override

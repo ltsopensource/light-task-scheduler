@@ -1,14 +1,14 @@
 package com.lts.web.cluster;
 
 import com.lts.biz.logger.JobLogger;
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.queue.*;
 
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
-public class AdminApplication extends Application {
+public class AdminAppContext extends AppContext {
 
     private CronJobQueue cronJobQueue;
 

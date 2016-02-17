@@ -6,7 +6,7 @@ import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +19,10 @@ public class RemotingDispatcher extends AbstractProcessor {
 
     private final Map<JobProtos.RequestCode, RemotingProcessor> processors = new HashMap<JobProtos.RequestCode, RemotingProcessor>();
 
-    public RemotingDispatcher(TaskTrackerApplication application) {
-        super(application);
-        processors.put(JobProtos.RequestCode.PUSH_JOB, new JobPushProcessor(application));
-        processors.put(JobProtos.RequestCode.JOB_ASK, new JobAskProcessor(application));
+    public RemotingDispatcher(TaskTrackerAppContext appContext) {
+        super(appContext);
+        processors.put(JobProtos.RequestCode.PUSH_JOB, new JobPushProcessor(appContext));
+        processors.put(JobProtos.RequestCode.JOB_ASK, new JobAskProcessor(appContext));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.lts.tasktracker.monitor;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.domain.monitor.TaskTrackerMonitorData;
 import com.lts.core.monitor.AbstractMonitor;
@@ -30,8 +30,8 @@ public class TaskTrackerMonitor extends AbstractMonitor {
     // 总的运行时间
     private AtomicLong totalRunningTime = new AtomicLong(0);
 
-    public TaskTrackerMonitor(Application application) {
-        super(application);
+    public TaskTrackerMonitor(AppContext appContext) {
+        super(appContext);
     }
 
     public void incSuccessNum() {

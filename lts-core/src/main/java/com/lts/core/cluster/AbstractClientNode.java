@@ -1,6 +1,6 @@
 package com.lts.core.cluster;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.remoting.HeartBeatMonitor;
@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         抽象客户端
  */
-public abstract class AbstractClientNode<T extends Node, App extends Application> extends AbstractJobNode<T, App> {
+public abstract class AbstractClientNode<T extends Node, App extends AppContext> extends AbstractJobNode<T, App> {
 
     protected RemotingClientDelegate remotingClient;
     private HeartBeatMonitor heartBeatMonitor;
@@ -69,8 +69,8 @@ public abstract class AbstractClientNode<T extends Node, App extends Application
     @Override
     protected void beforeRemotingStart() {
         //
-        this.remotingClient = new RemotingClientDelegate(getRemotingClient(new RemotingClientConfig()), application);
-        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, application);
+        this.remotingClient = new RemotingClientDelegate(getRemotingClient(new RemotingClientConfig()), appContext);
+        this.heartBeatMonitor = new HeartBeatMonitor(remotingClient, appContext);
 
         beforeStart();
     }

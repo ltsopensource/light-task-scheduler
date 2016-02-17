@@ -6,7 +6,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -19,8 +19,8 @@ public class JobSubmitProcessor extends AbstractRemotingProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobSubmitProcessor.class);
 
-    public JobSubmitProcessor(JobTrackerApplication application) {
-        super(application);
+    public JobSubmitProcessor(JobTrackerAppContext appContext) {
+        super(appContext);
     }
 
     @Override
@@ -28,10 +28,10 @@ public class JobSubmitProcessor extends AbstractRemotingProcessor {
 
         JobSubmitRequest jobSubmitRequest = request.getBody();
 
-        JobSubmitResponse jobSubmitResponse = application.getCommandBodyWrapper().wrapper(new JobSubmitResponse());
+        JobSubmitResponse jobSubmitResponse = appContext.getCommandBodyWrapper().wrapper(new JobSubmitResponse());
         RemotingCommand response = null;
         try {
-            application.getJobReceiver().receive(jobSubmitRequest);
+            appContext.getJobReceiver().receive(jobSubmitRequest);
 
             response = RemotingCommand.createResponseCommand(
                     JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code(), "job submit success!", jobSubmitResponse);

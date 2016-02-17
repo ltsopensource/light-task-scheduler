@@ -1,6 +1,6 @@
 package com.lts.core.listener;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
@@ -18,11 +18,11 @@ import java.util.List;
 public class SelfChangeListener implements NodeChangeListener {
 
     private Config config;
-    private Application application;
+    private AppContext appContext;
 
-    public SelfChangeListener(Application application) {
-        this.config = application.getConfig();
-        this.application = application;
+    public SelfChangeListener(AppContext appContext) {
+        this.config = appContext.getConfig();
+        this.appContext = appContext;
     }
 
 
@@ -33,14 +33,14 @@ public class SelfChangeListener implements NodeChangeListener {
             if (node.getNodeType().equals(NodeType.TASK_TRACKER)
                     && (node.getThreads() != config.getWorkThreads())) {
                 config.setWorkThreads(node.getThreads());
-                application.getEventCenter().publishAsync(new EventInfo(EcTopic.WORK_THREAD_CHANGE));
+                appContext.getEventCenter().publishAsync(new EventInfo(EcTopic.WORK_THREAD_CHANGE));
             }
 
             // 2. 看 available 有没有改变
             if (node.isAvailable() != config.isAvailable()) {
                 String topic = node.isAvailable() ? EcTopic.NODE_ENABLE : EcTopic.NODE_DISABLE;
                 config.setAvailable(node.isAvailable());
-                application.getEventCenter().publishAsync(new EventInfo(topic));
+                appContext.getEventCenter().publishAsync(new EventInfo(topic));
             }
         }
     }

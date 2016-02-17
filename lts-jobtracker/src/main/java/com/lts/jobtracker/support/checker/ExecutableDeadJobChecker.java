@@ -5,7 +5,7 @@ import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.queue.domain.JobPo;
 
 import java.util.List;
@@ -30,10 +30,10 @@ public class ExecutableDeadJobChecker {
 
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public ExecutableDeadJobChecker(JobTrackerApplication application) {
-        this.application = application;
+    public ExecutableDeadJobChecker(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     private AtomicBoolean start = new AtomicBoolean(false);
@@ -47,7 +47,7 @@ public class ExecutableDeadJobChecker {
                     public void run() {
                         try {
                             // 判断注册中心是否可用，如果不可用，那么直接返回，不进行处理
-                            if (!application.getRegistryStatMonitor().isAvailable()) {
+                            if (!appContext.getRegistryStatMonitor().isAvailable()) {
                                 return;
                             }
                             fix();
@@ -67,15 +67,15 @@ public class ExecutableDeadJobChecker {
      * fix the job that running is true and gmtModified too old
      */
     private void fix() {
-        Set<String> nodeGroups = application.getTaskTrackerManager().getNodeGroups();
+        Set<String> nodeGroups = appContext.getTaskTrackerManager().getNodeGroups();
         if (CollectionUtils.isEmpty(nodeGroups)) {
             return;
         }
         for (String nodeGroup : nodeGroups) {
-            List<JobPo> deadJobPo = application.getExecutableJobQueue().getDeadJob(nodeGroup, SystemClock.now() - MAX_TIME_OUT);
+            List<JobPo> deadJobPo = appContext.getExecutableJobQueue().getDeadJob(nodeGroup, SystemClock.now() - MAX_TIME_OUT);
             if (CollectionUtils.isNotEmpty(deadJobPo)) {
                 for (JobPo jobPo : deadJobPo) {
-                    application.getExecutableJobQueue().resume(jobPo);
+                    appContext.getExecutableJobQueue().resume(jobPo);
                     LOGGER.info("Fix executable job : {} ", JSON.toJSONString(jobPo));
                 }
             }

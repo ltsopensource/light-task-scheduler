@@ -1,6 +1,6 @@
 package com.lts.core.registry.redis;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
@@ -42,9 +42,9 @@ public class RedisRegistry extends FailbackRegistry {
     private final ConcurrentMap<String, Notifier> notifiers = new ConcurrentHashMap<String, Notifier>();
     private RedisLock lock;
 
-    public RedisRegistry(Application application) {
-        super(application);
-        Config config = application.getConfig();
+    public RedisRegistry(AppContext appContext) {
+        super(appContext);
+        Config config = appContext.getConfig();
         this.clusterName = config.getClusterName();
         this.lock = new RedisLock("LTS_CLEAN_LOCK_KEY", config.getIdentity(), 2 * 60);  // 锁两分钟过期
 
@@ -111,7 +111,7 @@ public class RedisRegistry extends FailbackRegistry {
 
     private void clean(Jedis jedis) {
         // /LTS/{集群名字}/NODES/
-        Set<String> nodeTypePaths = jedis.keys(NodeRegistryUtils.getRootPath(application.getConfig().getClusterName()) + "/*");
+        Set<String> nodeTypePaths = jedis.keys(NodeRegistryUtils.getRootPath(appContext.getConfig().getClusterName()) + "/*");
         if (CollectionUtils.isNotEmpty(nodeTypePaths)) {
             for (String nodeTypePath : nodeTypePaths) {
                 // /LTS/{集群名字}/NODES/JOB_TRACKER
@@ -396,7 +396,7 @@ public class RedisRegistry extends FailbackRegistry {
                             jedis = jedisPool.getResource();
                             if (listenNodePath.equals(monitorId) && !redisAvailable) {
                                 redisAvailable = true;
-                                application.getRegistryStatMonitor().setAvailable(redisAvailable);
+                                appContext.getRegistryStatMonitor().setAvailable(redisAvailable);
                             }
                             try {
                                 retryTimes = 0;
@@ -412,7 +412,7 @@ public class RedisRegistry extends FailbackRegistry {
                                 sleep(reconnectPeriod);
                                 if (listenNodePath.equals(monitorId) && redisAvailable) {
                                     redisAvailable = false;
-                                    application.getRegistryStatMonitor().setAvailable(redisAvailable);
+                                    appContext.getRegistryStatMonitor().setAvailable(redisAvailable);
                                 }
                             }
                         }

@@ -1,6 +1,6 @@
 package com.lts.core.cluster;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.listener.MasterChangeListener;
@@ -22,12 +22,12 @@ public class MasterElector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MasterElector.class);
 
-    private Application application;
+    private AppContext appContext;
     private List<MasterChangeListener> listeners;
     private volatile Node master;
 
-    public MasterElector(Application application) {
-        this.application = application;
+    public MasterElector(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     public void addMasterChangeListener(List<MasterChangeListener> masterChangeListeners) {
@@ -57,7 +57,7 @@ public class MasterElector {
      * 当前节点是否是master
      */
     public boolean isCurrentMaster() {
-        if (master != null && master.getIdentity().equals(application.getConfig().getIdentity())) {
+        if (master != null && master.getIdentity().equals(appContext.getConfig().getIdentity())) {
             return true;
         }
         return false;
@@ -85,8 +85,8 @@ public class MasterElector {
             }
             if (masterRemoved) {
                 // 如果挂掉的是master, 需要重新选举
-                List<Node> nodes = application.getSubscribedNodeManager().
-                        getNodeList(application.getConfig().getNodeType(), application.getConfig().getNodeGroup());
+                List<Node> nodes = appContext.getSubscribedNodeManager().
+                        getNodeList(appContext.getConfig().getNodeType(), appContext.getConfig().getNodeGroup());
                 if (CollectionUtils.isNotEmpty(nodes)) {
                     Node newMaster = null;
                     for (Node node : nodes) {
@@ -107,7 +107,7 @@ public class MasterElector {
 
     private void notifyListener() {
         boolean isMaster = false;
-        if (application.getConfig().getIdentity().equals(master.getIdentity())) {
+        if (appContext.getConfig().getIdentity().equals(master.getIdentity())) {
             LOGGER.info("Current node become the master node:{}", master);
             isMaster = true;
         } else {
@@ -127,7 +127,7 @@ public class MasterElector {
         EventInfo eventInfo = new EventInfo(EcTopic.MASTER_CHANGED);
         eventInfo.setParam("master", master);
         eventInfo.setParam("isMaster", isMaster);
-        application.getEventCenter().publishSync(eventInfo);
+        appContext.getEventCenter().publishSync(eventInfo);
     }
 
 }
