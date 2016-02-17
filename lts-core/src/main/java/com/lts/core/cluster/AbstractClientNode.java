@@ -17,7 +17,7 @@ import java.util.concurrent.Executors;
  * @author Robert HG (254963746@qq.com) on 8/18/14.
  *         抽象客户端
  */
-public abstract class AbstractClientNode<T extends Node, App extends AppContext> extends AbstractJobNode<T, App> {
+public abstract class AbstractClientNode<T extends Node, Context extends AppContext> extends AbstractJobNode<T, Context> {
 
     protected RemotingClientDelegate remotingClient;
     private HeartBeatMonitor heartBeatMonitor;

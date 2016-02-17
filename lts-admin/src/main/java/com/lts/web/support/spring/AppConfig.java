@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
     @Bean(name = "appContext")
-    public AdminAppContext getAdminApplication() throws Exception {
+    public AdminAppContext getAdminAppContext() throws Exception {
         AdminAppFactoryBean factoryBean = new AdminAppFactoryBean();
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();

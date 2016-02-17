@@ -11,6 +11,7 @@ public class TaskTrackerStartupTest {
 
     @Test
     public void testMain() throws Exception {
+
         TaskTrackerStartup.main(new String[]{"/Users/hugui/Data/Workspace/github/light-task-scheduler/lts-startup/lts-startup-tasktracker/src/main/resources/conf"});
     }
 }
