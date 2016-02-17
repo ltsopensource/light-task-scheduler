@@ -1,6 +1,6 @@
 package com.lts.core.remoting;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.exception.JobTrackerNotFoundException;
@@ -27,15 +27,15 @@ public class RemotingClientDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingClientDelegate.class);
 
     private RemotingClient remotingClient;
-    private Application application;
+    private AppContext appContext;
 
     // JobTracker 是否可用
     private volatile boolean serverEnable = false;
     private List<Node> jobTrackers;
 
-    public RemotingClientDelegate(RemotingClient remotingClient, Application application) {
+    public RemotingClientDelegate(RemotingClient remotingClient, AppContext appContext) {
         this.remotingClient = remotingClient;
-        this.application = application;
+        this.appContext = appContext;
         this.jobTrackers = new CopyOnWriteArrayList<Node>();
     }
 
@@ -45,13 +45,13 @@ public class RemotingClientDelegate {
                 throw new JobTrackerNotFoundException("no available jobTracker!");
             }
             // 连JobTracker的负载均衡算法
-            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, application.getConfig());
-            return loadBalance.select(jobTrackers, application.getConfig().getIdentity());
+            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig());
+            return loadBalance.select(jobTrackers, appContext.getConfig().getIdentity());
         } catch (JobTrackerNotFoundException e) {
             this.serverEnable = false;
             // publish msg
             EventInfo eventInfo = new EventInfo(EcTopic.NO_JOB_TRACKER_AVAILABLE);
-            application.getEventCenter().publishAsync(eventInfo);
+            appContext.getEventCenter().publishAsync(eventInfo);
             throw e;
         }
     }
@@ -88,7 +88,7 @@ public class RemotingClientDelegate {
 
         try {
             RemotingCommand response = remotingClient.invokeSync(jobTracker.getAddress(),
-                    request, application.getConfig().getInvokeTimeoutMillis());
+                    request, appContext.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
             return response;
         } catch (Exception e) {
@@ -114,7 +114,7 @@ public class RemotingClientDelegate {
 
         try {
             remotingClient.invokeAsync(jobTracker.getAddress(), request,
-                    application.getConfig().getInvokeTimeoutMillis(), asyncCallback);
+                    appContext.getConfig().getInvokeTimeoutMillis(), asyncCallback);
             this.serverEnable = true;
         } catch (Throwable e) {
             // 将这个JobTracker移除
@@ -139,7 +139,7 @@ public class RemotingClientDelegate {
 
         try {
             remotingClient.invokeOneway(jobTracker.getAddress(), request,
-                    application.getConfig().getInvokeTimeoutMillis());
+                    appContext.getConfig().getInvokeTimeoutMillis());
             this.serverEnable = true;
         } catch (Throwable e) {
             // 将这个JobTracker移除

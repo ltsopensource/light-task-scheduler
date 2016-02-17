@@ -12,7 +12,7 @@ import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.SystemClock;
 import com.lts.ec.EventCenter;
 import com.lts.queue.*;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.support.AppConfigurer;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,18 +22,18 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
-public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, InitializingBean {
+public class AdminAppFactoryBean implements FactoryBean<AdminAppContext>, InitializingBean {
 
-    private AdminApplication application;
+    private AdminAppContext appContext;
 
     @Override
-    public AdminApplication getObject() throws Exception {
-        return application;
+    public AdminAppContext getObject() throws Exception {
+        return appContext;
     }
 
     @Override
     public Class<?> getObjectType() {
-        return AdminApplication.class;
+        return AdminAppContext.class;
     }
 
     @Override
@@ -69,17 +69,17 @@ public class AdminAppFactoryBean implements FactoryBean<AdminApplication>, Initi
             }
         }
 
-        application = new AdminApplication();
-        application.setConfig(config);
-        application.setNode(node);
-        application.setJobFeedbackQueue(ServiceLoader.load(JobFeedbackQueueFactory.class, config).getQueue(config));
-        application.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
-        application.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class, config).getQueue(config));
-        application.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class, config).getQueue(config));
-        application.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
-        application.setJobLogger(new JobLoggerDelegate(config));
-        application.setEventCenter(ServiceLoader.load(EventCenter.class, config));
-        application.setRegistryStatMonitor(new RegistryStatMonitor(application));
+        appContext = new AdminAppContext();
+        appContext.setConfig(config);
+        appContext.setNode(node);
+        appContext.setJobFeedbackQueue(ServiceLoader.load(JobFeedbackQueueFactory.class, config).getQueue(config));
+        appContext.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
+        appContext.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class, config).getQueue(config));
+        appContext.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class, config).getQueue(config));
+        appContext.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
+        appContext.setJobLogger(new JobLoggerDelegate(config));
+        appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
+        appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
     }
 
 }

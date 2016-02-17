@@ -1,6 +1,6 @@
 package com.lts.core.listener;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.CollectionUtils;
 
@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class MasterElectionListener implements NodeChangeListener {
 
-    private Application application;
+    private AppContext appContext;
 
-    public MasterElectionListener(Application application) {
-        this.application = application;
+    public MasterElectionListener(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     public void removeNodes(List<Node> nodes) {
@@ -31,7 +31,7 @@ public class MasterElectionListener implements NodeChangeListener {
             }
         }
         if (groupNodes.size() > 0) {
-            application.getMasterElector().removeNode(groupNodes);
+            appContext.getMasterElector().removeNode(groupNodes);
         }
     }
 
@@ -47,7 +47,7 @@ public class MasterElectionListener implements NodeChangeListener {
             }
         }
         if (groupNodes.size() > 0) {
-            application.getMasterElector().addNodes(groupNodes);
+            appContext.getMasterElector().addNodes(groupNodes);
         }
     }
 
@@ -58,8 +58,8 @@ public class MasterElectionListener implements NodeChangeListener {
      * @return
      */
     private boolean isSameGroup(Node node) {
-        return node.getNodeType().equals(application.getConfig().getNodeType())
-                && node.getGroup().equals(application.getConfig().getNodeGroup());
+        return node.getNodeType().equals(appContext.getConfig().getNodeType())
+                && node.getGroup().equals(appContext.getConfig().getNodeGroup());
     }
 
 }

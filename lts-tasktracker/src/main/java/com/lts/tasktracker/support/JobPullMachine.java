@@ -12,7 +12,7 @@ import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
 import com.lts.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.remoting.protocol.RemotingCommand;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,16 +35,16 @@ public class JobPullMachine {
     private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
-    private TaskTrackerApplication application;
+    private TaskTrackerAppContext appContext;
     private Runnable runnable;
     private int jobPullFrequency;
 
-    public JobPullMachine(final TaskTrackerApplication application) {
-        this.application = application;
-        this.jobPullFrequency = application.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
+    public JobPullMachine(final TaskTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.jobPullFrequency = appContext.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
 
-        application.getEventCenter().subscribe(
-                new EventSubscriber(JobPullMachine.class.getSimpleName().concat(application.getConfig().getIdentity()),
+        appContext.getEventCenter().subscribe(
+                new EventSubscriber(JobPullMachine.class.getSimpleName().concat(appContext.getConfig().getIdentity()),
                         new Observer() {
                             @Override
                             public void onObserved(EventInfo eventInfo) {
@@ -101,19 +101,19 @@ public class JobPullMachine {
      * 发送Job pull 请求
      */
     private void sendRequest() throws RemotingCommandFieldCheckException {
-        int availableThreads = application.getRunnerPool().getAvailablePoolSize();
+        int availableThreads = appContext.getRunnerPool().getAvailablePoolSize();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("current availableThreads:{}", availableThreads);
         }
         if (availableThreads == 0) {
             return;
         }
-        JobPullRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobPullRequest());
+        JobPullRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobPullRequest());
         requestBody.setAvailableThreads(availableThreads);
         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_PULL.code(), requestBody);
 
         try {
-            RemotingCommand responseCommand = application.getRemotingClient().invokeSync(request);
+            RemotingCommand responseCommand = appContext.getRemotingClient().invokeSync(request);
             if (responseCommand == null) {
                 LOGGER.warn("job pull request failed! response command is null!");
                 return;

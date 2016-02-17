@@ -10,7 +10,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobClientNode;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,11 @@ public class JobClientManager {
     private final ConcurrentHashMap<String/*nodeGroup*/, Set<JobClientNode>> NODE_MAP = new ConcurrentHashMap<String, Set<JobClientNode>>();
 
     private LoadBalance loadBalance;
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public JobClientManager(JobTrackerApplication application) {
-        this.application = application;
-        this.loadBalance = ServiceLoader.load(LoadBalance.class, application.getConfig());
+    public JobClientManager(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig());
     }
 
     /**
@@ -49,7 +49,7 @@ public class JobClientManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
+        ChannelWrapper channel = appContext.getChannelManager().getChannel(node.getGroup(), node.getNodeType(), node.getIdentity());
         Set<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
 
         if (jobClientNodes == null) {
@@ -65,8 +65,8 @@ public class JobClientManager {
         jobClientNodes.add(jobClientNode);
 
         // create feedback queue
-        application.getJobFeedbackQueue().createQueue(node.getGroup());
-        application.getNodeGroupStore().addNodeGroup(NodeType.JOB_CLIENT, node.getGroup());
+        appContext.getJobFeedbackQueue().createQueue(node.getGroup());
+        appContext.getNodeGroupStore().addNodeGroup(NodeType.JOB_CLIENT, node.getGroup());
     }
 
     /**
@@ -107,7 +107,7 @@ public class JobClientManager {
             JobClientNode jobClientNode = loadBalance.select(list, null);
 
             if (jobClientNode != null && (jobClientNode.getChannel() == null || jobClientNode.getChannel().isClosed())) {
-                ChannelWrapper channel = application.getChannelManager().getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());
+                ChannelWrapper channel = appContext.getChannelManager().getChannel(jobClientNode.getNodeGroup(), NodeType.JOB_CLIENT, jobClientNode.getIdentity());
                 if (channel != null) {
                     // 更新channel
                     jobClientNode.setChannel(channel);

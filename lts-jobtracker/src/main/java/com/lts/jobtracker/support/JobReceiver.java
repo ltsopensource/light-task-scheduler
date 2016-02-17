@@ -14,7 +14,7 @@ import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.id.IdGenerator;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
@@ -31,14 +31,14 @@ public class JobReceiver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
     private IdGenerator idGenerator;
     private JobTrackerMonitor monitor;
 
-    public JobReceiver(JobTrackerApplication application) {
-        this.application = application;
-        this.monitor = (JobTrackerMonitor) application.getMonitor();
-        this.idGenerator = ServiceLoader.load(IdGenerator.class, application.getConfig());
+    public JobReceiver(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
+        this.idGenerator = ServiceLoader.load(IdGenerator.class, appContext.getConfig());
     }
 
     /**
@@ -120,7 +120,7 @@ public class JobReceiver {
             addCronJob(jobPo);
             LOGGER.info("Receive Cron Job success. {}", job);
         } else {
-            application.getExecutableJobQueue().add(jobPo);
+            appContext.getExecutableJobQueue().add(jobPo);
             LOGGER.info("Receive Job success. {}", job);
         }
     }
@@ -133,16 +133,16 @@ public class JobReceiver {
         // 得到老的jobId
         JobPo oldJobPo = null;
         if (job.isSchedule()) {
-            oldJobPo = application.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+            oldJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         } else {
-            oldJobPo = application.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+            oldJobPo = appContext.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         }
         if (oldJobPo != null) {
             String jobId = oldJobPo.getJobId();
             // 1. 删除任务
-            application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
+            appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
             if (job.isSchedule()) {
-                application.getCronJobQueue().remove(jobId);
+                appContext.getCronJobQueue().remove(jobId);
             }
             jobPo.setJobId(jobId);
         }
@@ -165,11 +165,11 @@ public class JobReceiver {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
         if (nextTriggerTime != null) {
             // 1.add to cron job queue
-            application.getCronJobQueue().add(jobPo);
+            appContext.getCronJobQueue().add(jobPo);
 
             // 2. add to executable queue
             jobPo.setTriggerTime(nextTriggerTime.getTime());
-            application.getExecutableJobQueue().add(jobPo);
+            appContext.getExecutableJobQueue().add(jobPo);
         }
     }
 
@@ -204,7 +204,7 @@ public class JobReceiver {
                         break;
                 }
 
-                application.getJobLogger().log(jobLogPo);
+                appContext.getJobLogger().log(jobLogPo);
             } catch (Throwable t) {     // 日志记录失败不影响正常运行
                 LOGGER.error("Receive Job Log error ", t);
             }

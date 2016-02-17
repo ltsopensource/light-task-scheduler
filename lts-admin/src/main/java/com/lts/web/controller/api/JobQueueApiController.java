@@ -2,22 +2,18 @@ package com.lts.web.controller.api;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.core.command.HttpCommand;
-import com.lts.core.command.HttpCommandClient;
-import com.lts.core.command.HttCommands;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
+import com.lts.core.cmd.*;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.KVPair;
-import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
-import com.lts.core.logger.Logger;
-import com.lts.core.logger.LoggerFactory;
+import com.lts.core.domain.KVPair;
+import com.lts.core.json.JSON;
 import com.lts.core.support.CronExpression;
 import com.lts.queue.domain.JobPo;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.controller.AbstractController;
 import com.lts.web.repository.memory.NodeMemoryDatabase;
 import com.lts.web.request.JobQueueRequest;
@@ -39,15 +35,14 @@ import java.util.Map;
 @RestController
 public class JobQueueApiController extends AbstractController {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(JobQueueApiController.class);
     @Autowired
-    AdminApplication application;
+    AdminAppContext appContext;
     @Autowired
     NodeMemoryDatabase nodeMemoryDatabase;
 
     @RequestMapping("/job-queue/cron-job-get")
     public RestfulResponse cronJobGet(JobQueueRequest request) {
-        PageResponse<JobPo> pageResponse = application.getCronJobQueue().pageSelect(request);
+        PageResponse<JobPo> pageResponse = appContext.getCronJobQueue().pageSelect(request);
         RestfulResponse response = new RestfulResponse();
         response.setSuccess(true);
         response.setResults(pageResponse.getResults());
@@ -57,7 +52,7 @@ public class JobQueueApiController extends AbstractController {
 
     @RequestMapping("/job-queue/executable-job-get")
     public RestfulResponse executableJobGet(JobQueueRequest request) {
-        PageResponse<JobPo> pageResponse = application.getExecutableJobQueue().pageSelect(request);
+        PageResponse<JobPo> pageResponse = appContext.getExecutableJobQueue().pageSelect(request);
         RestfulResponse response = new RestfulResponse();
         response.setSuccess(true);
         response.setResults(pageResponse.getResults());
@@ -67,7 +62,7 @@ public class JobQueueApiController extends AbstractController {
 
     @RequestMapping("/job-queue/executing-job-get")
     public RestfulResponse executingJobGet(JobQueueRequest request) {
-        PageResponse<JobPo> pageResponse = application.getExecutingJobQueue().pageSelect(request);
+        PageResponse<JobPo> pageResponse = appContext.getExecutingJobQueue().pageSelect(request);
         RestfulResponse response = new RestfulResponse();
         response.setSuccess(true);
         response.setResults(pageResponse.getResults());
@@ -96,12 +91,12 @@ public class JobQueueApiController extends AbstractController {
                 return response;
             }
 
-            boolean success = application.getCronJobQueue().selectiveUpdate(request);
+            boolean success = appContext.getCronJobQueue().selectiveUpdate(request);
             if (success) {
                 try {
                     // 把等待执行的队列也更新一下
                     request.setTriggerTime(expression.getTimeAfter(new Date()));
-                    application.getExecutableJobQueue().selectiveUpdate(request);
+                    appContext.getExecutableJobQueue().selectiveUpdate(request);
                 } catch (Exception e) {
                     response.setSuccess(false);
                     response.setMsg("更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
@@ -147,7 +142,7 @@ public class JobQueueApiController extends AbstractController {
             response.setMsg(e.getMessage());
             return response;
         }
-        boolean success = application.getExecutableJobQueue().selectiveUpdate(request);
+        boolean success = appContext.getExecutableJobQueue().selectiveUpdate(request);
         if (success) {
             response.setSuccess(true);
         } else {
@@ -165,10 +160,10 @@ public class JobQueueApiController extends AbstractController {
             response.setMsg("JobId 必须传!");
             return response;
         }
-        boolean success = application.getCronJobQueue().remove(request.getJobId());
+        boolean success = appContext.getCronJobQueue().remove(request.getJobId());
         if (success) {
             try {
-                application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
                 response.setSuccess(false);
                 response.setMsg("删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
@@ -191,12 +186,12 @@ public class JobQueueApiController extends AbstractController {
             return response;
         }
 
-        boolean success = application.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+        boolean success = appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
         if (success) {
             if (StringUtils.isNotEmpty(request.getCronExpression())) {
                 // 是Cron任务, Cron任务队列的也要被删除
                 try {
-                    application.getCronJobQueue().remove(request.getJobId());
+                    appContext.getCronJobQueue().remove(request.getJobId());
                 } catch (Exception e) {
                     response.setSuccess(false);
                     response.setMsg("在Cron任务队列中删除该任务失败，请手动更新! error:" + e.getMessage());
@@ -225,7 +220,7 @@ public class JobQueueApiController extends AbstractController {
 //            return response;
 //        }
 
-        PageResponse<JobLogPo> pageResponse = application.getJobLogger().search(request);
+        PageResponse<JobLogPo> pageResponse = appContext.getJobLogger().search(request);
         response.setResults(pageResponse.getResults());
         response.setRows(pageResponse.getRows());
 
@@ -237,14 +232,14 @@ public class JobQueueApiController extends AbstractController {
      * 给JobTracker发消息 加载任务到内存
      */
     @RequestMapping("/job-queue/load-add")
-    public RestfulResponse loadJob(JobQueueRequest request){
+    public RestfulResponse loadJob(JobQueueRequest request) {
         RestfulResponse response = new RestfulResponse();
 
         String nodeGroup = request.getTaskTrackerNodeGroup();
 
-        HttpCommand httpCommand = new HttpCommand();
-        httpCommand.setCommand(HttCommands.LOAD_JOB);
-        httpCommand.addParam("nodeGroup", nodeGroup);
+        HttpCmd httpCmd = new HttpCmd();
+        httpCmd.setCommand(HttpCmds.CMD_LOAD_JOB);
+        httpCmd.addParam("nodeGroup", nodeGroup);
 
         NodeRequest nodeRequest = new NodeRequest();
         nodeRequest.setNodeType(NodeType.JOB_TRACKER);
@@ -256,14 +251,17 @@ public class JobQueueApiController extends AbstractController {
         }
 
         boolean success = false;
+        HttpCmdResponse cmdResponse = null;
         for (Node node : jobTrackerNodeList) {
-            if(sendCommand(node.getIp(), node.getCommandPort(), httpCommand)){
+            cmdResponse = HttpCmdClient.execute(node.getIp(), node.getCommandPort(), httpCmd);
+            if (cmdResponse.isSuccess()) {
                 success = true;
+                break;
             }
         }
-        if(success){
+        if (success) {
             response.setMsg("Load success");
-        }else{
+        } else {
             response.setMsg("Load failed");
         }
         response.setSuccess(success);
@@ -327,15 +325,14 @@ public class JobQueueApiController extends AbstractController {
         job.setReplaceOnExist(true);
         // 这个是 cron expression 和 quartz 一样，可选
         job.setCronExpression(request.getCronExpression());
-        if(request.getTriggerTime() != null){
+        if (request.getTriggerTime() != null) {
             job.setTriggerTime(request.getTriggerTime().getTime());
         }
         job.setPriority(request.getPriority());
 
-        HttpCommand httpCommand = new HttpCommand();
-        httpCommand.setCommand(HttCommands.ADD_JOB);
-        httpCommand.addParam("job", JSON.toJSONString(job));
-
+        HttpCmd httpCmd = new DefaultHttpCmd();
+        httpCmd.setCommand(HttpCmds.CMD_ADD_JOB);
+        httpCmd.addParam("job", JSON.toJSONString(job));
 
         NodeRequest nodeRequest = new NodeRequest();
         nodeRequest.setNodeType(NodeType.JOB_TRACKER);
@@ -344,32 +341,17 @@ public class JobQueueApiController extends AbstractController {
             return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
         }
 
-        boolean success = false;
+        HttpCmdResponse response = null;
         for (Node node : jobTrackerNodeList) {
-            success = sendCommand(node.getIp(), node.getCommandPort(), httpCommand);
-            if (success) {
-                break;
+            response = HttpCmdClient.execute(node.getIp(), node.getCommandPort(), httpCmd);
+            if (response.isSuccess()) {
+                return new KVPair<Boolean, String>(true, "Add success");
             }
         }
-
-        if(!success){
-            return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
+        if (response != null) {
+            return new KVPair<Boolean, String>(false, response.getMsg());
+        } else {
+            return new KVPair<Boolean, String>(false, "Add failed");
         }
-
-        String result = httpCommand.getResult();
-        if ("true".equals(result)) {
-            return new KVPair<Boolean, String>(true, "Add success");
-        }
-        return new KVPair<Boolean, String>(false, result);
-    }
-
-    private boolean sendCommand(String host, int port, HttpCommand httpCommand) {
-        try {
-            HttpCommandClient.sendCommand(host, port, httpCommand);
-        } catch (Exception e) {
-            LOGGER.warn("send command[{}] error host:{}, port:{}", httpCommand.getCommand(), host, port);
-            return false;
-        }
-        return true;
     }
 }

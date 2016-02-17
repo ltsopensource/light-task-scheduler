@@ -9,7 +9,7 @@ import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.jobtracker.complete.JobCompleteHandler;
 import com.lts.jobtracker.complete.JobFinishHandler;
 import com.lts.jobtracker.complete.JobRetryHandler;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
 import com.lts.jobtracker.support.JobDomainConverter;
@@ -31,14 +31,14 @@ public class JobProcessChain implements JobCompletedChain {
     // 任务的最大重试次数
     private final Integer maxRetryTimes;
 
-    public JobProcessChain(final JobTrackerApplication application) {
-        this.retryHandler = new JobRetryHandler(application);
-        this.jobFinishHandler = new JobFinishHandler(application);
+    public JobProcessChain(final JobTrackerAppContext appContext) {
+        this.retryHandler = new JobRetryHandler(appContext);
+        this.jobFinishHandler = new JobFinishHandler(appContext);
 
-        this.maxRetryTimes = application.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
+        this.maxRetryTimes = appContext.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
                 Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
 
-        this.clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<TaskTrackerJobResult>() {
+        this.clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<TaskTrackerJobResult>() {
             @Override
             public void handleSuccess(List<TaskTrackerJobResult> results) {
                 jobFinishHandler.onComplete(results);
@@ -55,7 +55,7 @@ public class JobProcessChain implements JobCompletedChain {
                         jobFeedbackPos.add(jobFeedbackPo);
                     }
                     // 2. 失败的存储在反馈队列
-                    application.getJobFeedbackQueue().add(jobFeedbackPos);
+                    appContext.getJobFeedbackQueue().add(jobFeedbackPos);
                     // 3. 完成任务 
                     jobFinishHandler.onComplete(results);
                 }

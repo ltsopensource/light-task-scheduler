@@ -8,7 +8,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -20,16 +20,16 @@ public class JobSender {
 
     private final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public JobSender(JobTrackerApplication application) {
-        this.application = application;
+    public JobSender(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     public SendResult send(String taskTrackerNodeGroup, String taskTrackerIdentity, SendInvoker invoker) {
 
         // 从mongo 中取一个可运行的job
-        final JobPo jobPo = application.getPreLoader().take(taskTrackerNodeGroup, taskTrackerIdentity);
+        final JobPo jobPo = appContext.getPreLoader().take(taskTrackerNodeGroup, taskTrackerIdentity);
         if (jobPo == null) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Job push failed: no job! nodeGroup=" + taskTrackerNodeGroup + ", identity=" + taskTrackerIdentity);
@@ -39,13 +39,13 @@ public class JobSender {
 
         // IMPORTANT: 这里要先切换队列
         try {
-            application.getExecutingJobQueue().add(jobPo);
+            appContext.getExecutingJobQueue().add(jobPo);
         } catch (DuplicateJobException e) {
             LOGGER.warn("ExecutingJobQueue already exist:" + JSON.toJSONString(jobPo));
-            application.getExecutableJobQueue().resume(jobPo);
+            appContext.getExecutableJobQueue().resume(jobPo);
             return new SendResult(false, JobPushResult.FAILED);
         }
-        application.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
+        appContext.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
 
         SendResult sendResult = invoker.invoke(jobPo);
 
@@ -56,7 +56,7 @@ public class JobSender {
             jobLogPo.setLogType(LogType.SENT);
             jobLogPo.setLogTime(SystemClock.now());
             jobLogPo.setLevel(Level.INFO);
-            application.getJobLogger().log(jobLogPo);
+            appContext.getJobLogger().log(jobLogPo);
         }
 
         return sendResult;

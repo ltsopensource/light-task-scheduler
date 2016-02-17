@@ -1,7 +1,7 @@
 package com.lts.jobtracker.domain;
 
 import com.lts.biz.logger.JobLogger;
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.channel.ChannelManager;
 import com.lts.jobtracker.id.IdGenerator;
@@ -18,7 +18,7 @@ import com.lts.queue.*;
  *
  * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
-public class JobTrackerApplication extends Application {
+public class JobTrackerAppContext extends AppContext {
 
     private RemotingServerDelegate remotingServer;
     // channel manager

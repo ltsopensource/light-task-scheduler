@@ -1,6 +1,6 @@
 package com.lts.core.protocol.command;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 
 /**
@@ -22,8 +22,8 @@ public class CommandBodyWrapper {
         return commandBody;
     }
 
-    public static <T extends AbstractRemotingCommandBody> T wrapper(Application application, T commandBody) {
-        return application.getCommandBodyWrapper().wrapper(commandBody);
+    public static <T extends AbstractRemotingCommandBody> T wrapper(AppContext appContext, T commandBody) {
+        return appContext.getCommandBodyWrapper().wrapper(commandBody);
     }
 
 }

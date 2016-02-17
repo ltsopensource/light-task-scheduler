@@ -14,7 +14,7 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobFinishedRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.domain.JobClientNode;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -31,10 +31,10 @@ public class ClientNotifier {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientNotifier.class.getSimpleName());
 	private ClientNotifyHandler clientNotifyHandler;
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public ClientNotifier(JobTrackerApplication application, ClientNotifyHandler clientNotifyHandler) {
-        this.application = application;
+    public ClientNotifier(JobTrackerAppContext appContext, ClientNotifyHandler clientNotifyHandler) {
+        this.appContext = appContext;
         this.clientNotifyHandler = clientNotifyHandler;
     }
 
@@ -89,7 +89,7 @@ public class ClientNotifier {
      */
     private boolean send0(String nodeGroup, final List<TaskTrackerJobResult> results) {
         // 得到 可用的客户端节点
-        JobClientNode jobClientNode = application.getJobClientManager().getAvailableJobClient(nodeGroup);
+        JobClientNode jobClientNode = appContext.getJobClientManager().getAvailableJobClient(nodeGroup);
 
         if (jobClientNode == null) {
             return false;
@@ -104,7 +104,7 @@ public class ClientNotifier {
             jobResults.add(jobResult);
         }
 
-        JobFinishedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
+        JobFinishedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobFinishedRequest());
         requestBody.setJobResults(jobResults);
         RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_COMPLETED.code(), requestBody);
 
@@ -142,7 +142,7 @@ public class ClientNotifier {
     }
 
     private RemotingServerDelegate getRemotingServer() {
-        return application.getRemotingServer();
+        return appContext.getRemotingServer();
     }
 
 }

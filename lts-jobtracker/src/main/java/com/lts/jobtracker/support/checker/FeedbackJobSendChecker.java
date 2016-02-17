@@ -5,7 +5,7 @@ import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.domain.JobClientNode;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
 import com.lts.queue.domain.JobFeedbackPo;
@@ -32,7 +32,7 @@ public class FeedbackJobSendChecker {
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private ClientNotifier clientNotifier;
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
     /**
      * 是否已经启动
@@ -44,15 +44,15 @@ public class FeedbackJobSendChecker {
         return start.get();
     }
 
-    public FeedbackJobSendChecker(final JobTrackerApplication application) {
-        this.application = application;
+    public FeedbackJobSendChecker(final JobTrackerAppContext appContext) {
+        this.appContext = appContext;
 
-        clientNotifier = new ClientNotifier(application, new ClientNotifyHandler<TaskTrackerJobResultWrapper>() {
+        clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<TaskTrackerJobResultWrapper>() {
             @Override
             public void handleSuccess(List<TaskTrackerJobResultWrapper> jobResults) {
                 for (TaskTrackerJobResultWrapper jobResult : jobResults) {
                     String submitNodeGroup = jobResult.getJobWrapper().getJob().getSubmitNodeGroup();
-                    application.getJobFeedbackQueue().remove(submitNodeGroup, jobResult.getId());
+                    appContext.getJobFeedbackQueue().remove(submitNodeGroup, jobResult.getId());
                 }
             }
 
@@ -101,7 +101,7 @@ public class FeedbackJobSendChecker {
         public void run() {
             try {
                 // 判断注册中心是否可用，如果不可用，那么直接返回，不进行处理
-                if (!application.getRegistryStatMonitor().isAvailable()) {
+                if (!appContext.getRegistryStatMonitor().isAvailable()) {
                     return;
                 }
                 if (isRunning) {
@@ -109,7 +109,7 @@ public class FeedbackJobSendChecker {
                 }
                 isRunning = true;
 
-                Set<String> taskTrackerNodeGroups = application.getJobClientManager().getNodeGroups();
+                Set<String> taskTrackerNodeGroups = appContext.getJobClientManager().getNodeGroups();
                 if (CollectionUtils.isEmpty(taskTrackerNodeGroups)) {
                     return;
                 }
@@ -128,12 +128,12 @@ public class FeedbackJobSendChecker {
         private void check(String jobClientNodeGroup) {
 
             // check that node group job client
-            JobClientNode jobClientNode = application.getJobClientManager().getAvailableJobClient(jobClientNodeGroup);
+            JobClientNode jobClientNode = appContext.getJobClientManager().getAvailableJobClient(jobClientNodeGroup);
             if (jobClientNode == null) {
                 return;
             }
 
-            long count = application.getJobFeedbackQueue().getCount(jobClientNodeGroup);
+            long count = appContext.getJobFeedbackQueue().getCount(jobClientNodeGroup);
             if (count == 0) {
                 return;
             }
@@ -144,15 +144,15 @@ public class FeedbackJobSendChecker {
             List<JobFeedbackPo> jobFeedbackPos;
             int limit = 5;
             do {
-                jobFeedbackPos = application.getJobFeedbackQueue().fetchTop(jobClientNodeGroup, limit);
+                jobFeedbackPos = appContext.getJobFeedbackQueue().fetchTop(jobClientNodeGroup, limit);
                 if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                     return;
                 }
                 List<TaskTrackerJobResultWrapper> jobResults = new ArrayList<TaskTrackerJobResultWrapper>(jobFeedbackPos.size());
                 for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                     // 判断是否是过时的数据，如果是，那么移除
-                    if (application.getOldDataHandler() == null ||
-                            (!application.getOldDataHandler().handle(application.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
+                    if (appContext.getOldDataHandler() == null ||
+                            (!appContext.getOldDataHandler().handle(appContext.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
                         jobResults.add(new TaskTrackerJobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getTaskTrackerJobResult()));
                     }
                 }

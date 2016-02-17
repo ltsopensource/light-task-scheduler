@@ -4,7 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.constant.Constants;
 import com.lts.store.jdbc.datasource.DataSourceProvider;
 import com.lts.store.jdbc.datasource.DataSourceProviderFactory;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.support.AppConfigurer;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -20,7 +20,7 @@ public class DataSourceFactoryBean implements FactoryBean<DataSource>, Initializ
 
     private DataSource dataSource;
     @Autowired
-    private AdminApplication application;
+    private AdminAppContext appContext;
 
     @Override
     public DataSource getObject() throws Exception {
@@ -53,7 +53,7 @@ public class DataSourceFactoryBean implements FactoryBean<DataSource>, Initializ
             config.setParameter("jdbc.password", "");
             dataSource = DataSourceProviderFactory.create(config).getDataSource(config);
         } else if (DataSourceProvider.MYSQL.equals(dataSourceProvider)) {
-            Config config = application.getConfig();
+            Config config = appContext.getConfig();
             // mysql
             dataSource = DataSourceProviderFactory.create(config).getDataSource(config);
 

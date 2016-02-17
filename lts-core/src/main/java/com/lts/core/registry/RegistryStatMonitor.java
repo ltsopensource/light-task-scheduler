@@ -1,6 +1,6 @@
 package com.lts.core.registry;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class RegistryStatMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryStatMonitor.class);
-    private Application application;
+    private AppContext appContext;
     private AtomicBoolean available = new AtomicBoolean(false);
 
-    public RegistryStatMonitor(Application application) {
-        this.application = application;
+    public RegistryStatMonitor(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     public void setAvailable(boolean available) {
@@ -28,7 +28,7 @@ public class RegistryStatMonitor {
             LOGGER.info("Registry {}", available ? "available" : "unavailable");
         }
         // 发布事件
-        application.getEventCenter().publishAsync(new EventInfo(
+        appContext.getEventCenter().publishAsync(new EventInfo(
                 available ? EcTopic.REGISTRY_AVAILABLE : EcTopic.REGISTRY_UN_AVAILABLE));
     }
 

@@ -1,16 +1,16 @@
 package com.lts.tasktracker.processor;
 
 import com.lts.remoting.RemotingProcessor;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/16/14.
  */
 public abstract class AbstractProcessor implements RemotingProcessor {
 
-    protected TaskTrackerApplication application;
+    protected TaskTrackerAppContext appContext;
 
-    protected AbstractProcessor(TaskTrackerApplication application) {
-        this.application = application;
+    protected AbstractProcessor(TaskTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 }

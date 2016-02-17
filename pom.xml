@@ -51,6 +51,7 @@
         <groovy.version>2.4.5</groovy.version>
         <jackson.version>2.6.3</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
+        <javax.mail.version>1.5.4</javax.mail.version>
     </properties>
 
     <dependencyManagement>
@@ -236,6 +237,11 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>${javax.mail.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

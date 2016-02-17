@@ -12,7 +12,7 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.TaskTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.sender.JobPushResult;
@@ -35,17 +35,17 @@ import java.util.concurrent.TimeUnit;
 public class JobPusher {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
     private final ExecutorService executorService;
     private JobTrackerMonitor monitor;
     private RemotingServerDelegate remotingServer;
 
-    public JobPusher(JobTrackerApplication application) {
-        this.application = application;
+    public JobPusher(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
                 new NamedThreadFactory(JobPusher.class.getSimpleName()));
-        this.monitor = (JobTrackerMonitor) application.getMonitor();
-        this.remotingServer = application.getRemotingServer();
+        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
+        this.remotingServer = appContext.getRemotingServer();
     }
 
     public void concurrentPush(final JobPullRequest request) {
@@ -67,10 +67,10 @@ public class JobPusher {
         String nodeGroup = request.getNodeGroup();
         String identity = request.getIdentity();
         // 更新TaskTracker的可用线程数
-        application.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
+        appContext.getTaskTrackerManager().updateTaskTrackerAvailableThreads(nodeGroup,
                 identity, request.getAvailableThreads(), request.getTimestamp());
 
-        TaskTrackerNode taskTrackerNode = application.getTaskTrackerManager().
+        TaskTrackerNode taskTrackerNode = appContext.getTaskTrackerManager().
                 getTaskTrackerNode(nodeGroup, identity);
 
         if (taskTrackerNode == null) {
@@ -119,12 +119,12 @@ public class JobPusher {
         final String nodeGroup = taskTrackerNode.getNodeGroup();
         final String identity = taskTrackerNode.getIdentity();
 
-        JobSender.SendResult sendResult = application.getJobSender().send(nodeGroup, identity, new JobSender.SendInvoker() {
+        JobSender.SendResult sendResult = appContext.getJobSender().send(nodeGroup, identity, new JobSender.SendInvoker() {
             @Override
             public JobSender.SendResult invoke(final JobPo jobPo) {
 
                 // 发送给TaskTracker执行
-                JobPushRequest body = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
+                JobPushRequest body = appContext.getCommandBodyWrapper().wrapper(new JobPushRequest());
                 body.setJobWrapper(JobDomainConverter.convert(jobPo));
                 RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
@@ -173,14 +173,14 @@ public class JobPusher {
                     boolean needResume = true;
                     try {
                         jobPo.setIsRunning(true);
-                        application.getExecutableJobQueue().add(jobPo);
+                        appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DuplicateJobException e) {
                         LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
                         needResume = false;
                     }
-                    application.getExecutingJobQueue().remove(jobPo.getJobId());
+                    appContext.getExecutingJobQueue().remove(jobPo.getJobId());
                     if (needResume) {
-                        application.getExecutableJobQueue().resume(jobPo);
+                        appContext.getExecutableJobQueue().resume(jobPo);
                     }
                     return new JobSender.SendResult(false, JobPushResult.SENT_ERROR);
                 }

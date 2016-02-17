@@ -1,13 +1,13 @@
 package com.lts.jobclient.domain;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.jobclient.support.JobCompletedHandler;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
-public class JobClientApplication extends Application{
+public class JobClientAppContext extends AppContext {
 
     private RemotingClientDelegate remotingClient;
 

@@ -3,7 +3,7 @@ package com.lts.jobclient;
 import com.lts.core.json.JSON;
 import com.lts.core.domain.Job;
 import com.lts.core.support.RetryScheduler;
-import com.lts.jobclient.domain.JobClientApplication;
+import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
 import com.lts.jobclient.domain.ResponseCode;
@@ -16,14 +16,14 @@ import java.util.List;
  * @author Robert HG (254963746@qq.com) on 8/14/14.
  *         重试 客户端, 如果 没有可用的JobTracker, 那么存文件, 定时重试
  */
-public class RetryJobClient extends JobClient<JobClientNode, JobClientApplication> {
+public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext> {
 
     private RetryScheduler<Job> retryScheduler;
 
     @Override
     protected void beforeStart() {
         super.beforeStart();
-        retryScheduler = new RetryScheduler<Job>(application, 30) {
+        retryScheduler = new RetryScheduler<Job>(appContext, 30) {
             @Override
             protected boolean isRemotingEnable() {
                 return isServerEnable();

@@ -1,7 +1,7 @@
 package com.lts.core.cluster;
 
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.ListUtils;
@@ -24,10 +24,10 @@ public class SubscribedNodeManager implements NodeChangeListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SubscribedNodeManager.class);
     private final ConcurrentHashMap<NodeType, Set<Node>> NODES = new ConcurrentHashMap<NodeType, Set<Node>>();
 
-    private Application application;
+    private AppContext appContext;
 
-    public SubscribedNodeManager(Application application) {
-        this.application = application;
+    public SubscribedNodeManager(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     /**
@@ -37,11 +37,11 @@ public class SubscribedNodeManager implements NodeChangeListener {
         if ((NodeType.JOB_TRACKER.equals(node.getNodeType()))) {
             // 如果增加的JobTracker节点，那么直接添加，因为三种节点都需要监听
             _addNode(node);
-        } else if (NodeType.JOB_TRACKER.equals(application.getConfig().getNodeType())) {
+        } else if (NodeType.JOB_TRACKER.equals(appContext.getConfig().getNodeType())) {
             // 如果当天节点是JobTracker节点，那么直接添加，因为JobTracker节点要监听三种节点
             _addNode(node);
-        } else if (application.getConfig().getNodeType().equals(node.getNodeType())
-                && application.getConfig().getNodeGroup().equals(node.getGroup())) {
+        } else if (appContext.getConfig().getNodeType().equals(node.getNodeType())
+                && appContext.getConfig().getNodeGroup().equals(node.getGroup())) {
             // 剩下这种情况是JobClient和TaskTracker都只监听和自己同一个group的节点
             _addNode(node);
         }
@@ -59,7 +59,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
         nodeSet.add(node);
         EventInfo eventInfo = new EventInfo(EcTopic.NODE_ADD);
         eventInfo.setParam("node", node);
-        application.getEventCenter().publishSync(eventInfo);
+        appContext.getEventCenter().publishSync(eventInfo);
         LOGGER.info("Add {}", node);
     }
 
@@ -88,7 +88,7 @@ public class SubscribedNodeManager implements NodeChangeListener {
                     nodeSet.remove(node);
                     EventInfo eventInfo = new EventInfo(EcTopic.NODE_REMOVE);
                     eventInfo.setParam("node", node);
-                    application.getEventCenter().publishSync(eventInfo);
+                    appContext.getEventCenter().publishSync(eventInfo);
                     LOGGER.info("Remove {}", node);
                 }
             }

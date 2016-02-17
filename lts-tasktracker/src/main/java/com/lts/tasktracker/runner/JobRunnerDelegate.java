@@ -8,7 +8,7 @@ import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.logger.BizLoggerFactory;
 import com.lts.tasktracker.logger.BizLoggerImpl;
 import com.lts.tasktracker.monitor.TaskTrackerMonitor;
@@ -30,18 +30,18 @@ public class JobRunnerDelegate implements Runnable {
     private JobWrapper jobWrapper;
     private RunnerCallback callback;
     private BizLoggerImpl logger;
-    private TaskTrackerApplication application;
+    private TaskTrackerAppContext appContext;
     private TaskTrackerMonitor monitor;
 
-    public JobRunnerDelegate(TaskTrackerApplication application,
+    public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
         this.jobWrapper = jobWrapper;
         this.callback = callback;
-        this.application = application;
+        this.appContext = appContext;
         this.logger = (BizLoggerImpl) BizLoggerFactory.getLogger(
-                application.getBizLogLevel(),
-                application.getRemotingClient(), application);
-        monitor = (TaskTrackerMonitor) application.getMonitor();
+                appContext.getBizLogLevel(),
+                appContext.getRemotingClient(), appContext);
+        monitor = (TaskTrackerMonitor) appContext.getMonitor();
     }
 
     @Override
@@ -56,9 +56,9 @@ public class JobRunnerDelegate implements Runnable {
                 Response response = new Response();
                 response.setJobWrapper(jobWrapper);
                 try {
-                    application.getRunnerPool().getRunningJobManager()
+                    appContext.getRunnerPool().getRunningJobManager()
                             .in(jobWrapper.getJobId());
-                    Result result = application.getRunnerPool().getRunnerFactory()
+                    Result result = appContext.getRunnerPool().getRunnerFactory()
                             .newRunner().run(jobWrapper.getJob());
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -83,7 +83,7 @@ public class JobRunnerDelegate implements Runnable {
                     LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, time, t.getMessage(), t);
                 } finally {
                     logger.removeId();
-                    application.getRunnerPool().getRunningJobManager()
+                    appContext.getRunnerPool().getRunningJobManager()
                             .out(jobWrapper.getJobId());
                 }
                 // 统计数据
