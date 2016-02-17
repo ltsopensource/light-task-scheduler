@@ -8,7 +8,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobCancelRequest;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.remoting.Channel;
@@ -22,8 +22,8 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
 
     private final Logger LOGGER = LoggerFactory.getLogger(JobCancelProcessor.class);
 
-    public JobCancelProcessor(JobTrackerApplication application) {
-        super(application);
+    public JobCancelProcessor(JobTrackerAppContext appContext) {
+        super(appContext);
     }
 
     @Override
@@ -33,15 +33,15 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
 
         String taskId = jobCancelRequest.getTaskId();
         String taskTrackerNodeGroup = jobCancelRequest.getTaskTrackerNodeGroup();
-        JobPo job = application.getCronJobQueue().getJob(taskTrackerNodeGroup, taskId);
+        JobPo job = appContext.getCronJobQueue().getJob(taskTrackerNodeGroup, taskId);
         if (job == null) {
-            job = application.getExecutableJobQueue().getJob(taskTrackerNodeGroup, taskId);
+            job = appContext.getExecutableJobQueue().getJob(taskTrackerNodeGroup, taskId);
         }
 
         if (job != null) {
-            application.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
+            appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
             if (job.isSchedule()) {
-                application.getCronJobQueue().remove(job.getJobId());
+                appContext.getCronJobQueue().remove(job.getJobId());
             }
             // 记录日志
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(job);
@@ -49,7 +49,7 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
             jobLogPo.setLogType(LogType.DEL);
             jobLogPo.setLogTime(SystemClock.now());
             jobLogPo.setLevel(Level.INFO);
-            application.getJobLogger().log(jobLogPo);
+            appContext.getJobLogger().log(jobLogPo);
 
             LOGGER.info("Cancel Job success , jobId={}, taskId={}, taskTrackerNodeGroup={}", job.getJobId(), taskId, taskTrackerNodeGroup);
             return RemotingCommand.createResponseCommand(JobProtos

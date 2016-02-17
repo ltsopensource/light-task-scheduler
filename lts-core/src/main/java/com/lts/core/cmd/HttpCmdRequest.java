@@ -1,4 +1,4 @@
-package com.lts.core.command;
+package com.lts.core.cmd;
 
 import com.lts.core.commons.utils.StringUtils;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class HttpCommandRequest {
+public class HttpCmdRequest {
 
     private String command;
 
@@ -55,9 +55,9 @@ public class HttpCommandRequest {
     /**
      * GET /xxxCommand?xxx=yyyyy HTTP/1.1
      */
-    protected static HttpCommandRequest parse(String url) throws Exception {
+    protected static HttpCmdRequest parse(String url) throws Exception {
 
-        HttpCommandRequest request = new HttpCommandRequest();
+        HttpCmdRequest request = new HttpCmdRequest();
 
         if (StringUtils.isEmpty(url)) {
             return request;

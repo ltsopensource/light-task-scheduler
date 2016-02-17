@@ -10,7 +10,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.support.LoggerName;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -26,12 +26,12 @@ public class JobStatisticChain implements JobCompletedChain {
 
     private final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
     private JobTrackerMonitor monitor;
 
-    public JobStatisticChain(JobTrackerApplication application) {
-        this.application = application;
-        this.monitor = (JobTrackerMonitor) application.getMonitor();
+    public JobStatisticChain(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
 
     }
 
@@ -60,7 +60,7 @@ public class JobStatisticChain implements JobCompletedChain {
             jobLogPo.setTaskTrackerIdentity(request.getIdentity());
             jobLogPo.setLevel(Level.INFO);
             jobLogPo.setLogTime(result.getTime());
-            application.getJobLogger().log(jobLogPo);
+            appContext.getJobLogger().log(jobLogPo);
 
             // 监控数据统计
             if (result.getAction() != null) {

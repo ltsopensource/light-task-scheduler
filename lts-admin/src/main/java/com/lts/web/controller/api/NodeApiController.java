@@ -5,7 +5,7 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.NodeGroupGetRequest;
 import com.lts.queue.domain.NodeGroupPo;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.cluster.RegistryService;
 import com.lts.web.controller.AbstractController;
 import com.lts.web.repository.domain.NodeOnOfflineLog;
@@ -32,7 +32,7 @@ public class NodeApiController extends AbstractController {
     @Autowired
     RegistryService registryService;
     @Autowired
-    AdminApplication application;
+    AdminAppContext appContext;
     @Autowired
     NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
@@ -55,7 +55,7 @@ public class NodeApiController extends AbstractController {
         NodeGroupGetRequest nodeGroupGetRequest = new NodeGroupGetRequest();
         nodeGroupGetRequest.setNodeGroup(request.getNodeGroup());
         nodeGroupGetRequest.setNodeType(request.getNodeType());
-        PageResponse<NodeGroupPo> pageResponse = application.getNodeGroupStore().getNodeGroup(nodeGroupGetRequest);
+        PageResponse<NodeGroupPo> pageResponse = appContext.getNodeGroupStore().getNodeGroup(nodeGroupGetRequest);
 
         response.setResults(pageResponse.getResults());
         response.setRows(pageResponse.getRows());
@@ -66,11 +66,11 @@ public class NodeApiController extends AbstractController {
     @RequestMapping("node-group-add")
     public RestfulResponse addNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
-        application.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup());
+        appContext.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup());
         if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
-            application.getExecutableJobQueue().createQueue(request.getNodeGroup());
+            appContext.getExecutableJobQueue().createQueue(request.getNodeGroup());
         }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
-            application.getJobFeedbackQueue().createQueue(request.getNodeGroup());
+            appContext.getJobFeedbackQueue().createQueue(request.getNodeGroup());
         }
         response.setSuccess(true);
         return response;
@@ -79,11 +79,11 @@ public class NodeApiController extends AbstractController {
     @RequestMapping("node-group-del")
     public RestfulResponse delNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
-        application.getNodeGroupStore().removeNodeGroup(request.getNodeType(), request.getNodeGroup());
+        appContext.getNodeGroupStore().removeNodeGroup(request.getNodeType(), request.getNodeGroup());
         if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
-            application.getExecutableJobQueue().removeQueue(request.getNodeGroup());
+            appContext.getExecutableJobQueue().removeQueue(request.getNodeGroup());
         }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
-            application.getJobFeedbackQueue().removeQueue(request.getNodeGroup());
+            appContext.getJobFeedbackQueue().removeQueue(request.getNodeGroup());
         }
         response.setSuccess(true);
         return response;

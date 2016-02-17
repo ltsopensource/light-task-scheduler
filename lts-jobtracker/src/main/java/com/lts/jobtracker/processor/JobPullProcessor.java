@@ -4,7 +4,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPullRequest;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.JobPusher;
 import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -20,10 +20,10 @@ public class JobPullProcessor extends AbstractRemotingProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPullProcessor.class);
 
-    public JobPullProcessor(JobTrackerApplication application) {
-        super(application);
+    public JobPullProcessor(JobTrackerAppContext appContext) {
+        super(appContext);
 
-        jobPusher = new JobPusher(application);
+        jobPusher = new JobPusher(appContext);
     }
 
     @Override

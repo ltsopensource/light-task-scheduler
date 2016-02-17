@@ -1,6 +1,6 @@
 package com.lts.queue.mysql;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.AbstractPreLoader;
@@ -20,12 +20,12 @@ public class MysqlPreLoader extends AbstractPreLoader {
 
     private SqlTemplate sqlTemplate;
 
-    public MysqlPreLoader(Application application) {
-        super(application);
+    public MysqlPreLoader(AppContext appContext) {
+        super(appContext);
 
         sqlTemplate = new SqlTemplate(
-                DataSourceProviderFactory.create(application.getConfig())
-                        .getDataSource(application.getConfig()));
+                DataSourceProviderFactory.create(appContext.getConfig())
+                        .getDataSource(appContext.getConfig()));
     }
 
 

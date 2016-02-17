@@ -8,7 +8,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.CronExpressionUtils;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -23,10 +23,10 @@ public class JobFinishHandler implements JobCompleteHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public JobFinishHandler(JobTrackerApplication application) {
-        this.application = application;
+    public JobFinishHandler(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -43,12 +43,12 @@ public class JobFinishHandler implements JobCompleteHandler {
                 finishScheduleJob(jobWrapper.getJobId());
             }
             // 从正在执行的队列中移除
-            application.getExecutingJobQueue().remove(jobWrapper.getJobId());
+            appContext.getExecutingJobQueue().remove(jobWrapper.getJobId());
         }
     }
 
     private void finishScheduleJob(String jobId) {
-        JobPo cronJobPo = application.getCronJobQueue().finish(jobId);
+        JobPo cronJobPo = appContext.getCronJobQueue().finish(jobId);
         if (cronJobPo == null) {
             // 可能任务队列中改条记录被删除了
             return;
@@ -56,7 +56,7 @@ public class JobFinishHandler implements JobCompleteHandler {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
         if (nextTriggerTime == null) {
             // 从CronJob队列中移除
-            application.getCronJobQueue().remove(jobId);
+            appContext.getCronJobQueue().remove(jobId);
             return;
         }
         // 表示下次还要执行
@@ -65,7 +65,7 @@ public class JobFinishHandler implements JobCompleteHandler {
             cronJobPo.setIsRunning(false);
             cronJobPo.setTriggerTime(nextTriggerTime.getTime());
             cronJobPo.setGmtModified(SystemClock.now());
-            application.getExecutableJobQueue().add(cronJobPo);
+            appContext.getExecutableJobQueue().add(cronJobPo);
         } catch (DuplicateJobException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(cronJobPo));
         }

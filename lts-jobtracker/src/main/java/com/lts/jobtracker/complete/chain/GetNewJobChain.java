@@ -2,7 +2,7 @@ package com.lts.jobtracker.complete.chain;
 
 import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
@@ -16,10 +16,10 @@ import com.lts.remoting.protocol.RemotingProtos;
  */
 public class GetNewJobChain implements JobCompletedChain {
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public GetNewJobChain(JobTrackerApplication application) {
-        this.application = application;
+    public GetNewJobChain(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -43,11 +43,11 @@ public class GetNewJobChain implements JobCompletedChain {
      */
     private JobPushRequest getNewJob(String taskTrackerNodeGroup, String taskTrackerIdentity) {
 
-        JobSender.SendResult sendResult = application.getJobSender().send(taskTrackerNodeGroup, taskTrackerIdentity, new JobSender.SendInvoker() {
+        JobSender.SendResult sendResult = appContext.getJobSender().send(taskTrackerNodeGroup, taskTrackerIdentity, new JobSender.SendInvoker() {
             @Override
             public JobSender.SendResult invoke(JobPo jobPo) {
 
-                JobPushRequest jobPushRequest = application.getCommandBodyWrapper().wrapper(new JobPushRequest());
+                JobPushRequest jobPushRequest = appContext.getCommandBodyWrapper().wrapper(new JobPushRequest());
                 jobPushRequest.setJobWrapper(JobDomainConverter.convert(jobPo));
 
                 return new JobSender.SendResult(true, jobPushRequest);

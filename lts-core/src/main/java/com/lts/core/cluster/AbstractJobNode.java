@@ -1,6 +1,6 @@
 package com.lts.core.cluster;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.NetUtils;
@@ -29,22 +29,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Robert HG (254963746@qq.com) on 8/15/14.
  *         抽象节点
  */
-public abstract class AbstractJobNode<T extends Node, App extends Application> implements JobNode {
+public abstract class AbstractJobNode<T extends Node, Context extends AppContext> implements JobNode {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobNode.class);
 
     protected Registry registry;
     protected T node;
     protected Config config;
-    protected App application;
+    protected Context appContext;
     private List<NodeChangeListener> nodeChangeListeners;
     private List<MasterChangeListener> masterChangeListeners;
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public AbstractJobNode() {
-        application = getApplication();
+        appContext = getAppContext();
         config = JobNodeConfigFactory.getDefaultConfig();
-        application.setConfig(config);
+        appContext.setConfig(config);
         nodeChangeListeners = new ArrayList<NodeChangeListener>();
         masterChangeListeners = new ArrayList<MasterChangeListener>();
     }
@@ -108,12 +108,12 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     protected void initConfig() {
-        application.setEventCenter(ServiceLoader.load(EventCenter.class, config));
+        appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
 
-        application.setCommandBodyWrapper(new CommandBodyWrapper(config));
-        application.setMasterElector(new MasterElector(application));
-        application.getMasterElector().addMasterChangeListener(masterChangeListeners);
-        application.setRegistryStatMonitor(new RegistryStatMonitor(application));
+        appContext.setCommandBodyWrapper(new CommandBodyWrapper(config));
+        appContext.setMasterElector(new MasterElector(appContext));
+        appContext.getMasterElector().addMasterChangeListener(masterChangeListeners);
+        appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
 
         if (StringUtils.isEmpty(config.getIp())) {
             config.setIp(NetUtils.getLocalHost());
@@ -124,13 +124,13 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
         LOGGER.info("Current Node config :{}", config);
 
         // 订阅的node管理
-        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(application);
-        application.setSubscribedNodeManager(subscribedNodeManager);
+        SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(appContext);
+        appContext.setSubscribedNodeManager(subscribedNodeManager);
         nodeChangeListeners.add(subscribedNodeManager);
         // 用于master选举的监听器
-        nodeChangeListeners.add(new MasterElectionListener(application));
+        nodeChangeListeners.add(new MasterElectionListener(appContext));
         // 监听自己节点变化（如，当前节点被禁用了）
-        nodeChangeListeners.add(new SelfChangeListener(application));
+        nodeChangeListeners.add(new SelfChangeListener(appContext));
 
         setSpiConfig();
     }
@@ -150,7 +150,7 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     }
 
     private void initRegistry() {
-        registry = RegistryFactory.getRegistry(application);
+        registry = RegistryFactory.getRegistry(appContext);
         if (registry instanceof AbstractRegistry) {
             ((AbstractRegistry) registry).setNode(node);
         }
@@ -199,9 +199,9 @@ public abstract class AbstractJobNode<T extends Node, App extends Application> i
     protected abstract void afterRemotingStop();
 
     @SuppressWarnings("unchecked")
-    private App getApplication() {
+    private Context getAppContext() {
         try {
-            return ((Class<App>)
+            return ((Class<Context>)
                     GenericsUtils.getSuperClassGenericType(this.getClass(), 1))
                     .newInstance();
         } catch (InstantiationException e) {

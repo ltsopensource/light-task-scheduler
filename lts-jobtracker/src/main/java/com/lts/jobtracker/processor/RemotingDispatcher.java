@@ -4,7 +4,7 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.AbstractRemotingCommandBody;
 import com.lts.jobtracker.channel.ChannelWrapper;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -24,13 +24,13 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
 
     private final Map<RequestCode, RemotingProcessor> processors = new HashMap<RequestCode, RemotingProcessor>();
 
-    public RemotingDispatcher(JobTrackerApplication application) {
-        super(application);
-        processors.put(RequestCode.SUBMIT_JOB, new JobSubmitProcessor(application));
-        processors.put(RequestCode.JOB_COMPLETED, new JobCompletedProcessor(application));
-        processors.put(RequestCode.JOB_PULL, new JobPullProcessor(application));
-        processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(application));
-        processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(application));
+    public RemotingDispatcher(JobTrackerAppContext appContext) {
+        super(appContext);
+        processors.put(RequestCode.SUBMIT_JOB, new JobSubmitProcessor(appContext));
+        processors.put(RequestCode.JOB_COMPLETED, new JobCompletedProcessor(appContext));
+        processors.put(RequestCode.JOB_PULL, new JobPullProcessor(appContext));
+        processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(appContext));
+        processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(appContext));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
         NodeType nodeType = NodeType.valueOf(commandBody.getNodeType());
 
         // 1. 将 channel 纳入管理中(不存在就加入)
-        application.getChannelManager().offerChannel(new ChannelWrapper(channel, nodeType, nodeGroup, identity));
+        appContext.getChannelManager().offerChannel(new ChannelWrapper(channel, nodeType, nodeGroup, identity));
     }
 
 }

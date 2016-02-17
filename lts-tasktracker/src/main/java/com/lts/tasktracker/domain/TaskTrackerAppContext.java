@@ -1,6 +1,6 @@
 package com.lts.tasktracker.domain;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.constant.Level;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.tasktracker.monitor.StopWorkingMonitor;
@@ -11,7 +11,7 @@ import com.lts.tasktracker.support.JobPullMachine;
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
-public class TaskTrackerApplication extends Application{
+public class TaskTrackerAppContext extends AppContext {
 
     private RemotingClientDelegate remotingClient;
     // runner 线程池

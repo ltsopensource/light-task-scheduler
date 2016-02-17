@@ -1,6 +1,6 @@
 package com.lts.core;
 
-import com.lts.core.command.HttpCommandCenter;
+import com.lts.core.cmd.HttpCmdServer;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
@@ -13,7 +13,7 @@ import com.lts.ec.EventCenter;
  * @author Robert HG (254963746@qq.com) on 8/17/14.
  *         用来存储 程序的数据
  */
-public abstract class Application {
+public abstract class AppContext {
 
     // 节点配置信息
     private Config config;
@@ -30,7 +30,7 @@ public abstract class Application {
     // 注册中心状态监控
     private RegistryStatMonitor registryStatMonitor;
     // 命令中心
-    private HttpCommandCenter httpCommandCenter;
+    private HttpCmdServer httpCmdServer;
 
     public Monitor getMonitor() {
         return monitor;
@@ -88,11 +88,11 @@ public abstract class Application {
         this.registryStatMonitor = registryStatMonitor;
     }
 
-    public HttpCommandCenter getHttpCommandCenter() {
-        return httpCommandCenter;
+    public HttpCmdServer getHttpCmdServer() {
+        return httpCmdServer;
     }
 
-    public void setHttpCommandCenter(HttpCommandCenter httpCommandCenter) {
-        this.httpCommandCenter = httpCommandCenter;
+    public void setHttpCmdServer(HttpCmdServer httpCmdServer) {
+        this.httpCmdServer = httpCmdServer;
     }
 }

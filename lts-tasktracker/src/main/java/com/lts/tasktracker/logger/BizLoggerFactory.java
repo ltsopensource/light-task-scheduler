@@ -4,7 +4,7 @@ import com.lts.core.cluster.LTSConfig;
 import com.lts.core.constant.Environment;
 import com.lts.core.constant.Level;
 import com.lts.core.remoting.RemotingClientDelegate;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,14 +18,14 @@ public class BizLoggerFactory {
     /**
      * 保证一个TaskTracker只能有一个Logger, 因为一个jvm可以有多个TaskTracker
      */
-    public static BizLogger getLogger(Level level, RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+    public static BizLogger getLogger(Level level, RemotingClientDelegate remotingClient, TaskTrackerAppContext appContext) {
 
         // 单元测试的时候返回 Mock
         if (Environment.UNIT_TEST == LTSConfig.getEnvironment()) {
             return new MockBizLogger(level);
         }
 
-        String key = application.getConfig().getIdentity();
+        String key = appContext.getConfig().getIdentity();
         BizLogger logger = BIZ_LOGGER_CONCURRENT_HASH_MAP.get(key);
         if (logger == null) {
             synchronized (BIZ_LOGGER_CONCURRENT_HASH_MAP) {
@@ -33,7 +33,7 @@ public class BizLoggerFactory {
                 if (logger != null) {
                     return logger;
                 }
-                logger = new BizLoggerImpl(level, remotingClient, application);
+                logger = new BizLoggerImpl(level, remotingClient, appContext);
 
                 BIZ_LOGGER_CONCURRENT_HASH_MAP.put(key, logger);
             }

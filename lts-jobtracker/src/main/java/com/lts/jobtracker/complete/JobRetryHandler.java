@@ -9,7 +9,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.CronExpressionUtils;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
@@ -24,10 +24,10 @@ public class JobRetryHandler implements JobCompleteHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public JobRetryHandler(JobTrackerApplication application) {
-        this.application = application;
+    public JobRetryHandler(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class JobRetryHandler implements JobCompleteHandler {
 
             JobWrapper jobWrapper = result.getJobWrapper();
             // 1. 加入到重试队列
-            JobPo jobPo = application.getExecutingJobQueue().get(jobWrapper.getJobId());
+            JobPo jobPo = appContext.getExecutingJobQueue().get(jobWrapper.getJobId());
             if (jobPo == null) {    // 表示已经被删除了
                 continue;
             }
@@ -51,7 +51,7 @@ public class JobRetryHandler implements JobCompleteHandler {
 
             if (jobPo.isSchedule()) {
                 // 如果是 cron Job, 判断任务下一次执行时间和重试时间的比较
-                JobPo cronJobPo = application.getCronJobQueue().finish(jobWrapper.getJobId());
+                JobPo cronJobPo = appContext.getCronJobQueue().finish(jobWrapper.getJobId());
                 if (cronJobPo != null) {
                     Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
                     if (nextTriggerTime != null && nextTriggerTime.getTime() < nextRetryTriggerTime) {
@@ -69,12 +69,12 @@ public class JobRetryHandler implements JobCompleteHandler {
             // 延迟重试时间就等于重试次数(分钟)
             jobPo.setTriggerTime(nextRetryTriggerTime);
             try {
-                application.getExecutableJobQueue().add(jobPo);
+                appContext.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
             // 从正在执行的队列中移除
-            application.getExecutingJobQueue().remove(jobPo.getJobId());
+            appContext.getExecutingJobQueue().remove(jobPo.getJobId());
         }
     }
 }
