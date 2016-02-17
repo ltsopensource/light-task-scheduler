@@ -1,6 +1,5 @@
 package com.lts.example.api;
 
-import com.lts.core.spi.SpiKey;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;

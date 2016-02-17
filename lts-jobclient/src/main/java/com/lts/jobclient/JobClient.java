@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
  * @author Robert HG (254963746@qq.com) on 7/25/14.
  *         任务客户端
  */
-public class JobClient<T extends JobClientNode, App extends AppContext> extends
+public class JobClient<T extends JobClientNode, Context extends AppContext> extends
         AbstractClientNode<JobClientNode, JobClientAppContext> {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobClient);
