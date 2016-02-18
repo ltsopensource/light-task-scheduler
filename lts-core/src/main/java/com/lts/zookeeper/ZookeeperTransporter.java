@@ -8,6 +8,6 @@ import com.lts.core.spi.SpiKey;
 @SPI(key = SpiKey.ZK_CLIENT_KEY, dftValue = "zkclient")
 public interface ZookeeperTransporter {
 
-    ZookeeperClient connect(Config config);
+    ZkClient connect(Config config);
 
 }
