@@ -1,13 +1,13 @@
-package com.lts.zookeeper.curator;
+package com.lts.zookeeper.lts;
 
 import com.lts.core.cluster.Config;
 import com.lts.zookeeper.ZkClient;
 import com.lts.zookeeper.ZookeeperTransporter;
 
-public class CuratorZookeeperTransporter implements ZookeeperTransporter {
+public class LtsZookeeperTransporter implements ZookeeperTransporter {
 
     public ZkClient connect(Config config) {
-        return new CuratorZkClient(config);
+        return new LtsZkClient(config);
     }
 
 }

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
-public interface ZookeeperClient {
+public interface ZkClient {
 
     String create(String path, boolean ephemeral, boolean sequential);
 

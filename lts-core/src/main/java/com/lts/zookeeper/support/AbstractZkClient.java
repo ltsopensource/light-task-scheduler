@@ -5,7 +5,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
-import com.lts.zookeeper.ZookeeperClient;
+import com.lts.zookeeper.ZkClient;
 
 import java.util.List;
 import java.util.Set;
@@ -16,9 +16,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
-public abstract class AbstractZookeeperClient<TargetChildListener> implements ZookeeperClient {
+public abstract class AbstractZkClient<TargetChildListener> implements ZkClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractZookeeperClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractZkClient.class);
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
 
