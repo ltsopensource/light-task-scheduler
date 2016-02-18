@@ -6,7 +6,7 @@ import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.serializer.SerializableSerializer;
 import com.lts.zookeeper.serializer.ZkSerializer;
-import com.lts.zookeeper.support.AbstractZookeeperClient;
+import com.lts.zookeeper.support.AbstractZkClient;
 import com.netflix.curator.framework.CuratorFramework;
 import com.netflix.curator.framework.CuratorFrameworkFactory;
 import com.netflix.curator.framework.api.CuratorWatcher;
@@ -25,12 +25,12 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/16/15.
  */
-public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatcher> {
+public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
 
     private final CuratorFramework client;
     private final ZkSerializer zkSerializer;
 
-    public CuratorZookeeperClient(Config config) {
+    public CuratorZkClient(Config config) {
         try {
             String registryAddress = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
@@ -43,13 +43,13 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorWatch
             client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
                 public void stateChanged(CuratorFramework client, ConnectionState state) {
                     if (state == ConnectionState.LOST) {
-                        CuratorZookeeperClient.this.stateChanged(StateListener.DISCONNECTED);
+                        CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
                     } else if (state == ConnectionState.CONNECTED) {
-                        CuratorZookeeperClient.this.stateChanged(StateListener.CONNECTED);
+                        CuratorZkClient.this.stateChanged(StateListener.CONNECTED);
                     } else if (state == ConnectionState.RECONNECTED) {
-                        CuratorZookeeperClient.this.stateChanged(StateListener.RECONNECTED);
+                        CuratorZkClient.this.stateChanged(StateListener.RECONNECTED);
                     } else if(state == ConnectionState.SUSPENDED){
-                        CuratorZookeeperClient.this.stateChanged(StateListener.DISCONNECTED);
+                        CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
                     }
                 }
             });

@@ -13,22 +13,7 @@ public class SMTPMailManagerImpl implements MailManager {
 
     private String password;
 
-    /**
-     * The e-mail address that Teletraan puts to "From:" field in outgoing e-mails.
-     * Null if not configured.
-     */
     private String adminAddress;
-
-    /**
-     * The SMTP server to use for sending e-mail. Null for default to the environment,
-     * which is usually <tt>localhost</tt>.
-     */
-    private String host;
-    /**
-     * The SMTP port to use for sending e-mail. Null for default to the environment,
-     * which is usually <tt>25</tt>.
-     */
-    private String port;
 
     private Properties properties;
 
@@ -39,8 +24,6 @@ public class SMTPMailManagerImpl implements MailManager {
 
     public SMTPMailManagerImpl(String host, String port, String userName, String password,
                                String adminAddress, boolean sslEnabled) {
-        this.host = host;
-        this.port = port;
         this.userName = userName;
         this.password = password;
         this.adminAddress = adminAddress;

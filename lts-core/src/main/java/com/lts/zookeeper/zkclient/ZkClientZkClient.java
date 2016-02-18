@@ -4,7 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
-import com.lts.zookeeper.support.AbstractZookeeperClient;
+import com.lts.zookeeper.support.AbstractZkClient;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
-public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildListener> {
+public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
 
     public static final int connectionTimeout = 30000;
 
@@ -26,7 +26,7 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
     private volatile KeeperState state = KeeperState.SyncConnected;
 
-    public ZkClientZookeeperClient(Config config) {
+    public ZkClientZkClient(Config config) {
         String registryAddress = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
         zkClient = new ZkClient(registryAddress, connectionTimeout);
 
@@ -34,7 +34,7 @@ public class ZkClientZookeeperClient extends AbstractZookeeperClient<IZkChildLis
 
             @Override
             public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
-                ZkClientZookeeperClient.this.state = state;
+                ZkClientZkClient.this.state = state;
                 if (state == KeeperState.Disconnected) {
                     stateChanged(StateListener.DISCONNECTED);
                 } else if (state == KeeperState.SyncConnected) {
