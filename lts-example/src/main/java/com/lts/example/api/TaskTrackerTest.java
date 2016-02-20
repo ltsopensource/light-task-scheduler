@@ -31,9 +31,9 @@ public class TaskTrackerTest {
         // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
         taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
-//         taskTracker.addConfig("lts.remoting", "netty");
+         taskTracker.addConfig("lts.remoting", "netty");
 //        taskTracker.addConfig("lts.remoting.serializable.default", "fastjson");
-        taskTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
+//        taskTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
         taskTracker.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

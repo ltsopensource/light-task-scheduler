@@ -7,8 +7,6 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
-import com.lts.zookeeper.ZkException;
-import com.lts.zookeeper.ZkInterruptedException;
 import com.lts.zookeeper.serializer.SerializableSerializer;
 import com.lts.zookeeper.serializer.ZkSerializer;
 import com.lts.zookeeper.support.AbstractZkClient;
@@ -437,7 +435,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener> implements Watc
                 lock.unlock();
             }
             if (zk == null || !zk.getState().isConnected()) {
-                throw new RuntimeException("zk not connected, please wait");
+                throw new ZkException("zk not connected, please wait");
             }
         }
     }
