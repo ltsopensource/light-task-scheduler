@@ -1,4 +1,4 @@
-package com.lts.zookeeper;
+package com.lts.zookeeper.lts;
 
 import org.apache.zookeeper.KeeperException;
 

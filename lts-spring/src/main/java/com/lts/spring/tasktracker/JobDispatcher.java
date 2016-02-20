@@ -4,12 +4,11 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.runner.JobRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
  */
-public class JobDispatcher implements JobRunner{
+public class JobDispatcher implements JobRunner {
 
     private String shardField = "taskId";
 
@@ -24,7 +23,7 @@ public class JobDispatcher implements JobRunner{
         }
 
         JobRunner jobRunner = null;
-        if(StringUtils.isNotEmpty(value)){
+        if (StringUtils.isNotEmpty(value)) {
             jobRunner = JobRunnerHolder.getJobRunner(value);
         }
         if (jobRunner == null) {
