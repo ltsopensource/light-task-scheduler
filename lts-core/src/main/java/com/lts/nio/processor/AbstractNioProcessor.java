@@ -3,6 +3,7 @@ package com.lts.nio.processor;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -52,6 +53,10 @@ public abstract class AbstractNioProcessor implements NioProcessor {
     }
 
     public Futures.WriteFuture writeAndFlush(NioChannel channel, Object msg) {
+        SelectionKey key = channel.socketChannel().keyFor(selectorLoop.selector());
+        if(key != null && key.isValid()){
+            key.interestOps(SelectionKey.OP_WRITE);
+        }
         return write(channel, msg, true);
     }
 
@@ -79,23 +84,22 @@ public abstract class AbstractNioProcessor implements NioProcessor {
             throw new NioException("encode msg " + msg + " error", e);
         }
         if (flush) {
-            flush(channel);
+            doFlush(channel);
         }
         return future;
     }
 
     public void flush(NioChannel channel) {
-
-        WriteQueue queue = QUEUE_MAP.get(channel);
-
-        doFlush(queue, channel);
+        doFlush(channel);
     }
 
-    private void doFlush(final WriteQueue queue, final NioChannel channel) {
+    private void doFlush(final NioChannel channel) {
 
         executor().execute(new Runnable() {
             @Override
             public void run() {
+
+                WriteQueue queue = QUEUE_MAP.get(channel);
 
                 if (!queue.tryLock()) {
                     // 说明有线程在写
@@ -139,7 +143,13 @@ public abstract class AbstractNioProcessor implements NioProcessor {
                             writeFuture.setCause(e);
                             writeFuture.notifyListeners();
                             eventHandler().exceptionCaught(channel, e);
+                            break;
                         }
+                    }
+
+                    SelectionKey key = channel.socketChannel().keyFor(selectorLoop.selector());
+                    if(key != null && key.isValid()){
+                        key.interestOps(SelectionKey.OP_READ);
                     }
                 } finally {
                     queue.unlock();
