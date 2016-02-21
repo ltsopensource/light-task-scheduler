@@ -35,7 +35,7 @@ public class JobRunnerDelegate implements Runnable {
     private TaskTrackerMonitor monitor;
     private Interruptible interruptor;
     private JobRunner curJobRunner;
-    private boolean isInterruptibleJobRunner = false;
+    private boolean interrupted = false;
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
@@ -43,30 +43,25 @@ public class JobRunnerDelegate implements Runnable {
         this.callback = callback;
         this.jobWrapper = jobWrapper;
 
-        this.isInterruptibleJobRunner = isInterruptibleJobRunner(this.appContext);
         this.logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
                 appContext.getBizLogLevel(),
                 appContext.getRemotingClient(), appContext);
         monitor = (TaskTrackerMonitor) appContext.getMonitor();
 
-        if (isInterruptibleJobRunner()) {
-            this.interruptor = new Interruptible() {
-                @Override
-                public void interrupt() {
-                    JobRunnerDelegate.this.interrupt();
-                }
-            };
-        }
+        this.interruptor = new Interruptible() {
+            @Override
+            public void interrupt() {
+                JobRunnerDelegate.this.interrupt();
+            }
+        };
     }
 
     @Override
     public void run() {
         try {
-            if (isInterruptibleJobRunner()) {
-                blockedOn(interruptor);
-                if (Thread.currentThread().isInterrupted()) {
-                    interruptor.interrupt();
-                }
+            blockedOn(interruptor);
+            if (Thread.currentThread().isInterrupted()) {
+                interruptor.interrupt();
             }
 
             LtsLoggerFactory.setLogger(logger);
@@ -116,32 +111,30 @@ public class JobRunnerDelegate implements Runnable {
                 } catch (Throwable t) {
                     LOGGER.warn("monitor error:" + t.getMessage(), t);
                 }
-
+                if (isInterrupted()) {
+                    // 如果当前线程被阻断了,那么也就不接受新任务了
+                    response.setReceiveNewJob(false);
+                }
                 this.jobWrapper = callback.runComplete(response);
 
             }
         } finally {
             LtsLoggerFactory.remove();
 
-            if (isInterruptibleJobRunner()) {
-                blockedOn(null);
-            }
+            blockedOn(null);
         }
     }
 
     private void interrupt() {
+        interrupted = true;
+
         if (this.curJobRunner != null && this.curJobRunner instanceof InterruptibleJobRunner) {
             ((InterruptibleJobRunner) this.curJobRunner).interrupt();
         }
     }
 
-    private static boolean isInterruptibleJobRunner(TaskTrackerAppContext appContext) {
-        Class<?> jobRunnerClass = appContext.getJobRunnerClass();
-        return jobRunnerClass != null && InterruptibleJobRunner.class.isAssignableFrom(appContext.getJobRunnerClass());
-    }
-
-    private boolean isInterruptibleJobRunner() {
-        return this.isInterruptibleJobRunner;
+    private boolean isInterrupted() {
+        return this.interrupted;
     }
 
     private void monitor(Action action) {
