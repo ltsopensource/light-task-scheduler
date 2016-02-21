@@ -10,6 +10,7 @@ import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
+import sun.nio.ch.Interruptible;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,7 @@ public class RunnerPool {
      * 它试图终止线程的方法是通过调用Thread.interrupt()方法来实现的，但是大家知道，这种方法的作用有限，
      * 如果线程中没有sleep 、wait、Condition、定时锁等应用, interrupt()方法是无法中断当前的线程的。
      * 所以，ShutdownNow()并不代表线程池就一定立即就能退出，它可能必须要等待所有正在执行的任务都执行完成了才能退出。
+     * 特殊的时候可以通过使用{@link InterruptibleJobRunner}来解决
      */
     public void stopWorking() {
         try {

@@ -9,9 +9,12 @@ import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
+import com.lts.tasktracker.logger.BizLogger;
+import com.lts.tasktracker.logger.BizLoggerAdapter;
 import com.lts.tasktracker.logger.BizLoggerFactory;
 import com.lts.tasktracker.logger.BizLoggerImpl;
 import com.lts.tasktracker.monitor.TaskTrackerMonitor;
+import sun.nio.ch.Interruptible;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,24 +32,38 @@ public class JobRunnerDelegate implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
     private JobWrapper jobWrapper;
     private RunnerCallback callback;
-    private BizLoggerImpl logger;
+    private BizLoggerAdapter logger;
     private TaskTrackerAppContext appContext;
     private TaskTrackerMonitor monitor;
+    private Interruptible interruptor;
+    private JobRunner curJobRunner;
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
         this.jobWrapper = jobWrapper;
         this.callback = callback;
         this.appContext = appContext;
-        this.logger = (BizLoggerImpl) BizLoggerFactory.getLogger(
+        this.logger =  (BizLoggerAdapter)BizLoggerFactory.getLogger(
                 appContext.getBizLogLevel(),
                 appContext.getRemotingClient(), appContext);
         monitor = (TaskTrackerMonitor) appContext.getMonitor();
+        this.interruptor = new Interruptible() {
+            @Override
+            public void interrupt() {
+                JobRunnerDelegate.this.interrupt();
+            }
+        };
     }
 
     @Override
     public void run() {
         try {
+
+            blockedOn(interruptor);
+            if (Thread.currentThread().isInterrupted()) {
+                interruptor.interrupt();
+            }
+
             LtsLoggerFactory.setLogger(logger);
 
             while (jobWrapper != null) {
@@ -58,8 +75,10 @@ public class JobRunnerDelegate implements Runnable {
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
                             .in(jobWrapper.getJobId());
-                    Result result = appContext.getRunnerPool().getRunnerFactory()
-                            .newRunner().run(jobWrapper.getJob());
+
+                    this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
+                    Result result = curJobRunner.run(jobWrapper.getJob());
+
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
                     } else {
@@ -70,6 +89,7 @@ public class JobRunnerDelegate implements Runnable {
                         }
                         response.setMsg(result.getMsg());
                     }
+
                     long time = SystemClock.now() - startTime;
                     monitor.addRunningTime(time);
                     LOGGER.info("Job execute completed : {}, time:{} ms.", jobWrapper, time);
@@ -97,6 +117,13 @@ public class JobRunnerDelegate implements Runnable {
             }
         } finally {
             LtsLoggerFactory.remove();
+            blockedOn(null);
+        }
+    }
+
+    private void interrupt() {
+        if (this.curJobRunner != null && this.curJobRunner instanceof InterruptibleJobRunner) {
+            ((InterruptibleJobRunner) this.curJobRunner).interrupt();
         }
     }
 
@@ -118,6 +145,10 @@ public class JobRunnerDelegate implements Runnable {
                 monitor.incExeExceptionNum();
                 break;
         }
+    }
+
+    private static void blockedOn(Interruptible interruptible) {
+        sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(), interruptible);
     }
 
 }
