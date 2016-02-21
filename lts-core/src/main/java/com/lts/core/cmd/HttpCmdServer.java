@@ -37,7 +37,7 @@ public class HttpCmdServer {
                 LOGGER.info("Start succeed at port {}", port);
             }
         } catch (Exception t) {
-            LOGGER.error("Start error at port {} , use lts.command.port config change the port.", port, t);
+            LOGGER.error("Start error at port {} , use [lts.command.port] config change the port.", port, t);
             throw new HttpCmdException(t);
         }
     }

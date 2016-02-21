@@ -7,7 +7,7 @@ import com.lts.core.logger.LoggerFactory;
 /**
  * @author Robert HG (254963746@qq.com) on 9/12/15.
  */
-public class MockBizLogger implements BizLogger {
+public class MockBizLogger extends BizLoggerAdapter implements BizLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MockBizLogger.class);
     private Level level;
@@ -40,4 +40,13 @@ public class MockBizLogger implements BizLogger {
         }
     }
 
+    @Override
+    public void setId(String jobId, String taskId) {
+
+    }
+
+    @Override
+    public void removeId() {
+
+    }
 }
