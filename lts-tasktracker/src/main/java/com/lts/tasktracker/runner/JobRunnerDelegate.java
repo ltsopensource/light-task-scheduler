@@ -9,10 +9,8 @@ import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
-import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.logger.BizLoggerAdapter;
 import com.lts.tasktracker.logger.BizLoggerFactory;
-import com.lts.tasktracker.logger.BizLoggerImpl;
 import com.lts.tasktracker.monitor.TaskTrackerMonitor;
 import sun.nio.ch.Interruptible;
 
@@ -37,31 +35,38 @@ public class JobRunnerDelegate implements Runnable {
     private TaskTrackerMonitor monitor;
     private Interruptible interruptor;
     private JobRunner curJobRunner;
+    private boolean isInterruptibleJobRunner = false;
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
-        this.jobWrapper = jobWrapper;
-        this.callback = callback;
         this.appContext = appContext;
-        this.logger =  (BizLoggerAdapter)BizLoggerFactory.getLogger(
+        this.callback = callback;
+        this.jobWrapper = jobWrapper;
+
+        this.isInterruptibleJobRunner = isInterruptibleJobRunner(this.appContext);
+        this.logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
                 appContext.getBizLogLevel(),
                 appContext.getRemotingClient(), appContext);
         monitor = (TaskTrackerMonitor) appContext.getMonitor();
-        this.interruptor = new Interruptible() {
-            @Override
-            public void interrupt() {
-                JobRunnerDelegate.this.interrupt();
-            }
-        };
+
+        if (isInterruptibleJobRunner()) {
+            this.interruptor = new Interruptible() {
+                @Override
+                public void interrupt() {
+                    JobRunnerDelegate.this.interrupt();
+                }
+            };
+        }
     }
 
     @Override
     public void run() {
         try {
-
-            blockedOn(interruptor);
-            if (Thread.currentThread().isInterrupted()) {
-                interruptor.interrupt();
+            if (isInterruptibleJobRunner()) {
+                blockedOn(interruptor);
+                if (Thread.currentThread().isInterrupted()) {
+                    interruptor.interrupt();
+                }
             }
 
             LtsLoggerFactory.setLogger(logger);
@@ -75,9 +80,8 @@ public class JobRunnerDelegate implements Runnable {
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
                             .in(jobWrapper.getJobId());
-
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
-                    Result result = curJobRunner.run(jobWrapper.getJob());
+                    Result result = this.curJobRunner.run(jobWrapper.getJob());
 
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -113,11 +117,15 @@ public class JobRunnerDelegate implements Runnable {
                     LOGGER.warn("monitor error:" + t.getMessage(), t);
                 }
 
-                jobWrapper = callback.runComplete(response);
+                this.jobWrapper = callback.runComplete(response);
+
             }
         } finally {
             LtsLoggerFactory.remove();
-            blockedOn(null);
+
+            if (isInterruptibleJobRunner()) {
+                blockedOn(null);
+            }
         }
     }
 
@@ -125,6 +133,15 @@ public class JobRunnerDelegate implements Runnable {
         if (this.curJobRunner != null && this.curJobRunner instanceof InterruptibleJobRunner) {
             ((InterruptibleJobRunner) this.curJobRunner).interrupt();
         }
+    }
+
+    private static boolean isInterruptibleJobRunner(TaskTrackerAppContext appContext) {
+        Class<?> jobRunnerClass = appContext.getJobRunnerClass();
+        return jobRunnerClass != null && InterruptibleJobRunner.class.isAssignableFrom(appContext.getJobRunnerClass());
+    }
+
+    private boolean isInterruptibleJobRunner() {
+        return this.isInterruptibleJobRunner;
     }
 
     private void monitor(Action action) {

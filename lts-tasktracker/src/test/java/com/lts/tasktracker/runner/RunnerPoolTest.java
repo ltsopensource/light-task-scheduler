@@ -30,8 +30,8 @@ public class RunnerPoolTest {
         TaskTrackerAppContext appContext = new TaskTrackerAppContext();
         appContext.setConfig(config);
         appContext.setEventCenter(new InjvmEventCenter());
-//        appContext.setJobRunnerClass(TestInterruptorJobRunner.class);
-        appContext.setJobRunnerClass(NormalJobRunner.class);
+        appContext.setJobRunnerClass(TestInterruptorJobRunner.class);
+//        appContext.setJobRunnerClass(NormalJobRunner.class);
 
         RunnerPool runnerPool = new RunnerPool(appContext);
 
@@ -57,7 +57,7 @@ public class RunnerPoolTest {
         jobWrapper.setJob(job);
 
         runnerPool.execute(jobWrapper, callback);
-
+        System.out.println(runnerPool.getAvailablePoolSize());
 
         try {
             Thread.sleep(5000L);
@@ -66,6 +66,18 @@ public class RunnerPoolTest {
         }
         // 5s之后停止
         runnerPool.stopWorking();
+
+        while(true){
+            try {
+                // 如果这个数字还在增长,表示线程还在执行,测试发现 NormalJobRunner 确实还在执行  TestInterruptorJobRunner 会停止
+                System.out.println(NormalJobRunner.l);
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(runnerPool.getAvailablePoolSize());
+        }
+
     }
 
 }
