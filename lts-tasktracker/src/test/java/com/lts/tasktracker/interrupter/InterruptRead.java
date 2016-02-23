@@ -8,7 +8,8 @@ import java.io.IOException;
 
 abstract class InterruptSupport {
     private volatile boolean interrupted = false;
-    private Interruptible interruptor = new Interruptible() {
+    private Interruptible interruptor = new InterruptRead.InterruptibleAdapter() {
+
         public void interrupt() {
             interrupted = true;
             InterruptSupport.this.interrupt(); // 位置3
@@ -20,7 +21,7 @@ abstract class InterruptSupport {
             blockedOn(interruptor); // 位置1
             System.out.println("=======1");
             if (Thread.currentThread().isInterrupted()) { // 立马被interrupted
-                interruptor.interrupt();
+                ((InterruptRead.InterruptibleAdapter)interruptor).interrupt();
                 System.out.println("=======2");
             }
             // 执行业务代码
@@ -91,8 +92,16 @@ public class InterruptRead extends InterruptSupport {
         };
         t.start();
         // 先让Read执行3秒
-        Thread.sleep(3000);
+        Thread.sleep(30000);
         // 发出interrupt中断
-        t.interrupt();
+//        t.interrupt();
+    }
+
+    public static abstract class InterruptibleAdapter implements Interruptible{
+        public void interrupt(Thread thread) {
+            interrupt();
+        }
+
+        public abstract void interrupt();
     }
 }

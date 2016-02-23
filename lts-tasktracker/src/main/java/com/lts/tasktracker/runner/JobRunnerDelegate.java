@@ -16,6 +16,7 @@ import sun.nio.ch.Interruptible;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Job Runner 的代理类,
@@ -35,7 +36,7 @@ public class JobRunnerDelegate implements Runnable {
     private TaskTrackerMonitor monitor;
     private Interruptible interruptor;
     private JobRunner curJobRunner;
-    private boolean interrupted = false;
+    private AtomicBoolean interrupted = new AtomicBoolean(false);
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
@@ -48,8 +49,7 @@ public class JobRunnerDelegate implements Runnable {
                 appContext.getRemotingClient(), appContext);
         monitor = (TaskTrackerMonitor) appContext.getMonitor();
 
-        this.interruptor = new Interruptible() {
-            @Override
+        this.interruptor = new InterruptibleAdapter() {
             public void interrupt() {
                 JobRunnerDelegate.this.interrupt();
             }
@@ -61,7 +61,7 @@ public class JobRunnerDelegate implements Runnable {
         try {
             blockedOn(interruptor);
             if (Thread.currentThread().isInterrupted()) {
-                interruptor.interrupt();
+                ((InterruptibleAdapter)interruptor).interrupt();
             }
 
             LtsLoggerFactory.setLogger(logger);
@@ -126,15 +126,16 @@ public class JobRunnerDelegate implements Runnable {
     }
 
     private void interrupt() {
-        interrupted = true;
-
+        if(!interrupted.compareAndSet(false, true)){
+            return;
+        }
         if (this.curJobRunner != null && this.curJobRunner instanceof InterruptibleJobRunner) {
             ((InterruptibleJobRunner) this.curJobRunner).interrupt();
         }
     }
 
     private boolean isInterrupted() {
-        return this.interrupted;
+        return this.interrupted.get();
     }
 
     private void monitor(Action action) {
@@ -159,6 +160,15 @@ public class JobRunnerDelegate implements Runnable {
 
     private static void blockedOn(Interruptible interruptible) {
         sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(), interruptible);
+    }
+
+    public abstract class InterruptibleAdapter implements Interruptible {
+        // for > jdk7
+        public void interrupt(Thread thread) {
+            interrupt();
+        }
+
+        public abstract void interrupt();
     }
 
 }
