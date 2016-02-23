@@ -44,8 +44,6 @@ public class JobClientManager {
 
     /**
      * 添加节点
-     *
-     * @param node
      */
     public void addNode(Node node) {
         //  channel 可能为 null
@@ -71,8 +69,6 @@ public class JobClientManager {
 
     /**
      * 删除节点
-     *
-     * @param node
      */
     public void removeNode(Node node) {
         Set<JobClientNode> jobClientNodes = NODE_MAP.get(node.getGroup());
@@ -88,9 +84,6 @@ public class JobClientManager {
 
     /**
      * 得到 可用的 客户端节点
-     *
-     * @param nodeGroup
-     * @return
      */
     public JobClientNode getAvailableJobClient(String nodeGroup) {
 
