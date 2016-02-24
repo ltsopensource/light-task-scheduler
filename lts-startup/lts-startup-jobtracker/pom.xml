@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lts-startup</artifactId>
         <groupId>com.lts</groupId>
-        <version>1.6.4</version>
+        <version>1.6.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -36,8 +36,8 @@
             <artifactId>zkclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.netflix.curator</groupId>
-            <artifactId>curator-framework</artifactId>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -70,10 +70,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-dbutils</groupId>
-            <artifactId>commons-dbutils</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

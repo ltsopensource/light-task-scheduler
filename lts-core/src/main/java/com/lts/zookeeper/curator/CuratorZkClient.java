@@ -3,20 +3,20 @@ package com.lts.zookeeper.curator;
 import com.lts.core.cluster.Config;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
+import com.lts.zookeeper.DataListener;
 import com.lts.zookeeper.StateListener;
+import com.lts.zookeeper.lts.ZkException;
 import com.lts.zookeeper.serializer.SerializableSerializer;
 import com.lts.zookeeper.serializer.ZkSerializer;
 import com.lts.zookeeper.support.AbstractZkClient;
-import com.netflix.curator.framework.CuratorFramework;
-import com.netflix.curator.framework.CuratorFrameworkFactory;
-import com.netflix.curator.framework.api.CuratorWatcher;
-import com.netflix.curator.framework.state.ConnectionState;
-import com.netflix.curator.framework.state.ConnectionStateListener;
-import com.netflix.curator.retry.RetryNTimes;
-
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.*;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.curator.retry.RetryNTimes;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.WatchedEvent;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,42 +25,37 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/16/15.
  */
-public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
+public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildrenListener, CuratorZkClient.NodeListener> {
 
     private final CuratorFramework client;
     private final ZkSerializer zkSerializer;
 
     public CuratorZkClient(Config config) {
-        try {
-            String registryAddress = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
-            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                    .connectString(registryAddress)
-                    .retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000))
-                    .connectionTimeoutMs(5000);
+        String registryAddress = NodeRegistryUtils.getRealRegistryAddress(config.getRegistryAddress());
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .connectString(registryAddress)
+                .retryPolicy(new RetryNTimes(Integer.MAX_VALUE, 1000))
+                .connectionTimeoutMs(5000);
 
-            client = builder.build();
+        client = builder.build();
 
-            client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-                public void stateChanged(CuratorFramework client, ConnectionState state) {
-                    if (state == ConnectionState.LOST) {
-                        CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
-                    } else if (state == ConnectionState.CONNECTED) {
-                        CuratorZkClient.this.stateChanged(StateListener.CONNECTED);
-                    } else if (state == ConnectionState.RECONNECTED) {
-                        CuratorZkClient.this.stateChanged(StateListener.RECONNECTED);
-                    } else if(state == ConnectionState.SUSPENDED){
-                        CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
-                    }
+        client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+            public void stateChanged(CuratorFramework client, ConnectionState state) {
+                if (state == ConnectionState.LOST) {
+                    CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
+                } else if (state == ConnectionState.CONNECTED) {
+                    CuratorZkClient.this.stateChanged(StateListener.CONNECTED);
+                } else if (state == ConnectionState.RECONNECTED) {
+                    CuratorZkClient.this.stateChanged(StateListener.RECONNECTED);
+                } else if (state == ConnectionState.SUSPENDED) {
+                    CuratorZkClient.this.stateChanged(StateListener.DISCONNECTED);
                 }
-            });
+            }
+        });
 
-            zkSerializer = new SerializableSerializer();
+        zkSerializer = new SerializableSerializer();
 
-            client.start();
-
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        client.start();
     }
 
     @Override
@@ -135,15 +130,14 @@ public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
         }
     }
 
-    @Override
-    protected CuratorWatcher createTargetChildListener(String path, ChildListener listener) {
-        return new CuratorWatcherImpl(listener);
+    protected PathChildrenListener createTargetChildListener(final String path, final ChildListener listener) {
+        return new PathChildrenListener(path, listener);
     }
 
-    @Override
-    protected List<String> addTargetChildListener(String path, CuratorWatcher listener) {
+    protected List<String> addTargetChildListener(String path, PathChildrenListener listener) {
         try {
-            return client.getChildren().usingWatcher(listener).forPath(path);
+            listener.startListener();
+            return client.getChildren().forPath(path);
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {
@@ -151,9 +145,23 @@ public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
         }
     }
 
+    protected void removeTargetChildListener(String path, PathChildrenListener listener) {
+        listener.stopListener();
+    }
+
     @Override
-    protected void removeTargetChildListener(String path, CuratorWatcher listener) {
-        ((CuratorWatcherImpl) listener).unwatch();
+    protected void addTargetDataListener(String path, NodeListener listener) {
+        listener.startListener();
+    }
+
+    @Override
+    protected NodeListener createTargetDataListener(String path, final DataListener listener) {
+        return new NodeListener(path, listener);
+    }
+
+    @Override
+    protected void removeTargetDataListener(String path, NodeListener listener) {
+        listener.stopListener();
     }
 
     @Override
@@ -178,7 +186,7 @@ public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public <T> T getData(String path) {
         try {
             return (T) zkSerializer.deserialize(client.getData().forPath(path));
@@ -223,24 +231,89 @@ public class CuratorZkClient extends AbstractZkClient<CuratorWatcher> {
         client.close();
     }
 
-    private class CuratorWatcherImpl implements CuratorWatcher {
+    public class PathChildrenListener {
+        private PathChildrenCache childrenCache;
+        private PathChildrenCacheListener childrenCacheListener;
 
-        private volatile ChildListener listener;
+        public PathChildrenListener(String path, final ChildListener listener) {
+            childrenCache = new PathChildrenCache(client, path, true);
+            childrenCacheListener = new PathChildrenCacheListener() {
+                @Override
+                public void childEvent(CuratorFramework c, PathChildrenCacheEvent event)
+                        throws Exception {
 
-        public CuratorWatcherImpl(ChildListener listener) {
-            this.listener = listener;
+                    switch (event.getType()) {
+                        case CHILD_ADDED:
+                        case CHILD_REMOVED:
+                        case CHILD_UPDATED:
+                            String childPath = event.getData().getPath();
+                            String parentPath = childPath.substring(0, childPath.lastIndexOf("/"));
+                            List<String> children = client.getChildren().forPath(parentPath);
+                            listener.childChanged(parentPath, children);
+                        default:
+                            break;
+                    }
+                }
+            };
         }
 
-        public void unwatch() {
-            this.listener = null;
-        }
-
-        public void process(WatchedEvent event) throws Exception {
-            if(event.getPath() == null){
-                return ;
+        public void startListener() {
+            try {
+                childrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+                childrenCache.getListenable().addListener(childrenCacheListener);
+            } catch (Exception e) {
+                throw new ZkException(e);
             }
-            if (listener != null) {
-                listener.childChanged(event.getPath(), client.getChildren().usingWatcher(this).forPath(event.getPath()));
+        }
+
+        public void stopListener() {
+            try {
+                childrenCache.getListenable().removeListener(childrenCacheListener);
+                childrenCache.clear();
+                childrenCache.close();
+            } catch (IOException e) {
+                throw new ZkException(e);
+            }
+        }
+    }
+
+    public class NodeListener {
+        private NodeCache nodeCache;
+        private NodeCacheListener nodeCacheListener;
+
+        public NodeListener(String path, final DataListener listener) {
+            nodeCache = new NodeCache(client, path, false);
+            nodeCacheListener = new NodeCacheListener() {
+                @Override
+                public void nodeChanged() throws Exception {
+                    String path = nodeCache.getCurrentData().getPath();
+
+                    Object data = nodeCache.getCurrentData().getData();
+
+                    if(data == null){
+                        listener.dataDeleted(path);
+                    }else{
+                        listener.dataChange(path, data);
+                    }
+                }
+            };
+        }
+
+        public void startListener() {
+            try {
+                nodeCache.start(true);
+                nodeCache.getListenable().addListener(nodeCacheListener);
+            } catch (Exception e) {
+                throw new ZkException(e);
+            }
+        }
+
+        public void stopListener() {
+            try {
+                nodeCache.getListenable().removeListener(nodeCacheListener);
+                nodeCache.close();
+            } catch (IOException e) {
+                throw new ZkException(e);
             }
         }
     }

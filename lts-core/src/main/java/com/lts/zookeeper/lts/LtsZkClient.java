@@ -6,6 +6,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
+import com.lts.zookeeper.DataListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.serializer.SerializableSerializer;
 import com.lts.zookeeper.serializer.ZkSerializer;
@@ -23,11 +24,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 暂时没有做对data改变的监听处理
- *
+ * LTS 自带实现的zkclient
  * @author Robert HG (254963746@qq.com) on 2/18/16.
  */
-public class LtsZkClient extends AbstractZkClient<ChildListener> implements Watcher {
+public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> implements Watcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LtsZkClient.class);
     public static final int connectionTimeout = 30000;
@@ -320,6 +320,21 @@ public class LtsZkClient extends AbstractZkClient<ChildListener> implements Watc
                 listeners.remove(childListener);
             }
         }
+    }
+
+    @Override
+    protected void addTargetDataListener(String path, DataListener targetListener) {
+
+    }
+
+    @Override
+    protected DataListener createTargetDataListener(String path, DataListener listener) {
+        return null;
+    }
+
+    @Override
+    protected void removeTargetDataListener(String path, DataListener targetListener) {
+
     }
 
     @Override

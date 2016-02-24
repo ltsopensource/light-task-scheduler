@@ -90,7 +90,8 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
 //        jobClient.setIdentity("test_jobclient_0000001");
 //        jobClient.addConfig(SpiKey.LTS_JSON, "ltsjson");
-        jobClient.addConfig("lts.remoting", "netty");
+//        jobClient.addConfig("lts.remoting", "netty");
+        jobClient.addConfig("zk.client", "curator");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();
