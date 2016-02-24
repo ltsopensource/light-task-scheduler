@@ -4,6 +4,7 @@ package com.lts.zookeeper.support;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.zookeeper.ChildListener;
+import com.lts.zookeeper.DataListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.ZkClient;
 
@@ -16,13 +17,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
-public abstract class AbstractZkClient<TargetChildListener> implements ZkClient {
+public abstract class AbstractZkClient<TargetChildListener, TargetDataListener> implements ZkClient {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractZkClient.class);
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
 
     private final ConcurrentMap<String/*path*/, ConcurrentMap<ChildListener, TargetChildListener>> childListeners = new ConcurrentHashMap<String, ConcurrentMap<ChildListener, TargetChildListener>>();
+    private final ConcurrentMap<String/*path*/, ConcurrentMap<DataListener, TargetDataListener>> dataListeners = new ConcurrentHashMap<String, ConcurrentMap<DataListener, TargetDataListener>>();
 
     private volatile boolean closed = false;
 
@@ -86,6 +88,30 @@ public abstract class AbstractZkClient<TargetChildListener> implements ZkClient 
         }
     }
 
+    public void addDataListener(String path, DataListener listener) {
+        ConcurrentMap<DataListener, TargetDataListener> listeners = dataListeners.get(path);
+        if (listeners == null) {
+            dataListeners.putIfAbsent(path, new ConcurrentHashMap<DataListener, TargetDataListener>());
+            listeners = dataListeners.get(path);
+        }
+        TargetDataListener targetListener = listeners.get(listener);
+        if (targetListener == null) {
+            listeners.putIfAbsent(listener, createTargetDataListener(path, listener));
+            targetListener = listeners.get(listener);
+        }
+         addTargetDataListener(path, targetListener);
+    }
+
+    public void removeDataListener(String path, DataListener listener) {
+        ConcurrentMap<DataListener, TargetDataListener> listeners = dataListeners.get(path);
+        if (listeners != null) {
+            TargetDataListener targetListener = listeners.remove(listener);
+            if (targetListener != null) {
+                removeTargetDataListener(path, targetListener);
+            }
+        }
+    }
+
     public void close() {
         if (closed) {
             return;
@@ -104,7 +130,6 @@ public abstract class AbstractZkClient<TargetChildListener> implements ZkClient 
         }
     }
 
-
     protected abstract void doClose();
 
     protected abstract String createPersistent(String path, boolean sequential);
@@ -120,5 +145,11 @@ public abstract class AbstractZkClient<TargetChildListener> implements ZkClient 
     protected abstract List<String> addTargetChildListener(String path, TargetChildListener listener);
 
     protected abstract void removeTargetChildListener(String path, TargetChildListener listener);
+
+    protected abstract void addTargetDataListener(String path, TargetDataListener targetListener);
+
+    protected abstract TargetDataListener createTargetDataListener(String path, DataListener listener);
+
+    protected abstract void removeTargetDataListener(String path, TargetDataListener targetListener);
 
 }

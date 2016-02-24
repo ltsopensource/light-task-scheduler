@@ -8,7 +8,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.store.jdbc.SqlBuilder;
 import com.lts.web.request.NodeRequest;
-import org.apache.commons.dbutils.ResultSetHandler;
+import com.lts.store.jdbc.dbutils.ResultSetHandler;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;

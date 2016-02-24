@@ -25,6 +25,10 @@ public interface ZkClient {
 
     void removeChildListener(String path, ChildListener listener);
 
+    void addDataListener(String path, DataListener listener);
+
+    void removeDataListener(String path, DataListener listener);
+
     void addStateListener(StateListener listener);
 
     void removeStateListener(StateListener listener);

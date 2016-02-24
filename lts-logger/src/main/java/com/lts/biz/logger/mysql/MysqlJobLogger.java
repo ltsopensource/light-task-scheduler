@@ -15,7 +15,7 @@ import com.lts.core.json.TypeReference;
 import com.lts.store.jdbc.JdbcRepository;
 import com.lts.store.jdbc.SqlBuilder;
 import com.lts.web.response.PageResponse;
-import org.apache.commons.dbutils.ResultSetHandler;
+import com.lts.store.jdbc.dbutils.ResultSetHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
