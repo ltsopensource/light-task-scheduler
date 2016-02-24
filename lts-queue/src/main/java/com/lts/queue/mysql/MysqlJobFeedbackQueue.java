@@ -12,7 +12,7 @@ import com.lts.queue.JobFeedbackQueue;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.exception.JobQueueException;
 import com.lts.store.jdbc.JdbcRepository;
-import org.apache.commons.dbutils.ResultSetHandler;
+import com.lts.store.jdbc.dbutils.ResultSetHandler;
 
 import java.io.InputStream;
 import java.sql.ResultSet;

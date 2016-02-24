@@ -3,9 +3,11 @@ package com.lts.zookeeper.zkclient;
 import com.lts.core.cluster.Config;
 import com.lts.core.registry.NodeRegistryUtils;
 import com.lts.zookeeper.ChildListener;
+import com.lts.zookeeper.DataListener;
 import com.lts.zookeeper.StateListener;
 import com.lts.zookeeper.support.AbstractZkClient;
 import org.I0Itec.zkclient.IZkChildListener;
+import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.exception.ZkNoNodeException;
@@ -18,7 +20,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
-public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
+public class ZkClientZkClient extends AbstractZkClient<IZkChildListener, IZkDataListener> {
 
     public static final int connectionTimeout = 30000;
 
@@ -32,7 +34,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
 
         zkClient.subscribeStateChanges(new IZkStateListener() {
 
-            @Override
             public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
                 ZkClientZkClient.this.state = state;
                 if (state == KeeperState.Disconnected) {
@@ -44,14 +45,12 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
                 }
             }
 
-            @Override
             public void handleNewSession() throws Exception {
                 stateChanged(StateListener.RECONNECTED);
             }
         });
     }
 
-    @Override
     protected String createPersistent(String path, boolean sequential) {
         try {
             if (sequential) {
@@ -65,7 +64,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         return null;
     }
 
-    @Override
     protected String createPersistent(String path, Object data, boolean sequential) {
         try {
             if (sequential) {
@@ -79,7 +77,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         return null;
     }
 
-    @Override
     protected String createEphemeral(String path, boolean sequential) {
         try {
             if (sequential) {
@@ -93,7 +90,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         return null;
     }
 
-    @Override
     protected String createEphemeral(String path, Object data, boolean sequential) {
         try {
             if (sequential) {
@@ -107,7 +103,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         return null;
     }
 
-    @Override
     protected IZkChildListener createTargetChildListener(String path, final ChildListener listener) {
         return new IZkChildListener() {
             public void handleChildChange(String parentPath, List<String> currentChildes)
@@ -117,17 +112,36 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         };
     }
 
-    @Override
     protected List<String> addTargetChildListener(String path, IZkChildListener iZkChildListener) {
         return zkClient.subscribeChildChanges(path, iZkChildListener);
     }
 
-    @Override
     protected void removeTargetChildListener(String path, IZkChildListener iZkChildListener) {
         zkClient.unsubscribeChildChanges(path, iZkChildListener);
     }
 
-    @Override
+    protected void addTargetDataListener(String path, IZkDataListener targetListener) {
+        zkClient.subscribeDataChanges(path, targetListener);
+    }
+
+    protected IZkDataListener createTargetDataListener(String path, final DataListener listener) {
+        return new IZkDataListener() {
+            @Override
+            public void handleDataChange(String dataPath, Object data) throws Exception {
+                listener.dataChange(dataPath, data);
+            }
+
+            @Override
+            public void handleDataDeleted(String dataPath) throws Exception {
+                listener.dataDeleted(dataPath);
+            }
+        };
+    }
+
+    protected void removeTargetDataListener(String path, IZkDataListener targetListener) {
+        zkClient.unsubscribeDataChanges(path, targetListener);
+    }
+
     public boolean delete(String path) {
         try {
             return zkClient.delete(path);
@@ -136,7 +150,6 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener> {
         return false;
     }
 
-    @Override
     public boolean exists(String path) {
         try {
             return zkClient.exists(path);

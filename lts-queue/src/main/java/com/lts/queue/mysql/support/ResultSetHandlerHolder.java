@@ -3,7 +3,7 @@ package com.lts.queue.mysql.support;
 import com.lts.core.json.JSON;
 import com.lts.core.json.TypeReference;
 import com.lts.queue.domain.JobPo;
-import org.apache.commons.dbutils.ResultSetHandler;
+import com.lts.store.jdbc.dbutils.ResultSetHandler;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,6 +1,5 @@
 package com.lts.example.api;
 
-import com.lts.core.spi.SpiKey;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.example.support.TestJobRunner;
 import com.lts.tasktracker.TaskTracker;
@@ -31,7 +30,9 @@ public class TaskTrackerTest {
         // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
         taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
-         taskTracker.addConfig("lts.remoting", "netty");
+        taskTracker.addConfig("lts.remoting", "netty");
+//        taskTracker.addConfig("zk.client", "curator");
+
 //        taskTracker.addConfig("lts.remoting.serializable.default", "fastjson");
 //        taskTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
         taskTracker.start();

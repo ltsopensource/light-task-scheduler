@@ -12,3 +12,11 @@ git push -u github develop
 #推送所有的标签
 git push osc --tags
 git push github --tags
+
+#从远处拉取标签
+git fetch osc --tags
+git fetch github --tags
+
+# 查询远程标签
+git ls-remote --tags osc
+git ls-remote --tags github
