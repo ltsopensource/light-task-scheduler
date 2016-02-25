@@ -38,12 +38,12 @@ LTS支持任务类型：
 
 ###节点组
 1. 英文名称 NodeGroup,一个节点组等同于一个小的集群，同一个节点组中的各个节点是对等的，等效的，对外提供相同的服务。
-2. 没个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
+2. 每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
 
 ###FailStore
 1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
 2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
-3. FailStore目前提供三种实现：leveldb，rocksdb，berkeleydb,mapdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
+3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
 
 
 ## 流程图
@@ -68,7 +68,7 @@ SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即�
 2. 对业务日志记录器的扩展，目前主要支持console，mysql，mongo，用户也可以通过扩展选择往其他地方输送日志。
 
 ###4、故障转移
-当正在执行任务的TaskTracker宕机之后，JobTracker会立马分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
+当正在执行任务的TaskTracker宕机之后，JobTracker会立马将分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
 ###5、节点监控
 可以对JobTracker，TaskTracker节点进行资源监控，任务监控等，可以实时的在LTS-Admin管理后台查看，进而进行合理的资源调配。
 ###6、多样化任务执行结果支持
@@ -95,8 +95,9 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 ##JobTracker和LTS-Admin部署
 提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
 
-1、运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
-2、下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
+1. 运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
+
+2. 下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
 lts-{version}-bin的文件结构
 
 ```java
@@ -129,8 +130,8 @@ lts-{version}-bin的文件结构
         └── *.jar
 ```	    
         
-3、JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。        
-4、LTS-Admin启动.修改`lts-admin/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
+4. LTS-Admin启动.修改`lts-admin/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
 ##JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
@@ -281,7 +282,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
 
 | 参数  | 是否必须  | 默认值 | 使用范围 | 设置方式|参数说明 |
 |:------------- |:------------- |:---------------:|:---------------:| -------------:| -------------:|
-|registryAddress|必须|无|JobClient,JobTracker,TaskTracker|setRegistryAddress("xxxx")|注册中心，可以选用zk或者redis，参考值: zookeeper://127.0.0.1:2181|
+|registryAddress|必须|无|JobClient,JobTracker,TaskTracker|setRegistryAddress("xxxx")|注册中心，可以选用zk或者redis，参考值: zookeeper://127.0.0.1:2181 或 redis://127.0.0.1:6379|
 |clusterName|必须|无|JobClient,JobTracker,TaskTracker|setClusterName("xxxx")|集群名称，clusterName相同的所有节点才会组成整个LTS架构|
 |listenPort|必须|35001|JobTracker|setListenPort(xxx)|JobTracker的远程监听端口|
 |job.logger|必须|console|JobTracker|addConfig("job.logger","xxx")|LTS业务日志记录器，可选值console,mysql,mongo,或者自己实现SPI扩展|
