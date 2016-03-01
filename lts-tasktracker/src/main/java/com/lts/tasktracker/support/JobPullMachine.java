@@ -3,6 +3,7 @@ package com.lts.tasktracker.support;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.exception.JobTrackerNotFoundException;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
@@ -32,7 +33,7 @@ public class JobPullMachine {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPullMachine.class.getSimpleName());
 
     // 定时检查TaskTracker是否有空闲的线程，如果有，那么向JobTracker发起任务pull请求
-    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-JobPullMachine-Executor", true));
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerAppContext appContext;

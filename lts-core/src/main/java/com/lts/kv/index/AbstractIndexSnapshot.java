@@ -28,7 +28,7 @@ public abstract class AbstractIndexSnapshot<K, V> implements IndexSnapshot<K, V>
         this.index = index;
         this.storeConfig = storeConfig;
         this.serializer = serializer;
-        this.executorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("ltsdb-index-snapshot-service"));
+        this.executorService = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("ltsdb-index-snapshot-service", true));
     }
 
     public void init() throws IOException {

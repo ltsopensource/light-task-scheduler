@@ -1,6 +1,7 @@
 package com.lts.jobtracker.support.checker;
 
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -28,7 +29,7 @@ public class ExecutableDeadJobChecker {
     // 1 分钟还锁着的，说明是有问题的
     private static final long MAX_TIME_OUT = 60 * 1000;
 
-    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutableJobQueue-Fix-Executor", true));
 
     private JobTrackerAppContext appContext;
 

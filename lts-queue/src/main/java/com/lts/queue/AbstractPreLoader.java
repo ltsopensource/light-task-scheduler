@@ -4,6 +4,7 @@ import com.lts.core.AppContext;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 
@@ -24,7 +25,7 @@ public abstract class AbstractPreLoader implements PreLoader {
 
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
-    private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-PreLoader", true));
     @SuppressWarnings("unused")
 	private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);

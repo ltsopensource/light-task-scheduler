@@ -5,6 +5,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.KVPair;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
@@ -37,8 +38,8 @@ public abstract class RetryScheduler<T> {
     private Class<?> type = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-retry", true));
+    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-master-retry", true));
     private ScheduledFuture<?> masterScheduledFuture;
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean selfCheckStart = new AtomicBoolean(false);

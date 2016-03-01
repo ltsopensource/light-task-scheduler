@@ -2,6 +2,7 @@ package com.lts.jobtracker.support.checker;
 
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.domain.JobClientNode;
@@ -28,7 +29,7 @@ public class FeedbackJobSendChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackJobSendChecker.class);
 
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-FeedbackJobSend-Executor", true));
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private ClientNotifier clientNotifier;

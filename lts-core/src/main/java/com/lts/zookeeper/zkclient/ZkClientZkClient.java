@@ -120,8 +120,8 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener, IZkData
         zkClient.unsubscribeChildChanges(path, iZkChildListener);
     }
 
-    protected void addTargetDataListener(String path, IZkDataListener targetListener) {
-        zkClient.subscribeDataChanges(path, targetListener);
+    protected void addTargetDataListener(String path, IZkDataListener listener) {
+        zkClient.subscribeDataChanges(path, listener);
     }
 
     protected IZkDataListener createTargetDataListener(String path, final DataListener listener) {
@@ -138,8 +138,8 @@ public class ZkClientZkClient extends AbstractZkClient<IZkChildListener, IZkData
         };
     }
 
-    protected void removeTargetDataListener(String path, IZkDataListener targetListener) {
-        zkClient.unsubscribeDataChanges(path, targetListener);
+    protected void removeTargetDataListener(String path, IZkDataListener listener) {
+        zkClient.unsubscribeDataChanges(path, listener);
     }
 
     public boolean delete(String path) {

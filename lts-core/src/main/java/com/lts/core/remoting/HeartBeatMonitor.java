@@ -5,6 +5,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.EcTopic;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
@@ -31,10 +32,10 @@ public class HeartBeatMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(HeartBeatMonitor.class.getSimpleName());
 
     // 用来定时发送心跳
-    private final ScheduledExecutorService PING_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService PING_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-HeartBeat-Ping", true));
     private ScheduledFuture<?> pingScheduledFuture;
     // 当没有可用的JobTracker的时候，启动这个来快速的检查（小间隔）
-    private final ScheduledExecutorService FAST_PING_EXECUTOR = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService FAST_PING_EXECUTOR = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-HeartBeat-Fast-Ping", true));
     private ScheduledFuture<?> fastPingScheduledFuture;
 
     private RemotingClientDelegate remotingClient;

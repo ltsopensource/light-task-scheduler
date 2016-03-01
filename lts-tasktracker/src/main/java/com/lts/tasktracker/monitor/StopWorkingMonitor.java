@@ -2,6 +2,7 @@ package com.lts.tasktracker.monitor;
 
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.EcTopic;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -26,7 +27,7 @@ public class StopWorkingMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(StopWorkingMonitor.class);
     private TaskTrackerAppContext appContext;
     private AtomicBoolean start = new AtomicBoolean(false);
-    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-StopWorking-Monitor", true));
     private ScheduledFuture<?> scheduledFuture;
     private String ecSubscriberName = StopWorkingMonitor.class.getSimpleName();
     private EventSubscriber eventSubscriber;

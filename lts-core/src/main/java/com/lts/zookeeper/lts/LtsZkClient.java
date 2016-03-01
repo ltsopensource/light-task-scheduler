@@ -212,7 +212,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
             try {
                 return zk.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT_SEQUENTIAL);
             } catch (KeeperException e) {
-                throw new ZkException("path[\" + path + \"], sequential[true] , code:" + e.getCode(), e);
+                throw new ZkException("path[\" + path + \"], sequential[true] , code:" + e.code(), e);
             } catch (InterruptedException e) {
                 throw new ZkInterruptedException("create persistent path[" + path + "], sequential[true]", e);
             }
@@ -229,7 +229,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
                     createPersistent(parentDir, false);
                     createPersistent(path, false);
                 } else {
-                    throw new ZkException("path[\" + path + \"], sequential[false] , code:" + e.getCode(), e);
+                    throw new ZkException("path[\" + path + \"], sequential[false] , code:" + e.code(), e);
                 }
             } catch (InterruptedException e) {
                 throw new ZkInterruptedException("create persistent path[" + path + "], sequential[false]", e);
@@ -257,7 +257,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
             try {
                 return zk.create(path, bytes, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
             } catch (KeeperException e) {
-                throw new ZkException("path[\" + path + \"], sequential[true] , code:" + e.getCode(), e);
+                throw new ZkException("path[\" + path + \"], sequential[true] , code:" + e.code(), e);
             } catch (InterruptedException e) {
                 throw new ZkInterruptedException("create ephemeral path[" + path + "], sequential[true]", e);
             }
@@ -269,7 +269,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
                 if (isZkNodeExistsException(e)) {
                     // 已经存在 ignored
                 } else {
-                    throw new ZkException("path[\" + path + \"], sequential[false] , code:" + e.getCode(), e);
+                    throw new ZkException("path[\" + path + \"], sequential[false] , code:" + e.code(), e);
                 }
             } catch (InterruptedException e) {
                 throw new ZkInterruptedException("create ephemeral path[" + path + "], sequential[false]", e);
@@ -323,7 +323,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
     }
 
     @Override
-    protected void addTargetDataListener(String path, DataListener targetListener) {
+    protected void addTargetDataListener(String path, DataListener listener) {
 
     }
 
@@ -333,7 +333,7 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
     }
 
     @Override
-    protected void removeTargetDataListener(String path, DataListener targetListener) {
+    protected void removeTargetDataListener(String path, DataListener listener) {
 
     }
 
@@ -354,11 +354,11 @@ public class LtsZkClient extends AbstractZkClient<ChildListener, DataListener> i
     }
 
     private boolean isZkNoNodeException(KeeperException e) {
-        return KeeperException.Code.NONODE.intValue() == e.getCode();
+        return KeeperException.Code.NONODE == e.code();
     }
 
     private boolean isZkNodeExistsException(KeeperException e) {
-        return KeeperException.Code.NODEEXISTS.intValue() == e.getCode();
+        return KeeperException.Code.NODEEXISTS == e.code();
     }
 
     @Override
