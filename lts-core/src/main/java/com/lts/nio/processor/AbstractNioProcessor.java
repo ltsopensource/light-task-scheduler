@@ -44,7 +44,7 @@ public abstract class AbstractNioProcessor implements NioProcessor {
     public AbstractNioProcessor(NioHandler eventHandler, ChannelInitializer channelInitializer) {
         this.eventHandler = eventHandler;
         this.executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR,
-                new NamedThreadFactory("NioProcessorExecutor"));
+                new NamedThreadFactory("NioProcessorExecutor", true));
         this.selectorLoop = new NioSelectorLoop("AcceptSelectorLoop-I/O", this);
 //        this.readWriteSelectorPool = new FixedNioSelectorLoopPool(Constants.AVAILABLE_PROCESSOR + 1, "Server", this);
         this.idleDetector = new IdleDetector();

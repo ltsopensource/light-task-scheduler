@@ -31,7 +31,7 @@ public abstract class AbstractClientNode<T extends Node, Context extends AppCont
             int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingClient.registerDefaultProcessor(defaultProcessor,
                     Executors.newFixedThreadPool(processorSize,
-                            new NamedThreadFactory(AbstractClientNode.class.getSimpleName())));
+                            new NamedThreadFactory(AbstractClientNode.class.getSimpleName(), true)));
         }
     }
 

@@ -7,6 +7,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -50,7 +51,7 @@ public class ExecutingDeadJobChecker {
     // 2 分钟没有收到反馈信息，需要去检查这个任务是否还在执行
     private static final long MAX_DEAD_CHECK_TIME = 2 * 60 * 1000;
 
-    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutingJobQueue-Fix-Executor", true));
 
     private JobTrackerAppContext appContext;
     private JobTrackerMonitor monitor;

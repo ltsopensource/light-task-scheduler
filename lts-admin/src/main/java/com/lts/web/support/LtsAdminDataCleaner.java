@@ -2,6 +2,7 @@ package com.lts.web.support;
 
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.QuietUtils;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.web.repository.mapper.*;
@@ -43,7 +44,7 @@ public class LtsAdminDataCleaner implements InitializingBean {
     @Autowired
     private JVMMemoryRepo jvmMemoryRepo;
 
-    private ScheduledExecutorService cleanExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService cleanExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-Admin-Clean", true));
 
     private AtomicBoolean start = new AtomicBoolean(false);
 
