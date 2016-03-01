@@ -28,7 +28,7 @@ public abstract class AbstractServerNode<T extends Node, App extends AppContext>
         if (defaultProcessor != null) {
             int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingServer.registerDefaultProcessor(defaultProcessor,
-                    Executors.newFixedThreadPool(processorSize, new NamedThreadFactory(AbstractServerNode.class.getSimpleName())));
+                    Executors.newFixedThreadPool(processorSize, new NamedThreadFactory(AbstractServerNode.class.getSimpleName(), true)));
         }
     }
 

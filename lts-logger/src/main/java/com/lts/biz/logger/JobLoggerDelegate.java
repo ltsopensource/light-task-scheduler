@@ -55,7 +55,7 @@ public class JobLoggerDelegate implements JobLogger {
             maxMemoryLogSize = config.getParameter(Constants.LAZY_JOB_LOGGER_MEM_SIZE, 1000);
             flushPeriod = config.getParameter(Constants.LAZY_JOB_LOGGER_CHECK_PERIOD, 3);
 
-            executor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LazyJobLogger"));
+            executor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LazyJobLogger", true));
             scheduledFuture = executor.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {

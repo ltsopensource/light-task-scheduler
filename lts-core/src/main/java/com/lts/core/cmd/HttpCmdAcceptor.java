@@ -43,7 +43,7 @@ public class HttpCmdAcceptor {
         }
 
         if (thread == null) {
-            this.thread = new NamedThreadFactory("HTTP-CMD-ACCEPTOR").newThread(
+            this.thread = new NamedThreadFactory("HTTP-CMD-ACCEPTOR", true).newThread(
                     new Runnable() {
                         @Override
                         public void run() {

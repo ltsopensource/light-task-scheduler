@@ -43,7 +43,7 @@ public class JobPusher {
     public JobPusher(JobTrackerAppContext appContext) {
         this.appContext = appContext;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
-                new NamedThreadFactory(JobPusher.class.getSimpleName()));
+                new NamedThreadFactory(JobPusher.class.getSimpleName(), true));
         this.monitor = (JobTrackerMonitor) appContext.getMonitor();
         this.remotingServer = appContext.getRemotingServer();
     }

@@ -1,6 +1,7 @@
 package com.lts.ec.injvm;
 
 import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
@@ -26,7 +27,7 @@ public class InjvmEventCenter implements EventCenter {
     private final ConcurrentHashMap<String, Set<EventSubscriber>> ecMap =
             new ConcurrentHashMap<String, Set<EventSubscriber>>();
 
-    private final ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2);
+    private final ExecutorService executor = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 2, new NamedThreadFactory("LTS-InjvmEventCenter-Executor", true));
 
     public void subscribe(EventSubscriber subscriber, String... topics) {
         for (String topic : topics) {

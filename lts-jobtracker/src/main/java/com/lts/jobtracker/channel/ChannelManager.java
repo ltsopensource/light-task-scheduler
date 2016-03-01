@@ -2,6 +2,7 @@ package com.lts.jobtracker.channel;
 
 import com.lts.core.cluster.NodeType;
 import com.lts.core.constant.Constants;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -24,12 +25,12 @@ public class ChannelManager {
     // 任务节点列表
     private final ConcurrentHashMap<String/*taskTrackerNodeGroup*/, List<ChannelWrapper>> taskTrackerChannelMap = new ConcurrentHashMap<String, List<ChannelWrapper>>();
     // 用来定时检查已经关闭的channel
-    private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService channelCheckExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-Channel-Checker", true));
     private ScheduledFuture<?> scheduledFuture;
     // 存储离线一定时间内的节点信息
     private final ConcurrentHashMap<String/*identity*/, Long> offlineTaskTrackerMap = new ConcurrentHashMap<String, Long>();
     // 用来清理离线时间很长的信息
-    private final ScheduledExecutorService offlineTaskTrackerCheckExecutorService = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService offlineTaskTrackerCheckExecutorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-offline-TaskTracker-Checker", true));
     private ScheduledFuture<?> offlineTaskTrackerScheduledFuture;
 
     private AtomicBoolean start = new AtomicBoolean(false);

@@ -38,7 +38,7 @@ public class NettyRemotingClient extends AbstractRemotingClient {
                                final ChannelEventListener channelEventListener) {
         super(remotingClientConfig, channelEventListener);
 
-        this.eventLoopGroup = new NioEventLoopGroup(remotingClientConfig.getClientSelectorThreads(), new NamedThreadFactory("NettyClientSelectorThread_"));
+        this.eventLoopGroup = new NioEventLoopGroup(remotingClientConfig.getClientSelectorThreads(), new NamedThreadFactory("NettyClientSelectorThread_", true));
     }
 
     @Override

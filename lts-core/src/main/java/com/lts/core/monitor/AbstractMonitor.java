@@ -1,5 +1,6 @@
 package com.lts.core.monitor;
 
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSONException;
 import com.lts.core.json.JSONObject;
 import com.lts.core.AppContext;
@@ -35,7 +36,7 @@ public abstract class AbstractMonitor implements Monitor {
     protected Config config;
     protected String monitorSite;
 
-    private ScheduledExecutorService collectScheduleExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService collectScheduleExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-Monitor-data-collector", true));
     private ScheduledFuture<?> collectScheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     // 这里面保存发送失败的，不过有个最大限制，防止内存爆掉
