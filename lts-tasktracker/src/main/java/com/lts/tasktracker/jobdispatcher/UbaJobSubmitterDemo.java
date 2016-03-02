@@ -23,7 +23,7 @@ import java.util.Properties;
  *用户行为分析 数据采集 初始任务
  * for demo
  */
-public class UbaJobSubmitter implements JobSubmitter {
+public class UbaJobSubmitterDemo implements JobSubmitter {
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerDispatcher.class);
     protected Properties conf;
 
