@@ -55,9 +55,9 @@ public class JobFinishedRequest extends AbstractRemotingCommandBody {
     }
 
     public void addJobResults(List<JobResult> jobResults) {
-        if (jobResults == null) {
-            jobResults = new ArrayList<JobResult>();
+        if (this.jobResults == null) {
+            this.jobResults = new ArrayList<JobResult>();
         }
-        jobResults.addAll(jobResults);
+        this.jobResults.addAll(jobResults);
     }
 }

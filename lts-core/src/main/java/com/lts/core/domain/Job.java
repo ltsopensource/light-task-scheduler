@@ -43,7 +43,7 @@ public class Job implements Serializable{
     private String cronExpression;
 
     /**
-     * 任务的最早出发时间
+     * 任务的最触发发时间
      * 如果设置了 cronExpression， 那么这个字段没用
      */
     private Long triggerTime;

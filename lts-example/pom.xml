@@ -9,7 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>lts-example</artifactId>
-
     <dependencies>
         <dependency>
             <groupId>com.lts</groupId>

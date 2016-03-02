@@ -64,4 +64,13 @@ public class CollectionUtils {
         }
         return new ArrayList<T>(set);
     }
+
+    public static <T> List<T> arrayToList(T[] t) {
+        if(t == null || t.length == 0){
+            return new ArrayList<T>(0);
+        }
+        List<T> list = new ArrayList<T>(t.length);
+        Collections.addAll(list, t);
+        return list;
+    }
 }

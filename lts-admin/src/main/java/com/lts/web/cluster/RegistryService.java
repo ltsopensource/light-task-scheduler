@@ -28,11 +28,11 @@ public class RegistryService implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     @Autowired
-    NodeMemoryDatabase nodeMemoryDatabase;
+    private NodeMemoryDatabase nodeMemoryDatabase;
     @Autowired
-    AdminAppContext appContext;
+    private AdminAppContext appContext;
     @Autowired
-    NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
+    private NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
     private Registry registry;
 

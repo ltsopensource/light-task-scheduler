@@ -28,4 +28,6 @@ public interface EcTopic {
     // 注册中心不可用
     String REGISTRY_UN_AVAILABLE = "REGISTRY_UN_AVAILABLE";
 
+    String NODE_STOP = "NODE_STOP";
+
 }

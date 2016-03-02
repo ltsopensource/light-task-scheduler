@@ -33,6 +33,7 @@ LTS_MAIN="com.lts.startup.TaskTrackerStartup"
 
 LTS_PID_FILE="$TASK_TRACKER_HOME/pid/tasktracker.pid"
 
+CLASSPATH="$TASK_TRACKER_HOME/conf/:$CLASSPATH"
 case $1 in
 start)
     echo "Starting LTS TASK_TRACKER ... "

@@ -40,7 +40,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
         ZookeeperTransporter zookeeperTransporter = ServiceLoader.load(ZookeeperTransporter.class, appContext.getConfig());
         this.zkClient = zookeeperTransporter.connect(appContext.getConfig());
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
-        // 默认是连成功的(用zkclient时候，第一次不会有state changed时间暴露给用户，
+        // 默认是连成功的(用zkclient时候，第一次不会有state changed事件暴露给用户，
         // 他居然在new ZkClient的时候就直接连接了，给个提供listener的构造函数或者把启动改为start方法都ok呀，蛋疼)
         appContext.getRegistryStatMonitor().setAvailable(true);
 
