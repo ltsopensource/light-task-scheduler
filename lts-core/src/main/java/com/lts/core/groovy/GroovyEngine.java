@@ -41,9 +41,7 @@ public class GroovyEngine {
      */
     public static Object newInstance(String groovySource,
                                      Class<?>[] parameterTypes,
-                                     Object[] args
-
-    ) throws GroovyException {
+                                     Object[] args) throws GroovyException {
 
         Class groovyClass = parseClass(groovySource);
         try {

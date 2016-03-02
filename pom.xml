@@ -52,6 +52,8 @@
         <jackson.version>2.6.3</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
         <javax.mail.version>1.5.4</javax.mail.version>
+        <reflections.version>0.9.9-RC1</reflections.version>
+        <guava.version>18.0</guava.version>
     </properties>
 
     <dependencyManagement>
@@ -238,6 +240,22 @@
                 <artifactId>javax.mail</artifactId>
                 <version>${javax.mail.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <build>
@@ -273,5 +291,16 @@
         <developerConnection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</developerConnection>
         <url>https://github.com/qq254963746/light-task-scheduler.git</url>
     </scm>
-
+    <distributionManagement>
+        <repository>
+            <id>glodon-nexus-releases</id>
+            <name>Glodon Nexus Release Repository</name>
+            <url>http://maven.glodon.com/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>glodon-nexus-snapshots</id>
+            <name>Glodon Nexus Snapshot Repository</name>
+            <url>http://maven.glodon.com/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
