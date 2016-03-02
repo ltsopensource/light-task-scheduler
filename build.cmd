@@ -11,7 +11,7 @@ set DIST_BIN_DIR=lts-%VERSION%-bin
 md "%BASE_HOME%\dist"
 md "%BASE_HOME%\dist\%DIST_BIN_DIR%"
 
-set LTS_BIN_DIR=%BASE_HOME%dist\%DIST_BIN_DIR%
+set LTS_BIN_DIR=%BASE_HOME%\dist\%DIST_BIN_DIR%
 
 set JOB_TRACKER_START_UP_DIR=%BASE_HOME%\lts-startup\lts-startup-jobtracker
 cd %JOB_TRACKER_START_UP_DIR%

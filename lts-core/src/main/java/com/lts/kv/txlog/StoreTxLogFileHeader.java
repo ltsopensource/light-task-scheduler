@@ -30,7 +30,7 @@ public class StoreTxLogFileHeader extends AbstractFileHeader {
 
     @Override
     public int getLength() {
-        return 2 + 8 + 8;
+        return 2 + 8;
     }
 
     @Override
