@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lts-startup</artifactId>
         <groupId>com.lts</groupId>
-        <version>1.6.4-SNAPSHOT</version>
+        <version>1.6.5-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,8 +31,8 @@
             <artifactId>zkclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.netflix.curator</groupId>
-            <artifactId>curator-framework</artifactId>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>

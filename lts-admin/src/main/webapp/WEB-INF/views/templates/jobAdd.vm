@@ -39,6 +39,11 @@
                                 <input type="text" class="form-control" name="cronExpression"
                                        placeholder="请输入CronExpression">
                             </div>
+                            <div class="col-sm-3" id="cronGenerator" style="display:none;">
+                                <button class="btn btn-primary" type="button" id="cronGeneratorBtn">
+                                    工具生成
+                                </button>
+                            </div>
                             <div class="col-sm-3" id="triggerTimeJob" style="display:none;">
                                 <input class="form-control datepicker" type="text" style="width:160px"
                                        id="triggerTime"
@@ -125,12 +130,15 @@
             var jobType = $(this).val();
             if (jobType == 'REAL_TIME_JOB') {
                 $("#cronJob").hide();
+                $("#cronGenerator").hide();
                 $("#triggerTimeJob").hide();
             } else if (jobType == 'TRIGGER_TIME_JOB') {
                 $("#cronJob").hide();
+                $("#cronGenerator").hide();
                 $("#triggerTimeJob").show();
             } else if (jobType == 'CRON_JOB') {
                 $("#cronJob").show();
+                $("#cronGenerator").show();
                 $("#triggerTimeJob").hide();
             }
         });
@@ -139,7 +147,7 @@
             var params = {};
             $.each($('#form').parent().find(".form-control"), function () {
                 var name = $(this).attr("name");
-                var value = $(this).val();
+                var value = $(this).val().trim();
                 params[name] = value;
             });
 
@@ -207,6 +215,7 @@
                         swal('添加成功');
                         $("#resetBtn").trigger("click");
                         $("#cronJob").hide();
+                        $("#cronGenerator").hide();
                         $("#triggerTimeJob").hide();
                     } else {
                         if (json) {
@@ -217,5 +226,40 @@
 
             });
         });
+
+        $(document).on("click", "#cronGeneratorBtn", function () {
+            var cron = $("input[name='cronExpression']").val().trim();
+            if (isCronExpress(cron)) {
+                $(window.frames["cronGeneratorIframe"]).contents().find("#cron").val(cron);
+                $(window.frames["cronGeneratorIframe"]).contents().find("#btnFan").click();
+            }
+            $("#cronGeneratorDialog").modal("show");
+        });
+
+        $('body').bind('Event_CronExpression_Generated', function (event, data) {
+            $("input[name='cronExpression']").val(data['cron'].trim());
+            $("#cronGeneratorDialog").modal("hide");
+        });
     });
 </script>
+<script src="assets/js/cronValidate.js" type="text/javascript"></script>
+
+
+<div class="modal inmodal" id="cronGeneratorDialog" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width: 600px;">
+        <div class="modal-content animated rubberBand">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                        class="sr-only">关闭</span></button>
+                <h2 class="modal-title">Cron表达式生成工具</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <iframe id="cronGeneratorIframe" src="cron_generator_iframe.htm" width="540" height="450" style="border:0px;"
+                            scrolling="no"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

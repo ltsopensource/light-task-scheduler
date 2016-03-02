@@ -88,8 +88,10 @@ public class JobClientTest extends BaseJobClientTest {
         // 可选址  leveldb(默认), rocksdb, berkeleydb, mapdb
         jobClient.addConfig("job.fail.store", "mapdb");
         jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
-        jobClient.setIdentity("test_jobclient_0000001");
+//        jobClient.setIdentity("test_jobclient_0000001");
 //        jobClient.addConfig(SpiKey.LTS_JSON, "ltsjson");
+//        jobClient.addConfig("lts.remoting", "netty");
+        jobClient.addConfig("zk.client", "curator");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();

@@ -1,6 +1,6 @@
 package com.lts.web.support.spring;
 
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppConfig {
 
-    @Bean(name = "application")
-    public AdminApplication getAdminApplication() throws Exception {
+    @Bean(name = "appContext")
+    public AdminAppContext getAdminAppContext() throws Exception {
         AdminAppFactoryBean factoryBean = new AdminAppFactoryBean();
         factoryBean.afterPropertiesSet();
         return factoryBean.getObject();

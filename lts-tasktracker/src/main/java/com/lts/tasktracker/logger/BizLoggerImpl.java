@@ -15,7 +15,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,24 +27,24 @@ import java.util.List;
  *
  * @author Robert HG (254963746@qq.com) on 3/27/15.
  */
-public class BizLoggerImpl implements BizLogger {
+public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
 
     private Level level;
     private RemotingClientDelegate remotingClient;
-    private TaskTrackerApplication application;
+    private TaskTrackerAppContext appContext;
     private final ThreadLocal<KVPair<String, String>> jobTL;
     private RetryScheduler<BizLog> retryScheduler;
 
-    public BizLoggerImpl(Level level, final RemotingClientDelegate remotingClient, TaskTrackerApplication application) {
+    public BizLoggerImpl(Level level, final RemotingClientDelegate remotingClient, TaskTrackerAppContext appContext) {
         this.level = level;
         if (this.level == null) {
             this.level = Level.INFO;
         }
-        this.application = application;
+        this.appContext = appContext;
         this.remotingClient = remotingClient;
         this.jobTL = new ThreadLocal<KVPair<String, String>>();
         String storePath = getStorePath();
-        this.retryScheduler = new RetryScheduler<BizLog>(application, storePath) {
+        this.retryScheduler = new RetryScheduler<BizLog>(appContext, storePath) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -60,10 +60,10 @@ public class BizLoggerImpl implements BizLogger {
     }
 
     private String getStorePath() {
-        return application.getConfig().getDataPath()
+        return appContext.getConfig().getDataPath()
                 + "/.lts" + "/" +
-                application.getConfig().getNodeType() + "/" +
-                application.getConfig().getNodeGroup() + "/bizlog/";
+                appContext.getConfig().getNodeType() + "/" +
+                appContext.getConfig().getNodeGroup() + "/bizlog/";
     }
 
     public void setId(String jobId, String taskId) {
@@ -97,7 +97,7 @@ public class BizLoggerImpl implements BizLogger {
 
     private void sendMsg(String msg) {
 
-        BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(application, new BizLogSendRequest());
+        BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(appContext, new BizLogSendRequest());
 
         final BizLog bizLog = new BizLog();
         bizLog.setTaskTrackerIdentity(requestBody.getIdentity());
@@ -139,7 +139,7 @@ public class BizLoggerImpl implements BizLogger {
         if (CollectionUtils.isEmpty(bizLogs)) {
             return true;
         }
-        BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(application, new BizLogSendRequest());
+        BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(appContext, new BizLogSendRequest());
         requestBody.setBizLogs(bizLogs);
 
         RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.BIZ_LOG_SEND.code(), requestBody);

@@ -1,6 +1,6 @@
 package com.lts.core.remoting;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.remoting.Channel;
 import com.lts.remoting.AsyncCallback;
@@ -18,11 +18,11 @@ import java.util.concurrent.ExecutorService;
 public class RemotingServerDelegate {
 
     private RemotingServer remotingServer;
-    private Application application;
+    private AppContext appContext;
 
-    public RemotingServerDelegate(RemotingServer remotingServer, Application application) {
+    public RemotingServerDelegate(RemotingServer remotingServer, AppContext appContext) {
         this.remotingServer = remotingServer;
-        this.application = application;
+        this.appContext = appContext;
     }
 
     public void start() {
@@ -47,7 +47,7 @@ public class RemotingServerDelegate {
         try {
 
             return remotingServer.invokeSync(channel, request,
-                    application.getConfig().getInvokeTimeoutMillis());
+                    appContext.getConfig().getInvokeTimeoutMillis());
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
@@ -58,7 +58,7 @@ public class RemotingServerDelegate {
         try {
 
             remotingServer.invokeAsync(channel, request,
-                    application.getConfig().getInvokeTimeoutMillis(), asyncCallback);
+                    appContext.getConfig().getInvokeTimeoutMillis(), asyncCallback);
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
@@ -69,12 +69,11 @@ public class RemotingServerDelegate {
         try {
 
             remotingServer.invokeOneway(channel, request,
-                    application.getConfig().getInvokeTimeoutMillis());
+                    appContext.getConfig().getInvokeTimeoutMillis());
         } catch (Throwable t) {
             throw new RemotingSendException(t);
         }
     }
-
 
     public void shutdown() {
         remotingServer.shutdown();

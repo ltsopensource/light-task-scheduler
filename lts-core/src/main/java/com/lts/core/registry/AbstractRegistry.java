@@ -1,6 +1,6 @@
 package com.lts.core.registry;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -21,11 +21,11 @@ public abstract class AbstractRegistry implements Registry {
     private final Set<Node> registered = new ConcurrentHashSet<Node>();
     private final ConcurrentMap<Node, Set<NotifyListener>> subscribed = new ConcurrentHashMap<Node, Set<NotifyListener>>();
 
-    protected Application application;
+    protected AppContext appContext;
     private Node node;
 
-    public AbstractRegistry(Application application) {
-        this.application = application;
+    public AbstractRegistry(AppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override

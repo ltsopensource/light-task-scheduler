@@ -2,6 +2,8 @@ package com.lts.web.cluster;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.NotifyEvent;
 import com.lts.core.registry.NotifyListener;
 import com.lts.core.registry.Registry;
@@ -24,10 +26,11 @@ import java.util.List;
 @Component
 public class RegistryService implements InitializingBean {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistryService.class);
     @Autowired
     NodeMemoryDatabase nodeMemoryDatabase;
     @Autowired
-    AdminApplication application;
+    AdminAppContext appContext;
     @Autowired
     NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
 
@@ -35,7 +38,7 @@ public class RegistryService implements InitializingBean {
 
     private void register() {
 
-        registry.subscribe(application.getNode(), new NotifyListener() {
+        registry.subscribe(appContext.getNode(), new NotifyListener() {
             @Override
             public void notify(NotifyEvent event, List<Node> nodes) {
                 if (CollectionUtils.isEmpty(nodes)) {
@@ -44,9 +47,11 @@ public class RegistryService implements InitializingBean {
                 switch (event) {
                     case ADD:
                         nodeMemoryDatabase.addNode(nodes);
+                        LOGGER.info("ADD NODE " + nodes);
                         break;
                     case REMOVE:
                         nodeMemoryDatabase.removeNode(nodes);
+                        LOGGER.info("REMOVE NODE " + nodes);
                         break;
                 }
                 // 记录日志
@@ -89,7 +94,7 @@ public class RegistryService implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        registry = RegistryFactory.getRegistry(application);
+        registry = RegistryFactory.getRegistry(appContext);
 
         register();
     }

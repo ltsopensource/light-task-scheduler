@@ -7,7 +7,7 @@ import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.channel.ChannelWrapper;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.TaskTrackerNode;
 
 import java.util.Set;
@@ -22,10 +22,10 @@ public class TaskTrackerManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerManager.class);
     // 单例
     private final ConcurrentHashMap<String/*nodeGroup*/, Set<TaskTrackerNode>> NODE_MAP = new ConcurrentHashMap<String, Set<TaskTrackerNode>>();
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public TaskTrackerManager(JobTrackerApplication application) {
-        this.application = application;
+    public TaskTrackerManager(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     /**
@@ -40,7 +40,7 @@ public class TaskTrackerManager {
      */
     public void addNode(Node node) {
         //  channel 可能为 null
-        ChannelWrapper channel = application.getChannelManager().getChannel(node.getGroup(),
+        ChannelWrapper channel = appContext.getChannelManager().getChannel(node.getGroup(),
                 node.getNodeType(), node.getIdentity());
         Set<TaskTrackerNode> taskTrackerNodes = NODE_MAP.get(node.getGroup());
 
@@ -58,8 +58,8 @@ public class TaskTrackerManager {
         taskTrackerNodes.add(taskTrackerNode);
 
         // create executable queue
-        application.getExecutableJobQueue().createQueue(node.getGroup());
-        application.getNodeGroupStore().addNodeGroup(NodeType.TASK_TRACKER, node.getGroup());
+        appContext.getExecutableJobQueue().createQueue(node.getGroup());
+        appContext.getNodeGroupStore().addNodeGroup(NodeType.TASK_TRACKER, node.getGroup());
     }
 
     /**
@@ -87,7 +87,7 @@ public class TaskTrackerManager {
             if (taskTrackerNode.getIdentity().equals(identity)) {
                 if (taskTrackerNode.getChannel() == null || taskTrackerNode.getChannel().isClosed()) {
                     // 如果 channel 已经关闭, 更新channel, 如果没有channel, 略过
-                    ChannelWrapper channel = application.getChannelManager().getChannel(
+                    ChannelWrapper channel = appContext.getChannelManager().getChannel(
                             taskTrackerNode.getNodeGroup(), NodeType.TASK_TRACKER, taskTrackerNode.getIdentity());
                     if (channel != null) {
                         // 更新channel

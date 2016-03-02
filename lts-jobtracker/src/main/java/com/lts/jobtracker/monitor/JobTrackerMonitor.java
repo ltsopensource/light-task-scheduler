@@ -4,7 +4,7 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.domain.monitor.JobTrackerMonitorData;
 import com.lts.core.monitor.AbstractMonitor;
 import com.lts.core.domain.monitor.MonitorData;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JobTrackerMonitor extends AbstractMonitor {
 
-    public JobTrackerMonitor(JobTrackerApplication application) {
-        super(application);
+    public JobTrackerMonitor(JobTrackerAppContext appContext) {
+        super(appContext);
     }
 
     // 接受的任务数

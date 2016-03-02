@@ -7,7 +7,7 @@ import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ import java.util.List;
  */
 public class JobAskProcessor extends AbstractProcessor {
 
-    protected JobAskProcessor(TaskTrackerApplication application) {
-        super(application);
+    protected JobAskProcessor(TaskTrackerAppContext appContext) {
+        super(appContext);
     }
 
     @Override
@@ -28,10 +28,10 @@ public class JobAskProcessor extends AbstractProcessor {
 
         List<String> jobIds = requestBody.getJobIds();
 
-        List<String> notExistJobIds = application.getRunnerPool()
+        List<String> notExistJobIds = appContext.getRunnerPool()
                 .getRunningJobManager().getNotExists(jobIds);
 
-        JobAskResponse responseBody = CommandBodyWrapper.wrapper(application, new JobAskResponse());
+        JobAskResponse responseBody = CommandBodyWrapper.wrapper(appContext, new JobAskResponse());
 
         responseBody.setJobIds(notExistJobIds);
 

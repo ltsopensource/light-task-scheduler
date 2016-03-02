@@ -7,6 +7,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.exception.RemotingSendException;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -16,7 +17,7 @@ import com.lts.core.protocol.command.JobAskResponse;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
@@ -50,14 +51,14 @@ public class ExecutingDeadJobChecker {
     // 2 分钟没有收到反馈信息，需要去检查这个任务是否还在执行
     private static final long MAX_DEAD_CHECK_TIME = 2 * 60 * 1000;
 
-    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutingJobQueue-Fix-Executor", true));
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
     private JobTrackerMonitor monitor;
 
-    public ExecutingDeadJobChecker(JobTrackerApplication application) {
-        this.application = application;
-        this.monitor = (JobTrackerMonitor) application.getMonitor();
+    public ExecutingDeadJobChecker(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
     }
 
     private AtomicBoolean start = new AtomicBoolean(false);
@@ -71,7 +72,7 @@ public class ExecutingDeadJobChecker {
                     public void run() {
                         try {
                             // 判断注册中心是否可用，如果不可用，那么直接返回，不进行处理
-                            if (!application.getRegistryStatMonitor().isAvailable()) {
+                            if (!appContext.getRegistryStatMonitor().isAvailable()) {
                                 return;
                             }
                             fix();
@@ -90,7 +91,7 @@ public class ExecutingDeadJobChecker {
     private void fix() throws RemotingSendException {
         // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
         // 一般来说这个是没有多大的，我就不分页去查询了
-        List<JobPo> maybeDeadJobPos = application.getExecutingJobQueue().getDeadJobs(
+        List<JobPo> maybeDeadJobPos = appContext.getExecutingJobQueue().getDeadJobs(
                 SystemClock.now() - MAX_DEAD_CHECK_TIME);
         if (CollectionUtils.isNotEmpty(maybeDeadJobPos)) {
 
@@ -108,9 +109,9 @@ public class ExecutingDeadJobChecker {
                 String taskTrackerNodeGroup = entry.getValue().get(0).getTaskTrackerNodeGroup();
                 String taskTrackerIdentity = entry.getKey();
                 // 去查看这个TaskTrackerIdentity是否存活
-                ChannelWrapper channelWrapper = application.getChannelManager().getChannel(taskTrackerNodeGroup, NodeType.TASK_TRACKER, taskTrackerIdentity);
+                ChannelWrapper channelWrapper = appContext.getChannelManager().getChannel(taskTrackerNodeGroup, NodeType.TASK_TRACKER, taskTrackerIdentity);
                 if (channelWrapper == null && taskTrackerIdentity != null) {
-                    Long offlineTimestamp = application.getChannelManager().getOfflineTimestamp(taskTrackerIdentity);
+                    Long offlineTimestamp = appContext.getChannelManager().getOfflineTimestamp(taskTrackerIdentity);
                     // 已经离线太久，直接修复
                     if (offlineTimestamp == null || SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                         // fixDeadJob
@@ -131,12 +132,12 @@ public class ExecutingDeadJobChecker {
      */
     private void askTimeoutJob(Channel channel, final List<JobPo> jobPos) {
         try {
-            RemotingServerDelegate remotingServer = application.getRemotingServer();
+            RemotingServerDelegate remotingServer = appContext.getRemotingServer();
             List<String> jobIds = new ArrayList<String>(jobPos.size());
             for (JobPo jobPo : jobPos) {
                 jobIds.add(jobPo.getJobId());
             }
-            JobAskRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobAskRequest());
+            JobAskRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobAskRequest());
             requestBody.setJobIds(jobIds);
             RemotingCommand request = RemotingCommand.createRequestCommand(JobProtos.RequestCode.JOB_ASK.code(), requestBody);
             remotingServer.invokeAsync(channel, request, new AsyncCallback() {
@@ -181,19 +182,19 @@ public class ExecutingDeadJobChecker {
             jobPo.setIsRunning(false);
             // 1. add to executable queue
             try {
-                application.getExecutableJobQueue().add(jobPo);
+                appContext.getExecutableJobQueue().add(jobPo);
             } catch (DuplicateJobException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
 
             // 2. remove from executing queue
-            application.getExecutingJobQueue().remove(jobPo.getJobId());
+            appContext.getExecutingJobQueue().remove(jobPo.getJobId());
 
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setSuccess(true);
             jobLogPo.setLevel(Level.WARN);
             jobLogPo.setLogType(LogType.FIXED_DEAD);
-            application.getJobLogger().log(jobLogPo);
+            appContext.getJobLogger().log(jobLogPo);
 
             monitor.incFixExecutingJobNum();
 

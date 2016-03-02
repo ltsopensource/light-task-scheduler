@@ -1,6 +1,5 @@
 package com.lts.example.api;
 
-import com.lts.core.spi.SpiKey;
 import com.lts.example.support.MasterChangeListenerImpl;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
@@ -63,8 +62,8 @@ public class JobTrackerTest {
         // 节点信息配置
         jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
 //        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
-        jobTracker.setListenPort(35002); // 默认 35001
-        jobTracker.setClusterName("uba_cluster");
+        jobTracker.setListenPort(35001); // 默认 35001
+        jobTracker.setClusterName("test_cluster");
 
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
@@ -74,10 +73,11 @@ public class JobTrackerTest {
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置
         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
-        jobTracker.addConfig("jdbc.username", "ysg_point");
-        jobTracker.addConfig("jdbc.password", "ysg4rfde32wsaq1");
+        jobTracker.addConfig("jdbc.username", "root");
+        jobTracker.addConfig("jdbc.password", "root");
+//        jobTracker.setBindIp("127.0.0.1");
         // 可选值 mina netty
-//         jobTracker.addConfig("lts.remoting", "mina");
+        jobTracker.addConfig("lts.remoting", "netty");
         // 可选值 fastjson hessian2 java
 //         jobTracker.addConfig("lts.remoting.serializable.default", "fastjson");
         // 延迟批量刷盘业务日志开关
@@ -87,7 +87,7 @@ public class JobTrackerTest {
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "curator");
 
-        jobTracker.addConfig("lts.monitor.url", "http://localhost:8088/");
+        jobTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
 //        jobTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
 
         // 启动节点
@@ -99,6 +99,7 @@ public class JobTrackerTest {
                 jobTracker.stop();
             }
         }));
+
     }
 
 }

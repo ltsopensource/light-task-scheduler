@@ -38,7 +38,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
         super(remotingServerConfig, channelEventListener);
         this.serverBootstrap = new ServerBootstrap();
         this.bossSelectorGroup = new NioEventLoopGroup(1, new NamedThreadFactory("NettyBossSelectorThread_"));
-        this.workerSelectorGroup = new NioEventLoopGroup(remotingServerConfig.getServerSelectorThreads(), new NamedThreadFactory("NettyServerSelectorThread_"));
+        this.workerSelectorGroup = new NioEventLoopGroup(remotingServerConfig.getServerSelectorThreads(), new NamedThreadFactory("NettyServerSelectorThread_", true));
     }
 
     @Override
@@ -84,6 +84,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
     protected void serverShutdown() throws RemotingException{
 
         this.bossSelectorGroup.shutdownGracefully();
+        this.workerSelectorGroup.shutdownGracefully();
 
         if (this.defaultEventExecutorGroup != null) {
             this.defaultEventExecutorGroup.shutdownGracefully();
@@ -170,8 +171,7 @@ public class NettyRemotingServer extends AbstractRemotingServer {
             com.lts.remoting.Channel channel = new NettyChannel(ctx);
 
             final String remoteAddress = RemotingHelper.parseChannelRemoteAddr(channel);
-            LOGGER.warn("SERVER: exceptionCaught {}", remoteAddress);
-            LOGGER.warn("SERVER: exceptionCaught exception.", cause);
+            LOGGER.warn("SERVER: exceptionCaught {}", remoteAddress, cause);
 
             if (channelEventListener != null) {
                 putRemotingEvent(new RemotingEvent(RemotingEventType.EXCEPTION, remoteAddress, channel));

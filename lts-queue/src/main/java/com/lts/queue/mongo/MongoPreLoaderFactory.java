@@ -1,6 +1,6 @@
 package com.lts.queue.mongo;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.queue.PreLoader;
 import com.lts.queue.PreLoaderFactory;
 
@@ -9,7 +9,7 @@ import com.lts.queue.PreLoaderFactory;
  */
 public class MongoPreLoaderFactory implements PreLoaderFactory {
     @Override
-    public PreLoader getPreLoader(Application application) {
-        return new MongoPreLoader(application);
+    public PreLoader getPreLoader(AppContext appContext) {
+        return new MongoPreLoader(appContext);
     }
 }

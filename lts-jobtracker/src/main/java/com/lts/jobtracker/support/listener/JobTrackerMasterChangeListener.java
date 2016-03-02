@@ -2,7 +2,7 @@ package com.lts.jobtracker.support.listener;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.listener.MasterChangeListener;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.checker.ExecutableDeadJobChecker;
 import com.lts.jobtracker.support.checker.ExecutingDeadJobChecker;
 import com.lts.jobtracker.support.checker.FeedbackJobSendChecker;
@@ -13,23 +13,23 @@ import com.lts.jobtracker.support.checker.FeedbackJobSendChecker;
  */
 public class JobTrackerMasterChangeListener implements MasterChangeListener {
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
     private ExecutingDeadJobChecker executingDeadJobChecker;
     private FeedbackJobSendChecker feedbackJobSendChecker;
     private ExecutableDeadJobChecker executableDeadJobChecker;
 
-    public JobTrackerMasterChangeListener(JobTrackerApplication application) {
-        this.application = application;
-        this.executingDeadJobChecker = new ExecutingDeadJobChecker(application);
-        this.application.setExecutingDeadJobChecker(executingDeadJobChecker);
-        this.feedbackJobSendChecker = new FeedbackJobSendChecker(application);
-        this.executableDeadJobChecker = new ExecutableDeadJobChecker(application);
+    public JobTrackerMasterChangeListener(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
+        this.executingDeadJobChecker = new ExecutingDeadJobChecker(appContext);
+        this.appContext.setExecutingDeadJobChecker(executingDeadJobChecker);
+        this.feedbackJobSendChecker = new FeedbackJobSendChecker(appContext);
+        this.executableDeadJobChecker = new ExecutableDeadJobChecker(appContext);
     }
 
     @Override
     public void change(Node master, boolean isMaster) {
 
-        if (application.getConfig().getIdentity().equals(master.getIdentity())) {
+        if (appContext.getConfig().getIdentity().equals(master.getIdentity())) {
             // 如果 master 节点是自己
             // 2. 启动通知客户端失败检查重发的定时器
             feedbackJobSendChecker.start();

@@ -1,8 +1,9 @@
 package com.lts.core.monitor;
 
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSONException;
 import com.lts.core.json.JSONObject;
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.file.FileUtils;
@@ -31,11 +32,11 @@ public abstract class AbstractMonitor implements Monitor {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
 
-    protected Application application;
+    protected AppContext appContext;
     protected Config config;
     protected String monitorSite;
 
-    private ScheduledExecutorService collectScheduleExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService collectScheduleExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-Monitor-data-collector", true));
     private ScheduledFuture<?> collectScheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     // 这里面保存发送失败的，不过有个最大限制，防止内存爆掉
@@ -43,9 +44,9 @@ public abstract class AbstractMonitor implements Monitor {
     private final static int MAX_RETRY_RETAIN = 500;
     private final static int BATCH_REPORT_SIZE = 10;
 
-    public AbstractMonitor(Application application) {
-        this.application = application;
-        this.config = application.getConfig();
+    public AbstractMonitor(AppContext appContext) {
+        this.appContext = appContext;
+        this.config = appContext.getConfig();
     }
 
     private int interval = 1;    // 1分钟

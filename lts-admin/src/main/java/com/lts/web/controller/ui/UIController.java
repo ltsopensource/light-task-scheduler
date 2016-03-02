@@ -3,7 +3,7 @@ package com.lts.web.controller.ui;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.queue.domain.NodeGroupPo;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.cluster.RegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -22,7 +22,7 @@ public class UIController {
     @Autowired
     RegistryService registryService;
     @Autowired
-    AdminApplication application;
+    AdminAppContext appContext;
 
     @RequestMapping("index")
     public String index(){
@@ -99,10 +99,15 @@ public class UIController {
         return "loadJob";
     }
 
+    @RequestMapping("cron_generator_iframe")
+    public String cronGeneratorIframe(Model model){
+        return "cron/cronGenerator";
+    }
+
     private void setAttr(Model model) {
-        List<NodeGroupPo> jobClientNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
+        List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);
-        List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
+        List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
     }
 

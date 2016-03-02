@@ -4,7 +4,7 @@ import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.queue.domain.NodeGroupPo;
-import com.lts.web.cluster.AdminApplication;
+import com.lts.web.cluster.AdminAppContext;
 import com.lts.web.repository.mapper.JobTrackerMonitorRepo;
 import com.lts.web.repository.mapper.TaskTrackerMonitorRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class MonitorUIController {
 
     @Autowired
-    private AdminApplication application;
+    private AdminAppContext appContext;
     @Autowired
     private TaskTrackerMonitorRepo taskTrackerMonitorRepo;
     @Autowired
@@ -33,7 +33,7 @@ public class MonitorUIController {
     @RequestMapping("tasktracker-monitor")
     public String taskTrackerMonitor(Model model) {
 
-        List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
+        List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
         model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
 
         Date endDate = new Date();
@@ -57,7 +57,7 @@ public class MonitorUIController {
     @RequestMapping("jobtracker-monitor")
     public String jobTrackerMonitor(Model model) {
 
-        List<NodeGroupPo> taskTrackerNodeGroups = application.getNodeGroupStore().getNodeGroup(NodeType.JOB_TRACKER);
+        List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_TRACKER);
         model.addAttribute("jobTrackerNodeGroups", taskTrackerNodeGroups);
 
         Date endDate = new Date();

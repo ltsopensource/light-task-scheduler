@@ -1,10 +1,11 @@
 package com.lts.core.support;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.KVPair;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
@@ -37,8 +38,8 @@ public abstract class RetryScheduler<T> {
     private Class<?> type = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-retry", true));
+    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-master-retry", true));
     private ScheduledFuture<?> masterScheduledFuture;
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean selfCheckStart = new AtomicBoolean(false);
@@ -52,20 +53,20 @@ public abstract class RetryScheduler<T> {
 
     private ReentrantLock lock = new ReentrantLock();
 
-    public RetryScheduler(Application application) {
-        this(application, application.getConfig().getFailStorePath());
+    public RetryScheduler(AppContext appContext) {
+        this(appContext, appContext.getConfig().getFailStorePath());
     }
 
-    public RetryScheduler(Application application, String storePath) {
-        FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, application.getConfig());
-        failStore = failStoreFactory.getFailStore(application.getConfig(), storePath);
+    public RetryScheduler(AppContext appContext, String storePath) {
+        FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, appContext.getConfig());
+        failStore = failStoreFactory.getFailStore(appContext.getConfig(), storePath);
         try {
             failStore.open();
         } catch (FailStoreException e) {
             throw new RuntimeException(e);
         }
         EventSubscriber subscriber = new EventSubscriber(RetryScheduler.class.getSimpleName()
-                .concat(application.getConfig().getIdentity()),
+                .concat(appContext.getConfig().getIdentity()),
                 new Observer() {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
@@ -77,20 +78,20 @@ public abstract class RetryScheduler<T> {
                         }
                     }
                 });
-        application.getEventCenter().subscribe(subscriber, EcTopic.MASTER_CHANGED);
+        appContext.getEventCenter().subscribe(subscriber, EcTopic.MASTER_CHANGED);
 
-        if (application.getMasterElector().isCurrentMaster()) {
+        if (appContext.getMasterElector().isCurrentMaster()) {
             startMasterCheck();
         }
     }
 
-    public RetryScheduler(Application application, String storePath, int batchSize) {
-        this(application, storePath);
+    public RetryScheduler(AppContext appContext, String storePath, int batchSize) {
+        this(appContext, storePath);
         this.batchSize = batchSize;
     }
 
-    protected RetryScheduler(Application application, int batchSize) {
-        this(application);
+    protected RetryScheduler(AppContext appContext, int batchSize) {
+        this(appContext);
         this.batchSize = batchSize;
     }
 

@@ -1,8 +1,8 @@
 package com.lts.store.jdbc;
 
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
-import org.apache.commons.dbutils.handlers.ScalarHandler;
+import com.lts.store.jdbc.dbutils.DbRunner;
+import com.lts.store.jdbc.dbutils.ResultSetHandler;
+import com.lts.store.jdbc.dbutils.ScalarHandler;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class SqlTemplate {
 
     private final DataSource dataSource;
-    private final QueryRunner QUERY_RUNNER = new QueryRunner();
+    private final DbRunner dbRunner = new DbRunner();
 
     public SqlTemplate(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -45,7 +45,7 @@ public class SqlTemplate {
     }
 
     public int[] batchUpdate(final Connection conn, final String sql, final Object[][] params) throws SQLException {
-        return QUERY_RUNNER.batch(conn, sql, params);
+        return dbRunner.batch(conn, sql, params);
     }
 
     public int[] batchUpdate(final String sql, final Object[][] params) throws SQLException {
@@ -67,7 +67,7 @@ public class SqlTemplate {
     }
 
     public int update(final Connection conn, final String sql, final Object... params) throws SQLException {
-        return QUERY_RUNNER.update(conn, sql, params);
+        return dbRunner.update(conn, sql, params);
     }
 
     public <T> T query(final String sql, final ResultSetHandler<T> rsh, final Object... params) throws SQLException {
@@ -80,7 +80,7 @@ public class SqlTemplate {
     }
 
     public <T> T query(final Connection conn, final String sql, final ResultSetHandler<T> rsh, final Object... params) throws SQLException {
-        return QUERY_RUNNER.query(conn, sql, rsh, params);
+        return dbRunner.query(conn, sql, rsh, params);
     }
 
     public <T> T queryForValue(final String sql, final Object... params) throws SQLException {

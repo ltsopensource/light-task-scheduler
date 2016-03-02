@@ -1,11 +1,8 @@
 package com.lts.jobclient;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.AbstractClientNode;
-import com.lts.core.commons.utils.Assert;
-import com.lts.core.commons.utils.BatchUtils;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.CommonUtils;
+import com.lts.core.commons.utils.*;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
@@ -18,7 +15,7 @@ import com.lts.core.protocol.command.JobCancelRequest;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
 import com.lts.core.support.LoggerName;
-import com.lts.jobclient.domain.JobClientApplication;
+import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
 import com.lts.jobclient.domain.ResponseCode;
@@ -41,8 +38,8 @@ import java.util.concurrent.TimeUnit;
  * @author Robert HG (254963746@qq.com) on 7/25/14.
  *         任务客户端
  */
-public class JobClient<T extends JobClientNode, App extends Application> extends
-        AbstractClientNode<JobClientNode, JobClientApplication> {
+public class JobClient<T extends JobClientNode, Context extends AppContext> extends
+        AbstractClientNode<JobClientNode, JobClientAppContext> {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobClient);
 
@@ -53,7 +50,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     @Override
     protected void beforeStart() {
-        application.setRemotingClient(remotingClient);
+        appContext.setRemotingClient(remotingClient);
         int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
                 Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
         protector = new JobSubmitProtector(concurrentSize);
@@ -94,7 +91,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         Assert.hasText(taskId, "taskId can not be empty");
         Assert.hasText(taskTrackerNodeGroup, "taskTrackerNodeGroup can not be empty");
 
-        JobCancelRequest request = CommandBodyWrapper.wrapper(application, new JobCancelRequest());
+        JobCancelRequest request = CommandBodyWrapper.wrapper(appContext, new JobCancelRequest());
         request.setTaskId(taskId);
         request.setTaskTrackerNodeGroup(taskTrackerNodeGroup);
 
@@ -145,7 +142,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
         final Response response = new Response();
         try {
-            JobSubmitRequest jobSubmitRequest = CommandBodyWrapper.wrapper(application, new JobSubmitRequest());
+            JobSubmitRequest jobSubmitRequest = CommandBodyWrapper.wrapper(appContext, new JobSubmitRequest());
             jobSubmitRequest.setJobs(jobs);
 
             RemotingCommand requestCommand = RemotingCommand.createRequestCommand(
@@ -189,7 +186,7 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
         } catch (Exception e) {
             response.setSuccess(false);
             response.setCode(ResponseCode.SYSTEM_ERROR);
-            response.setMsg(CommonUtils.exceptionSimpleDesc(e));
+            response.setMsg(StringUtils.toString(e));
         }
 
         return response;
@@ -249,14 +246,14 @@ public class JobClient<T extends JobClientNode, App extends Application> extends
 
     @Override
     protected RemotingProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(application);
+        return new RemotingDispatcher(appContext);
     }
 
     /**
      * 设置任务完成接收器
      */
     public void setJobFinishedHandler(JobCompletedHandler jobCompletedHandler) {
-        application.setJobCompletedHandler(jobCompletedHandler);
+        appContext.setJobCompletedHandler(jobCompletedHandler);
     }
 
     enum SubmitType {

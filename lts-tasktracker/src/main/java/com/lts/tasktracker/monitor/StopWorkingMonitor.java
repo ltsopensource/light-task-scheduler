@@ -2,13 +2,14 @@ package com.lts.tasktracker.monitor;
 
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.EcTopic;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -24,16 +25,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class StopWorkingMonitor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StopWorkingMonitor.class);
-    private TaskTrackerApplication application;
+    private TaskTrackerAppContext appContext;
     private AtomicBoolean start = new AtomicBoolean(false);
-    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-StopWorking-Monitor", true));
     private ScheduledFuture<?> scheduledFuture;
     private String ecSubscriberName = StopWorkingMonitor.class.getSimpleName();
     private EventSubscriber eventSubscriber;
     private Long offlineTimestamp = null;
 
-    public StopWorkingMonitor(TaskTrackerApplication application) {
-        this.application = application;
+    public StopWorkingMonitor(TaskTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     public void start() {
@@ -46,20 +47,20 @@ public class StopWorkingMonitor {
                         offlineTimestamp = null;
                     }
                 });
-                application.getEventCenter().subscribe(eventSubscriber, EcTopic.JOB_TRACKER_AVAILABLE);
+                appContext.getEventCenter().subscribe(eventSubscriber, EcTopic.JOB_TRACKER_AVAILABLE);
 
                 scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            if (offlineTimestamp == null && application.getRemotingClient().isServerEnable()) {
+                            if (offlineTimestamp == null && appContext.getRemotingClient().isServerEnable()) {
                                 offlineTimestamp = SystemClock.now();
                             }
 
                             if (offlineTimestamp != null &&
                                     SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                                 // 停止所有任务
-                                application.getRunnerPool().stopWorking();
+                                appContext.getRunnerPool().stopWorking();
                                 offlineTimestamp = null;
                             }
                         } catch (Throwable t) {
@@ -80,7 +81,7 @@ public class StopWorkingMonitor {
                 scheduledFuture.cancel(true);
                 SCHEDULED_CHECKER.shutdown();
 
-                application.getEventCenter().unSubscribe(EcTopic.JOB_TRACKER_AVAILABLE, eventSubscriber);
+                appContext.getEventCenter().unSubscribe(EcTopic.JOB_TRACKER_AVAILABLE, eventSubscriber);
 
                 LOGGER.info("stop succeed ");
             }

@@ -13,6 +13,6 @@ public interface DataSourceProvider {
 
     String MYSQL = "mysql";
 
-    public DataSource getDataSource(Config config);
+    DataSource getDataSource(Config config);
 
 }

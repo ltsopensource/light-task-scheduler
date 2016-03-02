@@ -8,8 +8,9 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
+import sun.nio.ch.Interruptible;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,31 +31,31 @@ public class RunnerPool {
     private ThreadPoolExecutor threadPoolExecutor = null;
 
     private RunnerFactory runnerFactory;
-    private TaskTrackerApplication application;
+    private TaskTrackerAppContext appContext;
     private RunningJobManager runningJobManager;
 
-    public RunnerPool(final TaskTrackerApplication application) {
-        this.application = application;
+    public RunnerPool(final TaskTrackerAppContext appContext) {
+        this.appContext = appContext;
         this.runningJobManager = new RunningJobManager();
 
         threadPoolExecutor = initThreadPoolExecutor();
 
-        runnerFactory = application.getRunnerFactory();
+        runnerFactory = appContext.getRunnerFactory();
         if (runnerFactory == null) {
-            runnerFactory = new DefaultRunnerFactory(application);
+            runnerFactory = new DefaultRunnerFactory(appContext);
         }
         // 向事件中心注册事件, 改变工作线程大小
-        application.getEventCenter().subscribe(
-                new EventSubscriber(application.getConfig().getIdentity(), new Observer() {
+        appContext.getEventCenter().subscribe(
+                new EventSubscriber(appContext.getConfig().getIdentity(), new Observer() {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
-                        setMaximumPoolSize(application.getConfig().getWorkThreads());
+                        setMaximumPoolSize(appContext.getConfig().getWorkThreads());
                     }
                 }), EcTopic.WORK_THREAD_CHANGE);
     }
 
     private ThreadPoolExecutor initThreadPoolExecutor() {
-        int maxSize = application.getConfig().getWorkThreads();
+        int maxSize = appContext.getConfig().getWorkThreads();
         int minSize = 4 > maxSize ? maxSize : 4;
 
         return new ThreadPoolExecutor(minSize, maxSize, 30, TimeUnit.SECONDS,
@@ -65,7 +66,7 @@ public class RunnerPool {
     public void execute(JobWrapper jobWrapper, RunnerCallback callback) throws NoAvailableJobRunnerException {
         try {
             threadPoolExecutor.execute(
-                    new JobRunnerDelegate(application, jobWrapper, callback));
+                    new JobRunnerDelegate(appContext, jobWrapper, callback));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Receive job success ! " + jobWrapper);
             }
@@ -112,6 +113,7 @@ public class RunnerPool {
      * 它试图终止线程的方法是通过调用Thread.interrupt()方法来实现的，但是大家知道，这种方法的作用有限，
      * 如果线程中没有sleep 、wait、Condition、定时锁等应用, interrupt()方法是无法中断当前的线程的。
      * 所以，ShutdownNow()并不代表线程池就一定立即就能退出，它可能必须要等待所有正在执行的任务都执行完成了才能退出。
+     * 特殊的时候可以通过使用{@link InterruptibleJobRunner}来解决
      */
     public void stopWorking() {
         try {

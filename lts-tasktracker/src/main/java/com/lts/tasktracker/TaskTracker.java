@@ -4,7 +4,7 @@ import com.lts.core.cluster.AbstractClientNode;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.remoting.RemotingProcessor;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.domain.TaskTrackerNode;
 import com.lts.tasktracker.monitor.StopWorkingMonitor;
 import com.lts.tasktracker.monitor.TaskTrackerMonitor;
@@ -18,33 +18,33 @@ import com.lts.tasktracker.support.JobPullMachine;
  * @author Robert HG (254963746@qq.com) on 8/14/14.
  *         任务执行节点
  */
-public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerApplication> {
+public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerAppContext> {
 
     public TaskTracker() {
-        application.setMonitor(new TaskTrackerMonitor(application));
+        appContext.setMonitor(new TaskTrackerMonitor(appContext));
     }
 
     @Override
     protected void beforeStart() {
-        application.setRemotingClient(remotingClient);
+        appContext.setRemotingClient(remotingClient);
         // 设置 线程池
-        application.setRunnerPool(new RunnerPool(application));
-        application.setJobPullMachine(new JobPullMachine(application));
-        application.setStopWorkingMonitor(new StopWorkingMonitor(application));
+        appContext.setRunnerPool(new RunnerPool(appContext));
+        appContext.setJobPullMachine(new JobPullMachine(appContext));
+        appContext.setStopWorkingMonitor(new StopWorkingMonitor(appContext));
     }
 
     @Override
     protected void afterStart() {
-        application.getMonitor().start();
+        appContext.getMonitor().start();
         if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_SWITCH, false)) {
-            application.getStopWorkingMonitor().start();
+            appContext.getStopWorkingMonitor().start();
         }
     }
 
     @Override
     protected void afterStop() {
-        application.getMonitor().stop();
-        application.getStopWorkingMonitor().stop();
+        appContext.getMonitor().stop();
+        appContext.getStopWorkingMonitor().stop();
     }
 
     @Override
@@ -53,11 +53,11 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected RemotingProcessor getDefaultProcessor() {
-        return new RemotingDispatcher(application);
+        return new RemotingDispatcher(appContext);
     }
 
     public <JRC extends JobRunner> void setJobRunnerClass(Class<JRC> clazz) {
-        application.setJobRunnerClass(clazz);
+        appContext.setJobRunnerClass(clazz);
     }
 
     public void setWorkThreads(int workThreads) {
@@ -69,7 +69,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
      */
     public void setBizLoggerLevel(Level level) {
         if (level != null) {
-            application.setBizLogLevel(level);
+            appContext.setBizLogLevel(level);
         }
     }
 
@@ -77,6 +77,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
      * 设置JobRunner工场类，一般用户不用调用
      */
     public void setRunnerFactory(RunnerFactory factory) {
-        application.setRunnerFactory(factory);
+        appContext.setRunnerFactory(factory);
     }
 }

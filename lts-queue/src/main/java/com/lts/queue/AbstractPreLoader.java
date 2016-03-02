@@ -1,9 +1,10 @@
 package com.lts.queue;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 
@@ -24,17 +25,17 @@ public abstract class AbstractPreLoader implements PreLoader {
 
     // 加载的信号
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
-    private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-PreLoader", true));
     @SuppressWarnings("unused")
 	private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private String FORCE_PREFIX = "force_"; // 强制加载的信号
 
-    public AbstractPreLoader(final Application application) {
+    public AbstractPreLoader(final AppContext appContext) {
         if (start.compareAndSet(false, true)) {
 
-            loadSize = application.getConfig().getParameter("job.preloader.size", 300);
-            factor = application.getConfig().getParameter("job.preloader.factor", 0.2);
+            loadSize = appContext.getConfig().getParameter("job.preloader.size", 300);
+            factor = appContext.getConfig().getParameter("job.preloader.factor", 0.2);
 
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override

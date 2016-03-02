@@ -4,7 +4,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobFinishedRequest;
-import com.lts.jobclient.domain.JobClientApplication;
+import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -17,10 +17,10 @@ public class JobFinishedProcessor implements RemotingProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JobFinishedProcessor.class);
 
-    private JobClientApplication application;
+    private JobClientAppContext appContext;
 
-    public JobFinishedProcessor(JobClientApplication application) {
-        this.application = application;
+    public JobFinishedProcessor(JobClientAppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -29,8 +29,8 @@ public class JobFinishedProcessor implements RemotingProcessor {
 
         JobFinishedRequest requestBody = request.getBody();
         try {
-            if (application.getJobCompletedHandler() != null) {
-                application.getJobCompletedHandler().onComplete(requestBody.getJobResults());
+            if (appContext.getJobCompletedHandler() != null) {
+                appContext.getJobCompletedHandler().onComplete(requestBody.getJobResults());
             }
         } catch (Exception t) {
             LOGGER.error(t.getMessage(), t);

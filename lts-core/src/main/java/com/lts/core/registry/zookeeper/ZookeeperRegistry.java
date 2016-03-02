@@ -1,6 +1,6 @@
 package com.lts.core.registry.zookeeper;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
@@ -11,7 +11,7 @@ import com.lts.core.registry.NotifyListener;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.zookeeper.ChildListener;
 import com.lts.zookeeper.StateListener;
-import com.lts.zookeeper.ZookeeperClient;
+import com.lts.zookeeper.ZkClient;
 import com.lts.zookeeper.ZookeeperTransporter;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ZookeeperRegistry extends FailbackRegistry {
 
-    private ZookeeperClient zkClient;
+    private ZkClient zkClient;
     // 用来记录父节点下的子节点的变化
     private final ConcurrentHashMap<String/*parentPath*/, List<String/*children*/>> cachedChildrenNodeMap;
 
@@ -33,27 +33,27 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private String clusterName;
 
-    public ZookeeperRegistry(final Application application) {
-        super(application);
-        this.clusterName = application.getConfig().getClusterName();
+    public ZookeeperRegistry(final AppContext appContext) {
+        super(appContext);
+        this.clusterName = appContext.getConfig().getClusterName();
         this.cachedChildrenNodeMap = new ConcurrentHashMap<String, List<String>>();
-        ZookeeperTransporter zookeeperTransporter = ServiceLoader.load(ZookeeperTransporter.class, application.getConfig());
-        this.zkClient = zookeeperTransporter.connect(application.getConfig());
+        ZookeeperTransporter zookeeperTransporter = ServiceLoader.load(ZookeeperTransporter.class, appContext.getConfig());
+        this.zkClient = zookeeperTransporter.connect(appContext.getConfig());
         this.zkListeners = new ConcurrentHashMap<Node, ConcurrentMap<NotifyListener, ChildListener>>();
         // 默认是连成功的(用zkclient时候，第一次不会有state changed事件暴露给用户，
         // 他居然在new ZkClient的时候就直接连接了，给个提供listener的构造函数或者把启动改为start方法都ok呀，蛋疼)
-        application.getRegistryStatMonitor().setAvailable(true);
+        appContext.getRegistryStatMonitor().setAvailable(true);
 
         zkClient.addStateListener(new StateListener() {
             @Override
             public void stateChanged(int state) {
                 if (state == DISCONNECTED) {
-                    application.getRegistryStatMonitor().setAvailable(false);
+                    appContext.getRegistryStatMonitor().setAvailable(false);
                 } else if (state == CONNECTED) {
-                    application.getRegistryStatMonitor().setAvailable(true);
+                    appContext.getRegistryStatMonitor().setAvailable(true);
                 } else if (state == RECONNECTED) {
                     try {
-                        application.getRegistryStatMonitor().setAvailable(true);
+                        appContext.getRegistryStatMonitor().setAvailable(true);
                         recover();
                     } catch (Exception e) {
                         LOGGER.error(e.getMessage(), e);

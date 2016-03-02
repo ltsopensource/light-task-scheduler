@@ -4,7 +4,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.listener.NodeChangeListener;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 
 import java.util.List;
 
@@ -14,10 +14,10 @@ import java.util.List;
  */
 public class JobNodeChangeListener implements NodeChangeListener {
 
-    private JobTrackerApplication application;
+    private JobTrackerAppContext appContext;
 
-    public JobNodeChangeListener(JobTrackerApplication application) {
-        this.application = application;
+    public JobNodeChangeListener(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
     @Override
@@ -27,9 +27,9 @@ public class JobNodeChangeListener implements NodeChangeListener {
         }
         for (Node node : nodes) {
             if (node.getNodeType().equals(NodeType.TASK_TRACKER)) {
-                application.getTaskTrackerManager().addNode(node);
+                appContext.getTaskTrackerManager().addNode(node);
             } else if (node.getNodeType().equals(NodeType.JOB_CLIENT)) {
-                application.getJobClientManager().addNode(node);
+                appContext.getJobClientManager().addNode(node);
             }
         }
     }
@@ -41,10 +41,10 @@ public class JobNodeChangeListener implements NodeChangeListener {
         }
         for (Node node : nodes) {
             if (node.getNodeType().equals(NodeType.TASK_TRACKER)) {
-                application.getTaskTrackerManager().removeNode(node);
-//                application.getExecutingDeadJobChecker().fixedDeadNodeJob(node);
+                appContext.getTaskTrackerManager().removeNode(node);
+//                appContext.getExecutingDeadJobChecker().fixedDeadNodeJob(node);
             } else if (node.getNodeType().equals(NodeType.JOB_CLIENT)) {
-                application.getJobClientManager().removeNode(node);
+                appContext.getJobClientManager().removeNode(node);
             }
         }
     }

@@ -21,7 +21,7 @@ import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 import com.lts.tasktracker.domain.Response;
-import com.lts.tasktracker.domain.TaskTrackerApplication;
+import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.lts.tasktracker.runner.RunnerCallback;
 
@@ -41,10 +41,10 @@ public class JobPushProcessor extends AbstractProcessor {
     private JobRunnerCallback jobRunnerCallback;
     private RemotingClientDelegate remotingClient;
 
-    protected JobPushProcessor(TaskTrackerApplication application) {
-        super(application);
-        this.remotingClient = application.getRemotingClient();
-        retryScheduler = new RetryScheduler<TaskTrackerJobResult>(application, 3) {
+    protected JobPushProcessor(TaskTrackerAppContext appContext) {
+        super(appContext);
+        this.remotingClient = appContext.getRemotingClient();
+        retryScheduler = new RetryScheduler<TaskTrackerJobResult>(appContext, 3) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -72,7 +72,7 @@ public class JobPushProcessor extends AbstractProcessor {
         final JobWrapper jobWrapper = requestBody.getJobWrapper();
 
         try {
-            application.getRunnerPool().execute(jobWrapper, jobRunnerCallback);
+            appContext.getRunnerPool().execute(jobWrapper, jobRunnerCallback);
         } catch (NoAvailableJobRunnerException e) {
             // 任务推送失败
             return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
@@ -96,7 +96,7 @@ public class JobPushProcessor extends AbstractProcessor {
             taskTrackerJobResult.setJobWrapper(response.getJobWrapper());
             taskTrackerJobResult.setAction(response.getAction());
             taskTrackerJobResult.setMsg(response.getMsg());
-            JobCompletedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
+            JobCompletedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
             requestBody.addJobResult(taskTrackerJobResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 
@@ -158,13 +158,10 @@ public class JobPushProcessor extends AbstractProcessor {
 
     /**
      * 发送JobResults
-     *
-     * @param results
-     * @return
      */
     private boolean retrySendJobResults(List<TaskTrackerJobResult> results) {
         // 发送消息给 JobTracker
-        JobCompletedRequest requestBody = application.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
+        JobCompletedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
         requestBody.setTaskTrackerJobResults(results);
         requestBody.setReSend(true);
 

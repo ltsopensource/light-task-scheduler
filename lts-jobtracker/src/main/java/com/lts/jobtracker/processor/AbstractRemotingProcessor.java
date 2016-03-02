@@ -1,6 +1,6 @@
 package com.lts.jobtracker.processor;
 
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.RemotingProcessor;
 
 /**
@@ -8,10 +8,10 @@ import com.lts.remoting.RemotingProcessor;
  */
 public abstract class AbstractRemotingProcessor implements RemotingProcessor {
 
-    protected JobTrackerApplication application;
+    protected JobTrackerAppContext appContext;
 
-    public AbstractRemotingProcessor(JobTrackerApplication application) {
-        this.application = application;
+    public AbstractRemotingProcessor(JobTrackerAppContext appContext) {
+        this.appContext = appContext;
     }
 
 }

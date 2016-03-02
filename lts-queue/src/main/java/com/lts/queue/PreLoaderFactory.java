@@ -1,6 +1,6 @@
 package com.lts.queue;
 
-import com.lts.core.Application;
+import com.lts.core.AppContext;
 import com.lts.core.spi.SPI;
 import com.lts.core.spi.SpiKey;
 
@@ -10,6 +10,6 @@ import com.lts.core.spi.SpiKey;
 @SPI(key = SpiKey.JOB_QUEUE, dftValue = "mysql")
 public interface PreLoaderFactory {
 
-    public PreLoader getPreLoader(Application application);
+    public PreLoader getPreLoader(AppContext appContext);
 
 }

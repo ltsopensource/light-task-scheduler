@@ -1,6 +1,7 @@
 package com.lts.remoting;
 
 import com.lts.core.domain.KVPair;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.remoting.common.RemotingHelper;
@@ -41,14 +42,7 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
             publicThreadNums = 4;
         }
 
-        this.publicExecutor = Executors.newFixedThreadPool(publicThreadNums, new ThreadFactory() {
-            private AtomicInteger threadIndex = new AtomicInteger(0);
-
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r, "RemotingServerPublicExecutor_" + this.threadIndex.incrementAndGet());
-            }
-        });
+        this.publicExecutor = Executors.newFixedThreadPool(publicThreadNums, new NamedThreadFactory("RemotingServerPublicExecutor", true));
     }
 
     @Override

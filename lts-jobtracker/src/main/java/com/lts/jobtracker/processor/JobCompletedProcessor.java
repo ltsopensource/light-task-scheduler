@@ -5,7 +5,7 @@ import com.lts.jobtracker.complete.chain.GetNewJobChain;
 import com.lts.jobtracker.complete.chain.JobCompletedChain;
 import com.lts.jobtracker.complete.chain.JobProcessChain;
 import com.lts.jobtracker.complete.chain.JobStatisticChain;
-import com.lts.jobtracker.domain.JobTrackerApplication;
+import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -22,13 +22,13 @@ public class JobCompletedProcessor extends AbstractRemotingProcessor {
 
     private List<JobCompletedChain> chains;
 
-    public JobCompletedProcessor(final JobTrackerApplication application) {
-        super(application);
+    public JobCompletedProcessor(final JobTrackerAppContext appContext) {
+        super(appContext);
 
         this.chains = new CopyOnWriteArrayList<JobCompletedChain>();
-        this.chains.add(new JobStatisticChain(application));        // 统计
-        this.chains.add(new JobProcessChain(application));          // 完成处理
-        this.chains.add(new GetNewJobChain(application));           // 获取新任务
+        this.chains.add(new JobStatisticChain(appContext));        // 统计
+        this.chains.add(new JobProcessChain(appContext));          // 完成处理
+        this.chains.add(new GetNewJobChain(appContext));           // 获取新任务
 
     }
 
