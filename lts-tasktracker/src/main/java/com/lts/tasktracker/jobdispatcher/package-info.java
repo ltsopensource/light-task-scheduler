@@ -30,6 +30,9 @@ public class GatherMetricJobRunner implements JobRunner
 重启tasktracker，就自动运行
 5. 配置参数
 
+# JobRunner 任务执行类
+jobRunnerClass=com.lts.tasktracker.jobdispatcher.JobRunnerDispatcher
+
 # 自动扫描作业
 jobRunnerScannerPackages=com.glodon.ysg,com.lts.job
 
