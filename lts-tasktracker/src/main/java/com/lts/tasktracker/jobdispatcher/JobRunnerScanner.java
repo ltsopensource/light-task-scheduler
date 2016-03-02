@@ -23,7 +23,7 @@ import java.util.*;
 public class JobRunnerScanner {
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerScanner.class);
 
-    public static void scan(String scanPaths, Map<String, JobRunner> map) throws Exception {
+    public static void scans(String scanPaths, Map<String, JobRunner> map) throws Exception {
         List<String> packages = Lists.newArrayList();
         packages.add(scanPaths);
         scans(packages, map);
@@ -51,6 +51,7 @@ public class JobRunnerScanner {
         for (String packName : packNameList) {
             filterBuilder = filterBuilder.includePackage(packName);
         }
+        filterBuilder.includePackage("com.lts.tasktracker.jobdispatcher");
         Predicate<String> filter = filterBuilder;
 
         Collection<URL> urlTotals = new ArrayList<URL>();
@@ -60,13 +61,17 @@ public class JobRunnerScanner {
         }
 
         return new Reflections(new ConfigurationBuilder().filterInputsBy(filter)
-                .setScanners(new SubTypesScanner().filterResultsBy(filter),
+                .setScanners(
                         new TypeAnnotationsScanner().filterResultsBy(filter)
+                        /*,new SubTypesScanner().filterResultsBy(filter)
+                        ,new FieldAnnotationsScanner().filterResultsBy(filter),
+                        new MethodAnnotationsScanner().filterResultsBy(filter),
+                        new MethodParameterScanner()*/
                 ).setUrls(urlTotals));
     }
 
     public static void main(String[] args) throws Exception {
         Map<String, JobRunner> map = Maps.newHashMap();
-        new JobRunnerScanner().scan("com.glodon.uba", map);
+        new JobRunnerScanner().scans("com.glodon.ysg", map);
     }
 }

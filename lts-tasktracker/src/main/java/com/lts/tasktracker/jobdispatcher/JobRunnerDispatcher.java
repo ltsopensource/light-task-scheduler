@@ -12,12 +12,13 @@ import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.LtsLoggerFactory;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 根据参数 type 派发作业
- *
+ * <p/>
  * Created by 28797575@qq.com hongliangpan on 2016/2/29.
  */
 public class JobRunnerDispatcher implements JobRunner {
@@ -27,13 +28,13 @@ public class JobRunnerDispatcher implements JobRunner {
 
     static {
         try {
-            EmbedJobClient jobClient=   new EmbedJobClient();
-            String packagesParam=jobClient.getConfig("jobRunnerScannerPackages");
-            if(!Strings.isNullOrEmpty(packagesParam)){
+            EmbedJobClient jobClient = new EmbedJobClient();
+            String packagesParam = jobClient.getConfig("jobRunnerScannerPackages");
+            if (!Strings.isNullOrEmpty(packagesParam)) {
                 List<String> packages = Splitter.on(",").splitToList(packagesParam);
                 JobRunnerScanner.scans(packages, JOB_RUNNER_MAP);
             }
-            jobClient .submitJob();
+            jobClient.submitJob();
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
