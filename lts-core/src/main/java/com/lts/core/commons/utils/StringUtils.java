@@ -1,6 +1,7 @@
 package com.lts.core.commons.utils;
 
 
+import com.lts.core.json.JSON;
 import com.lts.core.logger.support.FormattingTuple;
 import com.lts.core.logger.support.MessageFormatter;
 
@@ -131,8 +132,8 @@ public final class StringUtils {
         return sb.toString();
     }
 
-    public static String trim(String str){
-        if(str == null){
+    public static String trim(String str) {
+        if (str == null) {
             return null;
         }
         return str.trim();
@@ -148,6 +149,20 @@ public final class StringUtils {
         }
 
         return value.toString();
+    }
+
+    public static String[] splitWithTrim(String spilt, String sequence) {
+        if (isEmpty(sequence)) {
+            return null;
+        }
+        String[] values = sequence.split(spilt);
+        if (values.length == 0) {
+            return values;
+        }
+        for (int i = 0; i < values.length; i++) {
+            values[i] = values[i].trim();
+        }
+        return values;
     }
 
 }
