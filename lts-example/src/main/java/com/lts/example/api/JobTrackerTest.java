@@ -64,7 +64,7 @@ public class JobTrackerTest {
         jobTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
 //        jobTracker.setRegistryAddress("redis://127.0.0.1:6379");
         jobTracker.setListenPort(35002); // 默认 35001
-        jobTracker.setClusterName("test_cluster");
+        jobTracker.setClusterName("uba_cluster");
 
         jobTracker.addMasterChangeListener(new MasterChangeListenerImpl());
 
@@ -74,8 +74,8 @@ public class JobTrackerTest {
         jobTracker.addConfig("job.queue", "mysql");
         // mysql 配置
         jobTracker.addConfig("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
-        jobTracker.addConfig("jdbc.username", "root");
-        jobTracker.addConfig("jdbc.password", "root");
+        jobTracker.addConfig("jdbc.username", "ysg_point");
+        jobTracker.addConfig("jdbc.password", "ysg4rfde32wsaq1");
         // 可选值 mina netty
 //         jobTracker.addConfig("lts.remoting", "mina");
         // 可选值 fastjson hessian2 java
@@ -87,7 +87,7 @@ public class JobTrackerTest {
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "curator");
 
-        jobTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
+        jobTracker.addConfig("lts.monitor.url", "http://localhost:8088/");
 //        jobTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
 
         // 启动节点
