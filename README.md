@@ -4,7 +4,7 @@ LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持�
 
 ## 项目地址
 github地址:
-[https://github.com/qq254963746/light-task-scheduler](https://github.com/qq254963746/light-task-scheduler)
+[https://github.com/ltsopensource/light-task-scheduler](https://github.com/ltsopensource/light-task-scheduler)
 
 oschina地址:
 [http://git.oschina.net/hugui/light-task-scheduler](http://git.oschina.net/hugui/light-task-scheduler)
