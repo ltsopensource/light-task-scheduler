@@ -16,18 +16,24 @@ import java.net.URL;
 import java.util.*;
 
 /**
+ * 根据注解扫描作业，JobRunnerAnnotation
+ *
  * Created by 28797575@qq.com hongliangpan on 2016/2/29.
  */
 public class JobRunnerScanner {
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerScanner.class);
 
-    public static void scan(String scanPaths, Map<String,JobRunner> map) throws Exception {
+    public static void scan(String scanPaths, Map<String, JobRunner> map) throws Exception {
         List<String> packages = Lists.newArrayList();
         packages.add(scanPaths);
-         scans(packages,map);
+        scans(packages, map);
     }
 
-    public static void scans(List<String> packages,Map<String, JobRunner> map) throws InstantiationException, IllegalAccessException {
+    public static void scans(String[] packages, Map<String, JobRunner> map) throws InstantiationException, IllegalAccessException {
+        scans(Arrays.asList(packages), map);
+    }
+
+    public static void scans(List<String> packages, Map<String, JobRunner> map) throws InstantiationException, IllegalAccessException {
         Reflections reflections = getReflection(packages);
         Set<Class<?>> annotations = reflections.getTypesAnnotatedWith(JobRunnerAnnotation.class);
         for (Class<?> clazz : annotations) {
@@ -42,12 +48,10 @@ public class JobRunnerScanner {
     private static Reflections getReflection(List<String> packNameList) {
 
         FilterBuilder filterBuilder = new FilterBuilder();
-
         for (String packName : packNameList) {
             filterBuilder = filterBuilder.includePackage(packName);
         }
         Predicate<String> filter = filterBuilder;
-
 
         Collection<URL> urlTotals = new ArrayList<URL>();
         for (String packName : packNameList) {
@@ -59,11 +63,10 @@ public class JobRunnerScanner {
                 .setScanners(new SubTypesScanner().filterResultsBy(filter),
                         new TypeAnnotationsScanner().filterResultsBy(filter)
                 ).setUrls(urlTotals));
-
     }
 
     public static void main(String[] args) throws Exception {
-        Map<String, JobRunner> map= Maps.newHashMap();
-        new JobRunnerScanner().scan("com.glodon.uba",map);
+        Map<String, JobRunner> map = Maps.newHashMap();
+        new JobRunnerScanner().scan("com.glodon.uba", map);
     }
 }
