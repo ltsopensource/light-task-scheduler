@@ -17,7 +17,7 @@ import java.util.*;
 
 /**
  * 根据注解扫描作业，JobRunnerAnnotation
- *
+ * <p/>
  * Created by 28797575@qq.com hongliangpan on 2016/2/29.
  */
 public class JobRunnerScanner {
@@ -51,7 +51,7 @@ public class JobRunnerScanner {
         for (String packName : packNameList) {
             filterBuilder = filterBuilder.includePackage(packName);
         }
-        filterBuilder.includePackage("com.lts.tasktracker.jobdispatcher");
+        filterBuilder.includePackage(JobRunnerScanner.class.getPackage().getName());
         Predicate<String> filter = filterBuilder;
 
         Collection<URL> urlTotals = new ArrayList<URL>();
@@ -61,12 +61,7 @@ public class JobRunnerScanner {
         }
 
         return new Reflections(new ConfigurationBuilder().filterInputsBy(filter)
-                .setScanners(
-                        new TypeAnnotationsScanner().filterResultsBy(filter)
-                        /*,new SubTypesScanner().filterResultsBy(filter)
-                        ,new FieldAnnotationsScanner().filterResultsBy(filter),
-                        new MethodAnnotationsScanner().filterResultsBy(filter),
-                        new MethodParameterScanner()*/
+                .setScanners(new TypeAnnotationsScanner().filterResultsBy(filter)
                 ).setUrls(urlTotals));
     }
 
