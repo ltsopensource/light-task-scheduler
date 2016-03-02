@@ -1,7 +1,7 @@
 package com.lts.tasktracker.jobdispatcher;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
 import com.lts.core.json.JSON;
@@ -12,8 +12,8 @@ import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.LtsLoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -30,9 +30,10 @@ public class JobRunnerDispatcher implements JobRunner {
         try {
             EmbedJobClient jobClient = new EmbedJobClient();
             String packagesParam = jobClient.getConfig("jobRunnerScannerPackages");
-            if (!Strings.isNullOrEmpty(packagesParam)) {
-                List<String> packages = Splitter.on(",").splitToList(packagesParam);
-                JobRunnerScanner.scans(packages, JOB_RUNNER_MAP);
+            if (StringUtils.isNotEmpty(packagesParam)) {
+                List<String> packages = CollectionUtils.arrayToList(StringUtils.splitWithTrim(",", packagesParam));
+                Map<String, JobRunner> map = JobRunnerScanner.scans(packages);
+                JOB_RUNNER_MAP.putAll(map);
             }
             jobClient.submitJob();
         } catch (Exception e) {
@@ -43,7 +44,7 @@ public class JobRunnerDispatcher implements JobRunner {
     @Override
     public Result run(Job job) throws Throwable {
         String type = job.getParam("type");
-        if (Strings.isNullOrEmpty(type)) {
+        if (StringUtils.isEmpty(type)) {
             return new Result(Action.EXECUTE_FAILED, "没有类型参数.type is null");
         }
         JobRunner jobRunner = JOB_RUNNER_MAP.get(type);

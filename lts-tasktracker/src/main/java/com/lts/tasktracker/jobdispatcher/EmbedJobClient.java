@@ -1,6 +1,5 @@
 package com.lts.tasktracker.jobdispatcher;
 
-import com.google.common.io.Resources;
 import com.lts.core.commons.utils.ClassHelper;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -25,9 +24,10 @@ public class EmbedJobClient {
         if (conf != null) {
             return conf;
         }
-        URL url = Resources.getResource(TASKTRACKER_CFG);
         try {
+            URL url = this.getClass().getClassLoader().getResource(TASKTRACKER_CFG);
             conf = new Properties();
+            assert url != null;
             conf.load(new FileInputStream(new File(url.toURI())));
         } catch (Exception e) {
             LOGGER.error("can not find tasktracker.cfg", e);

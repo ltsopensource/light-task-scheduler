@@ -5,6 +5,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.EcTopic;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
 import com.lts.core.json.JSONFactory;
@@ -19,6 +20,7 @@ import com.lts.core.registry.*;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.core.spi.SpiKey;
 import com.lts.ec.EventCenter;
+import com.lts.ec.EventInfo;
 import com.lts.remoting.serialize.AdaptiveSerializable;
 
 import java.util.ArrayList;
@@ -89,6 +91,8 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                 remotingStop();
 
                 afterRemotingStop();
+
+                // appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_STOP));
 
                 LOGGER.info("Stop success!");
             }
