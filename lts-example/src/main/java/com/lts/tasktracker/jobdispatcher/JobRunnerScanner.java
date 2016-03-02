@@ -1,4 +1,4 @@
-package com.lts.example.jobdispatcher;
+package com.lts.tasktracker.jobdispatcher;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;

@@ -1,4 +1,4 @@
-package com.lts.example.jobdispatcher;
+package com.lts.tasktracker.jobdispatcher;
 
 import java.lang.annotation.*;
 

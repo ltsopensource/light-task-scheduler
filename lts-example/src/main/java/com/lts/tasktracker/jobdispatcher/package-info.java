@@ -1,7 +1,7 @@
 /**
  * Created by 28797575@qq.com hongliangpan on 2016/2/29.
  */
-package com.lts.example.jobdispatcher;
+package com.lts.tasktracker.jobdispatcher;
 
 
 // 作业开发部署
@@ -10,12 +10,12 @@ package com.lts.example.jobdispatcher;
 1. 配置JobRunnerDispatcher为JobRunner
 tasktracker.cfg文件中
 # JobRunner 任务执行类
-jobRunnerClass=com.glodon.ysg.uba.job.JobRunnerDispatcher
+jobRunnerClass=com.lts.tasktracker.jobdispatcher.JobRunnerDispatcher
 
 2. 开发新的作业
 //添加 类注解 @RunnerTask(type= "type")
 @JobRunnerAnnotation(type= "type1")
-public class GatherFunctionJobRunner implements JobRunner
+public class GatherMetricJobRunner implements JobRunner
 
 3.自动扫描作业JobRunnerDispatcher,配置扫描的package
  static {

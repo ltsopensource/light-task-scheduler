@@ -1,4 +1,4 @@
-package com.lts.example.jobdispatcher;
+package com.lts.tasktracker.jobdispatcher;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
@@ -25,6 +25,7 @@ public class JobRunnerDispatcher implements JobRunner {
     static {
         try {
             JobRunnerScanner.scan("com.glodon.ysg", JOB_RUNNER_MAP);
+            UbaJobClient.submitJob();
         } catch (Exception e) {
             LOGGER.error(e.getMessage(),e);
         }
