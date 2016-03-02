@@ -33,7 +33,7 @@ public class GatherMetricJobRunner implements JobRunner
 # JobRunner 任务执行类
 jobRunnerClass=com.lts.tasktracker.jobdispatcher.JobRunnerDispatcher
 
-# 自动扫描作业
+# 自动扫描作业包，逗号分隔
 jobRunnerScannerPackages=com.glodon.ysg,com.lts.job
 
 # 是否内嵌JobClient
