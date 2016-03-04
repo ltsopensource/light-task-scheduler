@@ -321,8 +321,8 @@
                 sweetAlert("优先级格式错误", "必须为数字，数值越小，优先级越大【必填】", "error");
                 return;
             }
-            if (!params['submitNodeGroup']) {
-                sweetAlert("请选择提交节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+            if (!params['submitNodeGroup'] && params['needFeedback'] == 'true') {
+                sweetAlert("请选择提交节点组", "需要反馈客户端必须选择提交节点组,如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
                 return;
             }
             var extParams = params['extParams'];

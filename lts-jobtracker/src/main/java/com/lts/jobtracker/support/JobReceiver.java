@@ -131,7 +131,7 @@ public class JobReceiver {
     private boolean replaceOnExist(Job job, JobPo jobPo) {
 
         // 得到老的jobId
-        JobPo oldJobPo = null;
+        JobPo oldJobPo;
         if (job.isSchedule()) {
             oldJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         } else {

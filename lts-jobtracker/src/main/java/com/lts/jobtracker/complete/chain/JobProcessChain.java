@@ -1,6 +1,7 @@
 package com.lts.jobtracker.complete.chain;
 
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
@@ -21,6 +22,7 @@ import java.util.List;
 
 /**
  * 任务完成 Chian
+ *
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
 public class JobProcessChain implements JobCompletedChain {
@@ -82,7 +84,7 @@ public class JobProcessChain implements JobCompletedChain {
 
         if (!needRetry(result)) {
             // 这种情况下，如果要反馈客户端的，直接反馈客户端，不进行重试
-            if (result.getJobWrapper().getJob().isNeedFeedback()) {
+            if (isNeedFeedback(result.getJobWrapper().getJob())) {
                 clientNotifier.send(results);
             } else {
                 jobFinishHandler.onComplete(results);
@@ -131,7 +133,7 @@ public class JobProcessChain implements JobCompletedChain {
                     retryResults = new ArrayList<TaskTrackerJobResult>();
                 }
                 retryResults.add(result);
-            } else if (result.getJobWrapper().getJob().isNeedFeedback()) {
+            } else if (isNeedFeedback(result.getJobWrapper().getJob())) {
                 // 需要反馈给客户端
                 if (feedbackResults == null) {
                     feedbackResults = new ArrayList<TaskTrackerJobResult>();
@@ -154,6 +156,14 @@ public class JobProcessChain implements JobCompletedChain {
 
         // 将任务加入到重试队列
         retryHandler.onComplete(retryResults);
+    }
+
+    private boolean isNeedFeedback(Job job) {
+        if (job == null) {
+            return false;
+        }
+        // 容错,如果没有提交节点组,那么不反馈
+        return !StringUtils.isEmpty(job.getSubmitNodeGroup()) && job.isNeedFeedback();
     }
 
 }

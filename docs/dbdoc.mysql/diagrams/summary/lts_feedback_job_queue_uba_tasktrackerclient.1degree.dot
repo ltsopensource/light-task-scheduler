@@ -1,0 +1,32 @@
+// dot 2.36.0 on Windows 7 6.1
+// SchemaSpy rev 590
+digraph "lts_feedback_job_queue_uba_tasktrackerclient" {
+  graph [
+    rankdir="RL"
+    bgcolor="#f7f7f7"
+    nodesep="0.18"
+    ranksep="0.46"
+    fontname="Helvetica"
+    fontsize="14"
+  ];
+  node [
+    fontname="Helvetica"
+    fontsize="14"
+    shape="plaintext"
+  ];
+  edge [
+    arrowsize="0.8"
+  ];
+  "lts_feedback_job_queue_uba_tasktrackerclient" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">lts_feedback_job_queue_uba_tasktrackerclient</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="gmt_created" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">gmt_created</TD></TR>
+      <TR><TD PORT="job_result" COLSPAN="3" ALIGN="LEFT">job_result</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/lts_feedback_job_queue_uba_tasktrackerclient.html"
+    tooltip="lts_feedback_job_queue_uba_tasktrackerclient"
+  ];
+}
