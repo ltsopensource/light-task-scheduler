@@ -1,0 +1,277 @@
+/* required colors MUST be specified in RGB hex notation or the diagrams won't have correct colors */
+
+body  {
+  color: #000;
+  background-color: #F7F7F7;
+  font-family: arial, geneva, helvetica, lucida, sans-serif;
+  margin: 0 0 0 0;
+  padding: 0px;
+}
+
+/* background must be specified for it to propagate into diagrams */
+.content {
+  margin: 0px;
+  background: #F7F7F7;
+  border: 0 0;
+  padding:.4em;
+}
+
+/* background-color must be specified for th to propagate into diagrams */
+th {
+  background-color: #9BAB96;
+  text-align: left;
+  padding: 0px 4px;
+}
+
+/* background-color must be specified for td to propagate into diagrams */
+td {
+  background-color: #ffffff;
+}
+
+tr.even td.detail {
+}
+
+tr.odd td.detail {
+  background-color: #F7F7F7;
+}
+
+h1 {
+  font-size: 125%;
+}
+
+/* background must be specified for .primaryKey to propagate into diagrams */
+.primaryKey {
+  background: #BED1B8;
+  padding: 0px 4px;
+}
+
+/* background must be specified for .indexedColumn to propagate into diagrams */
+.indexedColumn {
+  background: #F4F7DA;
+  padding: 0px 4px;
+}
+
+/* background must be specified for .excludedColumn to propagate into diagrams */
+.excludedColumn {
+  background: #C0C0C0;
+  padding: 0px 4px;
+}
+
+/* background must be specified for .selectedTable to propagate into diagrams */
+.selectedTable {
+  background: #A9AB96;
+}
+
+.detail {
+  padding: 0px 4px;
+}
+
+table {
+  border-style: none;
+  margin: 0;
+}
+
+.impliedRelationship {
+  display: none;
+  font-style: italic;
+  color: #183118
+}
+
+.dataTable {
+  font-size: 85%;
+  background-color: #F7F7F7;
+}
+
+.heading {
+  background: transparent;
+  padding: 8px 0px;
+}
+
+.header {
+  color: #000000;
+  background: transparent;
+  font-weight: bold;
+  font-size: 130%;
+  text-align: left;
+}
+
+.description {
+  display: block;
+  padding: 8px 0px;
+}
+
+.signature {
+  font-size: 105%;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.container {
+  background-color: #F7F7F7;
+  padding: 0px 0px;
+}
+
+.legend {
+  display: none;
+  text-align: left;
+}
+
+.legendDetail {
+  background-color: #F7F7F7;
+  padding: 0px 4px;
+
+  font-style: normal;
+  color: #000000
+}
+
+.relatedTable {
+  padding: 0px 4px;
+}
+
+.relatedKey {
+  display: none;
+  padding: 0px -4px 0px 4px;
+}
+
+.constraint {
+  display: none;
+  text-align: right;
+  padding: 0px 4px;
+}
+
+.comment {
+  display: none;
+  text-align: left;
+  padding: 0px 4px;
+}
+
+.impliedNotOrphan {
+}
+
+.excludedRelationship {
+  font-size: 85%;
+}
+
+.degrees {
+}
+
+/* don't display the diagrams until we know what to display */
+.diagram {
+  display: none;
+}
+
+.indent {
+  padding: 2px;
+}
+
+a:link {
+  color: #489148;
+}
+
+a:visited {
+  color: #183118;
+}
+
+.sortedByColumn {
+  background-color: #6C7769;
+}
+
+.notSortedByColumn {
+  color: #000000;
+}
+
+.viewDefinition {
+  font-size: 90%;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 1px;
+  float: left;
+  padding: 4px;
+  font-family: "Courier New", Courier, monospace
+}
+
+.viewReferences {
+  font-size: 90%;
+  padding: 4px;
+}
+
+/* wrap around divs that float so they "take up space" */
+div.spacer {
+  clear: both;
+}
+
+.preFormatted {
+  white-space: pre;
+}
+
+/* Tabs from http://www.alistapart.com/articles/slidingdoors/ */
+
+/* resolve an issue with always having a scrollbar for #header */
+#headerHolder {
+  width: 100%;
+  margin: 0;
+  border: 1px solid black;
+  border-bottom-style: none;
+}
+
+#header {
+  float:left;
+  width: 100%;
+  background:#BED1B8 url("images/background.gif") repeat-x bottom;
+  font-size:80%;
+  line-height:normal;
+}
+
+#header ul {
+  margin:0;
+  padding:10px 10px 0;
+  list-style:none;
+}
+
+#header li {
+  float:left;
+  background:url("images/tabLeft.gif") no-repeat left top;
+  margin:0;
+  padding:0 0 0 9px;
+  border-bottom:1px solid #000;
+}
+
+#header a {
+  float:left;
+  display:block;
+  width:.1em;
+  background:url("images/tabRight.gif") no-repeat right top;
+  padding:5px 10px 4px 1px;
+  text-decoration:none;
+  font-weight:bold;
+  color:#F4F7DA;
+}
+
+#header > ul a {width:auto;}
+/* Commented Backslash Hack hides rule from IE5-Mac \*/
+#header a {float:none;}
+/* End IE5-Mac hack */
+
+#header a:hover {
+  color:#333;
+}
+
+#header #current {
+  background-position:0 -150px;
+  border-width:0;
+}
+
+#header #current a {
+  background-position:100% -150px;
+  padding-bottom:5px;
+  color:#000;
+}
+
+#header li:hover, #header li:hover a {
+  background-position:0% -150px;
+  color:#9BAB96;
+}
+
+#header li:hover a {
+  background-position:100% -150px;
+}
