@@ -276,7 +276,9 @@ public class JobQueueApiController extends AbstractController {
         try {
             Assert.hasLength(request.getTaskId(), "taskId不能为空!");
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
-            Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");
+            if(request.getNeedFeedback()){
+                Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");
+            }
 
             if (StringUtils.isNotEmpty(request.getCronExpression())) {
                 try {
