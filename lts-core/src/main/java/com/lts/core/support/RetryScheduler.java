@@ -223,34 +223,35 @@ public abstract class RetryScheduler<T> {
                 if (failStore instanceof AbstractFailStore) {
                     failStores = ((AbstractFailStore) failStore).getDeadFailStores();
                 }
-                if (CollectionUtils.isNotEmpty(failStores)) {
-                    for (FailStore store : failStores) {
-                        store.open();
+                if (CollectionUtils.isEmpty(failStores)) {
+                    return;
+                }
+                for (FailStore store : failStores) {
+                    store.open();
 
-                        while (true) {
-                            List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
-                            if (CollectionUtils.isEmpty(kvPairs)) {
-                                store.destroy();
-                                LOGGER.info("{} RetryScheduler, delete store dir[{}] success.", name, store.getPath());
-                                break;
-                            }
-                            List<T> values = new ArrayList<T>(kvPairs.size());
-                            List<String> keys = new ArrayList<String>(kvPairs.size());
-                            for (KVPair<String, T> kvPair : kvPairs) {
-                                keys.add(kvPair.getKey());
-                                values.add(kvPair.getValue());
-                            }
-                            if (retry(values)) {
-                                LOGGER.info("{} RetryScheduler, dead local files send success, size: {}, {}", name, values.size(), JSON.toJSONString(values));
-                                store.delete(keys);
-                            } else {
-                                store.close();
-                                break;
-                            }
-                            try {
-                                Thread.sleep(500);
-                            } catch (Exception ignored) {
-                            }
+                    while (true) {
+                        List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
+                        if (CollectionUtils.isEmpty(kvPairs)) {
+                            store.destroy();
+                            LOGGER.info("{} RetryScheduler, delete store dir[{}] success.", name, store.getPath());
+                            break;
+                        }
+                        List<T> values = new ArrayList<T>(kvPairs.size());
+                        List<String> keys = new ArrayList<String>(kvPairs.size());
+                        for (KVPair<String, T> kvPair : kvPairs) {
+                            keys.add(kvPair.getKey());
+                            values.add(kvPair.getValue());
+                        }
+                        if (retry(values)) {
+                            LOGGER.info("{} RetryScheduler, dead local files send success, size: {}, {}", name, values.size(), JSON.toJSONString(values));
+                            store.delete(keys);
+                        } else {
+                            store.close();
+                            break;
+                        }
+                        try {
+                            Thread.sleep(500);
+                        } catch (Exception ignored) {
                         }
                     }
                 }
