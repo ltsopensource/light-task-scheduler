@@ -76,7 +76,8 @@ public class AdminAppFactoryBean implements FactoryBean<AdminAppContext>, Initia
         appContext.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
         appContext.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class, config).getQueue(config));
         appContext.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class, config).getQueue(config));
-        appContext.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
+		appContext.setSuspendJobQueue(ServiceLoader.load(SuspendJobQueueFactory.class,config).getQueue(config));
+		appContext.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
         appContext.setJobLogger(new JobLoggerDelegate(config));
         appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
         appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));

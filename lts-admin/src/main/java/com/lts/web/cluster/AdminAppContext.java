@@ -18,6 +18,8 @@ public class AdminAppContext extends AppContext {
 
     private JobFeedbackQueue jobFeedbackQueue;
 
+	private SuspendJobQueue suspendJobQueue;
+
     private NodeGroupStore nodeGroupStore;
 
     private JobLogger jobLogger;
@@ -56,7 +58,15 @@ public class AdminAppContext extends AppContext {
         this.executingJobQueue = executingJobQueue;
     }
 
-    public NodeGroupStore getNodeGroupStore() {
+	public SuspendJobQueue getSuspendJobQueue() {
+		return suspendJobQueue;
+	}
+
+	public void setSuspendJobQueue(SuspendJobQueue suspendJobQueue) {
+		this.suspendJobQueue = suspendJobQueue;
+	}
+
+	public NodeGroupStore getNodeGroupStore() {
         return nodeGroupStore;
     }
 
