@@ -139,6 +139,7 @@ lts-{version}-bin的文件结构
 ```java
 JobClient jobClient = new RetryJobClient();
 jobClient.setNodeGroup("test_jobClient");
+jobClient.setClusterName("test_cluster");
 jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
 jobClient.start();
 
@@ -222,6 +223,7 @@ TaskTracker taskTracker = new TaskTracker();
 taskTracker.setJobRunnerClass(MyJobRunner.class);
 taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
 taskTracker.setNodeGroup("test_trade_TaskTracker");
+taskTracker.setClusterName("test_cluster");
 taskTracker.setWorkThreads(20);
 taskTracker.start();
 ```

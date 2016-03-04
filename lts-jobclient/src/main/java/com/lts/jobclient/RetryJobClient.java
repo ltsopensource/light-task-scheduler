@@ -61,12 +61,10 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
             response = superSubmitJob(jobs);
         } catch (JobSubmitProtectException e) {
             response = new Response();
-            response.setSuccess(true);
+            response.setSuccess(false);
             response.setFailedJobs(jobs);
             response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
             response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
-            LOGGER.warn(JSON.toJSONString(response));
-            return response;
         }
         if (!response.isSuccess()) {
             try {
