@@ -9,10 +9,9 @@ import com.lts.core.cluster.Node;
 public interface MasterChangeListener {
 
     /**
-     * master 为 master节点
-     * isMaster 表示当前节点是不是master节点
-     * @param master
-     * @param isMaster
+     * 节点变化 监听
+     * @param master master节点
+     * @param isMaster 表示当前节点是不是master节点
      */
     public void change(Node master, boolean isMaster);
 
