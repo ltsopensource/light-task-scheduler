@@ -70,7 +70,7 @@ public class DataBlock {
 
         boolean success = false;
         try {
-            boolean newFile = false;
+            boolean newFile;
 
             // 判断文件是否存在
             if (this.file.exists()) {

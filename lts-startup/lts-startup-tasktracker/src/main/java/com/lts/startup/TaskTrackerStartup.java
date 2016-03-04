@@ -2,6 +2,8 @@ package com.lts.startup;
 
 import com.lts.tasktracker.TaskTracker;
 
+import java.util.Map;
+
 /**
  * @author Robert HG (254963746@qq.com) on 9/11/15.
  */
@@ -22,6 +24,10 @@ public class TaskTrackerStartup {
                 taskTracker = SpringStartup.start(cfg, cfgPath);
             } else {
                 taskTracker = DefaultStartup.start(cfg);
+            }
+
+            for (Map.Entry<String, String> config : cfg.getConfigs().entrySet()) {
+                taskTracker.addConfig(config.getKey(), config.getValue());
             }
 
             taskTracker.start();
