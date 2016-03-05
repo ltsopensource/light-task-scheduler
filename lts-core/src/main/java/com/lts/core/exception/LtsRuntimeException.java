@@ -1,7 +1,7 @@
 package com.lts.core.exception;
 
 /**
- * Created by hugui.hg on 3/2/16.
+ * @author Robert HG (254963746@qq.com) on 3/2/16.
  */
 public class LtsRuntimeException extends RuntimeException {
 

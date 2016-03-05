@@ -253,7 +253,8 @@ public class JobQueueApiController extends AbstractController {
         boolean success = false;
         HttpCmdResponse cmdResponse = null;
         for (Node node : jobTrackerNodeList) {
-            cmdResponse = HttpCmdClient.execute(node.getIp(), node.getCommandPort(), httpCmd);
+            httpCmd.setNodeIdentity(node.getIdentity());
+            cmdResponse = HttpCmdClient.execute(node.getIp(), node.getHttpCmdPort(), httpCmd);
             if (cmdResponse.isSuccess()) {
                 success = true;
                 break;
@@ -276,7 +277,7 @@ public class JobQueueApiController extends AbstractController {
         try {
             Assert.hasLength(request.getTaskId(), "taskId不能为空!");
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
-            if(request.getNeedFeedback()){
+            if (request.getNeedFeedback()) {
                 Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");
             }
 
@@ -345,7 +346,8 @@ public class JobQueueApiController extends AbstractController {
 
         HttpCmdResponse response = null;
         for (Node node : jobTrackerNodeList) {
-            response = HttpCmdClient.execute(node.getIp(), node.getCommandPort(), httpCmd);
+            httpCmd.setNodeIdentity(node.getIdentity());
+            response = HttpCmdClient.execute(node.getIp(), node.getHttpCmdPort(), httpCmd);
             if (response.isSuccess()) {
                 return new KVPair<Boolean, String>(true, "Add success");
             }
