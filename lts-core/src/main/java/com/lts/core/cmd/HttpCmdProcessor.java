@@ -5,6 +5,8 @@ package com.lts.core.cmd;
  */
 public interface HttpCmdProcessor {
 
+    String nodeIdentity();
+
     String getCommand();
 
     HttpCmdResponse execute(HttpCmdRequest request) throws Exception;

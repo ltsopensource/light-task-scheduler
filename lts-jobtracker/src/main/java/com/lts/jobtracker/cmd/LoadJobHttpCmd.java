@@ -1,4 +1,4 @@
-package com.lts.jobtracker.command;
+package com.lts.jobtracker.cmd;
 
 import com.lts.core.cmd.HttpCmdProcessor;
 import com.lts.core.cmd.HttpCmdRequest;
@@ -21,6 +21,11 @@ public class LoadJobHttpCmd implements HttpCmdProcessor {
 
     public LoadJobHttpCmd(JobTrackerAppContext appContext) {
         this.appContext = appContext;
+    }
+
+    @Override
+    public String nodeIdentity() {
+        return appContext.getConfig().getIdentity();
     }
 
     @Override

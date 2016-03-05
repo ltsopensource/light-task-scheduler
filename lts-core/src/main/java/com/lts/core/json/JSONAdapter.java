@@ -1,6 +1,6 @@
 package com.lts.core.json;
 
-import com.lts.core.spi.SpiKey;
+import com.lts.core.spi.SpiExtensionKey;
 import com.lts.core.spi.SPI;
 
 import java.lang.reflect.Type;
@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 11/19/15.
  */
-@SPI(key = SpiKey.LTS_JSON, dftValue = "fastjson")
+@SPI(key = SpiExtensionKey.LTS_JSON, dftValue = "fastjson")
 public interface JSONAdapter {
 
     public String getName();

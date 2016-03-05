@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 1. 会订阅JobTracker的可用,不可用消息主题的订阅
  * 2. 只有当JobTracker可用的时候才会去Pull任务
  * 3. Pull只是会给JobTracker发送一个通知
- * Robert HG (254963746@qq.com) on 3/25/15.
+ * @author Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class JobPullMachine {
 
@@ -37,7 +37,7 @@ public class JobPullMachine {
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerAppContext appContext;
-    private Runnable runnable;
+    private Runnable worker;
     private int jobPullFrequency;
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
@@ -57,11 +57,15 @@ public class JobPullMachine {
                                 }
                             }
                         }), EcTopic.JOB_TRACKER_AVAILABLE, EcTopic.NO_JOB_TRACKER_AVAILABLE);
-        this.runnable = new Runnable() {
+        this.worker = new Runnable() {
             @Override
             public void run() {
                 try {
                     if (!start.get()) {
+                        return;
+                    }
+                    if (!isMachineResEnough()) {
+                        // 如果机器资源不足,那么不去取任务
                         return;
                     }
                     sendRequest();
@@ -72,17 +76,28 @@ public class JobPullMachine {
         };
     }
 
+    /**
+     * 查看当前机器资源是否足够
+     */
+    private boolean isMachineResEnough() {
+        // TODO
+
+        // LOGGER.warn("Current Machine is busy");
+
+        return true;
+    }
+
     private void start() {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 1, jobPullFrequency, TimeUnit.SECONDS);
+                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
                     // 5s 检查一次是否有空余线程
                 }
-                LOGGER.info("Start job pull machine success!");
+                LOGGER.info("Start Job pull machine success!");
             }
         } catch (Throwable t) {
-            LOGGER.error("Start job pull machine failed!", t);
+            LOGGER.error("Start Job pull machine failed!", t);
         }
     }
 
@@ -91,10 +106,10 @@ public class JobPullMachine {
             if (start.compareAndSet(true, false)) {
 //                scheduledFuture.cancel(true);
 //                SCHEDULED_CHECKER.shutdown();
-                LOGGER.info("Stop job pull machine success!");
+                LOGGER.info("Stop Job pull machine success!");
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop job pull machine failed!", t);
+            LOGGER.error("Stop Job pull machine failed!", t);
         }
     }
 
@@ -116,16 +131,16 @@ public class JobPullMachine {
         try {
             RemotingCommand responseCommand = appContext.getRemotingClient().invokeSync(request);
             if (responseCommand == null) {
-                LOGGER.warn("job pull request failed! response command is null!");
+                LOGGER.warn("Job pull request failed! response command is null!");
                 return;
             }
             if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("job pull request success!");
+                    LOGGER.debug("Job pull request success!");
                 }
                 return;
             }
-            LOGGER.warn("job pull request failed! response command is null!");
+            LOGGER.warn("Job pull request failed! response command is null!");
         } catch (JobTrackerNotFoundException e) {
             LOGGER.warn("no job tracker available!");
         }

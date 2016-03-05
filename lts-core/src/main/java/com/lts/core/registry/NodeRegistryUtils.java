@@ -60,8 +60,8 @@ public class NodeRegistryUtils {
                 node.setAvailable(Boolean.valueOf(value));
             } else if ("hostName".equals(key)) {
                 node.setHostName(value);
-            } else if ("commandPort".equals(key)) {
-                node.setCommandPort(Integer.valueOf(value));
+            } else if ("httpCmdPort".equals(key)) {
+                node.setHttpCmdPort(Integer.valueOf(value));
             }
         }
         return node;
@@ -101,8 +101,8 @@ public class NodeRegistryUtils {
                 .append("&hostName=")
                 .append(node.getHostName());
 
-        if (node.getCommandPort() != null) {
-            path.append("&commandPort=").append(node.getCommandPort());
+        if (node.getHttpCmdPort() != null) {
+            path.append("&httpCmdPort=").append(node.getHttpCmdPort());
         }
 
         return path.toString();
