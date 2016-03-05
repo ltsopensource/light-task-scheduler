@@ -3,7 +3,7 @@ package com.lts.web.initialization;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.json.JSONFactory;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.spi.SpiKey;
+import com.lts.core.spi.SpiExtensionKey;
 import com.lts.web.support.AppConfigurer;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -24,12 +24,12 @@ public class SystemInitListener implements ServletContextListener {
         }
         AppConfigurer.load(confPath);
 
-        String jsonAdapter = AppConfigurer.getProperty("configs." + SpiKey.LTS_JSON);
+        String jsonAdapter = AppConfigurer.getProperty("configs." + SpiExtensionKey.LTS_JSON);
         if (StringUtils.isNotEmpty(jsonAdapter)) {
             JSONFactory.setJSONAdapter(jsonAdapter);
         }
 
-        String loggerAdapter = AppConfigurer.getProperty("configs." + SpiKey.LTS_LOGGER);
+        String loggerAdapter = AppConfigurer.getProperty("configs." + SpiExtensionKey.LTS_LOGGER);
         if (StringUtils.isNotEmpty(loggerAdapter)) {
             LoggerFactory.setLoggerAdapter(loggerAdapter);
         }

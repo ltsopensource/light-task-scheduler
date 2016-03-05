@@ -3,7 +3,7 @@ package com.lts.core.spi;
 /**
  * @author Robert HG (254963746@qq.com) on 12/27/15.
  */
-public interface SpiKey {
+public interface SpiExtensionKey {
 
     String FAIL_STORE = "job.fail.store";
 

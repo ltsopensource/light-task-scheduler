@@ -1,5 +1,6 @@
 package com.lts.core.cmd;
 
+import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CollectionUtils;
 
 import java.net.URLEncoder;
@@ -15,8 +16,11 @@ public class HttpCmdClient {
      */
     public static <Resp extends HttpCmdResponse> Resp execute(String ip, int port, HttpCmd<Resp> cmd) {
 
+        Assert.hasText(cmd.getNodeIdentity(), "nodeIdentity can't be empty");
+        Assert.hasText(cmd.getCommand(), "command can't be empty");
+
         StringBuilder sb = new StringBuilder();
-        sb.append("http://").append(ip).append(":").append(port).append("/").append(cmd.getCommand());
+        sb.append("http://").append(ip).append(":").append(port).append("/").append(cmd.getNodeIdentity()).append("/").append(cmd.getCommand());
 
         try {
             Map<String, String> params = cmd.getParams();

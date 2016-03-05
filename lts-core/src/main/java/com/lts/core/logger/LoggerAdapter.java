@@ -2,14 +2,14 @@ package com.lts.core.logger;
 
 
 import com.lts.core.spi.SPI;
-import com.lts.core.spi.SpiKey;
+import com.lts.core.spi.SpiExtensionKey;
 
 import java.io.File;
 
 /**
  * 日志输出器供给器
  */
-@SPI(key = SpiKey.LTS_LOGGER, dftValue = "slf4j")
+@SPI(key = SpiExtensionKey.LTS_LOGGER, dftValue = "slf4j")
 public interface LoggerAdapter {
 
     /**

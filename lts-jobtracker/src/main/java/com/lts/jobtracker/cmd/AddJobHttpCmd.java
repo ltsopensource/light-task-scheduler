@@ -1,4 +1,4 @@
-package com.lts.jobtracker.command;
+package com.lts.jobtracker.cmd;
 
 import com.lts.core.cmd.HttpCmdProcessor;
 import com.lts.core.cmd.HttpCmdRequest;
@@ -21,12 +21,17 @@ import java.util.Collections;
  */
 public class AddJobHttpCmd implements HttpCmdProcessor {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(AddJobHttpCmd.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AddJobHttpCmd.class);
 
     private JobTrackerAppContext appContext;
 
     public AddJobHttpCmd(JobTrackerAppContext appContext) {
         this.appContext = appContext;
+    }
+
+    @Override
+    public String nodeIdentity() {
+        return appContext.getConfig().getIdentity();
     }
 
     @Override
@@ -52,8 +57,8 @@ public class AddJobHttpCmd implements HttpCmdProcessor {
                 return response;
             }
 
-            if (StringUtils.isEmpty(job.getSubmitNodeGroup())) {
-                response.setMsg("job.SubmitNodeGroup can not be null");
+            if (job.isNeedFeedback() && StringUtils.isEmpty(job.getSubmitNodeGroup())) {
+                response.setMsg("if needFeedback, job.SubmitNodeGroup can not be null");
                 return response;
             }
 

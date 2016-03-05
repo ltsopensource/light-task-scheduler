@@ -35,7 +35,7 @@ public class NodeMemoryDatabase extends MemoryDatabase {
             "  createTime, " +
             "  threads," +
             "  hostName," +
-            "  commandPort)" +
+            "  httpCmdPort)" +
             " VALUES (?,?,?,?,?,?,?,?,?,?,?)";
 
     private String deleteSQL = "DELETE FROM lts_node where identity = ?";
@@ -56,7 +56,7 @@ public class NodeMemoryDatabase extends MemoryDatabase {
                 "  `createTime` bigint(20) DEFAULT NULL," +
                 "  `threads` int(11) DEFAULT NULL," +
                 "  `hostName` varchar(64) DEFAULT NULL," +
-                "  `commandPort` int(11) DEFAULT NULL," +
+                "  `httpCmdPort` int(11) DEFAULT NULL," +
                 "  PRIMARY KEY (`identity`)" +
                 ")";
 
@@ -88,7 +88,7 @@ public class NodeMemoryDatabase extends MemoryDatabase {
                         node.getCreateTime(),
                         node.getThreads(),
                         node.getHostName(),
-                        node.getCommandPort()
+                        node.getHttpCmdPort()
                 );
             } catch (Exception e) {
                 LOGGER.error("Insert {} error!", node, e);
@@ -149,7 +149,7 @@ public class NodeMemoryDatabase extends MemoryDatabase {
                 node.setThreads(rs.getInt("threads"));
                 node.setAvailable(rs.getInt("available") == 1);
                 node.setHostName(rs.getString("hostName"));
-                node.setCommandPort(rs.getInt("commandPort"));
+                node.setHttpCmdPort(rs.getInt("httpCmdPort"));
                 nodes.add(node);
             }
             return nodes;

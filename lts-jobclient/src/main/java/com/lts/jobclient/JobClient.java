@@ -2,7 +2,10 @@ package com.lts.jobclient;
 
 import com.lts.core.AppContext;
 import com.lts.core.cluster.AbstractClientNode;
-import com.lts.core.commons.utils.*;
+import com.lts.core.commons.utils.Assert;
+import com.lts.core.commons.utils.BatchUtils;
+import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
@@ -51,9 +54,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     @Override
     protected void beforeStart() {
         appContext.setRemotingClient(remotingClient);
-        int concurrentSize = config.getParameter(Constants.JOB_SUBMIT_CONCURRENCY_SIZE,
-                Constants.DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE);
-        protector = new JobSubmitProtector(concurrentSize);
+        protector = new JobSubmitProtector(appContext);
     }
 
     @Override

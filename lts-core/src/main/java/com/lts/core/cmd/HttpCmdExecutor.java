@@ -41,7 +41,12 @@ public class HttpCmdExecutor implements Runnable {
                 return;
             }
 
-            HttpCmdProcessor httpCmdProcessor = context.getCmdProcessor(request.getCommand());
+            if (StringUtils.isEmpty(request.getNodeIdentity())) {
+                response = HttpCmdResponse.newResponse(false, "nodeIdentity is blank");
+                return;
+            }
+
+            HttpCmdProcessor httpCmdProcessor = context.getCmdProcessor(request.getNodeIdentity(), request.getCommand());
 
             if (httpCmdProcessor != null) {
                 response = httpCmdProcessor.execute(request);

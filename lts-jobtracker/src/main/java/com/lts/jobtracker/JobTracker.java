@@ -5,8 +5,8 @@ import com.lts.core.cluster.AbstractServerNode;
 import com.lts.core.cmd.HttpCmdServer;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelManager;
-import com.lts.jobtracker.command.AddJobHttpCmd;
-import com.lts.jobtracker.command.LoadJobHttpCmd;
+import com.lts.jobtracker.cmd.AddJobHttpCmd;
+import com.lts.jobtracker.cmd.LoadJobHttpCmd;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.JobTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
@@ -36,7 +36,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         // TaskTracker 管理者
         appContext.setTaskTrackerManager(new TaskTrackerManager(appContext));
         // 命令中心
-        appContext.setHttpCmdServer(new HttpCmdServer(appContext.getConfig()));
+        appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(appContext.getConfig()));
 
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(appContext));
@@ -65,7 +65,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         // 先启动CommandCenter，中间看端口是否被占用
         appContext.getHttpCmdServer().start();
         // 设置command端口，会暴露到注册中心上
-        node.setCommandPort(appContext.getHttpCmdServer().getPort());
+        node.setHttpCmdPort(appContext.getHttpCmdServer().getPort());
 
         // 手动加载任务
         appContext.getHttpCmdServer().registerCommand(new LoadJobHttpCmd(appContext));

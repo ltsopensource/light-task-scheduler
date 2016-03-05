@@ -1,6 +1,8 @@
 package com.lts.jobtracker.processor;
 
 import com.lts.core.cluster.NodeType;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.AbstractRemotingCommandBody;
 import com.lts.jobtracker.channel.ChannelWrapper;
@@ -13,6 +15,8 @@ import com.lts.remoting.protocol.RemotingProtos;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static com.lts.core.protocol.JobProtos.RequestCode;
 
@@ -23,6 +27,10 @@ import static com.lts.core.protocol.JobProtos.RequestCode;
 public class RemotingDispatcher extends AbstractRemotingProcessor {
 
     private final Map<RequestCode, RemotingProcessor> processors = new HashMap<RequestCode, RemotingProcessor>();
+    private Semaphore reqLimitSemaphore;
+    private int reqLimitAcquireTimeout = 200;
+    private boolean reqLimitEnable = false;
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingDispatcher.class);
 
     public RemotingDispatcher(JobTrackerAppContext appContext) {
         super(appContext);
@@ -31,23 +39,58 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
         processors.put(RequestCode.JOB_PULL, new JobPullProcessor(appContext));
         processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(appContext));
         processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(appContext));
+
+        this.reqLimitEnable = appContext.getConfig().getParameter("remoting.req.limit.enable", false);
+        Integer maxQPS = appContext.getConfig().getParameter("remoting.req.limit.maxQPS", 500);
+        this.reqLimitSemaphore = new Semaphore(maxQPS);
+        this.reqLimitAcquireTimeout = appContext.getConfig().getParameter("remoting.req.limit.acquire.timeout", 200);
     }
 
     @Override
     public RemotingCommand processRequest(Channel channel, RemotingCommand request) throws RemotingCommandException {
         // 心跳
         if (request.getCode() == JobProtos.RequestCode.HEART_BEAT.code()) {
-            commonHandler(channel, request);
+            offerHandler(channel, request);
             return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.HEART_BEAT_SUCCESS.code(), "");
         }
+        if (reqLimitEnable) {
+            return doBizWithReqLimit(channel, request);
+        } else {
+            return doBiz(channel, request);
+        }
+    }
 
+    /**
+     * 限流处理
+     */
+    private RemotingCommand doBizWithReqLimit(Channel channel, RemotingCommand request) throws RemotingCommandException {
+        boolean acquired = false;
+        try {
+            try {
+                acquired = reqLimitSemaphore.tryAcquire(reqLimitAcquireTimeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                LOGGER.warn("acquire lock error", e);
+            }
+
+            if (!acquired) {
+                return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_BUSY.code(), "remoting server is busy!");
+            }
+            return doBiz(channel, request);
+        } finally {
+            if (acquired) {
+                reqLimitSemaphore.release();
+            }
+        }
+    }
+
+    private RemotingCommand doBiz(Channel channel, RemotingCommand request) throws RemotingCommandException {
         // 其他的请求code
         RequestCode code = RequestCode.valueOf(request.getCode());
         RemotingProcessor processor = processors.get(code);
         if (processor == null) {
             return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.REQUEST_CODE_NOT_SUPPORTED.code(), "request code not supported!");
         }
-        commonHandler(channel, request);
+        offerHandler(channel, request);
         return processor.processRequest(channel, request);
     }
 
@@ -55,7 +98,7 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
      * 1. 将 channel 纳入管理中(不存在就加入)
      * 2. 更新 TaskTracker 节点信息(可用线程数)
      */
-    private void commonHandler(Channel channel, RemotingCommand request) {
+    private void offerHandler(Channel channel, RemotingCommand request) {
         AbstractRemotingCommandBody commandBody = request.getBody();
         String nodeGroup = commandBody.getNodeGroup();
         String identity = commandBody.getIdentity();
