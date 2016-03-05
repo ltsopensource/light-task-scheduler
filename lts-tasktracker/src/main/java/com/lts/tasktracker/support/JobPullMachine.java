@@ -11,10 +11,14 @@ import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
+import com.lts.jvmmonitor.JVMConstants;
+import com.lts.jvmmonitor.JVMMonitor;
 import com.lts.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 1. 会订阅JobTracker的可用,不可用消息主题的订阅
  * 2. 只有当JobTracker可用的时候才会去Pull任务
  * 3. Pull只是会给JobTracker发送一个通知
+ *
  * @author Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class JobPullMachine {
@@ -39,10 +44,14 @@ public class JobPullMachine {
     private TaskTrackerAppContext appContext;
     private Runnable worker;
     private int jobPullFrequency;
+    // 是否启用机器资源检查
+    private boolean machineResCheckEnable = true;
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
         this.appContext = appContext;
         this.jobPullFrequency = appContext.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
+
+        this.machineResCheckEnable = appContext.getConfig().getParameter(Constants.LB_MACHINE_RES_CHECK_ENABLE, true);
 
         appContext.getEventCenter().subscribe(
                 new EventSubscriber(JobPullMachine.class.getSimpleName().concat(appContext.getConfig().getIdentity()),
@@ -76,23 +85,11 @@ public class JobPullMachine {
         };
     }
 
-    /**
-     * 查看当前机器资源是否足够
-     */
-    private boolean isMachineResEnough() {
-        // TODO
-
-        // LOGGER.warn("Current Machine is busy");
-
-        return true;
-    }
-
     private void start() {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
                     scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
-                    // 5s 检查一次是否有空余线程
                 }
                 LOGGER.info("Start Job pull machine success!");
             }
@@ -145,4 +142,53 @@ public class JobPullMachine {
             LOGGER.warn("no job tracker available!");
         }
     }
+
+    /**
+     * 查看当前机器资源是否足够
+     */
+    private boolean isMachineResEnough() {
+
+        if (!machineResCheckEnable) {
+            // 如果没有启用,直接返回
+            return true;
+        }
+
+        boolean enough = true;
+
+        try {
+            // 1. Cpu usage
+            Double maxCpuTimeRate = appContext.getConfig().getParameter(Constants.LB_CPU_USED_RATE_MAX, 90d);
+            Object processCpuTimeRate = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME, "ProcessCpuTimeRate");
+            if (processCpuTimeRate != null) {
+                Double cpuRate = Double.valueOf(processCpuTimeRate.toString());
+                if (cpuRate >= maxCpuTimeRate) {
+                    LOGGER.info("Pause Pull, CPU USAGE is " + cpuRate + " >= " + maxCpuTimeRate);
+                    enough = false;
+                    return false;
+                }
+            }
+
+            // 2. Memory usage
+            Double maxMemoryUsedRate = appContext.getConfig().getParameter(Constants.LB_MEMORY_USED_RATE_MAX, 90d);
+            Runtime runtime = Runtime.getRuntime();
+            long maxMemory = runtime.maxMemory();
+            long usedMemory = runtime.totalMemory() - runtime.freeMemory();
+
+            Double memoryUsedRate = new BigDecimal(usedMemory / maxMemory, new MathContext(4)).doubleValue();
+
+            if (memoryUsedRate >= maxMemoryUsedRate) {
+                LOGGER.info("Pause Pull, MEMORY USAGE is " + memoryUsedRate + " >= " + maxMemoryUsedRate);
+                enough = false;
+                return false;
+            }
+            enough = true;
+            return true;
+        } finally {
+            boolean machineResEnough = appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
+            if (machineResEnough != enough) {
+                appContext.getConfig().setParameter(Constants.MACHINE_RES_ENOUGH, String.valueOf(enough));
+            }
+        }
+    }
+
 }

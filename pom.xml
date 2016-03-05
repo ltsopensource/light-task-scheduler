@@ -20,6 +20,7 @@
         <module>lts-admin</module>
         <module>lts-spring</module>
         <module>lts-startup</module>
+        <module>lts-monitor</module>
         <module>lts</module>
     </modules>
 

@@ -36,7 +36,8 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         // TaskTracker 管理者
         appContext.setTaskTrackerManager(new TaskTrackerManager(appContext));
         // 命令中心
-        appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(appContext.getConfig()));
+        int port = appContext.getConfig().getParameter("lts.command.port", 8719);
+        appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(port));
 
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(appContext));
@@ -82,6 +83,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected void afterStop() {
+
         appContext.getChannelManager().stop();
 
         appContext.getMonitor().stop();

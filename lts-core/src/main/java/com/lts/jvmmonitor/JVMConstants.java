@@ -3,7 +3,7 @@ package com.lts.jvmmonitor;
 /**
  * @author Robert HG (254963746@qq.com) on 9/15/15.
  */
-public interface MConstants {
+public interface JVMConstants {
 
     String JMX_JVM_INFO_NAME = "com.lts.jvmmonitor:type=JVMInfo";
     String JMX_JVM_MEMORY_NAME = "com.lts.jvmmonitor:type=JVMMemory";
