@@ -102,4 +102,11 @@ public interface Constants {
 
     String ADAPTIVE = "adaptive";
 
+    String MACHINE_RES_ENOUGH = "__LTS.INNER.MACHINE.RES.ENOUGH";
+
+    String LB_MEMORY_USED_RATE_MAX = "lb.memoryUsedRate.max";
+
+    String LB_CPU_USED_RATE_MAX = "lb.cpuUsedRate.max";
+
+    String LB_MACHINE_RES_CHECK_ENABLE = "lb.machine.res.check.enable";
 }
