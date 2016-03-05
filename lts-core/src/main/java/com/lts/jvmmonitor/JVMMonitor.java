@@ -31,10 +31,10 @@ public class JVMMonitor {
     public static void start() {
         if (start.compareAndSet(false, true)) {
             if (CollectionUtils.isEmpty(MONITOR_MAP)) {
-                MONITOR_MAP.put(MConstants.JMX_JVM_INFO_NAME, JVMInfo.getInstance());
-                MONITOR_MAP.put(MConstants.JMX_JVM_MEMORY_NAME, JVMMemory.getInstance());
-                MONITOR_MAP.put(MConstants.JMX_JVM_GC_NAME, JVMGC.getInstance());
-                MONITOR_MAP.put(MConstants.JMX_JVM_THREAD_NAME, JVMThread.getInstance());
+                MONITOR_MAP.put(JVMConstants.JMX_JVM_INFO_NAME, JVMInfo.getInstance());
+                MONITOR_MAP.put(JVMConstants.JMX_JVM_MEMORY_NAME, JVMMemory.getInstance());
+                MONITOR_MAP.put(JVMConstants.JMX_JVM_GC_NAME, JVMGC.getInstance());
+                MONITOR_MAP.put(JVMConstants.JMX_JVM_THREAD_NAME, JVMThread.getInstance());
             }
             try {
                 for (Map.Entry<String, Object> entry : MONITOR_MAP.entrySet()) {
@@ -76,5 +76,14 @@ public class JVMMonitor {
             LOGGER.warn(e.getMessage());
         }
         return result;
+    }
+
+    public static Object getAttribute(String objectName, String attributeName) {
+        try {
+            return MBEAN_SERVER.getAttribute(new ObjectName(objectName), attributeName);
+        } catch (Exception e) {
+            LOGGER.error("get Attribute error, objectName=" + objectName + ", attributeName=" + attributeName, e);
+        }
+        return null;
     }
 }

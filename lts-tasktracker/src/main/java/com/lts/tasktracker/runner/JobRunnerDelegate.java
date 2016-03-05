@@ -1,5 +1,6 @@
 package com.lts.tasktracker.runner;
 
+import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
@@ -61,7 +62,7 @@ public class JobRunnerDelegate implements Runnable {
         try {
             blockedOn(interruptor);
             if (Thread.currentThread().isInterrupted()) {
-                ((InterruptibleAdapter)interruptor).interrupt();
+                ((InterruptibleAdapter) interruptor).interrupt();
             }
 
             LtsLoggerFactory.setLogger(logger);
@@ -111,8 +112,7 @@ public class JobRunnerDelegate implements Runnable {
                 } catch (Throwable t) {
                     LOGGER.warn("monitor error:" + t.getMessage(), t);
                 }
-                if (isInterrupted()) {
-                    // 如果当前线程被阻断了,那么也就不接受新任务了
+                if (isStopToGetNewJob()) {
                     response.setReceiveNewJob(false);
                 }
                 this.jobWrapper = callback.runComplete(response);
@@ -126,7 +126,7 @@ public class JobRunnerDelegate implements Runnable {
     }
 
     private void interrupt() {
-        if(!interrupted.compareAndSet(false, true)){
+        if (!interrupted.compareAndSet(false, true)) {
             return;
         }
         if (this.curJobRunner != null && this.curJobRunner instanceof InterruptibleJobRunner) {
@@ -169,6 +169,15 @@ public class JobRunnerDelegate implements Runnable {
         }
 
         public abstract void interrupt();
+    }
+
+    private boolean isStopToGetNewJob() {
+        if (isInterrupted()) {
+            // 如果当前线程被阻断了,那么也就不接受新任务了
+            return true;
+        }
+        // 机器资源是否充足
+        return !appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
     }
 
 }

@@ -24,16 +24,16 @@ public class JVMCollector {
 
         JVMMonitorData jvmMonitorData = new JVMMonitorData();
         // memory
-        Map<String, Object> memoryMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_MEMORY_NAME,
+        Map<String, Object> memoryMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_MEMORY_NAME,
                 getAttributeList(JVMMemoryMBean.class));
         jvmMonitorData.setMemoryMap(memoryMap);
         // gc
-        Map<String, Object> gcMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_GC_NAME,
+        Map<String, Object> gcMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_GC_NAME,
                 getAttributeList(JVMGCMBean.class));
         jvmMonitorData.setGcMap(gcMap);
 
         // thread
-        Map<String, Object> threadMap = JVMMonitor.getAttribute(MConstants.JMX_JVM_THREAD_NAME,
+        Map<String, Object> threadMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME,
                 getAttributeList(JVMThreadMBean.class));
         jvmMonitorData.setThreadMap(threadMap);
 
@@ -51,7 +51,7 @@ public class JVMCollector {
     }
 
     public static Map<String, Object> getJVMInfo() {
-        return JVMMonitor.getAttribute(MConstants.JMX_JVM_INFO_NAME,
+        return JVMMonitor.getAttribute(JVMConstants.JMX_JVM_INFO_NAME,
                 getAttributeList(JVMInfoMBean.class));
     }
 
