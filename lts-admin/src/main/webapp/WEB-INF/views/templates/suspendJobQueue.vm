@@ -1,6 +1,6 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>Cron任务</h2>
+        <h2>Cron暂停任务</h2>
         <ol class="breadcrumb">
             <li><a>任务队列管理</a></li>
             <li class="active"><b>Cron暂停任务</b></li>
@@ -13,7 +13,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">Cron任务</span></h3>
+                    <h3><span class="text-navy">Cron暂停任务</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">

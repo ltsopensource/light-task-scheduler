@@ -417,6 +417,12 @@ public class JobQueueApiController extends AbstractController {
 			response.setMsg("任务不存在，或者已经删除");
 			return response;
 		}
+		boolean success = appContext.getSuspendJobQueue().remove(request.getJobId());
+		if(!success) {
+			response.setSuccess(false);
+			response.setMsg("恢复暂停任务失败，请重试");
+			return response;
+		}
 		KVPair<Boolean, String> pair = addJob(jobPo);
 		response.setSuccess(pair.getKey());
 		response.setMsg(pair.getValue());
