@@ -339,7 +339,7 @@ class JobRunnerB implements JobRunner {
 ```
 ##SPI扩展说明
 ###LTS-Logger扩展
-1. 引入`lts-logger-api-{version}.jar`
+1. 引入`lts-core-{version}.jar`
 2. 实现`JobLogger`和`JobLoggerFactory`接口
 3. 在 resources `META-INF/lts/com.lts.biz.logger.JobLoggerFactory`文件,文件内容为`xxx=com.lts.biz.logger.xxx.XxxJobLoggerFactory`
 4. 使用自己的logger扩展，修改jobtracker参数配置 configs.job.logger=xxx。（如果你自己引入JobTracker jar包的方式的话，使用 `jobtracker.addConfig("job.logger", "xxx"))`
