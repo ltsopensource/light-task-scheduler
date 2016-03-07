@@ -1,10 +1,5 @@
 package com.lts.queue.mongo;
 
-import java.util.List;
-
-import com.lts.queue.SuspendJobQueue;
-import org.mongodb.morphia.query.Query;
-
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.support.JobQueueUtils;
@@ -12,17 +7,23 @@ import com.lts.core.support.SystemClock;
 import com.lts.queue.CronJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
-import com.mongodb.*;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.WriteResult;
+import org.mongodb.morphia.query.Query;
+
+import java.util.List;
 
 /**
- * @author bug (357693306@qq.com) on 3/4/16.
+ * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements SuspendJobQueue {
+public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQueue {
 
-    public MongoSuspendJobQueue(Config config) {
+    public MongoCronJobQueue(Config config) {
         super(config);
         // table name (Collection name) for single table
-        setTableName(JobQueueUtils.SUSPEND_JOB_QUEUE);
+        setTableName(JobQueueUtils.CRON_JOB_QUEUE);
 
         // create table
         DBCollection dbCollection = template.getCollection();
@@ -36,14 +37,12 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
 
     @Override
     protected String getTargetTable(String taskTrackerNodeGroup) {
-        return JobQueueUtils.SUSPEND_JOB_QUEUE;
+        return JobQueueUtils.CRON_JOB_QUEUE;
     }
 
     @Override
     public boolean add(JobPo jobPo) {
         try {
-            jobPo.setGmtCreated(SystemClock.now());
-            jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(jobPo);
         } catch (DuplicateKeyException e) {
             // 已经存在

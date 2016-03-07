@@ -5,7 +5,6 @@ import com.lts.core.commons.file.FileUtils;
 import com.lts.core.constant.Constants;
 import com.lts.web.request.JobQueueRequest;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.support.SystemClock;
 import com.lts.queue.CronJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.JobQueueException;
@@ -48,8 +47,6 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
 
     @Override
     public boolean add(JobPo jobPo) {
-        jobPo.setGmtCreated(SystemClock.now());
-        jobPo.setGmtModified(jobPo.getGmtCreated());
         return super.add(JobQueueUtils.CRON_JOB_QUEUE, jobPo);
     }
 

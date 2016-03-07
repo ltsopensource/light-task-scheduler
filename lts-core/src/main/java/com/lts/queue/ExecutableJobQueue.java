@@ -38,10 +38,6 @@ public interface ExecutableJobQueue extends JobQueue{
 
     /**
      * 得到死任务
-     *
-     * @param taskTrackerNodeGroup
-     * @param deadline
-     * @return
      */
     List<JobPo> getDeadJob(String taskTrackerNodeGroup, long deadline);
 

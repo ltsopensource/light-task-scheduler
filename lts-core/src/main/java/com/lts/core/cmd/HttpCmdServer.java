@@ -22,7 +22,7 @@ public class HttpCmdServer {
     private int port;
     private HttpCmdContext context;
 
-    protected HttpCmdServer(int port) {
+    private HttpCmdServer(int port) {
         this.port = port > 0 ? port : 8719;
         this.context = new HttpCmdContext();
     }

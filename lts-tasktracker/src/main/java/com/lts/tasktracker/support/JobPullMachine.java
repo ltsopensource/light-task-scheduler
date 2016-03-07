@@ -183,6 +183,9 @@ public class JobPullMachine {
             }
             enough = true;
             return true;
+        } catch (Exception e) {
+            LOGGER.warn("Check Machine Resource error", e);
+            return true;
         } finally {
             boolean machineResEnough = appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
             if (machineResEnough != enough) {

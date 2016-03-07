@@ -1,4 +1,4 @@
-package com.lts.jobtracker.support;
+package com.lts.core.support;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.core.commons.utils.StringUtils;
