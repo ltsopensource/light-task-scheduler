@@ -1,4 +1,4 @@
-package com.lts.jobtracker.support;
+package com.lts.core.support;
 
 import com.lts.core.exception.CronException;
 import com.lts.core.support.CronExpression;

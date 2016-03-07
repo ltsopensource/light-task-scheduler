@@ -17,16 +17,6 @@
             <artifactId>lts-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-queue</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lts</groupId>
-            <artifactId>lts-logger</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

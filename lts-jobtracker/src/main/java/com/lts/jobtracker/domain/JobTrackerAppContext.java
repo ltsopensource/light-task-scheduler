@@ -48,6 +48,8 @@ public class JobTrackerAppContext extends AppContext {
     // job id generator
     private IdGenerator idGenerator;
 
+	private SuspendJobQueue suspendJobQueue;
+
     private PreLoader preLoader;
 
     private JobReceiver jobReceiver;
@@ -181,4 +183,12 @@ public class JobTrackerAppContext extends AppContext {
     public void setNodeGroupStore(NodeGroupStore nodeGroupStore) {
         this.nodeGroupStore = nodeGroupStore;
     }
+
+	public SuspendJobQueue getSuspendJobQueue() {
+		return suspendJobQueue;
+	}
+
+	public void setSuspendJobQueue(SuspendJobQueue suspendJobQueue) {
+		this.suspendJobQueue = suspendJobQueue;
+	}
 }

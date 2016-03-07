@@ -4,7 +4,7 @@ import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.sender.JobSender;
-import com.lts.jobtracker.support.JobDomainConverter;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;

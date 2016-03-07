@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>Cron任务</h2>
+        <h2>Cron暂停任务</h2>
         <ol class="breadcrumb">
             <li><a>任务队列管理</a></li>
-            <li class="active"><b>Cron任务</b></li>
+            <li class="active"><b>Cron暂停任务</b></li>
         </ol>
     </div>
 </div>
@@ -13,7 +13,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">Cron任务</span></h3>
+                    <h3><span class="text-navy">Cron暂停任务</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">
@@ -230,7 +230,7 @@
             var logUrl = "job-logger.htm?taskId=" + row['taskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
-                    '<a href="javascript:;" class="job-suspend-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-success"><i class="fa fa-lock"></i> 暂停</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
+                    '<a href="javascript:;" class="job-recovery-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-success" style="background-color: #1ab394;"><i class="fa fa-unlock"></i> 恢复</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
         }
 
@@ -251,7 +251,7 @@
             }, function (isConfirm) {
                 if(isConfirm){
                     $.ajax({
-                        url: 'api/job-queue/cron-job-delete',
+                        url: 'api/job-queue/suspend-job-delete',
                         type: 'POST',
                         dataType: 'json',
                         data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup},
@@ -315,8 +315,8 @@
                 sweetAlert("优先级格式错误", "必须为数字，数值越小，优先级越大【必填】", "error");
                 return;
             }
-            if (!params['submitNodeGroup'] && params['needFeedback'] == 'true') {
-                sweetAlert("请选择提交节点组", "需要反馈客户端必须选择提交节点组,如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+            if (!params['submitNodeGroup']) {
+                sweetAlert("请选择提交节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
                 return;
             }
             if (!params['taskTrackerNodeGroup']) {
@@ -334,7 +334,7 @@
             }
             // 请求修改数据
             $.ajax({
-                url: 'api/job-queue/cron-job-update',
+                url: 'api/job-queue/suspend-job-update',
                 type: 'POST',
                 dataType: 'json',
                 data: params,
@@ -353,29 +353,29 @@
             });
         });
 
-        $(document).on("click", ".job-suspend-btn", function () {
+        $(document).on("click", ".job-recovery-btn", function () {
             var that = $(this);
 
             var jobId = that.attr("jobId");
             var taskTrackerNodeGroup = that.attr("taskTrackerNodeGroup");
 
             swal({
-                title: "确认要暂停该任务吗？",
+                title: "确认要恢复执行该任务吗？",
                 type: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
-                confirmButtonText: "确认暂停",
+                confirmButtonText: "确认恢复",
                 closeOnConfirm: false
             }, function (isConfirm) {
                 if(isConfirm){
                     $.ajax({
-                        url: 'api/job-queue/cron-job-suspend',
+                        url: 'api/job-queue/suspend-job-recovery',
                         type: 'POST',
                         dataType: 'json',
                         data: {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup},
                         success: function (json) {
                             if (json && json.success) {
-                                swal("暂停成功!", "恭喜你", "success");
+                                swal("恢复执行成功!", "恭喜你", "success");
                                 that.parents("tr").remove();
                             } else {
                                 json ? swal(json['msg']) : {};
@@ -387,7 +387,7 @@
         });
 
         var ltsTable = $("#ltstableContainer").ltsTable({
-            url: 'api/job-queue/cron-job-get',
+            url: 'api/job-queue/suspend-job-get',
             templateId: 'ltstable'
         });
 

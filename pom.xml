@@ -14,8 +14,6 @@
         <module>lts-jobtracker</module>
         <module>lts-tasktracker</module>
         <module>lts-jobclient</module>
-        <module>lts-queue</module>
-        <module>lts-logger</module>
         <module>lts-example</module>
         <module>lts-admin</module>
         <module>lts-spring</module>

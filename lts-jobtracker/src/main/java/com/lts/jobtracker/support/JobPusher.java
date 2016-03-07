@@ -12,6 +12,8 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.core.support.JobDomainConverter;
+import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.TaskTrackerNode;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
@@ -173,6 +175,7 @@ public class JobPusher {
                     boolean needResume = true;
                     try {
                         jobPo.setIsRunning(true);
+                        jobPo.setGmtModified(SystemClock.now());
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DuplicateJobException e) {
                         LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
