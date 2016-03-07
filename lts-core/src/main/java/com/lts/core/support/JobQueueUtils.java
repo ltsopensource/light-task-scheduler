@@ -27,4 +27,6 @@ public class JobQueueUtils {
     public static final String EXECUTING_JOB_QUEUE = "lts_executing_job_queue";
 
     public static final String NODE_GROUP_STORE = "lts_node_group_store";
+
+	public static final String SUSPEND_JOB_QUEUE = "lts_suspend_job_queue";
 }

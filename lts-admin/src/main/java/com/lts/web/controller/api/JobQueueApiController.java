@@ -70,6 +70,16 @@ public class JobQueueApiController extends AbstractController {
         return response;
     }
 
+	@RequestMapping("/job-queue/suspend-job-get")
+	public RestfulResponse suspendJobGet(JobQueueRequest request) {
+		PageResponse<JobPo> pageResponse = appContext.getSuspendJobQueue().pageSelect(request);
+		RestfulResponse response = new RestfulResponse();
+		response.setSuccess(true);
+		response.setResults(pageResponse.getResults());
+		response.setRows(pageResponse.getRows());
+		return response;
+	}
+
     @RequestMapping("/job-queue/cron-job-update")
     public RestfulResponse cronJobUpdate(JobQueueRequest request) {
         RestfulResponse response = new RestfulResponse();
@@ -152,6 +162,42 @@ public class JobQueueApiController extends AbstractController {
         return response;
     }
 
+	@RequestMapping("/job-queue/suspend-job-update")
+	public RestfulResponse suspendJobUpdate(JobQueueRequest request) {
+		RestfulResponse response = new RestfulResponse();
+		// 检查参数
+		try {
+			Assert.hasLength(request.getJobId(), "jobId不能为空!");
+			Assert.hasLength(request.getCronExpression(), "cronExpression不能为空!");
+		} catch (IllegalArgumentException e) {
+			response.setSuccess(false);
+			response.setMsg(e.getMessage());
+			return response;
+		}
+		// 1. 检测 cronExpression是否是正确的
+		try {
+			CronExpression expression = new CronExpression(request.getCronExpression());
+			if (expression.getTimeAfter(new Date()) == null) {
+				response.setSuccess(false);
+				response.setMsg(StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
+				return response;
+			}
+
+			boolean success = appContext.getSuspendJobQueue().selectiveUpdate(request);
+			if (success) {
+				response.setSuccess(true);
+			} else {
+				response.setSuccess(false);
+				response.setMsg("该任务已经被删除或者执行完成.");
+			}
+			return response;
+		} catch (ParseException e) {
+			response.setSuccess(false);
+			response.setMsg("请输入正确的 CronExpression!");
+			return response;
+		}
+	}
+
     @RequestMapping("/job-queue/cron-job-delete")
     public RestfulResponse cronJobDelete(JobQueueRequest request) {
         RestfulResponse response = new RestfulResponse();
@@ -206,6 +252,19 @@ public class JobQueueApiController extends AbstractController {
 
         return response;
     }
+
+	@RequestMapping("/job-queue/suspend-job-delete")
+	public RestfulResponse suspendJobDelete(JobQueueRequest request) {
+		RestfulResponse response = new RestfulResponse();
+		if (StringUtils.isEmpty(request.getJobId())) {
+			response.setSuccess(false);
+			response.setMsg("JobId 必须传!");
+			return response;
+		}
+		boolean success = appContext.getSuspendJobQueue().remove(request.getJobId());
+		response.setSuccess(success);
+		return response;
+	}
 
     @RequestMapping("/job-logger/job-logger-get")
     public RestfulResponse jobLoggerGet(JobLoggerRequest request) {
@@ -311,6 +370,68 @@ public class JobQueueApiController extends AbstractController {
         return response;
     }
 
+	@RequestMapping("/job-queue/cron-job-suspend")
+	public RestfulResponse cronJobSuspend(JobQueueRequest request) {
+		RestfulResponse response = new RestfulResponse();
+		if (StringUtils.isEmpty(request.getJobId())) {
+			response.setSuccess(false);
+			response.setMsg("JobId 必须传!");
+			return response;
+		}
+		JobPo jobPo = appContext.getCronJobQueue().finish(request.getJobId());
+		if(jobPo == null) {
+			response.setSuccess(false);
+			response.setMsg("任务不存在，或者已经删除");
+			return response;
+		}
+		boolean success = appContext.getSuspendJobQueue().add(jobPo);
+		if (success) {
+			try {
+				appContext.getCronJobQueue().remove(request.getJobId());
+			}catch (Exception e) {
+				response.setSuccess(false);
+				response.setMsg("删除Cron任务失败，请手动删除! error:{}" + e.getMessage());
+				return response;
+			}
+			try {
+				appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+			} catch (Exception e) {
+				response.setSuccess(false);
+				response.setMsg("删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
+				return response;
+			}
+		}
+		response.setSuccess(true);
+		return response;
+	}
+
+	@RequestMapping("/job-queue/suspend-job-recovery")
+	public RestfulResponse suspendJobRecovery(JobQueueRequest request) {
+		RestfulResponse response = new RestfulResponse();
+		if (StringUtils.isEmpty(request.getJobId())) {
+			response.setSuccess(false);
+			response.setMsg("JobId 必须传!");
+			return response;
+		}
+
+		JobPo jobPo = appContext.getSuspendJobQueue().finish(request.getJobId());
+		if(jobPo == null) {
+			response.setSuccess(false);
+			response.setMsg("任务不存在，或者已经删除");
+			return response;
+		}
+		boolean success = appContext.getSuspendJobQueue().remove(request.getJobId());
+		if(!success) {
+			response.setSuccess(false);
+			response.setMsg("恢复暂停任务失败，请重试");
+			return response;
+		}
+		KVPair<Boolean, String> pair = addJob(jobPo);
+		response.setSuccess(pair.getKey());
+		response.setMsg(pair.getValue());
+		return response;
+	}
+
     private KVPair<Boolean, String> addJob(JobQueueRequest request) {
 
         Job job = new Job();
@@ -358,4 +479,51 @@ public class JobQueueApiController extends AbstractController {
             return new KVPair<Boolean, String>(false, "Add failed");
         }
     }
+
+	private KVPair<Boolean, String> addJob(JobPo jobPo) {
+
+		Job job = new Job();
+		job.setTaskId(jobPo.getTaskId());
+		if (CollectionUtils.isNotEmpty(jobPo.getExtParams())) {
+			for (Map.Entry<String, String> entry : jobPo.getExtParams().entrySet()) {
+				job.setParam(entry.getKey(), entry.getValue());
+			}
+		}
+		// 执行节点的group名称
+		job.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
+		job.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());
+
+		job.setNeedFeedback(jobPo.isNeedFeedback());
+		job.setReplaceOnExist(true);
+		// 这个是 cron expression 和 quartz 一样，可选
+		job.setCronExpression(jobPo.getCronExpression());
+		if (jobPo.getTriggerTime() != null) {
+			job.setTriggerTime(jobPo.getTriggerTime());
+		}
+		job.setPriority(jobPo.getPriority());
+
+		HttpCmd httpCmd = new DefaultHttpCmd();
+		httpCmd.setCommand(HttpCmds.CMD_ADD_JOB);
+		httpCmd.addParam("job", JSON.toJSONString(job));
+
+		NodeRequest nodeRequest = new NodeRequest();
+		nodeRequest.setNodeType(NodeType.JOB_TRACKER);
+		List<Node> jobTrackerNodeList = nodeMemoryDatabase.search(nodeRequest);
+		if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
+			return new KVPair<Boolean, String>(false, "Can not found JobTracker.");
+		}
+
+		HttpCmdResponse response = null;
+		for (Node node : jobTrackerNodeList) {
+			response = HttpCmdClient.execute(node.getIp(), node.getCommandPort(), httpCmd);
+			if (response.isSuccess()) {
+				return new KVPair<Boolean, String>(true, "Add success");
+			}
+		}
+		if (response != null) {
+			return new KVPair<Boolean, String>(false, response.getMsg());
+		} else {
+			return new KVPair<Boolean, String>(false, "Add failed");
+		}
+	}
 }

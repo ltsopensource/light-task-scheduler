@@ -104,6 +104,12 @@ public class UIController {
         return "cron/cronGenerator";
     }
 
+	@RequestMapping("suspend-job-queue")
+	public String suspendJobQueueUI(Model model) {
+		setAttr(model);
+		return "suspendJobQueue";
+	}
+
     private void setAttr(Model model) {
         List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
         model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);
