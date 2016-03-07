@@ -9,7 +9,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
-import com.lts.jobtracker.support.JobDomainConverter;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 

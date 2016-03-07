@@ -11,6 +11,8 @@ public enum LogType {
     RESEND,          // TaskTracker 重新发送的任务执行结果
     FIXED_DEAD,       // 修复死掉的任务
     BIZ,             // 业务日志
-    DEL             // 删除
+    DEL,             // 删除
+    SUSPEND,        // 暂停
+    RESUME,         // 恢复
     ;
 }

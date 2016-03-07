@@ -79,8 +79,6 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
 
     @Override
     public boolean add(JobPo jobPo) {
-        jobPo.setGmtCreated(SystemClock.now());
-        jobPo.setGmtModified(jobPo.getGmtCreated());
         try {
             return super.add(getTableName(jobPo.getTaskTrackerNodeGroup()), jobPo);
         } catch (JobQueueException e) {

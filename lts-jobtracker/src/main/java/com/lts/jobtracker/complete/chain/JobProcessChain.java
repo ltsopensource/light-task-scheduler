@@ -13,7 +13,7 @@ import com.lts.jobtracker.complete.JobRetryHandler;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
-import com.lts.jobtracker.support.JobDomainConverter;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.remoting.protocol.RemotingCommand;
 
