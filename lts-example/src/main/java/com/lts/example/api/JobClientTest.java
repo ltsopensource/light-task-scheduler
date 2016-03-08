@@ -3,7 +3,6 @@ package com.lts.example.api;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
-import com.lts.core.spi.SpiKey;
 import com.lts.example.support.BaseJobClientTest;
 import com.lts.example.support.JobCompletedHandlerImpl;
 import com.lts.example.support.MasterChangeListenerImpl;

@@ -15,7 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Robert HG (254963746@qq.com) on 8/23/14.
  *         Master 选举
  *         选举思想:
- *         选出每种节点中得master, 通过每个节点的创建时间来决定 （创建时间最小的便是master, 即最早创建的是master）
+ *         选出每种节点中的master, 通过每个节点的创建时间来决定 （创建时间最小的便是master, 即最早创建的是master）
  *         当master 挂掉之后, 要重新选举
  */
 public class MasterElector {

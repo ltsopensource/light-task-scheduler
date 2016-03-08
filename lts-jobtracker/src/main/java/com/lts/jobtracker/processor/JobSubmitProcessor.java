@@ -29,7 +29,7 @@ public class JobSubmitProcessor extends AbstractRemotingProcessor {
         JobSubmitRequest jobSubmitRequest = request.getBody();
 
         JobSubmitResponse jobSubmitResponse = appContext.getCommandBodyWrapper().wrapper(new JobSubmitResponse());
-        RemotingCommand response = null;
+        RemotingCommand response;
         try {
             appContext.getJobReceiver().receive(jobSubmitRequest);
 

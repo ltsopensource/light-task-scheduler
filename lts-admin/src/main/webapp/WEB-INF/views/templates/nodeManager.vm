@@ -125,7 +125,7 @@
             <td>{{row.ip | format:'ipLabel',row}}</td>
             <td>{{row.threads | format:'threadLabel',row}}</td>
             <td>{{row.available | format:'availableLabel'}}</td>
-            <td>{{row.commandPort }}</td>
+            <td>{{row.httpCmdPort }}</td>
             <td>{{row.opt | format:'optFormat',row}}</td>
         </tr>
         {{/each}}

@@ -2,12 +2,12 @@ package com.lts.remoting.serialize;
 
 
 import com.lts.core.spi.SPI;
-import com.lts.core.spi.SpiKey;
+import com.lts.core.spi.SpiExtensionKey;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/6/15.
  */
-@SPI(key = SpiKey.REMOTING_SERIALIZABLE_DFT, dftValue = "fastjson")
+@SPI(key = SpiExtensionKey.REMOTING_SERIALIZABLE_DFT, dftValue = "fastjson")
 public interface RemotingSerializable {
 
     int getId();

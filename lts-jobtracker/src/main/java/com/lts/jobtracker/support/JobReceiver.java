@@ -12,6 +12,8 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.spi.ServiceLoader;
+import com.lts.core.support.CronExpressionUtils;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
@@ -131,7 +133,7 @@ public class JobReceiver {
     private boolean replaceOnExist(Job job, JobPo jobPo) {
 
         // 得到老的jobId
-        JobPo oldJobPo = null;
+        JobPo oldJobPo;
         if (job.isSchedule()) {
             oldJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         } else {

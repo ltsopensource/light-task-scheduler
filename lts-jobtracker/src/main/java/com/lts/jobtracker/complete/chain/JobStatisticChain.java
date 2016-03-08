@@ -12,7 +12,7 @@ import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.support.LoggerName;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
-import com.lts.jobtracker.support.JobDomainConverter;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 

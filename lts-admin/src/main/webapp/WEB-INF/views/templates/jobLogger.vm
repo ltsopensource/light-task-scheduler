@@ -166,7 +166,9 @@
             FIXED_DEAD: '修复死任务',
             BIZ: '业务日志',
             RESEND: '重新反馈任务',
-            DEL: '删除'
+            DEL: '删除',
+            SUSPEND:'暂停任务',
+            RESUME:'恢复任务'
         };
 
         LTS.colFormatter.logTypeLabel = function (v) {

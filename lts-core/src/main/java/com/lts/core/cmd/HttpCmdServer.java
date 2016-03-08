@@ -1,6 +1,5 @@
 package com.lts.core.cmd;
 
-import com.lts.core.cluster.Config;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
@@ -23,8 +22,8 @@ public class HttpCmdServer {
     private int port;
     private HttpCmdContext context;
 
-    public HttpCmdServer(Config config) {
-        this.port = config.getParameter("lts.command.port", 8719);
+    private HttpCmdServer(int port) {
+        this.port = port > 0 ? port : 8719;
         this.context = new HttpCmdContext();
     }
 
@@ -37,7 +36,7 @@ public class HttpCmdServer {
                 LOGGER.info("Start succeed at port {}", port);
             }
         } catch (Exception t) {
-            LOGGER.error("Start error at port {} , use [lts.command.port] config change the port.", port, t);
+            LOGGER.error("Start error at port {}", port, t);
             throw new HttpCmdException(t);
         }
     }
@@ -69,6 +68,27 @@ public class HttpCmdServer {
 
     public void registerCommand(HttpCmdProcessor processor) {
         context.addCmdProcessor(processor);
+    }
+
+    /**
+     * 保证一个jvm公用一个 HttpCmdServer
+     */
+    public static class Factory {
+
+        private static HttpCmdServer httpCmdServer;
+
+        public static HttpCmdServer getHttpCmdServer(int port) {
+            if (httpCmdServer != null) {
+                return httpCmdServer;
+            }
+            synchronized (Factory.class) {
+                if (httpCmdServer != null) {
+                    return httpCmdServer;
+                }
+                httpCmdServer = new HttpCmdServer(port);
+                return httpCmdServer;
+            }
+        }
     }
 
 }

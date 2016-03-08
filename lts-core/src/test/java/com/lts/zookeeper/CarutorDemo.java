@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by hugui.hg on 2/24/16.
+ * @author Robert HG (254963746@qq.com) on 2/24/16.
  */
 public class CarutorDemo {
 

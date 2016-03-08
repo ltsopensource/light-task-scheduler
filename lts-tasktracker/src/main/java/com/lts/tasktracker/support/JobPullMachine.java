@@ -11,10 +11,14 @@ import com.lts.core.protocol.command.JobPullRequest;
 import com.lts.ec.EventInfo;
 import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
+import com.lts.jvmmonitor.JVMConstants;
+import com.lts.jvmmonitor.JVMMonitor;
 import com.lts.remoting.exception.RemotingCommandFieldCheckException;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -26,7 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 1. 会订阅JobTracker的可用,不可用消息主题的订阅
  * 2. 只有当JobTracker可用的时候才会去Pull任务
  * 3. Pull只是会给JobTracker发送一个通知
- * Robert HG (254963746@qq.com) on 3/25/15.
+ *
+ * @author Robert HG (254963746@qq.com) on 3/25/15.
  */
 public class JobPullMachine {
 
@@ -37,12 +42,16 @@ public class JobPullMachine {
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerAppContext appContext;
-    private Runnable runnable;
+    private Runnable worker;
     private int jobPullFrequency;
+    // 是否启用机器资源检查
+    private boolean machineResCheckEnable = true;
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
         this.appContext = appContext;
         this.jobPullFrequency = appContext.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
+
+        this.machineResCheckEnable = appContext.getConfig().getParameter(Constants.LB_MACHINE_RES_CHECK_ENABLE, true);
 
         appContext.getEventCenter().subscribe(
                 new EventSubscriber(JobPullMachine.class.getSimpleName().concat(appContext.getConfig().getIdentity()),
@@ -57,11 +66,15 @@ public class JobPullMachine {
                                 }
                             }
                         }), EcTopic.JOB_TRACKER_AVAILABLE, EcTopic.NO_JOB_TRACKER_AVAILABLE);
-        this.runnable = new Runnable() {
+        this.worker = new Runnable() {
             @Override
             public void run() {
                 try {
                     if (!start.get()) {
+                        return;
+                    }
+                    if (!isMachineResEnough()) {
+                        // 如果机器资源不足,那么不去取任务
                         return;
                     }
                     sendRequest();
@@ -76,13 +89,12 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(runnable, 1, jobPullFrequency, TimeUnit.SECONDS);
-                    // 5s 检查一次是否有空余线程
+                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
                 }
-                LOGGER.info("Start job pull machine success!");
+                LOGGER.info("Start Job pull machine success!");
             }
         } catch (Throwable t) {
-            LOGGER.error("Start job pull machine failed!", t);
+            LOGGER.error("Start Job pull machine failed!", t);
         }
     }
 
@@ -91,10 +103,10 @@ public class JobPullMachine {
             if (start.compareAndSet(true, false)) {
 //                scheduledFuture.cancel(true);
 //                SCHEDULED_CHECKER.shutdown();
-                LOGGER.info("Stop job pull machine success!");
+                LOGGER.info("Stop Job pull machine success!");
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop job pull machine failed!", t);
+            LOGGER.error("Stop Job pull machine failed!", t);
         }
     }
 
@@ -116,18 +128,70 @@ public class JobPullMachine {
         try {
             RemotingCommand responseCommand = appContext.getRemotingClient().invokeSync(request);
             if (responseCommand == null) {
-                LOGGER.warn("job pull request failed! response command is null!");
+                LOGGER.warn("Job pull request failed! response command is null!");
                 return;
             }
             if (JobProtos.ResponseCode.JOB_PULL_SUCCESS.code() == responseCommand.getCode()) {
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("job pull request success!");
+                    LOGGER.debug("Job pull request success!");
                 }
                 return;
             }
-            LOGGER.warn("job pull request failed! response command is null!");
+            LOGGER.warn("Job pull request failed! response command is null!");
         } catch (JobTrackerNotFoundException e) {
             LOGGER.warn("no job tracker available!");
         }
     }
+
+    /**
+     * 查看当前机器资源是否足够
+     */
+    private boolean isMachineResEnough() {
+
+        if (!machineResCheckEnable) {
+            // 如果没有启用,直接返回
+            return true;
+        }
+
+        boolean enough = true;
+
+        try {
+            // 1. Cpu usage
+            Double maxCpuTimeRate = appContext.getConfig().getParameter(Constants.LB_CPU_USED_RATE_MAX, 90d);
+            Object processCpuTimeRate = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME, "ProcessCpuTimeRate");
+            if (processCpuTimeRate != null) {
+                Double cpuRate = Double.valueOf(processCpuTimeRate.toString());
+                if (cpuRate >= maxCpuTimeRate) {
+                    LOGGER.info("Pause Pull, CPU USAGE is " + cpuRate + " >= " + maxCpuTimeRate);
+                    enough = false;
+                    return false;
+                }
+            }
+
+            // 2. Memory usage
+            Double maxMemoryUsedRate = appContext.getConfig().getParameter(Constants.LB_MEMORY_USED_RATE_MAX, 90d);
+            Runtime runtime = Runtime.getRuntime();
+            long maxMemory = runtime.maxMemory();
+            long usedMemory = runtime.totalMemory() - runtime.freeMemory();
+
+            Double memoryUsedRate = new BigDecimal(usedMemory / maxMemory, new MathContext(4)).doubleValue();
+
+            if (memoryUsedRate >= maxMemoryUsedRate) {
+                LOGGER.info("Pause Pull, MEMORY USAGE is " + memoryUsedRate + " >= " + maxMemoryUsedRate);
+                enough = false;
+                return false;
+            }
+            enough = true;
+            return true;
+        } catch (Exception e) {
+            LOGGER.warn("Check Machine Resource error", e);
+            return true;
+        } finally {
+            boolean machineResEnough = appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
+            if (machineResEnough != enough) {
+                appContext.getConfig().setParameter(Constants.MACHINE_RES_ENOUGH, String.valueOf(enough));
+            }
+        }
+    }
+
 }

@@ -27,7 +27,7 @@ public class Node {
     // 唯一标识
     private String identity;
     // 命令端口
-    private Integer commandPort;
+    private Integer httpCmdPort;
 
     // 自己关注的节点类型
     private List<NodeType> listenNodeTypes;
@@ -44,12 +44,12 @@ public class Node {
         this.job = job;
     }
 
-    public Integer getCommandPort() {
-        return commandPort;
+    public Integer getHttpCmdPort() {
+        return httpCmdPort;
     }
 
-    public void setCommandPort(Integer commandPort) {
-        this.commandPort = commandPort;
+    public void setHttpCmdPort(Integer httpCmdPort) {
+        this.httpCmdPort = httpCmdPort;
     }
 
     public String getHostName() {

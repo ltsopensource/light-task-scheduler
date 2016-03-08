@@ -12,6 +12,7 @@ import java.util.Map;
 public class HttpCmdRequest {
 
     private String command;
+    private String nodeIdentity;
 
     private Map<String, String> params;
 
@@ -21,6 +22,18 @@ public class HttpCmdRequest {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public String getNodeIdentity() {
+        return nodeIdentity;
+    }
+
+    public void setNodeIdentity(String nodeIdentity) {
+        this.nodeIdentity = nodeIdentity;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
     }
 
     public String getParam(String key) {
@@ -53,7 +66,7 @@ public class HttpCmdRequest {
     }
 
     /**
-     * GET /xxxCommand?xxx=yyyyy HTTP/1.1
+     * GET /nodeIdentity/xxxCommand?xxx=yyyyy HTTP/1.1
      */
     protected static HttpCmdRequest parse(String url) throws Exception {
 
@@ -65,8 +78,12 @@ public class HttpCmdRequest {
         int start = url.indexOf('/');
         int ask = url.indexOf('?') == -1 ? url.lastIndexOf(' ') : url.indexOf('?');
         int space = url.lastIndexOf(' ');
-        String target = url.substring(start != -1 ? start + 1 : 0, ask != -1 ? ask : url.length());
-        request.setCommand(target);
+        String path = url.substring(start != -1 ? start + 1 : 0, ask != -1 ? ask : url.length());
+        String nodeIdentity = path.substring(0, path.indexOf('/'));
+        String command = path.substring(path.indexOf('/') + 1, path.length());
+        request.setCommand(command);
+        request.setNodeIdentity(nodeIdentity);
+
         if (ask == -1 || ask == space) {
             return request;
         }
@@ -89,6 +106,5 @@ public class HttpCmdRequest {
             request.addParam(key, value);
         }
         return request;
-
     }
 }

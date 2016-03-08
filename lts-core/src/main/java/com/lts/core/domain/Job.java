@@ -34,7 +34,7 @@ public class Job implements Serializable{
     private Map<String, String> extParams;
     // 是否要反馈给客户端
     private boolean needFeedback = false;
-    // 重试次数
+    // 已经重试的次数
     private int retryTimes = 0;
     /**
      * 执行表达式 和 quartz 的一样

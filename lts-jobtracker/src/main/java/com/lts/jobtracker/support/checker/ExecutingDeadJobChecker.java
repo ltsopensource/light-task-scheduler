@@ -19,7 +19,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
-import com.lts.jobtracker.support.JobDomainConverter;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.exception.DuplicateJobException;
 import com.lts.remoting.AsyncCallback;
