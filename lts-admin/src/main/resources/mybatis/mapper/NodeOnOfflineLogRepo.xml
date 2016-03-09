@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lts.web.repository.mapper.NodeOnOfflineLogRepo">
+<mapper namespace="com.lts.admin.access.mapper.NodeOnOfflineLogRepo">
 
     <insert id="insert" parameterType="java.util.List" flushCache="true">
         <![CDATA[
@@ -60,8 +60,8 @@
         </where>
     </sql>
 
-    <select id="select" parameterType="com.lts.web.request.NodeOnOfflineLogRequest"
-            resultType="com.lts.web.repository.domain.NodeOnOfflineLog">
+    <select id="select" parameterType="com.lts.admin.request.NodeOnOfflineLogRequest"
+            resultType="com.lts.admin.access.domain.NodeOnOfflineLog">
         SELECT
         `log_time` as logTime,
         `event`,
@@ -79,7 +79,7 @@
         ORDER BY log_time DESC limit #{start}, #{limit}
     </select>
 
-    <select id="count" parameterType="com.lts.web.request.NodeOnOfflineLogRequest"
+    <select id="count" parameterType="com.lts.admin.request.NodeOnOfflineLogRequest"
             resultType="java.lang.Long">
         SELECT
         count(1)
@@ -88,7 +88,7 @@
     </select>
 
 
-    <delete id="delete" parameterType="com.lts.web.request.NodeOnOfflineLogRequest">
+    <delete id="delete" parameterType="com.lts.admin.request.NodeOnOfflineLogRequest">
         DELETE FROM lts_admin_node_onoffline_log
         <include refid="whereCondition"/>
     </delete>

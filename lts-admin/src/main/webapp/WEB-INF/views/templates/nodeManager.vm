@@ -110,7 +110,7 @@
             <th>机器</th>
             <th>工作线程数</th>
             <th data-hide="phone,tablet">状态</th>
-            <th data-hide="all">command端口</th>
+            <th data-hide="all">cmd端口</th>
             <th>操作</th>
         </tr>
         </thead>

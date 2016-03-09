@@ -1,7 +1,7 @@
 package com.lts.queue;
 
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 /**
  * 定时任务队列
@@ -13,7 +13,7 @@ public interface CronJobQueue extends JobQueue{
     /**
      * 添加任务
      *
-     * @throws DuplicateJobException
+     * @throws DupEntryException
      */
     boolean add(JobPo jobPo);
 

@@ -1,16 +1,16 @@
 package com.lts.queue;
 
-import com.lts.web.request.JobQueueRequest;
+import com.lts.admin.request.JobQueueReq;
 import com.lts.queue.domain.JobPo;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
  */
 public interface JobQueue {
 
-    PageResponse<JobPo> pageSelect(JobQueueRequest request);
+    PaginationRsp<JobPo> pageSelect(JobQueueReq request);
 
-    boolean selectiveUpdate(JobQueueRequest request);
+    boolean selectiveUpdate(JobQueueReq request);
 
 }

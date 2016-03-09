@@ -30,7 +30,7 @@ public abstract class AbstractRemotingClient extends AbstractRemoting implements
     private final Lock lockChannelTables = new ReentrantLock();
     private final ConcurrentHashMap<String /* addr */, ChannelWrapper> channelTables = new ConcurrentHashMap<String, ChannelWrapper>();
     // 定时器
-    private final Timer timer = new Timer("ClientHouseKeepingService", true);
+    private final Timer timer = new Timer("ClientHouseKeepingService");
     // 处理Callback应答器
     private final ExecutorService publicExecutor;
 

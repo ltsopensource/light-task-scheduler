@@ -11,7 +11,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 /**
  * @author Robert HG (254963746@qq.com) on 11/11/15.
@@ -39,8 +39,9 @@ public class JobSender {
 
         // IMPORTANT: 这里要先切换队列
         try {
+            jobPo.setGmtModified(jobPo.getGmtCreated());
             appContext.getExecutingJobQueue().add(jobPo);
-        } catch (DuplicateJobException e) {
+        } catch (DupEntryException e) {
             LOGGER.warn("ExecutingJobQueue already exist:" + JSON.toJSONString(jobPo));
             appContext.getExecutableJobQueue().resume(jobPo);
             return new SendResult(false, JobPushResult.FAILED);
