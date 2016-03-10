@@ -21,7 +21,7 @@ import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.Channel;
 import com.lts.remoting.ResponseFuture;
@@ -183,7 +183,7 @@ public class ExecutingDeadJobChecker {
             // 1. add to executable queue
             try {
                 appContext.getExecutableJobQueue().add(jobPo);
-            } catch (DuplicateJobException e) {
+            } catch (DupEntryException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
 

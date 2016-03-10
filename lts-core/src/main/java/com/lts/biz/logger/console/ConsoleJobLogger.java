@@ -4,7 +4,7 @@ import com.lts.biz.logger.JobLogger;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.json.JSON;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class ConsoleJobLogger implements JobLogger {
     }
 
     @Override
-    public PageResponse<JobLogPo> search(JobLoggerRequest request) {
+    public PaginationRsp<JobLogPo> search(JobLoggerRequest request) {
         throw new UnsupportedOperationException("Console logger dose not support this operation!");
     }
 

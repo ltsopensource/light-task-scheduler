@@ -3,10 +3,9 @@ package com.lts.queue.mongo;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutingJobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -45,12 +44,10 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
     @Override
     public boolean add(JobPo jobPo) {
         try {
-            jobPo.setGmtCreated(SystemClock.now());
-            jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(jobPo);
         } catch (DuplicateKeyException e) {
             // already exist
-            throw new DuplicateJobException(e);
+            throw new DupEntryException(e);
         }
         return true;
     }

@@ -29,7 +29,7 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
     // 处理Callback应答器
     private final ExecutorService publicExecutor;
     // 定时器
-    private final Timer timer = new Timer("ServerHouseKeepingService", true);
+    private final Timer timer = new Timer("ServerHouseKeepingService");
 
     public AbstractRemotingServer(final RemotingServerConfig remotingServerConfig,
                                   final ChannelEventListener channelEventListener) {

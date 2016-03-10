@@ -1,39 +1,33 @@
 package com.lts.queue.mysql;
 
 import com.lts.core.AppContext;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.AbstractPreLoader;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.mysql.support.ResultSetHandlerHolder;
-import com.lts.store.jdbc.datasource.DataSourceProviderFactory;
+import com.lts.queue.mysql.support.RshHolder;
 import com.lts.store.jdbc.SqlTemplate;
+import com.lts.store.jdbc.SqlTemplateFactory;
+import com.lts.store.jdbc.builder.OrderByType;
+import com.lts.store.jdbc.builder.SelectSql;
+import com.lts.store.jdbc.builder.UpdateSql;
 
-import java.sql.SQLException;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/15.
  */
 public class MysqlPreLoader extends AbstractPreLoader {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MysqlPreLoader.class);
     private SqlTemplate sqlTemplate;
 
     public MysqlPreLoader(AppContext appContext) {
         super(appContext);
-
-        sqlTemplate = new SqlTemplate(
-                DataSourceProviderFactory.create(appContext.getConfig())
-                        .getDataSource(appContext.getConfig()));
+        this.sqlTemplate = SqlTemplateFactory.create(appContext.getConfig());
     }
-
-
-    private String taskUpdateSQL = "UPDATE `{tableName}` SET " +
-            "`is_running` = ?, " +
-            "`task_tracker_identity` = ?, " +
-            "`gmt_modified` = ?" +
-            " WHERE job_id = ? AND is_running = ? AND trigger_time = ? AND gmt_modified = ? ";
 
     @Override
     protected boolean lockJob(String taskTrackerNodeGroup, String jobId,
@@ -41,10 +35,18 @@ public class MysqlPreLoader extends AbstractPreLoader {
                               Long triggerTime,
                               Long gmtModified) {
         try {
-            int affectedRow = sqlTemplate.update(getRealSql(taskUpdateSQL, taskTrackerNodeGroup), true,
-                    taskTrackerIdentity, SystemClock.now(), jobId, false, triggerTime, gmtModified);
-            return affectedRow == 1;
-        } catch (SQLException e) {
+            return new UpdateSql(sqlTemplate)
+                    .update(getTableName(taskTrackerNodeGroup))
+                    .set("is_running", true)
+                    .set("task_tracker_identity", taskTrackerIdentity)
+                    .set("gmt_modified", SystemClock.now())
+                    .where("job_id = ?", jobId)
+                    .and("is_running = ?", false)
+                    .and("trigger_time = ?", triggerTime)
+                    .and("gmt_modified = ?", gmtModified)
+                    .doUpdate() == 1;
+        } catch (Exception e) {
+            LOGGER.error("Error when lock job:" + e.getMessage(), e);
             return false;
         }
     }
@@ -59,27 +61,24 @@ public class MysqlPreLoader extends AbstractPreLoader {
     @Override
     protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {
         try {
-            Long now = SystemClock.now();
-            return sqlTemplate.query(getRealSql(takeSelectSQL, loadTaskTrackerNodeGroup),
-                    ResultSetHandlerHolder.JOB_PO_LIST_RESULT_SET_HANDLER,
-                    false, now, 0, loadSize);
-        } catch (SQLException e) {
+            return new SelectSql(sqlTemplate)
+                    .select()
+                    .all()
+                    .from()
+                    .table(getTableName(loadTaskTrackerNodeGroup))
+                    .where("is_running = ?", false)
+                    .and("trigger_time< ?", SystemClock.now())
+                    .orderBy()
+                    .column("trigger_time", OrderByType.ASC)
+                    .column("priority", OrderByType.ASC)
+                    .column("gmt_created", OrderByType.ASC)
+                    .limit(0, loadSize)
+                    .list(RshHolder.JOB_PO_LIST_RSH);
+        } catch (Exception e) {
+            LOGGER.error("Error when load job:" + e.getMessage(), e);
             return null;
         }
     }
-
-    private String getRealSql(String sql, String taskTrackerNodeGroup) {
-        String key = sql.concat(taskTrackerNodeGroup);
-        String fineSQL = SQL_CACHE_MAP.get(key);
-        // 这里可以不用锁，多生成一次也不会产生什么问题
-        if (fineSQL == null) {
-            fineSQL = sql.replace("{tableName}", getTableName(taskTrackerNodeGroup));
-            SQL_CACHE_MAP.put(key, fineSQL);
-        }
-        return fineSQL;
-    }
-
-    private final ConcurrentHashMap<String, String> SQL_CACHE_MAP = new ConcurrentHashMap<String, String>();
 
     private String getTableName(String taskTrackerNodeGroup) {
         return JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);

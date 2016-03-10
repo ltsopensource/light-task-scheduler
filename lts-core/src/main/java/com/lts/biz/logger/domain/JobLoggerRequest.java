@@ -1,13 +1,13 @@
 package com.lts.biz.logger.domain;
 
-import com.lts.web.request.PageRequest;
+import com.lts.admin.request.PaginationReq;
 
 import java.util.Date;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/11/15.
  */
-public class JobLoggerRequest extends PageRequest {
+public class JobLoggerRequest extends PaginationReq {
 
     private String taskId;
 

@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lts.web.repository.mapper.JVMInfoRepo">
+<mapper namespace="com.lts.admin.access.mapper.JVMInfoRepo">
 
-    <insert id="insert" parameterType="com.lts.web.repository.domain.JVMInfoDataPo" flushCache="true">
+    <insert id="insert" parameterType="com.lts.admin.access.domain.JVMInfoDataPo" flushCache="true">
         <![CDATA[
         INSERT INTO `lts_admin_jvm_info`
         (`gmt_created`,
@@ -24,7 +24,7 @@
         ]]>
     </insert>
 
-    <select id="select" parameterType="com.lts.web.request.JVMDataRequest"
+    <select id="select" parameterType="com.lts.admin.request.JVMDataRequest"
             resultType="JVMInfoDataPo">
         SELECT
          id,

@@ -10,7 +10,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.store.mongo.MongoRepository;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -64,7 +64,7 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
     }
 
     @Override
-    public PageResponse<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request) {
+    public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request) {
         Query<NodeGroupPo> query = template.createQuery(NodeGroupPo.class);
         if (request.getNodeType() != null) {
             query.field("nodeType").equal(request.getNodeType());
@@ -72,7 +72,7 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
         if (StringUtils.isNotEmpty(request.getNodeGroup())) {
             query.field("name").equal(request.getNodeGroup());
         }
-        PageResponse<NodeGroupPo> response = new PageResponse<NodeGroupPo>();
+        PaginationRsp<NodeGroupPo> response = new PaginationRsp<NodeGroupPo>();
         Long results = template.getCount(query);
         response.setResults(results.intValue());
         if (results == 0) {

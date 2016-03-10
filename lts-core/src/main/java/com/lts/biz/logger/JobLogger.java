@@ -2,7 +2,7 @@ package com.lts.biz.logger;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 
 import java.util.List;
 
@@ -17,5 +17,5 @@ public interface JobLogger {
 
     public void log(List<JobLogPo> jobLogPos);
 
-    public PageResponse<JobLogPo> search(JobLoggerRequest request);
+    public PaginationRsp<JobLogPo> search(JobLoggerRequest request);
 }
