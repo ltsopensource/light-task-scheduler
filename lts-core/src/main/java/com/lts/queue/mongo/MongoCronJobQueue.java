@@ -3,10 +3,9 @@ package com.lts.queue.mongo;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.support.SystemClock;
 import com.lts.queue.CronJobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -46,7 +45,7 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
             template.save(jobPo);
         } catch (DuplicateKeyException e) {
             // 已经存在
-            throw new DuplicateJobException(e);
+            throw new DupEntryException(e);
         }
         return true;
     }

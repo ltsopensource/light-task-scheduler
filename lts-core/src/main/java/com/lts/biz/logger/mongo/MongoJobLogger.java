@@ -7,7 +7,7 @@ import com.lts.biz.logger.domain.JobLoggerRequest;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 import com.lts.store.mongo.MongoRepository;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -46,7 +46,7 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
     }
 
     @Override
-    public PageResponse<JobLogPo> search(JobLoggerRequest request) {
+    public PaginationRsp<JobLogPo> search(JobLoggerRequest request) {
 
         Query<JobLogPo> query = template.createQuery(JobLogPo.class);
         if(StringUtils.isNotEmpty(request.getTaskId())){
@@ -61,18 +61,18 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         if (request.getEndLogTime() != null) {
             query.filter("logTime <= ", getTimestamp(request.getEndLogTime()));
         }
-        PageResponse<JobLogPo> pageResponse = new PageResponse<JobLogPo>();
+        PaginationRsp<JobLogPo> paginationRsp = new PaginationRsp<JobLogPo>();
         Long results = template.getCount(query);
-        pageResponse.setResults(results.intValue());
+        paginationRsp.setResults(results.intValue());
         if (results == 0) {
-            return pageResponse;
+            return paginationRsp;
         }
         // 查询rows
         query.order("-logTime").offset(request.getStart()).limit(request.getLimit());
 
-        pageResponse.setRows(query.asList());
+        paginationRsp.setRows(query.asList());
 
-        return pageResponse;
+        return paginationRsp;
     }
 
     private Long getTimestamp(Date timestamp) {

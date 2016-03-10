@@ -20,7 +20,7 @@ import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.id.IdGenerator;
 import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
@@ -92,7 +92,7 @@ public class JobReceiver {
             success = true;
             code = BizLogCode.SUCCESS;
 
-        } catch (DuplicateJobException e) {
+        } catch (DupEntryException e) {
             // 已经存在
             if (job.isReplaceOnExist()) {
                 Assert.notNull(jobPo);
@@ -117,7 +117,7 @@ public class JobReceiver {
     /**
      * 添加任务
      */
-    private void addJob(Job job, JobPo jobPo) throws DuplicateJobException {
+    private void addJob(Job job, JobPo jobPo) throws DupEntryException {
         if (job.isSchedule()) {
             addCronJob(jobPo);
             LOGGER.info("Receive Cron Job success. {}", job);
@@ -152,7 +152,7 @@ public class JobReceiver {
         // 2. 重新添加任务
         try {
             addJob(job, jobPo);
-        } catch (DuplicateJobException e) {
+        } catch (DupEntryException e) {
             // 一般不会走到这里
             LOGGER.error("Job already exist twice. {}", job);
             return false;
@@ -163,7 +163,7 @@ public class JobReceiver {
     /**
      * 添加Cron 任务
      */
-    private void addCronJob(JobPo jobPo) throws DuplicateJobException {
+    private void addCronJob(JobPo jobPo) throws DupEntryException {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
         if (nextTriggerTime != null) {
             // 1.add to cron job queue

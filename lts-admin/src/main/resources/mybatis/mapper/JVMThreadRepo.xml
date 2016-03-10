@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lts.web.repository.mapper.JVMThreadRepo">
+<mapper namespace="com.lts.admin.access.mapper.JVMThreadRepo">
 
     <insert id="insert" parameterType="java.util.List" flushCache="true">
         <![CDATA[

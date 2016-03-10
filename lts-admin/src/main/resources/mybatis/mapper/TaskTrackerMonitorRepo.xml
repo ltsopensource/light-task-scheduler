@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lts.web.repository.mapper.TaskTrackerMonitorRepo">
+<mapper namespace="com.lts.admin.access.mapper.TaskTrackerMonitorRepo">
 
     <insert id="insert" parameterType="java.util.List" flushCache="true">
         <![CDATA[
@@ -53,8 +53,8 @@
         </where>
     </sql>
 
-    <select id="querySum" resultType="com.lts.web.repository.domain.TaskTrackerMonitorDataPo"
-            parameterType="com.lts.web.request.MonitorDataRequest">
+    <select id="querySum" resultType="com.lts.admin.access.domain.TaskTrackerMonitorDataPo"
+            parameterType="com.lts.admin.request.MonitorDataRequest">
         SELECT
         timestamp,
         SUM(exe_success_num) AS exeSuccessNum,
@@ -68,7 +68,7 @@
         GROUP BY timestamp ORDER BY timestamp ASC limit #{start},#{limit}
     </select>
 
-    <delete id="delete" parameterType="com.lts.web.request.MonitorDataRequest">
+    <delete id="delete" parameterType="com.lts.admin.request.MonitorDataRequest">
         DELETE FROM lts_admin_task_tracker_monitor_data
         <include refid="whereCondition"/>
     </delete>

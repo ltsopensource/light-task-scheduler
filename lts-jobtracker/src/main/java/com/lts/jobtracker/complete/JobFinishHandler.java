@@ -11,7 +11,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
@@ -66,7 +66,7 @@ public class JobFinishHandler implements JobCompleteHandler {
             cronJobPo.setTriggerTime(nextTriggerTime.getTime());
             cronJobPo.setGmtModified(SystemClock.now());
             appContext.getExecutableJobQueue().add(cronJobPo);
-        } catch (DuplicateJobException e) {
+        } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(cronJobPo));
         }
     }

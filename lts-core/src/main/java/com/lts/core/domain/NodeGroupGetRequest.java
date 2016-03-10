@@ -1,12 +1,12 @@
 package com.lts.core.domain;
 
 import com.lts.core.cluster.NodeType;
-import com.lts.web.request.PageRequest;
+import com.lts.admin.request.PaginationReq;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/5/15.
  */
-public class NodeGroupGetRequest extends PageRequest{
+public class NodeGroupGetRequest extends PaginationReq {
 
     private NodeType nodeType;
 
