@@ -154,7 +154,7 @@ public class JobReceiver {
             addJob(job, jobPo);
         } catch (DupEntryException e) {
             // 一般不会走到这里
-            LOGGER.error("Job already exist twice. {}", job);
+            LOGGER.warn("Job already exist twice. {}", job);
             return false;
         }
         return true;
@@ -169,9 +169,12 @@ public class JobReceiver {
             // 1.add to cron job queue
             appContext.getCronJobQueue().add(jobPo);
 
-            // 2. add to executable queue
-            jobPo.setTriggerTime(nextTriggerTime.getTime());
-            appContext.getExecutableJobQueue().add(jobPo);
+            // 没有正在执行, 则添加
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+                // 2. add to executable queue
+                jobPo.setTriggerTime(nextTriggerTime.getTime());
+                appContext.getExecutableJobQueue().add(jobPo);
+            }
         }
     }
 

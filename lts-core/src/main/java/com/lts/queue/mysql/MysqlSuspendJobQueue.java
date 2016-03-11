@@ -33,6 +33,7 @@ public class MysqlSuspendJobQueue extends AbstractMysqlJobQueue implements Suspe
     public JobPo getJob(String jobId) {
         return new SelectSql(getSqlTemplate())
                 .select()
+                .all()
                 .from()
                 .table(getTableName())
                 .where("job_id = ?", jobId)

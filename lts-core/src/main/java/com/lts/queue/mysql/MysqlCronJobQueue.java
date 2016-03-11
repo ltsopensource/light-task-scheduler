@@ -53,6 +53,7 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
 
         return new SelectSql(getSqlTemplate())
                 .select()
+                .all()
                 .from()
                 .table(getTableName())
                 .where("task_id = ?", taskId)

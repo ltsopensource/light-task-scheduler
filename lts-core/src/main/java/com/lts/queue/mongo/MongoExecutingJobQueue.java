@@ -81,4 +81,12 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
         return query.asList();
     }
 
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        Query<JobPo> query = template.createQuery(JobPo.class);
+        query.field("taskId").equal(taskId).
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.get();
+    }
+
 }

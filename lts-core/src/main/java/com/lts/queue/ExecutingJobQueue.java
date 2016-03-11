@@ -31,4 +31,9 @@ public interface ExecutingJobQueue extends JobQueue{
      * 根据过期时间得到死掉的任务
      */
     List<JobPo> getDeadJobs(long deadline);
+
+    /**
+     * 得到JobPo
+     */
+    JobPo getJob(String taskTrackerNodeGroup, String taskId);
 }

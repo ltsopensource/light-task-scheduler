@@ -44,6 +44,7 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     public JobPo get(String jobId) {
         return new SelectSql(getSqlTemplate())
                 .select()
+                .all()
                 .from()
                 .table(getTableName())
                 .where("job_id = ?", jobId)
@@ -54,6 +55,7 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
     public List<JobPo> getJobs(String taskTrackerIdentity) {
         return new SelectSql(getSqlTemplate())
                 .select()
+                .all()
                 .from()
                 .table(getTableName())
                 .where("task_tracker_identity = ?", taskTrackerIdentity)
@@ -69,6 +71,18 @@ public class MysqlExecutingJobQueue extends AbstractMysqlJobQueue implements Exe
                 .table(getTableName())
                 .where("gmt_created < ?", deadline)
                 .list(RshHolder.JOB_PO_LIST_RSH);
+    }
+
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        return new SelectSql(getSqlTemplate())
+                .select()
+                .all()
+                .from()
+                .table(getTableName())
+                .where("task_id = ?", taskId)
+                .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .single(RshHolder.JOB_PO_RSH);
     }
 
     private String getTableName() {

@@ -99,6 +99,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
         return new SelectSql(getSqlTemplate())
                 .select()
+                .all()
                 .from()
                 .table(getTableName(taskTrackerNodeGroup))
                 .where("task_id = ?", taskId)
