@@ -54,6 +54,10 @@ public abstract class AbstractMonitor implements Monitor {
     private Integer preMinute = null;  // 上一分钟
 
     public final void start() {
+
+        // 启动JVM监控
+        JVMMonitor.start();
+
         monitorSite = config.getParameter("lts.monitor.url");
         if (StringUtils.isEmpty(monitorSite)) {
             return;
@@ -105,9 +109,6 @@ public abstract class AbstractMonitor implements Monitor {
                         }
                     }
                 }, 1, 1, TimeUnit.SECONDS);
-
-                // 启动JVM监控
-                JVMMonitor.start();
 
                 // 首次启动发送JVMInfo给LTS-Admin
                 checkSendJVMInfo();
