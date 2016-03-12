@@ -4,36 +4,43 @@ VERSION="1.6.5-SNAPSHOT"
 
 LTS_BIN="${BASH_SOURCE-$0}"
 LTS_BIN="$(dirname "${LTS_BIN}")"
-LTS_BIN_DIR="$(cd "${LTS_BIN}"; pwd)"
+LTS_Bin_Dir="$(cd "${LTS_BIN}"; pwd)"
 
-cd $LTS_BIN_DIR
+cd $LTS_Bin_Dir
 
 mvn clean install -U -DskipTests
 
-DIST_BIN_DIR="lts-$VERSION-bin"
-mkdir -p $LTS_BIN_DIR/dist/$DIST_BIN_DIR
+Dist_Bin_Dir="lts-$VERSION-bin"
+mkdir -p $LTS_Bin_Dir/dist/$Dist_Bin_Dir
 
-# JOB_TRACKER 的打包
-JOB_TRACKER_START_UP_DIR="$LTS_BIN_DIR/lts-startup/lts-startup-jobtracker"
-cd $JOB_TRACKER_START_UP_DIR
+# JobTracker 的打包
+JobTracker_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-jobtracker"
+cd $JobTracker_Startup_Dir
 mvn assembly:assembly -DskipTests
 
 # LTS-Admin 打包
-LTS_ADMIN_START_UP_DIR="$LTS_BIN_DIR/lts-startup/lts-startup-admin"
-cd $LTS_ADMIN_START_UP_DIR
+LTS_Admin_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-admin"
+cd $LTS_Admin_Startup_Dir
 mvn assembly:assembly -DskipTests
 
-# LTS-Admin 打包
-LTS_TASK_TRACKER_START_UP_DIR="$LTS_BIN_DIR/lts-startup/lts-startup-tasktracker"
-cd $LTS_TASK_TRACKER_START_UP_DIR
+# TaskTracker 打包
+TaskTracker_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-tasktracker"
+cd $TaskTracker_Startup_Dir
 mvn assembly:assembly -DskipTests
 
-cp -rf $JOB_TRACKER_START_UP_DIR/target/lts-bin/lts/*  $LTS_BIN_DIR/dist/$DIST_BIN_DIR
-cp -rf $LTS_ADMIN_START_UP_DIR/target/lts-bin/lts/*  $LTS_BIN_DIR/dist/$DIST_BIN_DIR
-cp -rf $LTS_TASK_TRACKER_START_UP_DIR/target/lts-bin/lts/*  $LTS_BIN_DIR/dist/$DIST_BIN_DIR
-cp -rf $LTS_BIN_DIR/lts-admin/target/lts-admin-$VERSION.war $LTS_BIN_DIR/dist/$DIST_BIN_DIR/lts-admin/lts-admin.war
+# TaskTracker 打包
+LTS_Monitor_Startup_Dir="$LTS_Bin_Dir/lts-monitor"
+cd $LTS_Monitor_Startup_Dir
+mvn assembly:assembly -DskipTests
 
-# cd $LTS_BIN_DIR/dist
-# zip -r $DIST_BIN_DIR.zip $DIST_BIN_DIR/*
-# rm -rf $DIST_BIN_DIR
+
+cp -rf $JobTracker_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
+cp -rf $LTS_Admin_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
+cp -rf $TaskTracker_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
+cp -rf $LTS_Monitor_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
+cp -rf $LTS_Bin_Dir/lts-admin/target/lts-admin-$VERSION.war $LTS_Bin_Dir/dist/$Dist_Bin_Dir/lts-admin/lts-admin.war
+
+# cd $LTS_Bin_Dir/dist
+# zip -r $Dist_Bin_Dir.zip $Dist_Bin_Dir/*
+# rm -rf $Dist_Bin_Dir
 

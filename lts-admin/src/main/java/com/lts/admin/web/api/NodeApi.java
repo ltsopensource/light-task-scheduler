@@ -29,9 +29,9 @@ import java.util.List;
 public class NodeApi extends AbstractMVC {
 
     @Autowired
-    BackendRegistryService backendRegistryService;
+    private BackendRegistryService backendRegistryService;
     @Autowired
-    BackendAppContext appContext;
+    private BackendAppContext appContext;
 
     @RequestMapping("node-list-get")
     public RestfulResponse getNodeList(NodePaginationReq request) {
