@@ -1,6 +1,6 @@
 package com.lts.queue.mongo;
 
-import com.lts.core.AppContext;
+import com.lts.core.cluster.Config;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.AbstractPreLoader;
@@ -21,10 +21,10 @@ public class MongoPreLoader extends AbstractPreLoader {
 
     private MongoTemplate template;
 
-    public MongoPreLoader(final AppContext appContext) {
-        super(appContext);
+    public MongoPreLoader(final Config config) {
+        super(config);
         this.template = new MongoTemplate(
-                (AdvancedDatastore) DataStoreProvider.getDataStore(appContext.getConfig()));
+                (AdvancedDatastore) DataStoreProvider.getDataStore(config));
     }
 
     protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime, Long gmtModified) {

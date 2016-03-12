@@ -1,5 +1,6 @@
 package com.lts.startup;
 
+import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.StringUtils;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -12,7 +13,6 @@ import java.util.Properties;
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
 public class JobTrackerCfgLoader {
-
 
     public static JobTrackerCfg load(String confPath) throws CfgException {
 
@@ -68,9 +68,10 @@ public class JobTrackerCfgLoader {
 
         cfg.setConfigs(configs);
 
-        //  log4j 配置文件路径
-        PropertyConfigurator.configure(log4jPath);
-
+        if (FileUtils.exist(log4jPath)) {
+            //  log4j 配置文件路径
+            PropertyConfigurator.configure(log4jPath);
+        }
         return cfg;
     }
 

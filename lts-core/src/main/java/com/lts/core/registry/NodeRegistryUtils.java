@@ -10,6 +10,7 @@ import com.lts.core.commons.utils.StringUtils;
  *         /LTS/{集群名字}/NODES/TASK_TRACKER/TASK_TRACKER:\\192.168.0.150:8888?group=TASK_TRACKER&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
  *         /LTS/{集群名字}/NODES/JOB_CLIENT/JOB_CLIENT:\\192.168.0.150:8888?group=JOB_CLIENT&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
  *         /LTS/{集群名字}/NODES/JOB_TRACKER/JOB_TRACKER:\\192.168.0.150:8888?group=JOB_TRACKER&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true&listenNodeTypes=CLIENT,TASK_TRACKER
+ *         /LTS/{集群名字}/NODES/MONITOR/MONITOR:\\192.168.0.150:8888?group=JOB_TRACKER&threads=8&identity=85750db6-e854-4eb3-a595-9227a5f2c8f6&createTime=1408189898185&isAvailable=true
  *         <p/>
  */
 public class NodeRegistryUtils {
@@ -119,7 +120,7 @@ public class NodeRegistryUtils {
         } else if (registryAddress.startsWith("multicast://")) {
             return registryAddress.replace("multicast://", "");
         }
-        throw new IllegalArgumentException("illegal address protocol");
+        throw new IllegalArgumentException("Illegal registry protocol");
     }
 
 }

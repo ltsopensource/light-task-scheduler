@@ -37,8 +37,6 @@ public class FeedbackJobSendChecker {
 
     /**
      * 是否已经启动
-     *
-     * @return
      */
     @SuppressWarnings("unused")
 	private boolean isStart() {

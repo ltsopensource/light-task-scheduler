@@ -18,14 +18,10 @@
 
     <filter>
         <filter-name>loginAuthFilter</filter-name>
-        <filter-class>com.lts.admin.filter.LoginAuthFilter</filter-class>
+        <filter-class>com.lts.admin.web.filter.LoginAuthFilter</filter-class>
         <init-param>
             <param-name>auth-config</param-name>
             <param-value>auth.cfg</param-value>
-        </init-param>
-        <init-param>
-            <param-name>excludedURLs</param-name>
-            <param-value>/**/api/monitor/monitor-data-add.do,/**/api/monitor/jvm-info-data-add.do,/**/api/monitor/command-info-add.do</param-value>
         </init-param>
     </filter>
     <filter-mapping>
@@ -54,21 +50,21 @@
     </servlet-mapping>
 
     <listener>
-        <listener-class>com.lts.admin.initialization.SystemInitListener</listener-class>
+        <listener-class>com.lts.admin.support.SystemInitListener</listener-class>
     </listener>
 
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
-    <servlet>
-        <servlet-name>H2Console</servlet-name>
-        <servlet-class>com.lts.admin.support.H2ConsoleWebServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>H2Console</servlet-name>
-        <url-pattern>/h2/*</url-pattern>
-    </servlet-mapping>
+    <!--<servlet>-->
+        <!--<servlet-name>H2Console</servlet-name>-->
+        <!--<servlet-class>com.lts.admin.web.support.H2ConsoleWebServlet</servlet-class>-->
+        <!--<load-on-startup>1</load-on-startup>-->
+    <!--</servlet>-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>H2Console</servlet-name>-->
+        <!--<url-pattern>/h2/*</url-pattern>-->
+    <!--</servlet-mapping>-->
 
 </web-app>

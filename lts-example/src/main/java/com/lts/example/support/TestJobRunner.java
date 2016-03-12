@@ -16,7 +16,7 @@ import com.lts.tasktracker.runner.LtsLoggerFactory;
 public class TestJobRunner implements JobRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestJobRunner.class);
-    private final static BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
+    private final BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
 
     @Override
     public Result run(Job job) throws Throwable {

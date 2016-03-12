@@ -72,6 +72,11 @@ public class SelectSql {
         return this;
     }
 
+    public SelectSql where(){
+        sql.append(" WHERE ");
+        return this;
+    }
+
     public SelectSql whereSql(WhereSql whereSql) {
         sql.append(whereSql.getSQL());
         params.addAll(whereSql.params());

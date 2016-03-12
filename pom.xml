@@ -272,16 +272,4 @@
         <developerConnection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</developerConnection>
         <url>https://github.com/qq254963746/light-task-scheduler.git</url>
     </scm>
-    <distributionManagement>
-        <repository>
-            <id>glodon-nexus-releases</id>
-            <name>Glodon Nexus Release Repository</name>
-            <url>http://maven.glodon.com/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>glodon-nexus-snapshots</id>
-            <name>Glodon Nexus Snapshot Repository</name>
-            <url>http://maven.glodon.com/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>

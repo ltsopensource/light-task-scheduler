@@ -1,6 +1,6 @@
 package com.lts.queue.mysql;
 
-import com.lts.core.AppContext;
+import com.lts.core.cluster.Config;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.JobQueueUtils;
@@ -24,9 +24,9 @@ public class MysqlPreLoader extends AbstractPreLoader {
     private static final Logger LOGGER = LoggerFactory.getLogger(MysqlPreLoader.class);
     private SqlTemplate sqlTemplate;
 
-    public MysqlPreLoader(AppContext appContext) {
-        super(appContext);
-        this.sqlTemplate = SqlTemplateFactory.create(appContext.getConfig());
+    public MysqlPreLoader(Config config) {
+        super(config);
+        this.sqlTemplate = SqlTemplateFactory.create(config);
     }
 
     @Override

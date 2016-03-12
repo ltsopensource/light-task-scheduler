@@ -1,6 +1,6 @@
 package com.lts.queue;
 
-import com.lts.core.AppContext;
+import com.lts.core.cluster.Config;
 import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
@@ -31,11 +31,11 @@ public abstract class AbstractPreLoader implements PreLoader {
     private AtomicBoolean start = new AtomicBoolean(false);
     private String FORCE_PREFIX = "force_"; // 强制加载的信号
 
-    public AbstractPreLoader(final AppContext appContext) {
+    public AbstractPreLoader(final Config config) {
         if (start.compareAndSet(false, true)) {
 
-            loadSize = appContext.getConfig().getParameter("job.preloader.size", 300);
-            factor = appContext.getConfig().getParameter("job.preloader.factor", 0.2);
+            loadSize = config.getParameter("job.preloader.size", 300);
+            factor = config.getParameter("job.preloader.factor", 0.2);
 
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override

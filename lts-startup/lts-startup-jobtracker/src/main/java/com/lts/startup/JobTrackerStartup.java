@@ -42,7 +42,7 @@ public class JobTrackerStartup {
             }));
 
         } catch (CfgException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("JobTracker Startup Error: " + e.getMessage());
             e.printStackTrace();
         }
     }

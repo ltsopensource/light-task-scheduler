@@ -8,7 +8,7 @@ import org.springframework.context.MessageSource;
 import java.util.Locale;
 
 /**
- * Created by hugui.hg on 3/9/16.
+ * @author Robert HG (254963746@qq.com) on 3/9/16.
  */
 public class I18nManager {
 
@@ -40,7 +40,7 @@ public class I18nManager {
         try {
             return messageSource.getMessage(key, args, locale);
         } catch (Throwable t) {
-            logger.error("i18n error, message not found by key :" + key);
+            logger.error("i18n error, message not found by key :" + key, t);
             return key;
         }
     }

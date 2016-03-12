@@ -1,5 +1,6 @@
 package com.lts.queue.mysql;
 
+import com.lts.admin.request.JobQueueReq;
 import com.lts.core.cluster.Config;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.queue.ExecutingJobQueue;
@@ -7,7 +8,6 @@ import com.lts.queue.domain.JobPo;
 import com.lts.queue.mysql.support.RshHolder;
 import com.lts.store.jdbc.builder.DeleteSql;
 import com.lts.store.jdbc.builder.SelectSql;
-import com.lts.admin.request.JobQueueReq;
 
 import java.util.List;
 

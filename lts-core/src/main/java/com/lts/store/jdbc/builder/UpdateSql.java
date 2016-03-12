@@ -47,6 +47,11 @@ public class UpdateSql {
         return set(column, value);
     }
 
+    public UpdateSql where(){
+        sql.append(" WHERE ");
+        return this;
+    }
+
     public UpdateSql whereSql(WhereSql whereSql) {
         sql.append(whereSql.getSQL());
         params.addAll(whereSql.params());

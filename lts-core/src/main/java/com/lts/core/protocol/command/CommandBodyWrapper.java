@@ -5,7 +5,7 @@ import com.lts.core.cluster.Config;
 
 /**
  * 用于设置CommandBody 的基础信息
- * Robert HG (254963746@qq.com) on 3/13/15.
+ * @author Robert HG (254963746@qq.com) on 3/13/15.
  */
 public class CommandBodyWrapper {
 

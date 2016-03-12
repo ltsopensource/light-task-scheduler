@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
         >
 
-    <context:component-scan base-package="com.lts.admin.controller"/>
+    <context:component-scan base-package="com.lts.admin.web"/>
     <aop:aspectj-autoproxy proxy-target-class="true"/>
     <context:annotation-config/>
     <mvc:annotation-driven/>
@@ -37,9 +37,7 @@
     <mvc:resources mapping="/assets/**" location="/assets"/>
 
     <bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
-        <property name="configLocation">
-            <value>/WEB-INF/views/velocity.properties</value>
-        </property>
+        <property name="configLocation" value="/WEB-INF/views/velocity.properties"/>
     </bean>
     <bean id="viewResolver"
           class="org.springframework.web.servlet.view.velocity.VelocityLayoutViewResolver">
@@ -52,5 +50,7 @@
         <property name="viewClass"
                   value="org.springframework.web.servlet.view.velocity.VelocityLayoutView" />
     </bean>
+
+    <bean class="com.lts.admin.web.support.ExceptionHandlerResolver"/>
 
 </beans>

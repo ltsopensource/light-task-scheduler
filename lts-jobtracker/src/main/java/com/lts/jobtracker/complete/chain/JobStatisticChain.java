@@ -11,7 +11,7 @@ import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.support.LoggerName;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
-import com.lts.jobtracker.monitor.JobTrackerMonitor;
+import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.core.support.JobDomainConverter;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
@@ -27,11 +27,11 @@ public class JobStatisticChain implements JobCompletedChain {
     private final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
 
     private JobTrackerAppContext appContext;
-    private JobTrackerMonitor monitor;
+    private JobTrackerMStatReporter stat;
 
     public JobStatisticChain(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
+        this.stat = (JobTrackerMStatReporter) appContext.getMStatReporter();
 
     }
 
@@ -66,16 +66,16 @@ public class JobStatisticChain implements JobCompletedChain {
             if (result.getAction() != null) {
                 switch (result.getAction()) {
                     case EXECUTE_SUCCESS:
-                        monitor.incExeSuccessNum();
+                        stat.incExeSuccessNum();
                         break;
                     case EXECUTE_FAILED:
-                        monitor.incExeFailedNum();
+                        stat.incExeFailedNum();
                         break;
                     case EXECUTE_LATER:
-                        monitor.incExeLaterNum();
+                        stat.incExeLaterNum();
                         break;
                     case EXECUTE_EXCEPTION:
-                        monitor.incExeExceptionNum();
+                        stat.incExeExceptionNum();
                         break;
                 }
             }

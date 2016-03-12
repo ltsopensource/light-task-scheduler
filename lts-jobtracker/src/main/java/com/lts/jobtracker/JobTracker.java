@@ -1,15 +1,14 @@
 package com.lts.jobtracker;
 
-import com.lts.biz.logger.JobLoggerDelegate;
+import com.lts.biz.logger.SmartJobLogger;
 import com.lts.core.cluster.AbstractServerNode;
-import com.lts.core.cmd.HttpCmdServer;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.jobtracker.channel.ChannelManager;
 import com.lts.jobtracker.cmd.AddJobHttpCmd;
 import com.lts.jobtracker.cmd.LoadJobHttpCmd;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.JobTrackerNode;
-import com.lts.jobtracker.monitor.JobTrackerMonitor;
+import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.jobtracker.processor.RemotingDispatcher;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobReceiver;
@@ -18,7 +17,7 @@ import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.listener.JobNodeChangeListener;
 import com.lts.jobtracker.support.listener.JobTrackerMasterChangeListener;
-import com.lts.queue.*;
+import com.lts.queue.JobQueueFactory;
 import com.lts.remoting.RemotingProcessor;
 
 /**
@@ -28,17 +27,13 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     public JobTracker() {
         // 监控中心
-        appContext.setMonitor(new JobTrackerMonitor(appContext));
+        appContext.setMStatReporter(new JobTrackerMStatReporter(appContext));
         // channel 管理者
         appContext.setChannelManager(new ChannelManager());
         // JobClient 管理者
         appContext.setJobClientManager(new JobClientManager(appContext));
         // TaskTracker 管理者
         appContext.setTaskTrackerManager(new TaskTrackerManager(appContext));
-        // 命令中心
-        int port = appContext.getConfig().getParameter("lts.command.port", 8719);
-        appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(port));
-
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(appContext));
         // 添加master节点变化监听器
@@ -49,46 +44,35 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     protected void beforeStart() {
         // injectRemotingServer
         appContext.setRemotingServer(remotingServer);
-        appContext.setJobLogger(new JobLoggerDelegate(config));
-        appContext.setExecutableJobQueue(ServiceLoader.load(ExecutableJobQueueFactory.class, config).getQueue(config));
-        appContext.setExecutingJobQueue(ServiceLoader.load(ExecutingJobQueueFactory.class, config).getQueue(config));
-        appContext.setCronJobQueue(ServiceLoader.load(CronJobQueueFactory.class, config).getQueue(config));
-		appContext.setSuspendJobQueue(ServiceLoader.load(SuspendJobQueueFactory.class,config).getQueue(config));
-        appContext.setJobFeedbackQueue(ServiceLoader.load(JobFeedbackQueueFactory.class, config).getQueue(config));
-        appContext.setNodeGroupStore(ServiceLoader.load(NodeGroupStoreFactory.class, config).getStore(config));
-        appContext.setPreLoader(ServiceLoader.load(PreLoaderFactory.class, config).getPreLoader(appContext));
+        appContext.setJobLogger(new SmartJobLogger(config));
+
+        JobQueueFactory factory = ServiceLoader.load(JobQueueFactory.class, config);
+
+        appContext.setExecutableJobQueue(factory.getExecutableJobQueue(config));
+        appContext.setExecutingJobQueue(factory.getExecutingJobQueue(config));
+        appContext.setCronJobQueue(factory.getCronJobQueue(config));
+        appContext.setSuspendJobQueue(factory.getSuspendJobQueue(config));
+        appContext.setJobFeedbackQueue(factory.getJobFeedbackQueue(config));
+        appContext.setNodeGroupStore(factory.getNodeGroupStore(config));
+        appContext.setPreLoader(factory.getPreLoader(config));
         appContext.setJobReceiver(new JobReceiver(appContext));
         appContext.setJobSender(new JobSender(appContext));
 
-        registerCommand();
-    }
-
-    private void registerCommand() {
-        // 先启动CommandCenter，中间看端口是否被占用
-        appContext.getHttpCmdServer().start();
-        // 设置command端口，会暴露到注册中心上
-        node.setHttpCmdPort(appContext.getHttpCmdServer().getPort());
-
-        // 手动加载任务
-        appContext.getHttpCmdServer().registerCommand(new LoadJobHttpCmd(appContext));
-        // 添加任务
-        appContext.getHttpCmdServer().registerCommand(new AddJobHttpCmd(appContext));
+        appContext.getHttpCmdServer().registerCommands(
+                new LoadJobHttpCmd(appContext),     // 手动加载任务
+                new AddJobHttpCmd(appContext));     // 添加任务
     }
 
     @Override
     protected void afterStart() {
         appContext.getChannelManager().start();
-
-        appContext.getMonitor().start();
+        appContext.getMStatReporter().start();
     }
 
     @Override
     protected void afterStop() {
-
         appContext.getChannelManager().stop();
-
-        appContext.getMonitor().stop();
-
+        appContext.getMStatReporter().stop();
         appContext.getHttpCmdServer().stop();
     }
 

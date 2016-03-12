@@ -23,10 +23,7 @@ import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
 import com.lts.jobclient.domain.ResponseCode;
 import com.lts.jobclient.processor.RemotingDispatcher;
-import com.lts.jobclient.support.JobCompletedHandler;
-import com.lts.jobclient.support.JobSubmitExecutor;
-import com.lts.jobclient.support.JobSubmitProtector;
-import com.lts.jobclient.support.SubmitCallback;
+import com.lts.jobclient.support.*;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.RemotingProcessor;
 import com.lts.remoting.ResponseFuture;
@@ -50,6 +47,13 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
 
     // 过载保护的提交者
     private JobSubmitProtector protector;
+    protected JobClientMStatReporter stat;
+
+    public JobClient() {
+        this.stat = new JobClientMStatReporter(appContext);
+        // 监控中心
+        appContext.setMStatReporter(stat);
+    }
 
     @Override
     protected void beforeStart() {
@@ -59,10 +63,12 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
 
     @Override
     protected void afterStart() {
+        appContext.getMStatReporter().start();
     }
 
     @Override
     protected void afterStop() {
+        appContext.getMStatReporter().stop();
     }
 
     @Override
@@ -188,6 +194,13 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
             response.setSuccess(false);
             response.setCode(ResponseCode.SYSTEM_ERROR);
             response.setMsg(StringUtils.toString(e));
+        } finally {
+            // 统计
+            if (response.isSuccess()) {
+                stat.incSubmitSuccessNum(jobs.size());
+            } else {
+                stat.incSubmitFailedNum(CollectionUtils.sizeOf(response.getFailedJobs()));
+            }
         }
 
         return response;

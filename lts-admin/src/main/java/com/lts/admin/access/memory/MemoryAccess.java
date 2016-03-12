@@ -44,11 +44,6 @@ public abstract class MemoryAccess {
         }
     }
 
-    protected String readSqlFile(String path, String tableName) {
-        String sql = readSqlFile(path);
-        return sql.replace("{tableName}", tableName);
-    }
-
     protected void createTable(String sql) throws JdbcException {
         try {
             getSqlTemplate().createTable(sql);

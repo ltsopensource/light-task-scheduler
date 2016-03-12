@@ -1,10 +1,10 @@
 package com.lts.core;
 
-import com.lts.core.cmd.HttpCmdServer;
+import com.lts.cmd.HttpCmdServer;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.MasterElector;
 import com.lts.core.cluster.SubscribedNodeManager;
-import com.lts.core.monitor.Monitor;
+import com.lts.core.monitor.MStatReporter;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.RegistryStatMonitor;
 import com.lts.ec.EventCenter;
@@ -26,18 +26,18 @@ public abstract class AppContext {
     // 事件中心
     private EventCenter eventCenter;
     // 监控中心
-    private Monitor monitor;
+    private MStatReporter mStatReporter;
     // 注册中心状态监控
     private RegistryStatMonitor registryStatMonitor;
     // 命令中心
     private HttpCmdServer httpCmdServer;
 
-    public Monitor getMonitor() {
-        return monitor;
+    public MStatReporter getMStatReporter() {
+        return mStatReporter;
     }
 
-    public void setMonitor(Monitor monitor) {
-        this.monitor = monitor;
+    public void setMStatReporter(MStatReporter mStatReporter) {
+        this.mStatReporter = mStatReporter;
     }
 
     public EventCenter getEventCenter() {

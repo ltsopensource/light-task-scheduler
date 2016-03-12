@@ -1,5 +1,6 @@
 package com.lts.startup;
 
+import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
@@ -95,8 +96,10 @@ public class TaskTrackerCfgLoader {
             throw new CfgException(e);
         }
 
-        //  log4j 配置文件路径
-        PropertyConfigurator.configure(log4jPath);
+        if (FileUtils.exist(log4jPath)) {
+            //  log4j 配置文件路径
+            PropertyConfigurator.configure(log4jPath);
+        }
 
         return cfg;
     }

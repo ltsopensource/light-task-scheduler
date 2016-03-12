@@ -10,7 +10,7 @@ import com.lts.ec.injvm.InjvmEventCenter;
 import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
-import com.lts.tasktracker.monitor.TaskTrackerMonitor;
+import com.lts.tasktracker.monitor.TaskTrackerMStatReporter;
 import org.junit.Test;
 
 /**
@@ -37,8 +37,8 @@ public class RunnerPoolTest {
 
         appContext.setRunnerPool(runnerPool);
 
-        TaskTrackerMonitor monitor = new TaskTrackerMonitor(appContext);
-        appContext.setMonitor(monitor);
+        TaskTrackerMStatReporter monitor = new TaskTrackerMStatReporter(appContext);
+        appContext.setMStatReporter(monitor);
 
         RunnerCallback callback = new RunnerCallback(){
 

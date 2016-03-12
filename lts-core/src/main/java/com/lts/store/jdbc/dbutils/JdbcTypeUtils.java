@@ -15,4 +15,10 @@ public class JdbcTypeUtils {
         return date.getTime();
     }
 
+    public static Date toDate(Long timestamp){
+        if(timestamp == null){
+            return null;
+        }
+        return new Date(timestamp);
+    }
 }

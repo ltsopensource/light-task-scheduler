@@ -31,6 +31,11 @@ public class DeleteSql {
         return this;
     }
 
+    public DeleteSql where(){
+        sql.append(" WHERE ");
+        return this;
+    }
+
     public DeleteSql whereSql(WhereSql whereSql) {
         sql.append(whereSql.getSQL());
         params.addAll(whereSql.params());

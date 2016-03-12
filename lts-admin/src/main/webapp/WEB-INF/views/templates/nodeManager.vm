@@ -44,6 +44,7 @@
                                     <option value="JOB_CLIENT">JOB_CLIENT</option>
                                     <option value="TASK_TRACKER">TASK_TRACKER</option>
                                     <option value="JOB_TRACKER">JOB_TRACKER</option>
+                                    <option value="MONITOR">MONITOR</option>
                                 </select>
                             </div>
                         </div>
@@ -110,7 +111,7 @@
             <th>机器</th>
             <th>工作线程数</th>
             <th data-hide="phone,tablet">状态</th>
-            <th data-hide="all">cmd端口</th>
+            <th data-hide="all">CMD端口</th>
             <th>操作</th>
         </tr>
         </thead>
@@ -120,7 +121,7 @@
             <td>{{row.identity}}</td>
             <td>{{row.clusterName}}</td>
             <td>{{row.nodeType}}</td>
-            <td>{{row.group}}</td>
+            <td>{{row.group | format:'formatGroup',row}}</td>
             <td>{{row.createTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.ip | format:'ipLabel',row}}</td>
             <td>{{row.threads | format:'threadLabel',row}}</td>
@@ -146,7 +147,48 @@
     </table>
 </script>
 
+
+<div class="modal inmodal" id="jvmInfo-modal" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content animated rubberBand">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                        class="sr-only">关闭</span></button>
+                <h2 class="modal-title">节点JVM信息</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="jvmInfo">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+
+    var KYE_LABEL_MAP = {
+        HostName: "主机名",
+        LocalIp: "主机IP",
+        PID: " 进程PID",
+        StartTime: "启动时间",
+        InputArguments: "启动参数",
+        Arch: "硬件平台",
+        AvailableProcessors: "可用CPU个数",
+        OSName: "操作系统",
+        OSVersion: "操作系统版本",
+        FileEncode: "文件编码",
+        JVM: "JVM名称",
+        JavaVersion: "JavaVersion",
+        JavaSpecificationVersion: "JavaSpecVersion",
+        JavaHome: "JavaHome",
+        JavaLibraryPath: "JavaLibraryPath",
+        LoadedClassCount: "当前装载的类总数",
+        TotalLoadedClassCount: "总共装载过的类总数",
+        UnloadedClassCount: "卸载的类总数",
+        TotalCompilationTime: "总共编译时间"
+    };
+
     $(document).ready(function () {
 
         LTS.colFormatter.ipLabel = function (v, row) {
@@ -154,25 +196,31 @@
                 return row['hostName'] + "<br/>(" + row['ip'] + ":" + row['port'] + ")";
             }
             return row['hostName'] + "<br/>(" + row['ip'] + ")";
-        }
+        };
 
         LTS.colFormatter.threadLabel = function (v, row) {
             if (row['nodeType'] == 'TASK_TRACKER') {
                 return v;
             }
             return '无';
-        }
+        };
         LTS.colFormatter.availableLabel = function (v) {
             if (v) {
                 return "正常";
             } else {
                 return "禁用";
             }
-        }
+        };
         LTS.colFormatter.optFormat = function (v, row) {
-            return '<a href="{url}" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> JVM</span></a>'
-                    .replace("{url}", "node-jvm-info.htm?identity=" + row.identity);
-        }
+            return '<a href="javascript:void(0);" class="jvm-info-icon" identity="'+ row.identity +'" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> JVM</span></a>';
+        };
+        LTS.colFormatter.formatGroup = function (v, row) {
+            if (row.nodeType == 'JOB_CLIENT' || row.nodeType == 'TASK_TRACKER') {
+                return v;
+            } else {
+                return "";
+            }
+        };
 
         var ltsTable = $("#ltstableContainer").ltsTable({
             url: 'api/node/node-list-get',
@@ -189,5 +237,70 @@
             ltsTable.post(params, 1);
         });
         $("#searchBtn").trigger("click");
+
+        $(document).on("click", ".jvm-info-icon", function(){
+            var identity = $(this).attr("identity");
+            console.log(identity);
+
+            $.ajax({
+                url: 'api/jvm/node-jvm-info-get.do',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {identity: identity},
+                success: function (json) {
+                    if (json && json['success'] && json['results'] == 1) {
+                        var data = JSON.parse(json.rows[0]);
+                        $.each(data, function (key, value) {
+                            if (key == 'StartTime') {
+                                value = DateUtil.formatYMDHMD(value);
+                            }
+                        });
+                        showJVMInfo(identity, data);
+                    } else {
+                        if (json && json['msg']) {
+                            swal(json['msg']);
+                        }
+                        showJVMInfo('', {});
+                    }
+                }
+            });
+        });
     });
+
+    function showJVMInfo(identity, data) {
+        var html = template("jvm-info-template", {
+            identity: identity,
+            data: data,
+            KYE_LABEL_MAP: KYE_LABEL_MAP
+        });
+        $("#jvmInfo").html(html);
+        $("#jvmInfo-modal").modal("show");
+    }
+</script>
+
+<script id="jvm-info-template" type="text/html">
+    <div class="ibox border-bottom">
+        <div class="ibox-title">
+            <h5>JVM信息 <span class="text-navy">{{identity}}</span></h5>
+        </div>
+        <div class="ibox-content" id="cloud-unit">
+            <table class="table table-stripped footable footable-loaded no-paging">
+                <thead>
+                <tr>
+                    <th class="footable-sortable" style="cursor: default;width:140px;">属性名称</th>
+                    <th class="footable-sortable" style="cursor: default;">属性值</th>
+                </tr>
+                </thead>
+                <tbody>
+                <div class="hide">{{index=0}}</div>
+                {{each KYE_LABEL_MAP as value key}}
+                <tr class="{{index++ % 2 == 0 ? 'footable-odd' : 'footable-even'}}" style="display: table-row;">
+                    <td><span class="footable-toggle"></span>{{value}}</td>
+                    <td>{{data[key]}}</td>
+                </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </script>

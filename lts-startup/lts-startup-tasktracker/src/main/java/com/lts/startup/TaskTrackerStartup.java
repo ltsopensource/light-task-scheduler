@@ -34,7 +34,7 @@ public class TaskTrackerStartup {
             }));
 
         } catch (CfgException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("TaskTracker Startup Error: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -5,6 +5,7 @@ import java.util.*;
 /**
  * 格式化SQL
  * 来自hibernate更改
+ *
  * @author Robert HG (254963746@qq.com) on 3/9/16.
  */
 public class SQLFormatter {
@@ -347,7 +348,11 @@ public class SQLFormatter {
     }
 
 
-    public static String format(String sql){
-        return new SQLFormatter(sql).format();
+    public static String format(String sql) {
+        try {
+            return new SQLFormatter(sql).format();
+        } catch (Throwable t) {
+            return sql;
+        }
     }
 }

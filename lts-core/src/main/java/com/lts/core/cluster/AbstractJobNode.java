@@ -1,6 +1,9 @@
 package com.lts.core.cluster;
 
+import com.lts.cmd.HttpCmdServer;
 import com.lts.core.AppContext;
+import com.lts.core.cmd.JVMInfoGetHttpCmd;
+import com.lts.core.cmd.StatusCheckHttpCmd;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.NetUtils;
@@ -18,6 +21,7 @@ import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.registry.*;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.core.spi.SpiExtensionKey;
+import com.lts.core.support.AliveKeeping;
 import com.lts.ec.EventCenter;
 import com.lts.remoting.serialize.AdaptiveSerializable;
 
@@ -55,6 +59,9 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                 // 初始化配置
                 initConfig();
 
+                // 初始化HttpCmdServer
+                initHttpCmdServer();
+
                 beforeRemotingStart();
 
                 remotingStart();
@@ -65,6 +72,8 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
                 registry.register(node);
 
+                AliveKeeping.start();
+
                 LOGGER.info("Start success!");
             }
         } catch (Throwable e) {
@@ -74,6 +83,21 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                 LOGGER.error("Start failed!", e);
             }
         }
+    }
+
+    private void initHttpCmdServer() {
+        // 命令中心
+        int port = appContext.getConfig().getParameter("lts.http.cmd.port", 8719);
+        appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(config.getIp(), port));
+
+        // 先启动，中间看端口是否被占用
+        appContext.getHttpCmdServer().start();
+        // 设置command端口，会暴露到注册中心上
+        node.setHttpCmdPort(appContext.getHttpCmdServer().getPort());
+
+        appContext.getHttpCmdServer().registerCommands(
+                new StatusCheckHttpCmd(appContext.getConfig()),
+                new JVMInfoGetHttpCmd(appContext.getConfig()));        // 状态检查
     }
 
     final public void stop() {
@@ -91,6 +115,8 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                 afterRemotingStop();
 
                 // appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_STOP));
+
+                AliveKeeping.stop();
 
                 LOGGER.info("Stop success!");
             }

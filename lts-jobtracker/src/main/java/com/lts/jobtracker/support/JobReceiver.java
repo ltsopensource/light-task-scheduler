@@ -18,7 +18,7 @@ import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.id.IdGenerator;
-import com.lts.jobtracker.monitor.JobTrackerMonitor;
+import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
 
@@ -35,11 +35,11 @@ public class JobReceiver {
 
     private JobTrackerAppContext appContext;
     private IdGenerator idGenerator;
-    private JobTrackerMonitor monitor;
+    private JobTrackerMStatReporter stat;
 
     public JobReceiver(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
+        this.stat = (JobTrackerMStatReporter) appContext.getMStatReporter();
         this.idGenerator = ServiceLoader.load(IdGenerator.class, appContext.getConfig());
     }
 
@@ -104,7 +104,7 @@ public class JobReceiver {
             }
         } finally {
             if (success) {
-                monitor.incReceiveJobNum();
+                stat.incReceiveJobNum();
             }
         }
 

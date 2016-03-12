@@ -3,6 +3,7 @@ package com.lts.core.factory;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.NetUtils;
+import com.lts.core.exception.LtsRuntimeException;
 import com.lts.core.support.SystemClock;
 
 /**
@@ -23,10 +24,8 @@ public class NodeFactory {
             node.setIdentity(config.getIdentity());
             node.setClusterName(config.getClusterName());
             return node;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new LtsRuntimeException("Create Node error: clazz=" + clazz, e);
         }
     }
 }

@@ -26,4 +26,6 @@ public interface SpiExtensionKey {
     String JOB_QUEUE = "job.queue";
 
     String LTS_JSON = "lts.json";
+
+    String ACCESS_DB = "lts.admin.access.db";
 }

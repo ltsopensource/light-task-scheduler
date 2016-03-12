@@ -1,2 +1,0 @@
-mysql=com.lts.queue.mysql.MysqlJobFeedbackQueueFactory
-mongo=com.lts.queue.mongo.MongoJobFeedbackQueueFactory

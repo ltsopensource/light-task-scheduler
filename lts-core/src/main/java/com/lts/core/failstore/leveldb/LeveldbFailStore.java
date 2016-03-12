@@ -62,6 +62,7 @@ public class LeveldbFailStore extends AbstractFailStore {
     public void put(String key, Object value) throws FailStoreException {
         try {
             String valueString = JSON.toJSONString(value);
+            assert valueString != null;
             db.put(key.getBytes("UTF-8"), valueString.getBytes("UTF-8"));
         } catch (Exception e) {
             throw new FailStoreException(e);

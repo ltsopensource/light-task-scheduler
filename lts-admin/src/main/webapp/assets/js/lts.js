@@ -161,7 +161,8 @@ if(window.Highcharts){
 function showLineChart(chartId, title, yTitle, series, colors) {
     $(chartId).highcharts({
         chart: {
-            zoomType: 'x'
+            zoomType: 'x',
+            type:'spline'
         },
         colors: colors,
         title: {
@@ -184,7 +185,9 @@ function showLineChart(chartId, title, yTitle, series, colors) {
         tooltip: {
             dateTimeLabelFormats: {
                 minute:"%Y-%m-%d %H:%M"
-            }
+            },
+            crosshairs: true,
+            shared: true
         },
         plotOptions: {
             series: {

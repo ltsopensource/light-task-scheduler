@@ -112,6 +112,10 @@ public class FileUtils {
         }
     }
 
+    public static boolean exist(String path){
+        return new File(path).exists();
+    }
+
     /**
      * 得到文件或者文件夹的大小(包含所有子文件)
      */

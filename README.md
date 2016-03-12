@@ -297,7 +297,6 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |zk.client|可选|zkclient|JobClient,JobTracker,TaskTracker|addConfig("zk.client", "xxx")|zookeeper客户端,可选值zkclient, curator|
 |job.pull.frequency|可选|3|TaskTracker|addConfig("job.pull.frequency", "xx")|TaskTracker去向JobTracker Pull任务的频率，针对不同的场景可以做相应的调整，单位秒|
 |job.max.retry.times|可选|10|JobTracker|addConfig("job.max.retry.times", "xx")|任务的最大重试次数|
-|lts.monitor.url|可选|无|JobTracker,TaskTracker|addConfig("lts.monitor.url", "xx")|监控中心地址，也就是LTS-Admin地址，如 http://localhost:8081|
 |stop.working|可选|false|TaskTracker|addConfig("stop.working", "true")|主要用于当TaskTracker与JobTracker出现网络隔离的时候，超过一定时间隔离之后，TaskTracker自动停止当前正在运行的任务|
 |job.fail.store|可选|leveldb|JobClient,TaskTracker|addConfig("job.fail.store", "leveldb")|可选值:leveldb(默认), rocksdb, berkeleydb, mapdb FailStore实现, leveldb有问题的同学,可以试试mapdb|
 |lazy.job.logger|可选|false|JobTracker|addConfig("lazy.job.logger", "true")|可选值:ture,false, 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失)|

@@ -1,9 +1,9 @@
 package com.lts.jobtracker.cmd;
 
-import com.lts.core.cmd.HttpCmdProcessor;
-import com.lts.core.cmd.HttpCmdRequest;
-import com.lts.core.cmd.HttpCmdResponse;
-import com.lts.core.cmd.HttpCmds;
+import com.lts.cmd.HttpCmdProc;
+import com.lts.cmd.HttpCmdRequest;
+import com.lts.cmd.HttpCmdResponse;
+import com.lts.core.cmd.HttpCmdNames;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
@@ -13,7 +13,7 @@ import com.lts.jobtracker.domain.JobTrackerAppContext;
  *
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
-public class LoadJobHttpCmd implements HttpCmdProcessor {
+public class LoadJobHttpCmd implements HttpCmdProc {
 
     private final Logger LOGGER = LoggerFactory.getLogger(LoadJobHttpCmd.class);
 
@@ -30,7 +30,7 @@ public class LoadJobHttpCmd implements HttpCmdProcessor {
 
     @Override
     public String getCommand() {
-        return HttpCmds.CMD_LOAD_JOB;
+        return HttpCmdNames.HTTP_CMD_LOAD_JOB;
     }
 
     @Override

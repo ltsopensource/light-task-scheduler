@@ -87,8 +87,7 @@ public class JobTrackerTest {
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "curator");
 
-        jobTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
-//        jobTracker.addConfig(SpiKey.LTS_JSON, "ltsjson");
+//        jobTracker.addConfig(SpiKey.LTS_JSON, "fastjson");
 
         // 启动节点
         jobTracker.start();

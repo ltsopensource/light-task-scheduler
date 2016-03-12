@@ -1,7 +1,6 @@
 package com.lts.jvmmonitor;
 
-import com.lts.core.json.JSON;
-import com.lts.core.domain.monitor.JVMMonitorData;
+import com.lts.core.domain.monitor.JvmMData;
 import com.lts.jvmmonitor.mbean.JVMGCMBean;
 import com.lts.jvmmonitor.mbean.JVMInfoMBean;
 import com.lts.jvmmonitor.mbean.JVMMemoryMBean;
@@ -20,24 +19,24 @@ public class JVMCollector {
     /**
      * 收集信息
      */
-    public static JVMMonitorData collect() {
+    public static JvmMData collect() {
 
-        JVMMonitorData jvmMonitorData = new JVMMonitorData();
+        JvmMData JVMMData = new JvmMData();
         // memory
         Map<String, Object> memoryMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_MEMORY_NAME,
                 getAttributeList(JVMMemoryMBean.class));
-        jvmMonitorData.setMemoryMap(memoryMap);
+        JVMMData.setMemoryMap(memoryMap);
         // gc
         Map<String, Object> gcMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_GC_NAME,
                 getAttributeList(JVMGCMBean.class));
-        jvmMonitorData.setGcMap(gcMap);
+        JVMMData.setGcMap(gcMap);
 
         // thread
         Map<String, Object> threadMap = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME,
                 getAttributeList(JVMThreadMBean.class));
-        jvmMonitorData.setThreadMap(threadMap);
+        JVMMData.setThreadMap(threadMap);
 
-        return jvmMonitorData;
+        return JVMMData;
     }
 
     private static List<String> getAttributeList(Class<?> clazz) {
@@ -53,25 +52,6 @@ public class JVMCollector {
     public static Map<String, Object> getJVMInfo() {
         return JVMMonitor.getAttribute(JVMConstants.JMX_JVM_INFO_NAME,
                 getAttributeList(JVMInfoMBean.class));
-    }
-
-    public static void main(String[] args) {
-        JVMMonitor.start();
-
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                while (true) {
-                    JVMMonitorData jvmMonitorData = JVMCollector.collect();
-                    System.out.println(JSON.toJSONString(jvmMonitorData));
-                    try {
-                        Thread.sleep(10000L);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        }).start();
     }
 
 }

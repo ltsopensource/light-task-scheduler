@@ -16,7 +16,7 @@ import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.domain.TaskTrackerNode;
-import com.lts.jobtracker.monitor.JobTrackerMonitor;
+import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.jobtracker.sender.JobPushResult;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.queue.domain.JobPo;
@@ -39,14 +39,14 @@ public class JobPusher {
     private final Logger LOGGER = LoggerFactory.getLogger(JobPusher.class);
     private JobTrackerAppContext appContext;
     private final ExecutorService executorService;
-    private JobTrackerMonitor monitor;
+    private JobTrackerMStatReporter stat;
     private RemotingServerDelegate remotingServer;
 
     public JobPusher(JobTrackerAppContext appContext) {
         this.appContext = appContext;
         this.executorService = Executors.newFixedThreadPool(Constants.AVAILABLE_PROCESSOR * 5,
                 new NamedThreadFactory(JobPusher.class.getSimpleName(), true));
-        this.monitor = (JobTrackerMonitor) appContext.getMonitor();
+        this.stat = (JobTrackerMStatReporter) appContext.getMStatReporter();
         this.remotingServer = appContext.getRemotingServer();
     }
 
@@ -98,7 +98,7 @@ public class JobPusher {
             switch (result) {
                 case SUCCESS:
                     availableThreads = taskTrackerNode.getAvailableThread().decrementAndGet();
-                    monitor.incPushJobNum();
+                    stat.incPushJobNum();
                     break;
                 case FAILED:
                     // 还是要继续发送

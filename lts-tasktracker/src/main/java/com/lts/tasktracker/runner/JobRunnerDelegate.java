@@ -12,7 +12,7 @@ import com.lts.tasktracker.domain.Response;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.logger.BizLoggerAdapter;
 import com.lts.tasktracker.logger.BizLoggerFactory;
-import com.lts.tasktracker.monitor.TaskTrackerMonitor;
+import com.lts.tasktracker.monitor.TaskTrackerMStatReporter;
 import sun.nio.ch.Interruptible;
 
 import java.io.PrintWriter;
@@ -34,7 +34,7 @@ public class JobRunnerDelegate implements Runnable {
     private RunnerCallback callback;
     private BizLoggerAdapter logger;
     private TaskTrackerAppContext appContext;
-    private TaskTrackerMonitor monitor;
+    private TaskTrackerMStatReporter monitor;
     private Interruptible interruptor;
     private JobRunner curJobRunner;
     private AtomicBoolean interrupted = new AtomicBoolean(false);
@@ -48,7 +48,7 @@ public class JobRunnerDelegate implements Runnable {
         this.logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
                 appContext.getBizLogLevel(),
                 appContext.getRemotingClient(), appContext);
-        monitor = (TaskTrackerMonitor) appContext.getMonitor();
+        monitor = (TaskTrackerMStatReporter) appContext.getMStatReporter();
 
         this.interruptor = new InterruptibleAdapter() {
             public void interrupt() {
@@ -177,7 +177,7 @@ public class JobRunnerDelegate implements Runnable {
             return true;
         }
         // 机器资源是否充足
-        return !appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
+        return !appContext.getConfig().getInternalData(Constants.MACHINE_RES_ENOUGH, true);
     }
 
 }

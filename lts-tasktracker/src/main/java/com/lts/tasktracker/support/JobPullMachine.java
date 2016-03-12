@@ -187,9 +187,9 @@ public class JobPullMachine {
             LOGGER.warn("Check Machine Resource error", e);
             return true;
         } finally {
-            boolean machineResEnough = appContext.getConfig().getParameter(Constants.MACHINE_RES_ENOUGH, true);
+            Boolean machineResEnough = appContext.getConfig().getInternalData(Constants.MACHINE_RES_ENOUGH, true);
             if (machineResEnough != enough) {
-                appContext.getConfig().setParameter(Constants.MACHINE_RES_ENOUGH, String.valueOf(enough));
+                appContext.getConfig().setInternalData(Constants.MACHINE_RES_ENOUGH, enough);
             }
         }
     }

@@ -41,6 +41,9 @@ public class Config implements Serializable {
 
     private final Map<String, String> parameters = new HashMap<String, String>();
 
+    // 内部使用
+    private final Map<String, Object> internalData = new ConcurrentHashMap<String, Object>();
+
     public String getClusterName() {
         return clusterName;
     }
@@ -259,6 +262,24 @@ public class Config implements Serializable {
         getNumbers().put(key, b);
         return b;
     }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getInternalData(String key, T defaultValue) {
+        Object obj = internalData.get(key);
+        if (obj == null) {
+            return defaultValue;
+        }
+        return (T) obj;
+    }
+
+    public <T> T getInternalData(String key) {
+        return getInternalData(key, null);
+    }
+
+    public void setInternalData(String key, Object value) {
+        internalData.put(key, value);
+    }
+
 
     @Override
     public String toString() {

@@ -36,8 +36,8 @@
         </dependency>
         <dependency>
             <groupId>com.lts</groupId>
-            <artifactId>lts-jobclient</artifactId>
-            <version>${project.version}</version>
+            <artifactId>lts-monitor</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -141,16 +141,6 @@
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis-spring</artifactId>
-            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>

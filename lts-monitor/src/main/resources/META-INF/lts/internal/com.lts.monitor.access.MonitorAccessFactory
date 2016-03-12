@@ -1,0 +1,1 @@
+mysql=com.lts.monitor.access.mysql.MysqlMonitorAccessFactory

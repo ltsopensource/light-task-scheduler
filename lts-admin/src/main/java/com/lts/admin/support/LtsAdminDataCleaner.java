@@ -1,17 +1,16 @@
 package com.lts.admin.support;
 
+import com.lts.admin.cluster.BackendAppContext;
+import com.lts.admin.request.JvmDataReq;
+import com.lts.admin.request.MDataPaginationReq;
+import com.lts.admin.request.NodeOnOfflineLogPaginationReq;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.QuietUtils;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.admin.access.mapper.*;
-import com.lts.admin.request.JVMDataRequest;
-import com.lts.admin.request.MonitorDataRequest;
-import com.lts.admin.request.NodeOnOfflineLogRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -24,25 +23,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Robert HG (254963746@qq.com) on 8/23/15.
  */
-@Component
 public class LtsAdminDataCleaner implements InitializingBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LtsAdminDataCleaner.class);
 
     @Autowired
-    private TaskTrackerMonitorRepo taskTrackerMonitorRepo;
-    @Autowired
-    private JobTrackerMonitorRepo jobTrackerMonitorDataRepo;
-    @Autowired
-    private NodeOnOfflineLogRepo nodeOnOfflineLogRepo;
-    @Autowired
-    private JVMInfoRepo jvmInfoRepo;
-    @Autowired
-    private JVMGCRepo jvmgcRepo;
-    @Autowired
-    private JVMThreadRepo jvmThreadRepo;
-    @Autowired
-    private JVMMemoryRepo jvmMemoryRepo;
+    private BackendAppContext appContext;
 
     private ScheduledExecutorService cleanExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-Admin-Clean", true));
 
@@ -65,60 +51,60 @@ public class LtsAdminDataCleaner implements InitializingBean {
     }
 
     private void clean() {
-        //  1. 清除TaskTracker JobTracker的统计数据(3天之前的)
-        final MonitorDataRequest request = new MonitorDataRequest();
+        //  1. 清除TaskTracker JobTracker, JobClient的统计数据(3天之前的)
+        final MDataPaginationReq request = new MDataPaginationReq();
         request.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
 
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                taskTrackerMonitorRepo.delete(request);
+                appContext.getBackendTaskTrackerMAccess().delete(request);
             }
         });
 
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                jobTrackerMonitorDataRepo.delete(request);
+                appContext.getBackendJobTrackerMAccess().delete(request);
+            }
+        });
+        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+            @Override
+            public void call() throws Exception {
+                appContext.getBackendJobClientMAccess().delete(request);
             }
         });
 
         // 2. 清除30天以前的节点上下线日志
-        final NodeOnOfflineLogRequest nodeOnOfflineLogRequest = new NodeOnOfflineLogRequest();
-        nodeOnOfflineLogRequest.setEndLogTime(DateUtils.addDay(new Date(), -30));
+        final NodeOnOfflineLogPaginationReq nodeOnOfflineLogPaginationReq = new NodeOnOfflineLogPaginationReq();
+        nodeOnOfflineLogPaginationReq.setEndLogTime(DateUtils.addDay(new Date(), -30));
 
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                nodeOnOfflineLogRepo.delete(nodeOnOfflineLogRequest);
+                appContext.getBackendNodeOnOfflineLogAccess().delete(nodeOnOfflineLogPaginationReq);
             }
         });
 
         // 3. 清除3天前的JVM监控信息
-        final JVMDataRequest jvmDataRequest = new JVMDataRequest();
-        jvmDataRequest.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
+        final JvmDataReq jvmDataReq = new JvmDataReq();
+        jvmDataReq.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                jvmInfoRepo.delete(jvmDataRequest);
+                appContext.getBackendJVMGCAccess().delete(jvmDataReq);
             }
         });
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                jvmgcRepo.delete(jvmDataRequest);
+                appContext.getBackendJVMThreadAccess().delete(jvmDataReq);
             }
         });
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {
-                jvmThreadRepo.delete(jvmDataRequest);
-            }
-        });
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
-            @Override
-            public void call() throws Exception {
-                jvmMemoryRepo.delete(jvmDataRequest);
+                appContext.getBackendJVMMemoryAccess().delete(jvmDataReq);
             }
         });
 

@@ -1,7 +1,7 @@
 package com.lts.jobclient;
 
-import com.lts.core.json.JSON;
 import com.lts.core.domain.Job;
+import com.lts.core.json.JSON;
 import com.lts.core.support.RetryScheduler;
 import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.jobclient.domain.JobClientNode;
@@ -28,13 +28,20 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
+
             @Override
             protected boolean retry(List<Job> jobs) {
+                Response response = null;
                 try {
                     // 重试必须走同步，不然会造成文件锁，死锁
-                    return superSubmitJob(jobs, SubmitType.SYNC).isSuccess();
+                    response = superSubmitJob(jobs, SubmitType.SYNC);
+                    return response.isSuccess();
                 } catch (Throwable t) {
                     RetryScheduler.LOGGER.error(t.getMessage(), t);
+                } finally {
+                    if (response != null && response.isSuccess()) {
+                        stat.incSubmitFailStoreNum(jobs.size());
+                    }
                 }
                 return false;
             }
@@ -56,6 +63,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
 
     @Override
     public Response submitJob(List<Job> jobs) {
+
         Response response;
         try {
             response = superSubmitJob(jobs);
@@ -70,6 +78,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
             try {
                 for (Job job : response.getFailedJobs()) {
                     retryScheduler.inSchedule(job.getTaskId(), job);
+                    stat.incFailStoreNum();
                 }
                 response.setSuccess(true);
                 response.setCode(ResponseCode.SUBMIT_FAILED_AND_SAVE_FOR_LATER);
