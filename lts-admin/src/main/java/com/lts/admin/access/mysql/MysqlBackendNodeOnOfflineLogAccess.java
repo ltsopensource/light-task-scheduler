@@ -85,7 +85,8 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
     public void delete(NodeOnOfflineLogPaginationReq request) {
         new DeleteSql(getSqlTemplate())
                 .delete(getTableName())
-                .whereSql(buildWhereSql(request));
+                .whereSql(buildWhereSql(request))
+                .doDelete();
     }
 
     private WhereSql buildWhereSql(NodeOnOfflineLogPaginationReq request){
