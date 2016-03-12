@@ -12,7 +12,7 @@ import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
 import java.util.List;
@@ -70,7 +70,7 @@ public class JobRetryHandler implements JobCompleteHandler {
             jobPo.setTriggerTime(nextRetryTriggerTime);
             try {
                 appContext.getExecutableJobQueue().add(jobPo);
-            } catch (DuplicateJobException e) {
+            } catch (DupEntryException e) {
                 LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
             }
             // 从正在执行的队列中移除

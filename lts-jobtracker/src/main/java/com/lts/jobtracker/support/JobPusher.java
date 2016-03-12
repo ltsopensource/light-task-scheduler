@@ -20,7 +20,7 @@ import com.lts.jobtracker.monitor.JobTrackerMonitor;
 import com.lts.jobtracker.sender.JobPushResult;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
+import com.lts.store.jdbc.exception.DupEntryException;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
@@ -177,7 +177,7 @@ public class JobPusher {
                         jobPo.setIsRunning(true);
                         jobPo.setGmtModified(SystemClock.now());
                         appContext.getExecutableJobQueue().add(jobPo);
-                    } catch (DuplicateJobException e) {
+                    } catch (DupEntryException e) {
                         LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
                         needResume = false;
                     }

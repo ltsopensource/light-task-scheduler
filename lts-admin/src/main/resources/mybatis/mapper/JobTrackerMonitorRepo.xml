@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.lts.web.repository.mapper.JobTrackerMonitorRepo">
+<mapper namespace="com.lts.admin.access.mapper.JobTrackerMonitorRepo">
 
     <insert id="insert" parameterType="java.util.List" flushCache="true">
         <![CDATA[
@@ -52,8 +52,8 @@
         </where>
     </sql>
 
-    <select id="querySum" resultType="com.lts.web.repository.domain.JobTrackerMonitorDataPo"
-            parameterType="com.lts.web.request.MonitorDataRequest">
+    <select id="querySum" resultType="com.lts.admin.access.domain.JobTrackerMonitorDataPo"
+            parameterType="com.lts.admin.request.MonitorDataRequest">
         SELECT
         `timestamp`,
         SUM(receive_job_num) AS receiveJobNum,
@@ -68,7 +68,7 @@
         GROUP BY timestamp ORDER BY timestamp ASC limit #{start},#{limit}
     </select>
 
-    <delete id="delete" parameterType="com.lts.web.request.MonitorDataRequest">
+    <delete id="delete" parameterType="com.lts.admin.request.MonitorDataRequest">
         DELETE FROM lts_admin_job_tracker_monitor_data
         <include refid="whereCondition"/>
     </delete>

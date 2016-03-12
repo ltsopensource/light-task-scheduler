@@ -2,12 +2,12 @@ package com.lts.queue.mongo;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.web.request.JobQueueRequest;
-import com.lts.web.response.PageResponse;
 import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.JobQueueException;
+import com.lts.store.jdbc.exception.JdbcException;
 import com.lts.store.mongo.MongoRepository;
+import com.lts.admin.request.JobQueueReq;
+import com.lts.admin.response.PaginationRsp;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
@@ -25,7 +25,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
     }
 
     @Override
-    public PageResponse<JobPo> pageSelect(JobQueueRequest request) {
+    public PaginationRsp<JobPo> pageSelect(JobQueueReq request) {
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         addCondition(query, "jobId", request.getJobId());
         addCondition(query, "taskId", request.getTaskId());
@@ -44,7 +44,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         if (request.getEndGmtModified() != null) {
             query.filter("gmtModified >= ", request.getEndGmtModified().getTime());
         }
-        PageResponse<JobPo> response = new PageResponse<JobPo>();
+        PaginationRsp<JobPo> response = new PaginationRsp<JobPo>();
         Long results = template.getCount(query);
         response.setResults(results.intValue());
         if (results == 0) {
@@ -60,9 +60,9 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
     }
 
     @Override
-    public boolean selectiveUpdate(JobQueueRequest request) {
+    public boolean selectiveUpdate(JobQueueReq request) {
         if (StringUtils.isEmpty(request.getJobId())) {
-            throw new JobQueueException("Only allow by jobId");
+            throw new JdbcException("Only allow by jobId");
         }
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         query.field("jobId").equal(request.getJobId());

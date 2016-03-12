@@ -10,8 +10,8 @@ import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.ExecutableJobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
-import com.lts.queue.exception.JobQueueException;
+import com.lts.store.jdbc.exception.DupEntryException;
+import com.lts.store.jdbc.exception.JdbcException;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.DuplicateKeyException;
@@ -35,7 +35,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     @Override
     protected String getTargetTable(String taskTrackerNodeGroup) {
         if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
-            throw new JobQueueException("taskTrackerNodeGroup can not be null");
+            throw new JdbcException("taskTrackerNodeGroup can not be null");
         }
         return JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
     }
@@ -82,7 +82,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             template.save(tableName, jobPo);
         } catch (DuplicateKeyException e) {
             // 已经存在
-            throw new DuplicateJobException(e);
+            throw new DupEntryException(e);
         }
         return true;
     }

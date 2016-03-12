@@ -29,7 +29,7 @@ public class TaskTrackerTest {
         // taskTracker.setBizLoggerLevel(Level.INFO);
         // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
-        taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
+//        taskTracker.addConfig("lts.monitor.url", "http://localhost:8081/");
         taskTracker.addConfig("lts.remoting", "netty");
 //        taskTracker.addConfig("zk.client", "curator");
 

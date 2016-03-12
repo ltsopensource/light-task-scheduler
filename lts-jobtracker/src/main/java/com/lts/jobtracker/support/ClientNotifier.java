@@ -51,7 +51,7 @@ public class ClientNotifier {
         if (jobResults.size() == 1) {
 
             TaskTrackerJobResult result = jobResults.get(0);
-            if (!send0(result.getJobWrapper().getJob().getSubmitNodeGroup(), Arrays.asList(result))) {
+            if (!send0(result.getJobWrapper().getJob().getSubmitNodeGroup(), Collections.singletonList(result))) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
                 return 0;
@@ -138,7 +138,7 @@ public class ClientNotifier {
         } catch (RemotingSendException e) {
             LOGGER.error("Notify client failed!", e);
         }
-        return result.get();
+        return result.get() == null ? false : result.get();
     }
 
     private RemotingServerDelegate getRemotingServer() {

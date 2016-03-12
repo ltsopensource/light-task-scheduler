@@ -1,18 +1,18 @@
 package com.lts.queue.mongo;
 
-import java.util.List;
-
-import com.lts.queue.SuspendJobQueue;
-import org.mongodb.morphia.query.Query;
-
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.support.JobQueueUtils;
-import com.lts.core.support.SystemClock;
-import com.lts.queue.CronJobQueue;
+import com.lts.queue.SuspendJobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.queue.exception.DuplicateJobException;
-import com.mongodb.*;
+import com.lts.store.jdbc.exception.DupEntryException;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.WriteResult;
+import org.mongodb.morphia.query.Query;
+
+import java.util.List;
 
 /**
  * @author bug (357693306@qq.com) on 3/4/16.
@@ -42,17 +42,16 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
     @Override
     public boolean add(JobPo jobPo) {
         try {
-            jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(jobPo);
         } catch (DuplicateKeyException e) {
             // 已经存在
-            throw new DuplicateJobException(e);
+            throw new DupEntryException(e);
         }
         return true;
     }
 
     @Override
-    public JobPo finish(String jobId) {
+    public JobPo getJob(String jobId) {
         Query<JobPo> query = template.createQuery(JobPo.class);
         query.field("jobId").equal(jobId);
         return query.get();
@@ -64,14 +63,6 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
         query.field("jobId").equal(jobId);
         WriteResult wr = template.delete(query);
         return wr.getN() == 1;
-    }
-
-    @Override
-    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
-        Query<JobPo> query = template.createQuery(JobPo.class);
-        query.field("taskId").equal(taskId).
-                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
-        return query.get();
     }
 
 }

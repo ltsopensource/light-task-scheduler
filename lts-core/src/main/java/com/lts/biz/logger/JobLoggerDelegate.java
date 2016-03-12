@@ -9,7 +9,7 @@ import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.spi.ServiceLoader;
-import com.lts.web.response.PageResponse;
+import com.lts.admin.response.PaginationRsp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -172,7 +172,7 @@ public class JobLoggerDelegate implements JobLogger {
     }
 
     @Override
-    public PageResponse<JobLogPo> search(JobLoggerRequest request) {
+    public PaginationRsp<JobLogPo> search(JobLoggerRequest request) {
         return jobLogger.search(request);
     }
 

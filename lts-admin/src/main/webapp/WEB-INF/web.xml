@@ -18,7 +18,7 @@
 
     <filter>
         <filter-name>loginAuthFilter</filter-name>
-        <filter-class>com.lts.web.filter.LoginAuthFilter</filter-class>
+        <filter-class>com.lts.admin.filter.LoginAuthFilter</filter-class>
         <init-param>
             <param-name>auth-config</param-name>
             <param-value>auth.cfg</param-value>
@@ -54,7 +54,7 @@
     </servlet-mapping>
 
     <listener>
-        <listener-class>com.lts.web.initialization.SystemInitListener</listener-class>
+        <listener-class>com.lts.admin.initialization.SystemInitListener</listener-class>
     </listener>
 
     <listener>
@@ -63,7 +63,7 @@
 
     <servlet>
         <servlet-name>H2Console</servlet-name>
-        <servlet-class>com.lts.web.support.H2ConsoleWebServlet</servlet-class>
+        <servlet-class>com.lts.admin.support.H2ConsoleWebServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
