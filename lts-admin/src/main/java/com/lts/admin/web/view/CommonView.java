@@ -1,10 +1,9 @@
 package com.lts.admin.web.view;
 
+import com.lts.admin.cluster.BackendAppContext;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.queue.domain.NodeGroupPo;
-import com.lts.admin.cluster.BackendAppContext;
-import com.lts.admin.cluster.BackendRegistryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,9 +19,7 @@ import java.util.List;
 public class CommonView {
 
     @Autowired
-    BackendRegistryService backendRegistryService;
-    @Autowired
-    BackendAppContext appContext;
+    private BackendAppContext appContext;
 
     @RequestMapping("index")
     public String index(){
