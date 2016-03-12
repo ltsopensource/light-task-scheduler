@@ -19,7 +19,9 @@ public class MysqlBackendJVMGCAccess extends MysqlJVMGCAccess implements Backend
     @Override
     public void delete(JvmDataReq request) {
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .whereSql(buildWhereSql(request))
                 .doDelete();
     }

@@ -8,7 +8,7 @@
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.6.5-SNAPSHOT</version>
-    <url>https://github.com/qq254963746/light-task-scheduler.git</url>
+    <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
@@ -268,8 +268,8 @@
     </build>
 
     <scm>
-        <connection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</connection>
-        <developerConnection>scm:git:https://github.com/qq254963746/light-task-scheduler.git</developerConnection>
-        <url>https://github.com/qq254963746/light-task-scheduler.git</url>
+        <connection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</connection>
+        <developerConnection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</developerConnection>
+        <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
     </scm>
 </project>

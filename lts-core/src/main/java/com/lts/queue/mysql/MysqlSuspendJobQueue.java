@@ -43,7 +43,9 @@ public class MysqlSuspendJobQueue extends AbstractMysqlJobQueue implements Suspe
     @Override
     public boolean remove(String jobId) {
         return new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .where("job_id = ?", jobId)
                 .doDelete() == 1;
     }

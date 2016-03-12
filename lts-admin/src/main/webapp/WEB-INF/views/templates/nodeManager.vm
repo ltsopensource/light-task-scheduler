@@ -76,9 +76,14 @@
                                        date-format="yyyy-MM-dd HH:mm:ss"
                                        placeholder="yyyy-MM-dd HH:mm:ss"/>
                             </div>
-                            <div class="col-sm-2">
+                            <div class="col-sm-1">
                                 <button class="btn btn-primary" type="button" id="searchBtn">
                                     搜索
+                                </button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-warning" type="button" id="reSubscribeBtn" title="强制刷新:会从注册中心重新拉取节点信息">
+                                    强制刷新
                                 </button>
                             </div>
                         </div>
@@ -214,14 +219,6 @@
         LTS.colFormatter.optFormat = function (v, row) {
             return '<a href="javascript:void(0);" class="jvm-info-icon" identity="'+ row.identity +'" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> JVM</span></a>';
         };
-        LTS.colFormatter.formatGroup = function (v, row) {
-            if (row.nodeType == 'JOB_CLIENT' || row.nodeType == 'TASK_TRACKER') {
-                return v;
-            } else {
-                return "";
-            }
-        };
-
         var ltsTable = $("#ltstableContainer").ltsTable({
             url: 'api/node/node-list-get',
             templateId: 'ltstable'
@@ -237,6 +234,28 @@
             ltsTable.post(params, 1);
         });
         $("#searchBtn").trigger("click");
+
+        $(document).on("click", "#reSubscribeBtn", function(){
+
+            $.ajax({
+                url: 'api/node/registry-re-subscribe.do',
+                type: 'POST',
+                dataType: 'JSON',
+                data: {},
+                success: function (json) {
+                    if (json && json['success']) {
+                        setTimeout(function(){
+                            location.href = location.href;
+                        }, 1000);
+                    } else {
+                        if (json && json['msg']) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+
+        });
 
         $(document).on("click", ".jvm-info-icon", function(){
             var identity = $(this).attr("identity");
@@ -284,7 +303,7 @@
             <h5>JVM信息 <span class="text-navy">{{identity}}</span></h5>
         </div>
         <div class="ibox-content" id="cloud-unit">
-            <table class="table table-stripped footable footable-loaded no-paging">
+            <table class="table table-stripped footable footable-loaded no-paging" style="word-break:break-all; word-wrap:break-all;">
                 <thead>
                 <tr>
                     <th class="footable-sortable" style="cursor: default;width:140px;">属性名称</th>

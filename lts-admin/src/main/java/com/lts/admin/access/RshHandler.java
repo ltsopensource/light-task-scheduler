@@ -89,6 +89,7 @@ public class RshHandler {
                 log.setCreateTime(rs.getLong("create_time"));
                 log.setThreads(rs.getInt("threads"));
                 log.setIdentity(rs.getString("identity"));
+                log.setHttpCmdPort(rs.getInt("http_cmd_port"));
                 list.add(log);
             }
             return list;

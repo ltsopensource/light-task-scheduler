@@ -46,8 +46,18 @@ public class NodeApi extends AbstractMVC {
         return response;
     }
 
+    @RequestMapping("registry-re-subscribe")
+    public RestfulResponse reSubscribe() {
+        RestfulResponse response = new RestfulResponse();
+
+        backendRegistryService.reSubscribe();
+
+        response.setSuccess(true);
+        return response;
+    }
+
     @RequestMapping("node-group-get")
-    public RestfulResponse getNodeGroup(NodeGroupRequest request){
+    public RestfulResponse getNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
         NodeGroupGetRequest nodeGroupGetRequest = new NodeGroupGetRequest();
         nodeGroupGetRequest.setNodeGroup(request.getNodeGroup());
@@ -64,9 +74,9 @@ public class NodeApi extends AbstractMVC {
     public RestfulResponse addNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
         appContext.getNodeGroupStore().addNodeGroup(request.getNodeType(), request.getNodeGroup());
-        if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
+        if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
             appContext.getExecutableJobQueue().createQueue(request.getNodeGroup());
-        }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
+        } else if (NodeType.JOB_CLIENT.equals(request.getNodeType())) {
             appContext.getJobFeedbackQueue().createQueue(request.getNodeGroup());
         }
         response.setSuccess(true);
@@ -77,9 +87,9 @@ public class NodeApi extends AbstractMVC {
     public RestfulResponse delNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
         appContext.getNodeGroupStore().removeNodeGroup(request.getNodeType(), request.getNodeGroup());
-        if(NodeType.TASK_TRACKER.equals(request.getNodeType())){
+        if (NodeType.TASK_TRACKER.equals(request.getNodeType())) {
             appContext.getExecutableJobQueue().removeQueue(request.getNodeGroup());
-        }else if(NodeType.JOB_CLIENT.equals(request.getNodeType())){
+        } else if (NodeType.JOB_CLIENT.equals(request.getNodeType())) {
             appContext.getJobFeedbackQueue().removeQueue(request.getNodeGroup());
         }
         response.setSuccess(true);
@@ -91,10 +101,10 @@ public class NodeApi extends AbstractMVC {
         RestfulResponse response = new RestfulResponse();
         Long results = appContext.getBackendNodeOnOfflineLogAccess().count(request);
         response.setResults(results.intValue());
-        if(results > 0){
+        if (results > 0) {
             List<NodeOnOfflineLog> rows = appContext.getBackendNodeOnOfflineLogAccess().select(request);
             response.setRows(rows);
-        }else{
+        } else {
             response.setRows(new ArrayList<Object>(0));
         }
         response.setSuccess(true);

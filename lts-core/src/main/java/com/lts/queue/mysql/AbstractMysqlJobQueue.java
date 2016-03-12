@@ -99,7 +99,8 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
             throw new JdbcException("Only allow update by jobId");
         }
         return new UpdateSql(getSqlTemplate())
-                .update(getTableName(request))
+                .update()
+                .table(getTableName(request))
                 .setOnNotNull("cron_expression", request.getCronExpression())
                 .setOnNotNull("need_feedback", request.getNeedFeedback())
                 .setOnNotNull("ext_params", JSON.toJSONString(request.getExtParams()))
