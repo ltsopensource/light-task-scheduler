@@ -57,7 +57,16 @@ public class InsertSql {
             split = ", ";
             sql.append("`").append(column.trim()).append("`");
         }
-        sql.append(") VALUES");
+        sql.append(") VALUES ");
+
+        sql.append("(");
+        split = "";
+        for (int i = 0; i < columnsSize; i++) {
+            sql.append(split);
+            split = ",";
+            sql.append("?");
+        }
+        sql.append(")");
         return this;
     }
 
@@ -66,19 +75,6 @@ public class InsertSql {
             throw new JdbcException("values.length must eq columns.length");
         }
         params.add(values);
-
-        if (params.size() > 1) {
-            sql.append(",");
-        }
-
-        sql.append("(");
-        String split = "";
-        for (int i = 0; i < columnsSize; i++) {
-            sql.append(split);
-            split = ",";
-            sql.append("?");
-        }
-        sql.append(")");
         return this;
     }
 
@@ -123,7 +119,7 @@ public class InsertSql {
         }
 
         try {
-            Object[][] objects = new Object[params.size()][];
+            Object[][] objects = new Object[params.size()][columnsSize];
             for (int i = 0; i < params.size(); i++) {
                 objects[i] = params.get(i);
             }
