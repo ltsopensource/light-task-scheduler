@@ -20,7 +20,8 @@ public class MysqlBackendJVMThreadAccess extends MysqlJVMThreadAccess implements
     public void delete(JvmDataReq request) {
         new DeleteSql(getSqlTemplate())
                 .delete(getTableName())
-                .whereSql(buildWhereSql(request));
+                .whereSql(buildWhereSql(request))
+                .doDelete();
     }
 
     public WhereSql buildWhereSql(JvmDataReq req) {
