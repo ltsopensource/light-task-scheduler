@@ -61,7 +61,9 @@ public class MysqlJobFeedbackQueue extends JdbcAbstractAccess implements JobFeed
     @Override
     public boolean remove(String jobClientNodeGroup, String id) {
         return new DeleteSql(getSqlTemplate())
-                .delete(getTableName(jobClientNodeGroup))
+                .delete()
+                .from()
+                .table(getTableName(jobClientNodeGroup))
                 .where("id = ?", id)
                 .doDelete() == 1;
     }

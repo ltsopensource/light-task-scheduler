@@ -45,7 +45,9 @@ public class MysqlBackendTaskTrackerMAccess extends MysqlTaskTrackerMAccess impl
     public void delete(MDataPaginationReq request) {
 
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .whereSql(buildWhereSql(request))
                 .doDelete();
     }

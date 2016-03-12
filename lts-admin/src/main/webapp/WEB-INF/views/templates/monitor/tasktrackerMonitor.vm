@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading" xmlns="http://www.w3.org/1999/html">
     <div class="col-lg-12">
-        <h2>TaskTracker监控</h2>
+        <h2>TaskTracker数据监控</h2>
         <ol class="breadcrumb">
             <li><a>监控报警</a></li>
-            <li class="active"><b>TaskTracker监控</b></li>
+            <li class="active"><b>TaskTracker数据监控</b></li>
         </ol>
     </div>
 </div>
@@ -13,13 +13,13 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">TaskTracker监控数据查询</span></h3>
+                    <h3><span class="text-navy">TaskTracker数据监控查询</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">
                         <div class="form-group">
 
-                            <label class="col-sm-1 control-label">节点标识</label>
+                            <label class="col-sm-1 control-label">节点组别</label>
 
                             <div class="col-sm-3">
                                 <select name="nodeGroup" class="form-control">

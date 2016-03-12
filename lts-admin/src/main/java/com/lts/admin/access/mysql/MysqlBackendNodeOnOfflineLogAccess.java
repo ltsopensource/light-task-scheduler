@@ -38,7 +38,8 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
                         "group",
                         "create_time",
                         "threads",
-                        "identity");
+                        "identity",
+                        "http_cmd_port");
         for (NodeOnOfflineLog nodeOnOfflineLog : nodeOnOfflineLogs) {
             insertSql.values(nodeOnOfflineLog.getLogTime(),
                     nodeOnOfflineLog.getEvent(),
@@ -50,7 +51,8 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
                     nodeOnOfflineLog.getGroup(),
                     nodeOnOfflineLog.getCreateTime(),
                     nodeOnOfflineLog.getThreads(),
-                    nodeOnOfflineLog.getIdentity()
+                    nodeOnOfflineLog.getIdentity(),
+                    nodeOnOfflineLog.getHttpCmdPort()
                     );
         }
         insertSql.doBatchInsert();
@@ -84,7 +86,9 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
     @Override
     public void delete(NodeOnOfflineLogPaginationReq request) {
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .whereSql(buildWhereSql(request))
                 .doDelete();
     }

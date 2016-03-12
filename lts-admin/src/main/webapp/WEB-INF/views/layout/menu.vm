@@ -17,7 +17,6 @@
                 <ul class="nav nav-second-level collapse">
                     <li><a href="${contextPath}/node-manager.htm">节点管理</a></li>
                     <li><a href="${contextPath}/node-group-manager.htm">节点组管理</a></li>
-##                    <li><a href="node-jvm-info.htm">节点JVM信息</a></li>
                 </ul>
             </li>
             <li>
@@ -41,9 +40,10 @@
             <li>
                 <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">监控报警</span><span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level collapse">
-                    <li><a href="${contextPath}/monitor/jobtracker-monitor.htm">JobTracker监控</a></li>
-                    <li><a href="${contextPath}/monitor/tasktracker-monitor.htm">TaskTracker监控</a></li>
-                    <li><a href="${contextPath}/monitor/jobClient-monitor.htm">JobClient监控</a></li>
+                    <li><a href="${contextPath}/monitor/jobtracker-monitor.htm">JobTracker数据监控</a></li>
+                    <li><a href="${contextPath}/monitor/tasktracker-monitor.htm">TaskTracker数据监控</a></li>
+                    <li><a href="${contextPath}/monitor/jobClient-monitor.htm">JobClient数据监控</a></li>
+##                    <li><a href="${contextPath}/monitor/sys-monitor.htm">系统指标监控</a></li>
 ##                    <li><a href="h2" target="_blank">H2-Console</a></li>
                 </ul>
             </li>

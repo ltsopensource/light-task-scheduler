@@ -49,7 +49,9 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
     @Override
     public void removeNodeGroup(NodeType nodeType, String name) {
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .where("node_type = ?", nodeType.name())
                 .and("name = ?", name)
                 .doDelete();
