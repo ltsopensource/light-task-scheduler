@@ -96,6 +96,7 @@
             <th>节点标识</th>
             <th data-hide="all">节点创建时间</th>
             <th data-hide="phone,tablet">机器</th>
+            <th data-hide="all">CMD端口</th>
             <th data-hide="all">工作线程数</th>
         </tr>
         </thead>
@@ -106,10 +107,11 @@
             <td>{{row.event == 'ONLINE' ? '上线' : '离线'}}</td>
             <td>{{row.clusterName}}</td>
             <td>{{row.nodeType}}</td>
-            <td>{{row.group}}</td>
+            <td>{{row.group | format:'formatGroup',row}}</td>
             <td>{{row.identity}}</td>
             <td>{{row.createTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.ip | format:'ipLabel',row}}</td>
+            <td>{{row.httpCmdPort }}</td>
             <td>{{row.threads | format:'threadLabel',row}}</td>
         </tr>
         {{/each}}

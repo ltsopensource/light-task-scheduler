@@ -29,6 +29,7 @@ public class NodeOnOfflineLog {
     private Integer threads;
     private String identity;
     private NodeType nodeType;
+    private Integer httpCmdPort;
 
     public NodeType getNodeType() {
         return nodeType;
@@ -116,5 +117,13 @@ public class NodeOnOfflineLog {
 
     public void setIdentity(String identity) {
         this.identity = identity;
+    }
+
+    public Integer getHttpCmdPort() {
+        return httpCmdPort;
+    }
+
+    public void setHttpCmdPort(Integer httpCmdPort) {
+        this.httpCmdPort = httpCmdPort;
     }
 }

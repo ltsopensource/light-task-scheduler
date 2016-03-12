@@ -69,14 +69,23 @@ public class NodeMemCacheAccess extends MemoryAccess {
                 LOGGER.error("Insert {} error!", node, e);
             }
         }
+    }
 
+    public void clear() {
+        new DeleteSql(getSqlTemplate())
+                .delete()
+                .from()
+                .table(getTableName())
+                .doDelete();
     }
 
     public void removeNode(List<Node> nodes) {
         for (Node node : nodes) {
             try {
                 new DeleteSql(getSqlTemplate())
-                        .delete(getTableName())
+                        .delete()
+                        .from()
+                        .table(getTableName())
                         .where("identity = ?", node.getIdentity())
                         .doDelete();
             } catch (Exception e) {

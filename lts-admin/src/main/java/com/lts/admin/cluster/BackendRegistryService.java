@@ -22,34 +22,24 @@ public class BackendRegistryService implements InitializingBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendRegistryService.class);
     @Autowired
     private BackendAppContext appContext;
-
     private Registry registry;
+    private NotifyListener notifyListener;
 
-    private void register() {
+    private void subscribe() {
 
         if (registry instanceof AbstractRegistry) {
             ((AbstractRegistry) registry).setNode(appContext.getNode());
         }
-        registry.subscribe(appContext.getNode(), new NotifyListener() {
-            @Override
-            public void notify(NotifyEvent event, List<Node> nodes) {
-                if (CollectionUtils.isEmpty(nodes)) {
-                    return;
-                }
-                switch (event) {
-                    case ADD:
-                        appContext.getNodeMemCacheAccess().addNode(nodes);
-                        LOGGER.info("ADD NODE " + nodes);
-                        break;
-                    case REMOVE:
-                        appContext.getNodeMemCacheAccess().removeNode(nodes);
-                        LOGGER.info("REMOVE NODE " + nodes);
-                        break;
-                }
-                // 记录日志
-                addLog(event, nodes);
-            }
-        });
+        registry.subscribe(appContext.getNode(), notifyListener);
+    }
+
+    public void reSubscribe() {
+        // 取消订阅
+        registry.unsubscribe(appContext.getNode(), notifyListener);
+        // 清空内存数据
+        appContext.getNodeMemCacheAccess().clear();
+        // 重新订阅
+        subscribe();
     }
 
     public List<Node> getOnlineNodes(NodePaginationReq request) {
@@ -76,6 +66,7 @@ public class BackendRegistryService implements InitializingBean {
             log.setPort(node.getPort());
             log.setThreads(node.getThreads());
             log.setNodeType(node.getNodeType());
+            log.setHttpCmdPort(node.getHttpCmdPort());
 
             logs.add(log);
         }
@@ -88,6 +79,27 @@ public class BackendRegistryService implements InitializingBean {
 
         registry = RegistryFactory.getRegistry(appContext);
 
-        register();
+        notifyListener = new NotifyListener() {
+            @Override
+            public void notify(NotifyEvent event, List<Node> nodes) {
+                if (CollectionUtils.isEmpty(nodes)) {
+                    return;
+                }
+                switch (event) {
+                    case ADD:
+                        appContext.getNodeMemCacheAccess().addNode(nodes);
+                        LOGGER.info("ADD NODE " + nodes);
+                        break;
+                    case REMOVE:
+                        appContext.getNodeMemCacheAccess().removeNode(nodes);
+                        LOGGER.info("REMOVE NODE " + nodes);
+                        break;
+                }
+                // 记录日志
+                addLog(event, nodes);
+            }
+        };
+
+        subscribe();
     }
 }

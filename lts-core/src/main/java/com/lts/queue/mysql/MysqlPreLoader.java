@@ -36,7 +36,8 @@ public class MysqlPreLoader extends AbstractPreLoader {
                               Long gmtModified) {
         try {
             return new UpdateSql(sqlTemplate)
-                    .update(getTableName(taskTrackerNodeGroup))
+                    .update()
+                    .table(getTableName(taskTrackerNodeGroup))
                     .set("is_running", true)
                     .set("task_tracker_identity", taskTrackerIdentity)
                     .set("gmt_modified", SystemClock.now())
@@ -51,12 +52,6 @@ public class MysqlPreLoader extends AbstractPreLoader {
         }
     }
 
-    private String takeSelectSQL = "SELECT *" +
-            " FROM `{tableName}` " +
-            " WHERE is_running = ? " +
-            " AND `trigger_time` < ? " +
-            " ORDER BY `trigger_time` ASC, `priority` ASC, `gmt_created` ASC " +
-            " LIMIT ?, ?";
 
     @Override
     protected List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize) {

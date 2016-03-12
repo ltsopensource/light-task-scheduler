@@ -43,7 +43,9 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     @Override
     public boolean remove(String jobId) {
         return new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .where("job_id = ?", jobId)
                 .doDelete() == 1;
     }

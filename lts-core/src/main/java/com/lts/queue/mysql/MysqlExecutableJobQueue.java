@@ -1,5 +1,6 @@
 package com.lts.queue.mysql;
 
+import com.lts.admin.request.JobQueueReq;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.support.JobQueueUtils;
@@ -12,7 +13,6 @@ import com.lts.store.jdbc.builder.DropTableSql;
 import com.lts.store.jdbc.builder.SelectSql;
 import com.lts.store.jdbc.builder.UpdateSql;
 import com.lts.store.jdbc.exception.TableNotExistException;
-import com.lts.admin.request.JobQueueReq;
 
 import java.util.List;
 
@@ -65,7 +65,9 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     @Override
     public boolean remove(String taskTrackerNodeGroup, String jobId) {
         return new DeleteSql(getSqlTemplate())
-                .delete(getTableName(taskTrackerNodeGroup))
+                .delete()
+                .from()
+                .table(getTableName(taskTrackerNodeGroup))
                 .where("job_id = ?", jobId)
                 .doDelete() == 1;
     }
@@ -74,7 +76,8 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     public void resume(JobPo jobPo) {
 
         new UpdateSql(getSqlTemplate())
-                .update(getTableName(jobPo.getTaskTrackerNodeGroup()))
+                .update()
+                .table(getTableName(jobPo.getTaskTrackerNodeGroup()))
                 .set("is_running", false)
                 .set("task_tracker_identity", null)
                 .set("gmt_modified", SystemClock.now())

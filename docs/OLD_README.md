@@ -15,7 +15,7 @@ LTS 轻量级分布式任务调度框架(Light Task Scheduler)
 
 感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
-github地址:[https://github.com/qq254963746/light-task-scheduler](https://github.com/qq254963746/light-task-scheduler) 
+github地址:[https://github.com/ltsopensource/light-task-scheduler](https://github.com/ltsopensource/light-task-scheduler) 
 
 ###架构图
 ![Aaron Swartz](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_architecture.png?dir=0&filepath=docs%2FLTS_architecture.png&oid=1e5daa62b8d032daaa47eab4a84ab1d4c8962c33&sha=774aa73d186470aedbb8f4da3c04a86a6022be05)
@@ -59,7 +59,7 @@ github地址:[https://github.com/qq254963746/light-task-scheduler](https://githu
 
 ![Aaron Swartz](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_Admin.png?dir=0&filepath=docs%2FLTS_Admin.png&oid=a53f98823a0451a80a34467c7dfa2a01d568a9e2&sha=774aa73d186470aedbb8f4da3c04a86a6022be05)
 ###调用示例
-下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/qq254963746/light-task-scheduler/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
+下面提供的是最简单的配置方式。更多配置请查看 [lts-example](https://github.com/ltsopensource/light-task-scheduler/tree/master/lts-example/src/main/java/com/lts/example/api) 模块下的 API 调用方式例子.
 
 ####JobTracker 端
 ```java

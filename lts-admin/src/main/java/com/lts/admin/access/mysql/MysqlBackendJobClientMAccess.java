@@ -26,7 +26,9 @@ public class MysqlBackendJobClientMAccess extends MysqlJobClientMAccess implemen
     public void delete(MDataPaginationReq request) {
 
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .whereSql(buildWhereSql(request))
                 .doDelete();
     }

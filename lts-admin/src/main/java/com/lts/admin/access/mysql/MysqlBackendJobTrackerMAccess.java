@@ -57,7 +57,9 @@ public class MysqlBackendJobTrackerMAccess extends MysqlJobTrackerMAccess implem
     public void delete(MDataPaginationReq request) {
 
         new DeleteSql(getSqlTemplate())
-                .delete(getTableName())
+                .delete()
+                .from()
+                .table(getTableName())
                 .whereSql(buildWhereSql(request))
                 .doDelete();
     }

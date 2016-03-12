@@ -25,6 +25,14 @@ LTS.colFormatter.needFeedbackLabel = function (v) {
     return v ? "需要" : "不需要";
 };
 
+LTS.colFormatter.formatGroup = function (v, row) {
+    if (row.nodeType == 'JOB_CLIENT' || row.nodeType == 'TASK_TRACKER') {
+        return v;
+    } else {
+        return "";
+    }
+};
+
 template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
     if(!date){

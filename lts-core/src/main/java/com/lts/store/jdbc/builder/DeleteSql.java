@@ -26,12 +26,27 @@ public class DeleteSql {
         this.sqlTemplate = sqlTemplate;
     }
 
-    public DeleteSql delete(String table) {
-        sql.append("DELETE FROM ").append("`").append(table).append("`");
+    public DeleteSql delete() {
+        sql.append(" DELETE ");
         return this;
     }
 
-    public DeleteSql where(){
+    public DeleteSql all() {
+        sql.append(" * ");
+        return this;
+    }
+
+    public DeleteSql from() {
+        sql.append(" FROM ");
+        return this;
+    }
+
+    public DeleteSql table(String table) {
+        sql.append(" `").append(table.trim()).append("` ");
+        return this;
+    }
+
+    public DeleteSql where() {
         sql.append(" WHERE ");
         return this;
     }
@@ -84,14 +99,14 @@ public class DeleteSql {
         return or(condition, value);
     }
 
-    public DeleteSql andOnNotEmpty(String condition, String value){
+    public DeleteSql andOnNotEmpty(String condition, String value) {
         if (StringUtils.isEmpty(value)) {
             return this;
         }
         return and(condition, value);
     }
 
-    public DeleteSql orOnNotEmpty(String condition, String value){
+    public DeleteSql orOnNotEmpty(String condition, String value) {
         if (StringUtils.isEmpty(value)) {
             return this;
         }

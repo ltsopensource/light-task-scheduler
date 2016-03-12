@@ -71,4 +71,12 @@ public class MonitorView {
 
         return "monitor/jobClientMonitor";
     }
+
+    @RequestMapping("monitor/sys-monitor")
+    public String sysMonitor(Model model){
+
+
+        return "monitor/sysMonitor";
+    }
+
 }
