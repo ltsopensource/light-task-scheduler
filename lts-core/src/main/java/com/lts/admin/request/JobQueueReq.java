@@ -34,6 +34,8 @@ public class JobQueueReq extends PaginationReq {
 
     private Integer priority;
 
+    private Integer maxRetryTimes;
+
     public String getJobId() {
         return jobId;
     }
@@ -136,5 +138,13 @@ public class JobQueueReq extends PaginationReq {
 
     public void setTriggerTime(Date triggerTime) {
         this.triggerTime = triggerTime;
+    }
+
+    public Integer getMaxRetryTimes() {
+        return maxRetryTimes;
+    }
+
+    public void setMaxRetryTimes(Integer maxRetryTimes) {
+        this.maxRetryTimes = maxRetryTimes;
     }
 }

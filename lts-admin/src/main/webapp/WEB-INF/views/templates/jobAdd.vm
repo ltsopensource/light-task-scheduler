@@ -71,6 +71,14 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">最大重试次数</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="maxRetryTimes" value="0"
+                                       placeholder="最大重试次数, 必须为非负数【必填】">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-2 control-label">提交节点组</label>
 
                             <div class="col-sm-3">
@@ -192,6 +200,10 @@
             }
             if (!params['taskTrackerNodeGroup']) {
                 sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+                return;
+            }
+            if(!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])){
+                sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
                 return;
             }
 

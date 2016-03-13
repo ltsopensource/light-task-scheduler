@@ -28,6 +28,7 @@ public class JobDomainConverter {
         jobPo.setExtParams(job.getExtParams());
         jobPo.setNeedFeedback(job.isNeedFeedback());
         jobPo.setCronExpression(job.getCronExpression());
+        jobPo.setMaxRetryTimes(job.getMaxRetryTimes());
         if (!jobPo.isSchedule()) {
             if (job.getTriggerTime() == null) {
                 jobPo.setTriggerTime(SystemClock.now());
@@ -53,6 +54,7 @@ public class JobDomainConverter {
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
         job.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
+        job.setMaxRetryTimes(jobPo.getMaxRetryTimes() == null ? 0 : jobPo.getMaxRetryTimes());
         return new JobWrapper(jobPo.getJobId(), job);
     }
 
@@ -67,6 +69,7 @@ public class JobDomainConverter {
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
         jobLogPo.setRetryTimes(job.getRetryTimes());
+        jobLogPo.setMaxRetryTimes(job.getMaxRetryTimes());
         jobLogPo.setJobId(jobWrapper.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
@@ -87,6 +90,7 @@ public class JobDomainConverter {
         jobLogPo.setTriggerTime(jobPo.getTriggerTime());
         jobLogPo.setTaskTrackerIdentity(jobPo.getTaskTrackerIdentity());
         jobLogPo.setRetryTimes(jobPo.getRetryTimes());
+        jobLogPo.setMaxRetryTimes(jobPo.getMaxRetryTimes());
         return jobLogPo;
     }
 

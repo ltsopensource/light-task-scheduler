@@ -520,6 +520,7 @@ public class JobQueueApi extends AbstractMVC {
             job.setTriggerTime(request.getTriggerTime().getTime());
         }
         job.setPriority(request.getPriority());
+        job.setMaxRetryTimes(request.getMaxRetryTimes() == null ? 0 : request.getMaxRetryTimes());
 
         return addJob(job);
     }

@@ -1,9 +1,9 @@
 package com.lts.core.domain;
 
 
-import com.lts.core.json.JSON;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.exception.JobSubmitException;
+import com.lts.core.json.JSON;
 import com.lts.core.support.CronExpression;
 import com.lts.remoting.annotation.NotNull;
 
@@ -15,11 +15,11 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
  */
-public class Job implements Serializable{
+public class Job implements Serializable {
 
-	private static final long serialVersionUID = 7881199011994149340L;
-	
-	@NotNull
+    private static final long serialVersionUID = 7881199011994149340L;
+
+    @NotNull
     private String taskId;
     /**
      * 优先级 (数值越大 优先级越低)
@@ -34,8 +34,10 @@ public class Job implements Serializable{
     private Map<String, String> extParams;
     // 是否要反馈给客户端
     private boolean needFeedback = false;
-    // 已经重试的次数
+    // 已经重试的次数 (用户不要设置)
     private int retryTimes = 0;
+    // 该任务最大的重试次数
+    private int maxRetryTimes = 0;
     /**
      * 执行表达式 和 quartz 的一样
      * 如果这个为空，表示立即执行的
@@ -156,6 +158,14 @@ public class Job implements Serializable{
         this.replaceOnExist = replaceOnExist;
     }
 
+    public int getMaxRetryTimes() {
+        return maxRetryTimes;
+    }
+
+    public void setMaxRetryTimes(int maxRetryTimes) {
+        this.maxRetryTimes = maxRetryTimes;
+    }
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);
@@ -170,6 +180,9 @@ public class Job implements Serializable{
         }
         if (StringUtils.isNotEmpty(cronExpression) && !CronExpression.isValidExpression(cronExpression)) {
             throw new JobSubmitException("cronExpression invalid! job is " + toString());
+        }
+        if (maxRetryTimes < 0) {
+            throw new JobSubmitException("maxRetryTimes invalid, must be great than zero! job is " + toString());
         }
     }
 }
