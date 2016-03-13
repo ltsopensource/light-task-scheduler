@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `cron_expression` varchar(32) COMMENT 'cron表达式',
   `trigger_time` bigint(20) COMMENT '触发时间',
   `retry_times` int(11) COMMENT '重试次数',
+  `max_retry_times` int(11) DEFAULT '0' COMMENT '最大重试次数',
   PRIMARY KEY (`id`),
   KEY `log_time` (`log_time`),
   KEY `task_id_task_tracker_node_group` (`task_id`,`task_tracker_node_group`)

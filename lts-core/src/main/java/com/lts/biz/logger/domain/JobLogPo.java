@@ -48,6 +48,7 @@ public class JobLogPo {
     private Long triggerTime;
 
     private Integer retryTimes = 0;
+    private Integer maxRetryTimes = 0;
 
     public Integer getRetryTimes() {
         return retryTimes;
@@ -183,5 +184,13 @@ public class JobLogPo {
 
     public void setLogTime(Long logTime) {
         this.logTime = logTime;
+    }
+
+    public Integer getMaxRetryTimes() {
+        return maxRetryTimes;
+    }
+
+    public void setMaxRetryTimes(Integer maxRetryTimes) {
+        this.maxRetryTimes = maxRetryTimes;
     }
 }

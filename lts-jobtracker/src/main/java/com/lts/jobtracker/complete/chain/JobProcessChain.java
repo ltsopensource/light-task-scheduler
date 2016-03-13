@@ -7,13 +7,13 @@ import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.protocol.command.JobCompletedRequest;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.jobtracker.complete.JobCompleteHandler;
 import com.lts.jobtracker.complete.JobFinishHandler;
 import com.lts.jobtracker.complete.JobRetryHandler;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.support.ClientNotifier;
 import com.lts.jobtracker.support.ClientNotifyHandler;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.remoting.protocol.RemotingCommand;
 
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 任务完成 Chian
+ * 任务完成 China
  *
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
@@ -31,13 +31,13 @@ public class JobProcessChain implements JobCompletedChain {
     private final JobCompleteHandler retryHandler;
     private final JobCompleteHandler jobFinishHandler;
     // 任务的最大重试次数
-    private final Integer maxRetryTimes;
+    private final Integer globalMaxRetryTimes;
 
     public JobProcessChain(final JobTrackerAppContext appContext) {
         this.retryHandler = new JobRetryHandler(appContext);
         this.jobFinishHandler = new JobFinishHandler(appContext);
 
-        this.maxRetryTimes = appContext.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
+        this.globalMaxRetryTimes = appContext.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
                 Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
 
         this.clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<TaskTrackerJobResult>() {
@@ -99,18 +99,17 @@ public class JobProcessChain implements JobCompletedChain {
      * 判断任务是否需要加入重试队列
      */
     private boolean needRetry(TaskTrackerJobResult result) {
-        // TODO 是否需要加个时间过滤 result.getTime()
+        // 判断类型
+        if(!(Action.EXECUTE_LATER.equals(result.getAction())
+                || Action.EXECUTE_EXCEPTION.equals(result.getAction()))){
+            return false;
+        }
 
         // 判断重试次数
         Job job = result.getJobWrapper().getJob();
         Integer retryTimes = job.getRetryTimes();
-        if (retryTimes >= maxRetryTimes) {
-            // 重试次数过多
-            return false;
-        }
-        // 判断类型
-        return !(Action.EXECUTE_SUCCESS.equals(result.getAction())
-                || Action.EXECUTE_FAILED.equals(result.getAction()));
+        int jobMaxRetryTimes = job.getMaxRetryTimes();
+        return !(retryTimes >= globalMaxRetryTimes || retryTimes >= jobMaxRetryTimes);
     }
 
     /**

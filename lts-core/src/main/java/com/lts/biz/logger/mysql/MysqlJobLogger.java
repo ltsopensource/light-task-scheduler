@@ -70,7 +70,8 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                         "need_feedback",
                         "cron_expression",
                         "trigger_time",
-                        "retry_times");
+                        "retry_times",
+                        "max_retry_times");
     }
 
     private InsertSql setInsertSqlValues(InsertSql insertSql, JobLogPo jobLogPo) {
@@ -90,7 +91,8 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.isNeedFeedback(),
                 jobLogPo.getCronExpression(),
                 jobLogPo.getTriggerTime(),
-                jobLogPo.getRetryTimes());
+                jobLogPo.getRetryTimes(),
+                jobLogPo.getMaxRetryTimes());
     }
 
     @Override

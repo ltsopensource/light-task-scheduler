@@ -50,6 +50,7 @@ public class RshHolder {
         jobPo.setJobId(rs.getString("job_id"));
         jobPo.setPriority(rs.getInt("priority"));
         jobPo.setRetryTimes(rs.getInt("retry_times"));
+        jobPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
         jobPo.setTaskId(rs.getString("task_id"));
         jobPo.setGmtCreated(rs.getLong("gmt_created"));
         jobPo.setGmtModified(rs.getLong("gmt_modified"));
@@ -120,6 +121,7 @@ public class RshHolder {
                 jobLogPo.setCronExpression(rs.getString("cron_expression"));
                 jobLogPo.setTriggerTime(rs.getLong("trigger_time"));
                 jobLogPo.setRetryTimes(rs.getInt("retry_times"));
+                jobLogPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
                 result.add(jobLogPo);
             }
             return result;
