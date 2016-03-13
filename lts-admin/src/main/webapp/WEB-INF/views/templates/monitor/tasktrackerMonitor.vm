@@ -24,9 +24,6 @@
                             <div class="col-sm-3">
                                 <select name="nodeGroup" class="form-control">
                                     <option value="">不限</option>
-                                    #foreach($nodeGroup in $taskTrackerNodeGroups)
-                                        <option value="$nodeGroup.name">$nodeGroup.name</option>
-                                    #end
                                 </select>
                             </div>
 
@@ -35,9 +32,6 @@
                             <div class="col-sm-3">
                                 <select name="identity" class="form-control">
                                     <option value="">不限</option>
-                                    #foreach($nodeInfo in $taskTrackers)
-                                        <option value="${nodeInfo.identity}">${nodeInfo.identity}(${nodeInfo.nodeGroup})</option>
-                                    #end
                                 </select>
                             </div>
 
@@ -96,6 +90,9 @@
 </div>
 
 <script>
+
+    var groupIdMap = $groupIdMap;
+
     var chartConfigs = [
         {"field": "exeSuccessNum", "title": "执行成功个数"},
         {"field": "exeFailedNum", "title": "执行失败个数"},
@@ -104,7 +101,37 @@
     ]
 
     $(document).ready(function () {
-        $("#searchBtn").on("click", function () {
+
+        // select框相关的事件
+        var nodeGroupSelectHtml = '<option value="">不限</option>';
+        for (var nodeGroup in groupIdMap) {
+            nodeGroupSelectHtml += '<option value="' + nodeGroup + '">' + nodeGroup + '</option>';
+        }
+        var nodeGroupSelect = $("select[name='nodeGroup']");
+        nodeGroupSelect.html(nodeGroupSelectHtml);
+        nodeGroupSelect.selectpicker('refresh');
+
+        var identitySelect = $("select[name='identity']");
+
+        $(document).on("change", "select[name='nodeGroup']", function () {
+            var nodeGroup = $(this).val();
+
+            var identityHtml = '<option value="">不限</option>';
+            if (nodeGroup != '') {
+                // 选择的不限
+                var identities = groupIdMap[nodeGroup];
+                if (identities && identities.length > 0) {
+                    $.each(identities, function (i, v) {
+                        identityHtml += '<option value="'+ v +'">'+ v +'</option>';
+                    });
+                }
+            }
+            identitySelect.html(identityHtml);
+            identitySelect.selectpicker('refresh');
+        });
+
+        // 查询按钮相关的事件
+        $(document).on("click", "#searchBtn", function () {
             var params = {};
             params.identity = $("select[name='identity']").val();
             params.nodeGroup = $("select[name='nodeGroup']").val();
