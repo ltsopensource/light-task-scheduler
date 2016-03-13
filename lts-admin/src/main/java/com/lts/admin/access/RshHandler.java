@@ -24,23 +24,37 @@ public class RshHandler {
             List<Node> nodes = new ArrayList<Node>();
 
             while (rs.next()) {
-                Node node = new Node();
-                node.setIdentity(rs.getString("identity"));
-                node.setClusterName(rs.getString("cluster_name"));
-                node.setNodeType(NodeType.valueOf(rs.getString("node_type")));
-                node.setIp(rs.getString("ip"));
-                node.setPort(rs.getInt("port"));
-                node.setGroup(rs.getString("node_group"));
-                node.setCreateTime(rs.getLong("create_time"));
-                node.setThreads(rs.getInt("threads"));
-                node.setAvailable(rs.getInt("available") == 1);
-                node.setHostName(rs.getString("host_name"));
-                node.setHttpCmdPort(rs.getInt("http_cmd_port"));
-                nodes.add(node);
+                nodes.add(getNodeByRs(rs));
             }
             return nodes;
         }
     };
+
+    public static final ResultSetHandler<Node> NODE_RSH = new ResultSetHandler<Node>() {
+        @Override
+        public Node handle(ResultSet rs) throws SQLException {
+            if (rs.next()) {
+                return getNodeByRs(rs);
+            }
+            return null;
+        }
+    };
+
+    private static Node getNodeByRs(final ResultSet rs) throws SQLException {
+        Node node = new Node();
+        node.setIdentity(rs.getString("identity"));
+        node.setClusterName(rs.getString("cluster_name"));
+        node.setNodeType(NodeType.valueOf(rs.getString("node_type")));
+        node.setIp(rs.getString("ip"));
+        node.setPort(rs.getInt("port"));
+        node.setGroup(rs.getString("node_group"));
+        node.setCreateTime(rs.getLong("create_time"));
+        node.setThreads(rs.getInt("threads"));
+        node.setAvailable(rs.getInt("available") == 1);
+        node.setHostName(rs.getString("host_name"));
+        node.setHttpCmdPort(rs.getInt("http_cmd_port"));
+        return node;
+    }
 
     public static final ResultSetHandler<List<JobTrackerMDataPo>> JOB_TRACKER_SUM_M_DATA_RSH = new ResultSetHandler<List<JobTrackerMDataPo>>() {
         @Override

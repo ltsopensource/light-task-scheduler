@@ -3,6 +3,7 @@ package com.lts.admin.access.memory;
 import com.lts.admin.access.RshHandler;
 import com.lts.admin.request.NodePaginationReq;
 import com.lts.core.cluster.Node;
+import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CharacterUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
@@ -92,6 +93,22 @@ public class NodeMemCacheAccess extends MemoryAccess {
                 LOGGER.error("Delete {} error!", node, e);
             }
         }
+    }
+
+    public Node getNodeByIdentity(String identity){
+       return new SelectSql(getSqlTemplate())
+                .select()
+                .all()
+                .from()
+                .table(getTableName())
+                .where("identity = ?", identity)
+                .single(RshHandler.NODE_RSH);
+    }
+
+    public List<Node> getNodeByNodeType(NodeType nodeType){
+        NodePaginationReq nodePaginationReq = new NodePaginationReq();
+        nodePaginationReq.setNodeType(nodeType);
+        return search(nodePaginationReq);
     }
 
     public List<Node> search(NodePaginationReq request) {

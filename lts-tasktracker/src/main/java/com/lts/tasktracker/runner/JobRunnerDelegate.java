@@ -38,6 +38,7 @@ public class JobRunnerDelegate implements Runnable {
     private Interruptible interruptor;
     private JobRunner curJobRunner;
     private AtomicBoolean interrupted = new AtomicBoolean(false);
+    private Thread thread;
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
                              JobWrapper jobWrapper, RunnerCallback callback) {
@@ -59,6 +60,9 @@ public class JobRunnerDelegate implements Runnable {
 
     @Override
     public void run() {
+
+        thread = Thread.currentThread();
+
         try {
             blockedOn(interruptor);
             if (Thread.currentThread().isInterrupted()) {
@@ -75,7 +79,7 @@ public class JobRunnerDelegate implements Runnable {
                 response.setJobWrapper(jobWrapper);
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
-                            .in(jobWrapper.getJobId());
+                            .in(jobWrapper.getJobId(), this);
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
                     Result result = this.curJobRunner.run(jobWrapper.getJob());
 
@@ -102,6 +106,7 @@ public class JobRunnerDelegate implements Runnable {
                     stat.addRunningTime(time);
                     LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, time, t.getMessage(), t);
                 } finally {
+                    checkInterrupted();
                     logger.removeId();
                     appContext.getRunnerPool().getRunningJobManager()
                             .out(jobWrapper.getJobId());
@@ -159,7 +164,7 @@ public class JobRunnerDelegate implements Runnable {
         sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(), interruptible);
     }
 
-    public abstract class InterruptibleAdapter implements Interruptible {
+    private abstract class InterruptibleAdapter implements Interruptible {
         // for > jdk7
         public void interrupt(Thread thread) {
             interrupt();
@@ -177,4 +182,21 @@ public class JobRunnerDelegate implements Runnable {
         return !appContext.getConfig().getInternalData(Constants.MACHINE_RES_ENOUGH, true);
     }
 
+    private void checkInterrupted() {
+        try {
+            if (isInterrupted()) {
+                logger.info("Interrupted");
+            }
+        } catch (Throwable t) {
+            LOGGER.warn("checkInterrupted error", t);
+        }
+    }
+
+    public Thread currentThread() {
+        return thread;
+    }
+
+    public JobWrapper currentJob() {
+        return jobWrapper;
+    }
 }
