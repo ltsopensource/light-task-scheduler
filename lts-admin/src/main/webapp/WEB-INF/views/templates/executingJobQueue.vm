@@ -139,7 +139,8 @@
 
         LTS.colFormatter.optFormat = function (v, row) {
             var logUrl = "job-logger.htm?taskId=" + row.taskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
-            return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;';
+            return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;'+
+                    '<a href="javascript:;" class="job-terminate-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 强制终止</span></a>';;
         }
 
         var ltsTable = $("#ltstableContainer").ltsTable({
@@ -157,5 +158,37 @@
             ltsTable.post(params, 1);
         });
         $("#searchBtn").trigger("click");
+
+        $(document).on("click", ".job-terminate-btn", function(){
+
+            var jobId = $(this).attr("jobId");
+
+            swal({
+                title: "确认要终止该任务吗？",
+                text: "点击确认后,会立马发送一条终止命令给相应的执行节点(前提是Job支持中断, 线程包含sleep 、wait、Condition、定时锁等, 或者实现InterruptibleJobRunner代替JobRunner, 并实现intterrupt方法), 请谨慎操作。",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确认终止",
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if(isConfirm){
+                    $.ajax({
+                        url: 'api/job-queue/executing-job-terminate',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {jobId: jobId},
+                        success: function (json) {
+                            if (json && json.success) {
+                                swal("终止命令发送成功!", "可以重新查询观察结果", "success");
+                            } else {
+                                json ? swal(json['msg']) : {};
+                            }
+                        }
+                    });
+                }
+            });
+
+        });
     });
 </script>

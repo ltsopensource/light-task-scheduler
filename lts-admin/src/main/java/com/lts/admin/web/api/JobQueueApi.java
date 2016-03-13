@@ -2,7 +2,6 @@ package com.lts.admin.web.api;
 
 import com.lts.admin.cluster.BackendAppContext;
 import com.lts.admin.request.JobQueueReq;
-import com.lts.admin.request.NodePaginationReq;
 import com.lts.admin.response.PaginationRsp;
 import com.lts.admin.support.I18nManager;
 import com.lts.admin.web.AbstractMVC;
@@ -308,9 +307,7 @@ public class JobQueueApi extends AbstractMVC {
         httpCmd.setCommand(HttpCmdNames.HTTP_CMD_LOAD_JOB);
         httpCmd.addParam("nodeGroup", nodeGroup);
 
-        NodePaginationReq nodePaginationReq = new NodePaginationReq();
-        nodePaginationReq.setNodeType(NodeType.JOB_TRACKER);
-        List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().search(nodePaginationReq);
+        List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().getNodeByNodeType(NodeType.JOB_TRACKER);
         if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
             response.setMsg(I18nManager.getMessage("job.tracker.not.found"));
             response.setSuccess(false);
@@ -532,9 +529,7 @@ public class JobQueueApi extends AbstractMVC {
         httpCmd.setCommand(HttpCmdNames.HTTP_CMD_ADD_JOB);
         httpCmd.addParam("job", JSON.toJSONString(job));
 
-        NodePaginationReq nodePaginationReq = new NodePaginationReq();
-        nodePaginationReq.setNodeType(NodeType.JOB_TRACKER);
-        List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().search(nodePaginationReq);
+        List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().getNodeByNodeType(NodeType.JOB_TRACKER);
         if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
             return new KVPair<Boolean, String>(false, I18nManager.getMessage("job.tracker.not.found"));
         }
@@ -552,5 +547,40 @@ public class JobQueueApi extends AbstractMVC {
         } else {
             return new KVPair<Boolean, String>(false, "Add failed");
         }
+    }
+
+    @RequestMapping("/job-queue/executing-job-terminate")
+    public RestfulResponse jobTerminate(String jobId) {
+        RestfulResponse restfulResponse = new RestfulResponse();
+
+        JobPo jobPo = appContext.getExecutingJobQueue().get(jobId);
+        if (jobPo == null) {
+            restfulResponse.setSuccess(false);
+            restfulResponse.setMsg("该任务已经执行完成或者被删除");
+            return restfulResponse;
+        }
+
+        String taskTrackerIdentity = jobPo.getTaskTrackerIdentity();
+
+        Node node = appContext.getNodeMemCacheAccess().getNodeByIdentity(taskTrackerIdentity);
+        if (node == null) {
+            restfulResponse.setSuccess(false);
+            restfulResponse.setMsg("执行该任务的TaskTracker已经离线");
+            return restfulResponse;
+        }
+
+        HttpCmd cmd = new DefaultHttpCmd();
+        cmd.setCommand(HttpCmdNames.HTTP_CMD_JOB_TERMINATE);
+        cmd.setNodeIdentity(taskTrackerIdentity);
+        cmd.addParam("jobId", jobId);
+        HttpCmdResponse response = HttpCmdClient.doPost(node.getIp(), node.getHttpCmdPort(), cmd);
+        if (response.isSuccess()) {
+            restfulResponse.setSuccess(true);
+        } else {
+            restfulResponse.setSuccess(false);
+            restfulResponse.setMsg(response.getMsg());
+        }
+
+        return restfulResponse;
     }
 }
