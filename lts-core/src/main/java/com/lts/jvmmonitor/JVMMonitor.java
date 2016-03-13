@@ -3,6 +3,7 @@ package com.lts.jvmmonitor;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.AliveKeeping;
 import com.lts.jvmmonitor.mbean.JVMGC;
 import com.lts.jvmmonitor.mbean.JVMInfo;
 import com.lts.jvmmonitor.mbean.JVMMemory;
@@ -38,11 +39,14 @@ public class JVMMonitor {
             }
             try {
                 for (Map.Entry<String, Object> entry : MONITOR_MAP.entrySet()) {
-                    MBEAN_SERVER.registerMBean(entry.getValue(), new ObjectName(entry.getKey()));
+                    ObjectName objectName = new ObjectName(entry.getKey());
+                    if (!MBEAN_SERVER.isRegistered(objectName)) {
+                        MBEAN_SERVER.registerMBean(entry.getValue(), objectName);
+                    }
                 }
-                LOGGER.info("Start jvm monitor succeed ");
+                LOGGER.info("Start JVMMonitor succeed ");
             } catch (Exception e) {
-                LOGGER.error("Start jvm monitor error ", e);
+                LOGGER.error("Start JVMMonitor error ", e);
             }
         }
     }
@@ -56,9 +60,10 @@ public class JVMMonitor {
                         MBEAN_SERVER.unregisterMBean(objectName);
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Stop jvm monitor {} error", entry.getKey(), e);
+                    LOGGER.error("Stop JVMMonitor {} error", entry.getKey(), e);
                 }
             }
+            LOGGER.info("Stop JVMMonitor succeed ");
         }
     }
 
@@ -73,7 +78,7 @@ public class JVMMonitor {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn(e.getMessage());
+            LOGGER.error("get Attribute error, objectName=" + objectName + ", attributeName=" + attributeNames, e);
         }
         return result;
     }

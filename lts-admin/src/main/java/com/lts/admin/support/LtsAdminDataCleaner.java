@@ -61,7 +61,6 @@ public class LtsAdminDataCleaner implements InitializingBean {
                 appContext.getBackendTaskTrackerMAccess().delete(request);
             }
         });
-
         QuietUtils.doWithWarn(new QuietUtils.Callable() {
             @Override
             public void call() throws Exception {

@@ -2,7 +2,7 @@ package com.lts.admin.web.api;
 
 import com.lts.admin.access.domain.NodeOnOfflineLog;
 import com.lts.admin.cluster.BackendAppContext;
-import com.lts.admin.cluster.BackendRegistryService;
+import com.lts.admin.cluster.BackendRegistrySrv;
 import com.lts.admin.request.NodeGroupRequest;
 import com.lts.admin.request.NodeOnOfflineLogPaginationReq;
 import com.lts.admin.request.NodePaginationReq;
@@ -29,7 +29,7 @@ import java.util.List;
 public class NodeApi extends AbstractMVC {
 
     @Autowired
-    private BackendRegistryService backendRegistryService;
+    private BackendRegistrySrv backendRegistrySrv;
     @Autowired
     private BackendAppContext appContext;
 
@@ -37,7 +37,7 @@ public class NodeApi extends AbstractMVC {
     public RestfulResponse getNodeList(NodePaginationReq request) {
         RestfulResponse response = new RestfulResponse();
 
-        List<Node> nodes = backendRegistryService.getOnlineNodes(request);
+        List<Node> nodes = backendRegistrySrv.getOnlineNodes(request);
 
         response.setSuccess(true);
         response.setResults(CollectionUtils.sizeOf(nodes));
@@ -50,7 +50,7 @@ public class NodeApi extends AbstractMVC {
     public RestfulResponse reSubscribe() {
         RestfulResponse response = new RestfulResponse();
 
-        backendRegistryService.reSubscribe();
+        backendRegistrySrv.reSubscribe();
 
         response.setSuccess(true);
         return response;

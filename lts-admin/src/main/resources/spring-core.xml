@@ -34,5 +34,5 @@
     <bean id="appContext" class="com.lts.admin.support.BackendAppContextFactoryBean"/>
 
     <bean class="com.lts.admin.support.LtsAdminDataCleaner"/>
-    <bean class="com.lts.admin.cluster.BackendRegistryService"/>
+    <bean class="com.lts.admin.cluster.BackendRegistrySrv"/>
 </beans>

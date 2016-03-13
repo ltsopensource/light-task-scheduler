@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <div class="row wrapper border-bottom white-bg page-heading" xmlns="http://www.w3.org/1999/html">
     <div class="col-lg-12">
         <h2>JobClient数据监控</h2>
@@ -86,6 +87,8 @@
             </div>
         </div>
     </div>
+
+    #parse('/templates/include/jvmDataChartPage.vm')
 
 </div>
 
@@ -177,6 +180,9 @@
                     }
                 }
             });
+
+            showJVMDataChart(params);
+
         });
 
         $("#searchBtn").trigger("click");
@@ -213,11 +219,10 @@
                 series1.push(seriesMap[seriesKey]);
             }
 
-            var colors = ['#FCAF64', '#1bd0dc', '#f9b700', '#eb6100', '#eb6877', '#a98fc2', '#9dd30d', '#1c95bd', '#9999ff', '#5674b9', '#009944'];
-            showLineChart("#highcharts", "任务数据统计", "个数", series1, colors);
+            showLineChart("#highcharts", "任务数据统计", "个数", series1, null);
         }
 
     });
 </script>
 
-<script src="../assets/js/plugins/highcharts/highcharts-4.1.8.js"></script>
+#parse("/templates/include/jvmDataChartJS.vm")

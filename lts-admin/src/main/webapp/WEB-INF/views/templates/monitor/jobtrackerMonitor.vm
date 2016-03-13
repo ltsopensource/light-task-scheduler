@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <div class="row wrapper border-bottom white-bg page-heading" xmlns="http://www.w3.org/1999/html">
     <div class="col-lg-12">
         <h2>JobTracker数据监控</h2>
@@ -65,8 +66,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h5><span class="text-navy">任务统计</span> / <span class="text-muted" id="idenityLabel">()</span>
-                    </h5>
+                    <h5><span class="text-navy">任务统计</span> / <span class="text-muted" id="idenityLabel">()</span></h5>
 
                     <div class="ibox-tools"><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></div>
                 </div>
@@ -79,10 +79,12 @@
         </div>
     </div>
 
+    #parse('/templates/include/jvmDataChartPage.vm')
+
 </div>
 
 <script>
-    var chartConfigs = [
+    var M_DATA_CHART_CONFIGS = [
         {"field": "receiveJobNum", "title": "接受的任务数"},
         {"field": "pushJobNum", "title": "分发出去的任务数"},
         {"field": "exeSuccessNum", "title": "执行成功个数"},
@@ -131,17 +133,19 @@
                 success: function (json) {
                     if (json && json.success) {
                         $("#idenityLabel").html("(" + (params.identity ? params.identity : '不限') + ")");
-                        showChart(json);
+                        showJobDataChart(json);
                     } else {
                         json ? swal(json['msg']) : {};
                     }
                 }
             });
+
+            showJVMDataChart(params);
         });
 
         $("#searchBtn").trigger("click");
 
-        function showChart(json) {
+        function showJobDataChart(json) {
             if (json.results == 0) {
                 $("#highcharts").html("暂无数据，请重新选择条件。");
                 return;
@@ -149,10 +153,9 @@
             $("#highcharts").html("");
 
             var seriesMap = {};
-            for (var i = 0; i < chartConfigs.length; i++) {
-                var chartConfig = chartConfigs[i];
+            for (var i = 0; i < M_DATA_CHART_CONFIGS.length; i++) {
+                var chartConfig = M_DATA_CHART_CONFIGS[i];
                 seriesMap[chartConfig['field']] = {
-//                    type: 'area',
                     name: chartConfig["title"],
                     data: []
                 };
@@ -171,11 +174,12 @@
             for (var seriesKey in seriesMap) {
                 series.push(seriesMap[seriesKey]);
             }
-            var colors = ['#FCAF64', '#1bd0dc', '#f9b700', '#eb6100', '#eb6877', '#a98fc2', '#9dd30d', '#1c95bd', '#9999ff', '#5674b9', '#009944'];
-            showLineChart("#highcharts", "任务数据统计", "个数", series, colors);
+            showLineChart("#highcharts", "任务数据统计", "个数", series, null);
         }
 
     });
+
 </script>
 
-<script src="../assets/js/plugins/highcharts/highcharts-4.1.8.js"></script>
+#parse("/templates/include/jvmDataChartJS.vm")
+

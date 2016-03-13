@@ -17,9 +17,9 @@ import java.util.List;
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
-public class BackendRegistryService implements InitializingBean {
+public class BackendRegistrySrv implements InitializingBean {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BackendRegistryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BackendRegistrySrv.class);
     @Autowired
     private BackendAppContext appContext;
     private Registry registry;

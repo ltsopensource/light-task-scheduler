@@ -1,0 +1,205 @@
+<!--suppress ALL -->
+<script>
+
+    function showJVMDataChart(params) {
+        getJVMMData(params, "MEMORY");
+        getJVMMData(params, "GC");
+        getJVMMData(params, "THREAD");
+    }
+
+    function getJVMMData(params, jvmType) {
+        params.jvmType = jvmType;
+        $.ajax({
+            url: '../api/monitor/jvm-monitor-data-get.do',
+            type: 'GET',
+            dataType: 'json',
+            data: params,
+            success: function (json) {
+                if (json && json.success) {
+                    renderJVMMDataChar(jvmType, json);
+                } else {
+                    json ? swal(json['msg']) : {};
+                }
+            }
+        });
+    }
+
+    var JVM_TYPE_CHART_FIELD_MAP = {
+        "Cpu": {
+            "field": {"processCpuTimeRate": ""},
+            "divide": 1,
+            "unit": "百分比",
+            "valueSuffix": "%"
+        },
+        "Heap": {
+            "field": {
+                "heapMemoryCommitted": "",
+                "heapMemoryInit": "",
+                "heapMemoryMax": "",
+                "heapMemoryUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "NonHeap": {
+            "field": {
+                "nonHeapMemoryCommitted": "",
+                "nonHeapMemoryInit": "",
+                "nonHeapMemoryMax": "",
+                "nonHeapMemoryUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "PermGen": {
+            "field": {
+                "permGenCommitted": "",
+                "permGenInit": "",
+                "permGenMax": "",
+                "permGenUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "OldGen": {
+            "field": {
+                "oldGenCommitted": "",
+                "oldGenInit": "",
+                "oldGenMax": "",
+                "oldGenUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "EdenSpace": {
+            "field": {
+                "edenSpaceCommitted": "",
+                "edenSpaceInit": "",
+                "edenSpaceMax": "",
+                "edenSpaceUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "Survivor": {
+            "field": {
+                "survivorCommitted": "",
+                "survivorInit": "",
+                "survivorMax": "",
+                "survivorUsed": ""
+            },
+            "divide": 1024 * 1024,
+            "unit": "MB",
+            "valueSuffix": "MB"
+        },
+        "GCCount": {
+            "field": {
+                "youngGCCollectionCount": "",
+                "fullGCCollectionCount": "",
+                "spanYoungGCCollectionCount": "",
+                "spanFullGCCollectionCount": ""
+            },
+            "divide": 1,
+            "unit": "个数",
+            "valueSuffix": "个"
+        },
+        "GCTime": {
+            "field": {
+                "youngGCCollectionTime": "",
+                "fullGCCollectionTime": "",
+                "spanYoungGCCollectionTime": "",
+                "spanFullGCCollectionTime": ""
+            },
+            "divide": 1,
+            "unit": "次数",
+            "valueSuffix": "次"
+        },
+        "ThreadCount": {
+            "field": {
+                "daemonThreadCount": "",
+                "threadCount": "",
+                "totalStartedThreadCount": "",
+                "deadLockedThreadCount": ""
+            },
+            "divide": 1,
+            "unit": "个数",
+            "valueSuffix": "个"
+        }
+    };
+
+    var JVM_TYPE_CONFIG_MAP = {
+        "MEMORY": ["Heap", "NonHeap", "PermGen", "OldGen", "EdenSpace", "Survivor"],
+        "GC": ["GCCount", "GCTime"],
+        "THREAD": ["ThreadCount", "Cpu"]
+    };
+
+    function renderJVMMDataChar(jvmType, json) {
+        var chartList = JVM_TYPE_CONFIG_MAP[jvmType];
+        if (json.results == 0) {
+            for (var index in chartList) {
+                var chartName = chartList[index];
+                $("#JVM_" + chartName).html("暂无数据，请重新选择条件。");
+            }
+            return;
+        }
+
+        var chartSeriesMap = {};
+        for (var index in chartList) {
+            var chartName = chartList[index];
+
+            $("#JVM_" + chartName).html("");
+
+            // 该图要显示的属性列表
+            var fieldList = JVM_TYPE_CHART_FIELD_MAP[chartName]['field'];
+
+            var seriesMap = {};
+
+            for (var field in fieldList) {
+                seriesMap[field] = {
+                    name: fieldList[field] || field,
+                    data: []
+                };
+            }
+            chartSeriesMap[chartName] = seriesMap;
+        }
+
+        var rows = json.rows;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            var timestamp = row['timestamp'];
+
+            for (var chartName in chartSeriesMap) {
+
+                var divide = JVM_TYPE_CHART_FIELD_MAP[chartName]['divide'];
+
+                var seriesMap = chartSeriesMap[chartName];
+                for (var seriesKey in seriesMap) {
+                    var val = (row[seriesKey] / divide);
+                    val = Math.round(val * 100) / 100.0;
+//                    console.log(val.toFixed(2));
+                    seriesMap[seriesKey]['data'].push([timestamp, val]);
+                }
+            }
+        }
+
+        for (var chartName in chartSeriesMap) {
+
+            var seriesMap = chartSeriesMap[chartName];
+
+            var series = [];
+            for (var seriesKey in seriesMap) {
+                series.push(seriesMap[seriesKey]);
+            }
+            var unit = JVM_TYPE_CHART_FIELD_MAP[chartName]['unit'];
+            var valueSuffix = JVM_TYPE_CHART_FIELD_MAP[chartName]['valueSuffix'];
+
+            showLineChart("#JVM_" + chartName, chartName, unit, series, null, valueSuffix);
+        }
+    }
+
+</script>
