@@ -14,4 +14,7 @@ public interface HttpCmdNames {
     String HTTP_CMD_STATUS_CHECK = "status_check_cmd";
 
     String HTTP_CMD_JVM_INFO_GET = "jvm_info_get_cmd";
+
+    String HTTP_CMD_JOB_TERMINATE = "job_terminate_cmd";
+
 }

@@ -1,6 +1,5 @@
 package com.lts.tasktracker.runner;
 
-import com.lts.core.commons.collect.ConcurrentHashSet;
 import com.lts.core.constant.EcTopic;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.logger.Logger;
@@ -10,15 +9,10 @@ import com.lts.ec.EventSubscriber;
 import com.lts.ec.Observer;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.expcetion.NoAvailableJobRunnerException;
-import sun.nio.ch.Interruptible;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
@@ -49,16 +43,15 @@ public class RunnerPool {
                 new EventSubscriber(appContext.getConfig().getIdentity(), new Observer() {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
-                        setMaximumPoolSize(appContext.getConfig().getWorkThreads());
+                        setWorkThread(appContext.getConfig().getWorkThreads());
                     }
                 }), EcTopic.WORK_THREAD_CHANGE);
     }
 
     private ThreadPoolExecutor initThreadPoolExecutor() {
-        int maxSize = appContext.getConfig().getWorkThreads();
-        int minSize = 4 > maxSize ? maxSize : 4;
+        int workThreads = appContext.getConfig().getWorkThreads();
 
-        return new ThreadPoolExecutor(minSize, maxSize, 30, TimeUnit.SECONDS,
+        return new ThreadPoolExecutor(workThreads, workThreads, 30, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
                 new ThreadPoolExecutor.AbortPolicy());
     }
@@ -83,25 +76,22 @@ public class RunnerPool {
         return threadPoolExecutor.getMaximumPoolSize() - threadPoolExecutor.getActiveCount();
     }
 
-    public void setMaximumPoolSize(int maximumPoolSize) {
-        if (maximumPoolSize == 0) {
-            throw new IllegalArgumentException("maximumPoolSize can not be zero!");
+    public void setWorkThread(int workThread) {
+        if (workThread == 0) {
+            throw new IllegalArgumentException("workThread can not be zero!");
         }
 
-        int corePollSize = threadPoolExecutor.getCorePoolSize();
-        if (maximumPoolSize < corePollSize) {
-            threadPoolExecutor.setCorePoolSize(maximumPoolSize);
-        }
-        threadPoolExecutor.setMaximumPoolSize(maximumPoolSize);
+        threadPoolExecutor.setMaximumPoolSize(workThread);
+        threadPoolExecutor.setCorePoolSize(workThread);
 
-        LOGGER.info("maximumPoolSize update to {}", maximumPoolSize);
+        LOGGER.info("workThread update to {}", workThread);
     }
 
     /**
      * 得到最大线程数
      */
-    public int getMaximumPoolSize() {
-        return threadPoolExecutor.getMaximumPoolSize();
+    public int getWorkThread() {
+        return threadPoolExecutor.getCorePoolSize();
     }
 
     public RunnerFactory getRunnerFactory() {
@@ -131,18 +121,18 @@ public class RunnerPool {
      */
     public class RunningJobManager {
 
-        private final Set<String> JOB_SET = new ConcurrentHashSet<String>();
+        private final ConcurrentMap<String/*jobId*/, JobRunnerDelegate> JOBS = new ConcurrentHashMap<String, JobRunnerDelegate>();
 
-        public void in(String jobId) {
-            JOB_SET.add(jobId);
+        public void in(String jobId, JobRunnerDelegate jobRunnerDelegate) {
+            JOBS.putIfAbsent(jobId, jobRunnerDelegate);
         }
 
         public void out(String jobId) {
-            JOB_SET.remove(jobId);
+            JOBS.remove(jobId);
         }
 
         public boolean running(String jobId) {
-            return JOB_SET.contains(jobId);
+            return JOBS.containsKey(jobId);
         }
 
         /**
@@ -151,8 +141,7 @@ public class RunnerPool {
         public List<String> getNotExists(List<String> jobIds) {
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Running jobs ：" + JOB_SET);
-                LOGGER.debug("Ask jobs:" + jobIds);
+                LOGGER.debug("Ask jobs: " + jobIds + " Running jobs ：" + JOBS.keySet());
             }
             List<String> notExistList = new ArrayList<String>();
             for (String jobId : jobIds) {
@@ -161,6 +150,17 @@ public class RunnerPool {
                 }
             }
             return notExistList;
+        }
+
+        public void terminateJob(String jobId) {
+            JobRunnerDelegate jobRunnerDelegate = JOBS.get(jobId);
+            if (jobRunnerDelegate != null) {
+                try {
+                    jobRunnerDelegate.currentThread().interrupt();
+                } catch (Throwable e) {
+                    LOGGER.error("terminateJob [" + jobId + "]  error", e);
+                }
+            }
         }
     }
 

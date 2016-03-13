@@ -1,11 +1,10 @@
 package com.lts.tasktracker;
 
 import com.lts.core.cluster.AbstractClientNode;
-import com.lts.core.cmd.JVMInfoGetHttpCmd;
-import com.lts.core.cmd.StatusCheckHttpCmd;
 import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.remoting.RemotingProcessor;
+import com.lts.tasktracker.cmd.JobTerminateCmd;
 import com.lts.tasktracker.domain.TaskTrackerAppContext;
 import com.lts.tasktracker.domain.TaskTrackerNode;
 import com.lts.tasktracker.monitor.StopWorkingMonitor;
@@ -33,6 +32,9 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
         appContext.setRunnerPool(new RunnerPool(appContext));
         appContext.setJobPullMachine(new JobPullMachine(appContext));
         appContext.setStopWorkingMonitor(new StopWorkingMonitor(appContext));
+
+        appContext.getHttpCmdServer().registerCommands(
+                new JobTerminateCmd(appContext));     // 终止某个正在执行的任务
     }
 
     @Override

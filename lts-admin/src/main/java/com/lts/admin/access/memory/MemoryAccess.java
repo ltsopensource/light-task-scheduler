@@ -31,7 +31,7 @@ public abstract class MemoryAccess {
         sqlTemplate = SqlTemplateFactory.create(config);
     }
 
-    public SqlTemplate getSqlTemplate() {
+    protected SqlTemplate getSqlTemplate() {
         return sqlTemplate;
     }
 
