@@ -126,6 +126,14 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">最大重试次数</label>
+
+                            <div class="col-sm-3 w_250">
+                                <input type="text" class="form-control" name="maxRetryTimes" value="0"
+                                       placeholder="最大重试次数, 必须为非负数【必填】">
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-2 control-label w_120">提交节点组</label>
 
                             <div class="col-sm-3 w_250">
@@ -184,6 +192,7 @@
             <th>执行节点组</th>
             <th>Cron表达式</th>
             <th data-hide="all">优先级</th>
+            <th data-hide="all">最大重试次数</th>
             <th>反馈客户端</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
@@ -199,6 +208,7 @@
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.priority}}</td>
+            <td>{{row.maxRetryTimes}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
@@ -321,6 +331,10 @@
             }
             if (!params['taskTrackerNodeGroup']) {
                 sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+                return;
+            }
+            if(!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])){
+                sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
                 return;
             }
             var extParams = params['extParams'];

@@ -47,7 +47,8 @@ public class JobRetryHandler implements JobCompleteHandler {
 
             // 重试次数+1
             jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
-            Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), jobPo.getRetryTimes()).getTime();
+            // 1 分钟重试一次吧
+            Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), 1).getTime();
 
             if (jobPo.isSchedule()) {
                 // 如果是 cron Job, 判断任务下一次执行时间和重试时间的比较

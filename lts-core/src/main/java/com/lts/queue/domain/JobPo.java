@@ -65,6 +65,8 @@ public class JobPo {
      */
     private Integer retryTimes = 0;
 
+    private Integer maxRetryTimes = 0;
+
     public Integer getRetryTimes() {
         return retryTimes;
     }
@@ -179,6 +181,14 @@ public class JobPo {
 
     public boolean isSchedule() {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
+    }
+
+    public Integer getMaxRetryTimes() {
+        return maxRetryTimes;
+    }
+
+    public void setMaxRetryTimes(Integer maxRetryTimes) {
+        this.maxRetryTimes = maxRetryTimes;
     }
 
     @Override
