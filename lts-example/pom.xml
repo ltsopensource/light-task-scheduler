@@ -25,7 +25,11 @@
             <artifactId>lts-jobclient</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-monitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.lts</groupId>
             <artifactId>lts-spring</artifactId>

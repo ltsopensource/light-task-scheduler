@@ -19,6 +19,8 @@ public class MDataPaginationReq extends PaginationReq {
 
     private Long endTime;
 
+    private JVMType jvmType;
+
     public String getId() {
         return id;
     }
@@ -65,5 +67,13 @@ public class MDataPaginationReq extends PaginationReq {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
+    }
+
+    public JVMType getJvmType() {
+        return jvmType;
+    }
+
+    public void setJvmType(JVMType jvmType) {
+        this.jvmType = jvmType;
     }
 }
