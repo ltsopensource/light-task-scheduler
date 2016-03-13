@@ -4,9 +4,7 @@ import com.lts.admin.access.domain.NodeOnOfflineLog;
 import com.lts.admin.web.vo.NodeInfo;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
-import com.lts.monitor.access.domain.JobClientMDataPo;
-import com.lts.monitor.access.domain.JobTrackerMDataPo;
-import com.lts.monitor.access.domain.TaskTrackerMDataPo;
+import com.lts.monitor.access.domain.*;
 import com.lts.store.jdbc.dbutils.JdbcTypeUtils;
 import com.lts.store.jdbc.dbutils.ResultSetHandler;
 
@@ -103,12 +101,7 @@ public class RshHandler {
 
             while (rs.next()) {
                 TaskTrackerMDataPo po = new TaskTrackerMDataPo();
-//                po.setId(rs.getString("id"));
-//                po.setGmtCreated(rs.getLong("gmt_created"));
                 po.setTimestamp(rs.getLong("timestamp"));
-//                po.setNodeType(NodeType.convert(rs.getString("node_type")));
-//                po.setNodeGroup(rs.getString("node_group"));
-//                po.setIdentity(rs.getString("identity"));
 
                 po.setExeSuccessNum(rs.getLong("exe_success_num"));
                 po.setExeFailedNum(rs.getLong("exe_failed_num"));
@@ -129,12 +122,7 @@ public class RshHandler {
 
             while (rs.next()) {
                 JobClientMDataPo po = new JobClientMDataPo();
-//                po.setId(rs.getString("id"));
-//                po.setGmtCreated(rs.getLong("gmt_created"));
                 po.setTimestamp(rs.getLong("timestamp"));
-//                po.setNodeType(NodeType.convert(rs.getString("node_type")));
-//                po.setNodeGroup(rs.getString("node_group"));
-//                po.setIdentity(rs.getString("identity"));
 
                 po.setSubmitSuccessNum(rs.getLong("submit_success_num"));
                 po.setSubmitFailedNum(rs.getLong("submit_failed_num"));
@@ -157,6 +145,90 @@ public class RshHandler {
                 nodeInfo.setIdentity(rs.getString("identity"));
                 nodeInfo.setNodeGroup(rs.getString("node_group"));
                 list.add(nodeInfo);
+            }
+            return list;
+        }
+    };
+
+    public static final ResultSetHandler<List<JVMMemoryDataPo>> JVM_MEMORY_SUM_M_DATA_RSH = new ResultSetHandler<List<JVMMemoryDataPo>>() {
+        @Override
+        public List<JVMMemoryDataPo> handle(ResultSet rs) throws SQLException {
+            List<JVMMemoryDataPo> list = new ArrayList<JVMMemoryDataPo>();
+
+            while (rs.next()) {
+                JVMMemoryDataPo po = new JVMMemoryDataPo();
+                po.setTimestamp(rs.getLong("timestamp"));
+
+                po.setHeapMemoryCommitted(rs.getLong("heap_memory_committed"));
+                po.setHeapMemoryInit(rs.getLong("heap_memory_init"));
+                po.setHeapMemoryMax(rs.getLong("heap_memory_max"));
+                po.setHeapMemoryUsed(rs.getLong("heap_memory_used"));
+                po.setNonHeapMemoryCommitted(rs.getLong("non_heap_memory_committed"));
+                po.setNonHeapMemoryInit(rs.getLong("non_heap_memory_init"));
+                po.setNonHeapMemoryMax(rs.getLong("non_heap_memory_max"));
+                po.setNonHeapMemoryUsed(rs.getLong("non_heap_memory_used"));
+                po.setPermGenCommitted(rs.getLong("perm_gen_committed"));
+                po.setPermGenInit(rs.getLong("perm_gen_init"));
+                po.setPermGenMax(rs.getLong("perm_gen_max"));
+                po.setPermGenUsed(rs.getLong("perm_gen_used"));
+                po.setOldGenCommitted(rs.getLong("old_gen_committed"));
+                po.setOldGenInit(rs.getLong("old_gen_init"));
+                po.setOldGenMax(rs.getLong("old_gen_max"));
+                po.setOldGenUsed(rs.getLong("old_gen_used"));
+                po.setEdenSpaceCommitted(rs.getLong("eden_space_committed"));
+                po.setEdenSpaceInit(rs.getLong("eden_space_init"));
+                po.setEdenSpaceMax(rs.getLong("eden_space_max"));
+                po.setEdenSpaceUsed(rs.getLong("eden_space_used"));
+                po.setSurvivorCommitted(rs.getLong("survivor_committed"));
+                po.setSurvivorInit(rs.getLong("survivor_init"));
+                po.setSurvivorMax(rs.getLong("survivor_max"));
+                po.setSurvivorUsed(rs.getLong("survivor_used"));
+
+                list.add(po);
+            }
+            return list;
+        }
+    };
+
+    public static final ResultSetHandler<List<JVMGCDataPo>> JVM_GC_SUM_M_DATA_RSH = new ResultSetHandler<List<JVMGCDataPo>>() {
+        @Override
+        public List<JVMGCDataPo> handle(ResultSet rs) throws SQLException {
+            List<JVMGCDataPo> list = new ArrayList<JVMGCDataPo>();
+
+            while (rs.next()) {
+                JVMGCDataPo po = new JVMGCDataPo();
+                po.setTimestamp(rs.getLong("timestamp"));
+
+                po.setYoungGCCollectionCount(rs.getLong("young_gc_collection_count"));
+                po.setYoungGCCollectionTime(rs.getLong("young_gc_collection_time"));
+                po.setFullGCCollectionCount(rs.getLong("full_gc_collection_count"));
+                po.setFullGCCollectionTime(rs.getLong("full_gc_collection_time"));
+                po.setSpanYoungGCCollectionCount(rs.getLong("span_young_gc_collection_count"));
+                po.setSpanYoungGCCollectionTime(rs.getLong("span_young_gc_collection_time"));
+                po.setSpanFullGCCollectionCount(rs.getLong("span_full_gc_collection_count"));
+                po.setSpanFullGCCollectionTime(rs.getLong("span_full_gc_collection_time"));
+
+                list.add(po);
+            }
+            return list;
+        }
+    };
+
+    public static final ResultSetHandler<List<JVMThreadDataPo>> JVM_THREAD_SUM_M_DATA_RSH = new ResultSetHandler<List<JVMThreadDataPo>>() {
+        @Override
+        public List<JVMThreadDataPo> handle(ResultSet rs) throws SQLException {
+            List<JVMThreadDataPo> list = new ArrayList<JVMThreadDataPo>();
+
+            while (rs.next()) {
+                JVMThreadDataPo po = new JVMThreadDataPo();
+                po.setTimestamp(rs.getLong("timestamp"));
+
+                po.setDaemonThreadCount(rs.getInt("daemon_thread_count"));
+                po.setThreadCount(rs.getInt("thread_count"));
+                po.setTotalStartedThreadCount(rs.getLong("total_started_thread_count"));
+                po.setDeadLockedThreadCount(rs.getInt("dead_locked_thread_count"));
+                po.setProcessCpuTimeRate(rs.getDouble("process_cpu_time_rate"));
+                list.add(po);
             }
             return list;
         }
