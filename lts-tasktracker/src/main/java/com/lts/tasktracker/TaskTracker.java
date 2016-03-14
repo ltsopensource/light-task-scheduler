@@ -30,6 +30,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
         appContext.setRemotingClient(remotingClient);
         // 设置 线程池
         appContext.setRunnerPool(new RunnerPool(appContext));
+        appContext.getMStatReporter().start();
         appContext.setJobPullMachine(new JobPullMachine(appContext));
         appContext.setStopWorkingMonitor(new StopWorkingMonitor(appContext));
 
@@ -39,7 +40,6 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void afterStart() {
-        appContext.getMStatReporter().start();
         if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_SWITCH, false)) {
             appContext.getStopWorkingMonitor().start();
         }
@@ -49,6 +49,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
     protected void afterStop() {
         appContext.getMStatReporter().stop();
         appContext.getStopWorkingMonitor().stop();
+        appContext.getRunnerPool().shutDown();
     }
 
     @Override

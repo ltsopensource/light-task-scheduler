@@ -3,8 +3,10 @@ package com.lts.core.registry;
 import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
 import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.utils.Callable;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;
+import com.lts.core.support.NodeShutdownHook;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -43,6 +45,15 @@ public abstract class FailbackRegistry extends AbstractRegistry {
                 }
             }
         }, retryPeriod, retryPeriod, TimeUnit.MILLISECONDS);
+
+        NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+            @Override
+            public void call() throws Exception {
+                retryFuture.cancel(true);
+                retryExecutor.shutdownNow();
+                destroy();
+            }
+        });
     }
 
     @Override

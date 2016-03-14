@@ -1,6 +1,7 @@
 package com.lts.core.support;
 
 import com.lts.core.AppContext;
+import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.constant.EcTopic;
@@ -52,12 +53,14 @@ public abstract class RetryScheduler<T> {
     private int batchSize = 5;
 
     private ReentrantLock lock = new ReentrantLock();
+    private AppContext appContext;
 
     public RetryScheduler(AppContext appContext) {
         this(appContext, appContext.getConfig().getFailStorePath());
+        this.appContext = appContext;
     }
 
-    public RetryScheduler(AppContext appContext, String storePath) {
+    public RetryScheduler(final AppContext appContext, String storePath) {
         FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, appContext.getConfig());
         failStore = failStoreFactory.getFailStore(appContext.getConfig(), storePath);
         try {
@@ -70,8 +73,8 @@ public abstract class RetryScheduler<T> {
                 new Observer() {
                     @Override
                     public void onObserved(EventInfo eventInfo) {
-                        Boolean isMaster = (Boolean) eventInfo.getParam("isMaster");
-                        if (isMaster != null && isMaster) {
+                        Node masterNode = (Node) eventInfo.getParam("master");
+                        if (masterNode != null && masterNode.getIdentity().equals(appContext.getConfig().getIdentity())) {
                             startMasterCheck();
                         } else {
                             stopMasterCheck();
@@ -105,10 +108,10 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay
                         (new CheckSelfRunner(), 10, 30, TimeUnit.SECONDS);
-                LOGGER.info("Start {} RetryScheduler success", name);
+                LOGGER.info("Start {} RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} RetryScheduler failed", name, t);
+            LOGGER.error("Start {} RetryScheduler failed, identity=[{}]", name, appContext.getConfig().getIdentity(), t);
         }
     }
 
@@ -118,35 +121,40 @@ public abstract class RetryScheduler<T> {
                 // 这个时间后面再去优化
                 masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
                         scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 30, 60, TimeUnit.SECONDS);
-                LOGGER.info("Start {} master RetryScheduler success", name);
+                LOGGER.info("Start {} master RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
         } catch (Throwable t) {
-            LOGGER.error("Start {} master RetryScheduler failed.", name, t);
+            LOGGER.error("Start {} master RetryScheduler failed, identity=[{}]", name, appContext.getConfig().getIdentity(), t);
         }
     }
 
     private void stopMasterCheck() {
         try {
             if (masterCheckStart.compareAndSet(true, false)) {
-                masterScheduledFuture.cancel(true);
-                MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} master RetryScheduler success", name);
+                if (masterScheduledFuture != null) {
+                    masterScheduledFuture.cancel(true);
+                    MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
+                }
+                LOGGER.info("Stop {} master RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
         } catch (Throwable t) {
-            LOGGER.error("Stop {} master RetryScheduler failed", name, t);
+            LOGGER.error("Stop {} master RetryScheduler failed, identity=[{}]", name, appContext.getConfig().getIdentity(), t);
         }
     }
 
     public void stop() {
         try {
             if (selfCheckStart.compareAndSet(true, false)) {
-                scheduledFuture.cancel(true);
-                failStore.close();
-                RETRY_EXECUTOR_SERVICE.shutdown();
-                LOGGER.info("Stop {} RetryScheduler success", name);
+                if (scheduledFuture != null) {
+                    scheduledFuture.cancel(true);
+                    failStore.close();
+                    RETRY_EXECUTOR_SERVICE.shutdown();
+                }
+                LOGGER.info("Stop {} RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
+            stopMasterCheck();
         } catch (Throwable t) {
-            LOGGER.error("Stop {} RetryScheduler failed", name, t);
+            LOGGER.error("Stop {} RetryScheduler failed, identity=[{}]", name, appContext.getConfig().getIdentity(), t);
         }
     }
 
@@ -155,7 +163,7 @@ public abstract class RetryScheduler<T> {
             stop();
             failStore.destroy();
         } catch (FailStoreException e) {
-            LOGGER.error("destroy {} RetryScheduler failed", name, e);
+            LOGGER.error("destroy {} RetryScheduler failed, identity=[{}]", name, appContext.getConfig().getIdentity(), e);
         }
     }
 
@@ -189,20 +197,20 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("{} RetryScheduler, local files send success, size: {}, {}", name, values.size(), JSON.toJSONString(values));
+                            LOGGER.info("{} RetryScheduler, local files send success, identity=[{}], size: {}, {}", name, appContext.getConfig().getIdentity(), values.size(), JSON.toJSONString(values));
                             failStore.delete(keys);
                         } else {
                             break;
                         }
-                    }finally {
-                        if(lock.isHeldByCurrentThread()){
+                    } finally {
+                        if (lock.isHeldByCurrentThread()) {
                             lock.unlock();
                         }
                     }
                 } while (CollectionUtils.isNotEmpty(kvPairs));
 
             } catch (Throwable e) {
-                LOGGER.error("Run {} RetryScheduler error ", name, e);
+                LOGGER.error("Run {} RetryScheduler error , identity=[{}]", name, appContext.getConfig().getIdentity(), e);
             }
         }
     }
@@ -233,7 +241,7 @@ public abstract class RetryScheduler<T> {
                         List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
                         if (CollectionUtils.isEmpty(kvPairs)) {
                             store.destroy();
-                            LOGGER.info("{} RetryScheduler, delete store dir[{}] success.", name, store.getPath());
+                            LOGGER.info("{} RetryScheduler, delete store dir[{}] success, identity=[{}] ", name, store.getPath(), appContext.getConfig().getIdentity());
                             break;
                         }
                         List<T> values = new ArrayList<T>(kvPairs.size());
@@ -243,7 +251,8 @@ public abstract class RetryScheduler<T> {
                             values.add(kvPair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("{} RetryScheduler, dead local files send success, size: {}, {}", name, values.size(), JSON.toJSONString(values));
+                            LOGGER.info("{} RetryScheduler, dead local files send success, identity=[{}], size: {}, {}"
+                                    , name, appContext.getConfig().getIdentity(), values.size(), JSON.toJSONString(values));
                             store.delete(keys);
                         } else {
                             store.close();
@@ -256,7 +265,7 @@ public abstract class RetryScheduler<T> {
                     }
                 }
             } catch (Throwable e) {
-                LOGGER.error("Run {} master RetryScheduler error.", name, e);
+                LOGGER.error("Run {} master RetryScheduler error, identity=[{}] ", name, appContext.getConfig().getIdentity(), e);
             }
         }
     }
@@ -265,9 +274,9 @@ public abstract class RetryScheduler<T> {
         try {
             lock.tryLock();
             failStore.put(key, value);
-            LOGGER.info("{} RetryScheduler, local files save success, {}", name, JSON.toJSONString(value));
+            LOGGER.info("{} RetryScheduler, local files save success, identity=[{}], {}", name, appContext.getConfig().getIdentity(), JSON.toJSONString(value));
         } catch (FailStoreException e) {
-            LOGGER.error("{} RetryScheduler in schedule error. ", name, e);
+            LOGGER.error("{} RetryScheduler in schedule error, identity=[{}]", name, e, appContext.getConfig().getIdentity());
         } finally {
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();

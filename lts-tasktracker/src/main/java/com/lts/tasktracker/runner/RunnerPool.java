@@ -116,6 +116,15 @@ public class RunnerPool {
         }
     }
 
+    public void shutDown(){
+        try {
+            threadPoolExecutor.shutdownNow();
+            LOGGER.info("stop working succeed ");
+        } catch (Throwable t) {
+            LOGGER.error("stop working failed ", t);
+        }
+    }
+
     /**
      * 用来管理正在执行的任务
      */
