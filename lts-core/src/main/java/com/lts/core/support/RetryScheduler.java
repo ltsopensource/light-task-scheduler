@@ -57,10 +57,10 @@ public abstract class RetryScheduler<T> {
 
     public RetryScheduler(AppContext appContext) {
         this(appContext, appContext.getConfig().getFailStorePath());
-        this.appContext = appContext;
     }
 
     public RetryScheduler(final AppContext appContext, String storePath) {
+        this.appContext = appContext;
         FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, appContext.getConfig());
         failStore = failStoreFactory.getFailStore(appContext.getConfig(), storePath);
         try {
