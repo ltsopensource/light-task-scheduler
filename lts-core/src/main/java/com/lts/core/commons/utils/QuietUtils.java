@@ -42,8 +42,4 @@ public class QuietUtils {
         }
     }
 
-    public interface Callable {
-        void call() throws Exception;
-    }
-
 }

@@ -25,22 +25,28 @@ public class ServiceLoader {
     private static final String LTS_DIRECTORY = "META-INF/lts/";
     private static final String LTS_INTERNAL = "internal";
     private static final String LTS_INTERNAL_DIRECTORY = LTS_DIRECTORY + LTS_INTERNAL + "/";
+    private static final String DEFAULT_IDENTITY = StringUtils.generateUUID();
 
     private static final ConcurrentMap<Class<?>, ServiceProvider> serviceMap = new ConcurrentHashMap<Class<?>, ServiceProvider>();
-    private static final ConcurrentMap<ServiceDefinition, Object> cachedObjectMap = new ConcurrentHashMap<ServiceDefinition, Object>();
+    private static final ConcurrentMap<IdentityUniqueKey, Object> cachedObjectMap = new ConcurrentHashMap<IdentityUniqueKey, Object>();
 
     public static <T> T load(Class<T> clazz, Config config) {
         ServiceProvider serviceProvider = getServiceProvider(clazz);
         String dynamicServiceName = config.getParameter(serviceProvider.dynamicConfigKey);
-        return load(clazz, dynamicServiceName);
+        String identity = config.getIdentity();
+        return load(clazz, dynamicServiceName, identity);
     }
 
     public static <T> T loadDefault(Class<T> clazz) {
         return load(clazz, "");
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T load(Class<T> clazz, String name) {
+        return load(clazz, name, DEFAULT_IDENTITY);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T load(Class<T> clazz, String name, String identity) {
         try {
             ServiceProvider serviceProvider = getServiceProvider(clazz);
             if (StringUtils.isEmpty(name)) {
@@ -52,19 +58,22 @@ public class ServiceLoader {
                 throw new IllegalStateException("Service loader could not load name:" + name + "  class:" + clazz.getName() + "'s ServiceProvider from '" + LTS_DIRECTORY + "' or '" + LTS_INTERNAL_DIRECTORY + "' It may be empty or does not exist.");
             }
 
-            Object obj = cachedObjectMap.get(definition);
+            // 用来保证每个节点都是一个各自的对象
+            IdentityUniqueKey uniqueKey = new IdentityUniqueKey(identity, definition);
+
+            Object obj = cachedObjectMap.get(uniqueKey);
             if (obj != null) {
                 return (T) obj;
             }
             synchronized (definition) {
-                obj = cachedObjectMap.get(definition);
+                obj = cachedObjectMap.get(uniqueKey);
                 if (obj != null) {
                     return (T) obj;
                 }
                 String className = definition.clazz;
                 ClassLoader classLoader = definition.classLoader;
                 T srv = clazz.cast(ClassLoaderUtil.newInstance(classLoader, className));
-                cachedObjectMap.putIfAbsent(definition, srv);
+                cachedObjectMap.putIfAbsent(uniqueKey, srv);
                 return srv;
             }
         } catch (Exception e) {
@@ -295,6 +304,34 @@ public class ServiceLoader {
             return result;
         }
 
+    }
+
+    private static class IdentityUniqueKey {
+        private String identity;
+        private ServiceDefinition definition;
+
+        public IdentityUniqueKey(String identity, ServiceDefinition definition) {
+            this.identity = identity;
+            this.definition = definition;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            IdentityUniqueKey that = (IdentityUniqueKey) o;
+
+            if (identity != null ? !identity.equals(that.identity) : that.identity != null) return false;
+            return definition != null ? definition.equals(that.definition) : that.definition == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = identity != null ? identity.hashCode() : 0;
+            result = 31 * result + (definition != null ? definition.hashCode() : 0);
+            return result;
+        }
     }
 
     private static final class ServiceProvider {

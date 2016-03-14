@@ -3,7 +3,6 @@ package com.lts.jvmmonitor;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.support.AliveKeeping;
 import com.lts.jvmmonitor.mbean.JVMGC;
 import com.lts.jvmmonitor.mbean.JVMInfo;
 import com.lts.jvmmonitor.mbean.JVMMemory;
@@ -16,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/15/15.
@@ -26,10 +26,13 @@ public class JVMMonitor {
 
     private static final MBeanServer MBEAN_SERVER = ManagementFactory.getPlatformMBeanServer();
     private static final AtomicBoolean start = new AtomicBoolean(false);
+    // 保证多个ClassLoader都是同一个对象
+    private static final ReferenceCount REF_COUNT = getRefCount();
 
     private final static Map<String, Object> MONITOR_MAP = new HashMap<String, Object>();
 
     public static void start() {
+        REF_COUNT.incrementAndGet();
         if (start.compareAndSet(false, true)) {
             if (CollectionUtils.isEmpty(MONITOR_MAP)) {
                 MONITOR_MAP.put(JVMConstants.JMX_JVM_INFO_NAME, JVMInfo.getInstance());
@@ -52,7 +55,9 @@ public class JVMMonitor {
     }
 
     public static void stop() {
-        if (start.compareAndSet(true, false)) {
+        REF_COUNT.decrementAndGet();
+        // 只有启动了,并且引用为0的时候才unregister
+        if (start.compareAndSet(true, false) && REF_COUNT.getCurRefCount() == 0) {
             for (Map.Entry<String, Object> entry : MONITOR_MAP.entrySet()) {
                 try {
                     ObjectName objectName = new ObjectName(entry.getKey());
@@ -91,4 +96,36 @@ public class JVMMonitor {
         }
         return null;
     }
+
+    private static ReferenceCount getRefCount() {
+        try {
+            return (ReferenceCount) loadClass("com.lts.jvmmonitor.JVMMonitorReferenceCount").newInstance();
+        } catch (Throwable e) {
+
+            LOGGER.warn("load com.lts.jvmmonitor.JVMMonitorReferenceCount error", e);
+
+            return new ReferenceCount() {
+                private final AtomicLong count = new AtomicLong(0);
+                public long incrementAndGet() {
+                    return count.incrementAndGet();
+                }
+                public long decrementAndGet() {
+                    return count.decrementAndGet();
+                }
+                public long getCurRefCount() {
+                    return count.get();
+                }
+            };
+        }
+    }
+
+    private static Class loadClass(String classname) throws ClassNotFoundException {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+        if (classLoader == null)
+            classLoader = JVMMonitor.class.getClassLoader();
+
+        return (classLoader.loadClass(classname));
+    }
+
 }

@@ -303,7 +303,7 @@ public class JobQueueApi extends AbstractMVC {
 
         String nodeGroup = request.getTaskTrackerNodeGroup();
 
-        HttpCmd httpCmd = new HttpCmd();
+        HttpCmd httpCmd = new DefaultHttpCmd();
         httpCmd.setCommand(HttpCmdNames.HTTP_CMD_LOAD_JOB);
         httpCmd.addParam("nodeGroup", nodeGroup);
 

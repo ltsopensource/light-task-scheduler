@@ -7,7 +7,7 @@ import com.lts.core.spi.SpiExtensionKey;
 /**
  * @author Robert HG (254963746@qq.com) on 5/19/15.
  */
-@SPI(key = SpiExtensionKey.JOB_LOGGER, dftValue = "console")
+@SPI(key = SpiExtensionKey.JOB_LOGGER, dftValue = "mysql")
 public interface JobLoggerFactory {
 
     JobLogger getJobLogger(Config config);

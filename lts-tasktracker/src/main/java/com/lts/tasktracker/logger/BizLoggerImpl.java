@@ -1,5 +1,6 @@
 package com.lts.tasktracker.logger;
 
+import com.lts.core.commons.utils.Callable;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
@@ -10,6 +11,7 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
 import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.remoting.RemotingClientDelegate;
+import com.lts.core.support.NodeShutdownHook;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
 import com.lts.remoting.AsyncCallback;
@@ -57,6 +59,13 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         };
         retryScheduler.setName(BizLogger.class.getSimpleName());
         this.retryScheduler.start();
+
+        NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+            @Override
+            public void call() throws Exception {
+                retryScheduler.stop();
+            }
+        });
     }
 
     private String getStorePath() {

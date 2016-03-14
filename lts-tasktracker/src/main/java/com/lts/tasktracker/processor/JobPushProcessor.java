@@ -1,5 +1,6 @@
 package com.lts.tasktracker.processor;
 
+import com.lts.core.commons.utils.Callable;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.JobWrapper;
 import com.lts.core.domain.TaskTrackerJobResult;
@@ -12,6 +13,7 @@ import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingClientDelegate;
 import com.lts.core.support.LoggerName;
+import com.lts.core.support.NodeShutdownHook;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
 import com.lts.remoting.AsyncCallback;
@@ -60,6 +62,13 @@ public class JobPushProcessor extends AbstractProcessor {
 
         // 线程安全的
         jobRunnerCallback = new JobRunnerCallback();
+
+        NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+            @Override
+            public void call() throws Exception {
+                retryScheduler.stop();
+            }
+        });
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.lts.admin.cluster.BackendAppContext;
 import com.lts.admin.request.JvmDataReq;
 import com.lts.admin.request.MDataPaginationReq;
 import com.lts.admin.request.NodeOnOfflineLogPaginationReq;
+import com.lts.core.commons.utils.Callable;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.commons.utils.QuietUtils;
 import com.lts.core.factory.NamedThreadFactory;
@@ -55,19 +56,19 @@ public class LtsAdminDataCleaner implements InitializingBean {
         final MDataPaginationReq request = new MDataPaginationReq();
         request.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
 
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendTaskTrackerMAccess().delete(request);
             }
         });
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendJobTrackerMAccess().delete(request);
             }
         });
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendJobClientMAccess().delete(request);
@@ -78,7 +79,7 @@ public class LtsAdminDataCleaner implements InitializingBean {
         final NodeOnOfflineLogPaginationReq nodeOnOfflineLogPaginationReq = new NodeOnOfflineLogPaginationReq();
         nodeOnOfflineLogPaginationReq.setEndLogTime(DateUtils.addDay(new Date(), -30));
 
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendNodeOnOfflineLogAccess().delete(nodeOnOfflineLogPaginationReq);
@@ -88,19 +89,19 @@ public class LtsAdminDataCleaner implements InitializingBean {
         // 3. 清除3天前的JVM监控信息
         final JvmDataReq jvmDataReq = new JvmDataReq();
         jvmDataReq.setEndTime(DateUtils.addDay(new Date(), -3).getTime());
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendJVMGCAccess().delete(jvmDataReq);
             }
         });
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendJVMThreadAccess().delete(jvmDataReq);
             }
         });
-        QuietUtils.doWithWarn(new QuietUtils.Callable() {
+        QuietUtils.doWithWarn(new Callable() {
             @Override
             public void call() throws Exception {
                 appContext.getBackendJVMMemoryAccess().delete(jvmDataReq);

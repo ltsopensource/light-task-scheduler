@@ -10,6 +10,7 @@ import com.lts.ec.EventInfo;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/23/14.
@@ -24,7 +25,8 @@ public class MasterElector {
 
     private AppContext appContext;
     private List<MasterChangeListener> listeners;
-    private volatile Node master;
+    private Node master;
+    private ReentrantLock lock = new ReentrantLock();
 
     public MasterElector(AppContext appContext) {
         this.appContext = appContext;
@@ -40,68 +42,80 @@ public class MasterElector {
     }
 
     public void addNodes(List<Node> nodes) {
-        Node newMaster = null;
-        for (Node node : nodes) {
-            if (newMaster == null) {
-                newMaster = node;
-            } else {
-                if (newMaster.getCreateTime() > node.getCreateTime()) {
+        lock.lock();
+        try {
+            Node newMaster = null;
+            for (Node node : nodes) {
+                if (newMaster == null) {
                     newMaster = node;
+                } else {
+                    if (newMaster.getCreateTime() > node.getCreateTime()) {
+                        newMaster = node;
+                    }
                 }
             }
+            addNode(newMaster);
+        } finally {
+            lock.unlock();
         }
-        addNode(newMaster);
     }
 
     /**
      * 当前节点是否是master
      */
     public boolean isCurrentMaster() {
-        if (master != null && master.getIdentity().equals(appContext.getConfig().getIdentity())) {
-            return true;
-        }
-        return false;
+        return master != null && master.getIdentity().equals(appContext.getConfig().getIdentity());
     }
 
     public void addNode(Node newNode) {
-        if (master == null) {
-            master = newNode;
-            notifyListener();
-        } else {
-            if (master.getCreateTime() > newNode.getCreateTime()) {
+        lock.lock();
+        try {
+            if (master == null) {
                 master = newNode;
                 notifyListener();
+            } else {
+                if (master.getCreateTime() > newNode.getCreateTime()) {
+                    master = newNode;
+                    notifyListener();
+                }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
     public void removeNode(List<Node> removedNodes) {
-        if (master != null) {
-            boolean masterRemoved = false;
-            for (Node removedNode : removedNodes) {
-                if (master.getIdentity().equals(removedNode.getIdentity())) {
-                    masterRemoved = true;
+        lock.lock();
+        try {
+            if (master != null) {
+                boolean masterRemoved = false;
+                for (Node removedNode : removedNodes) {
+                    if (master.getIdentity().equals(removedNode.getIdentity())) {
+                        masterRemoved = true;
+                    }
                 }
-            }
-            if (masterRemoved) {
-                // 如果挂掉的是master, 需要重新选举
-                List<Node> nodes = appContext.getSubscribedNodeManager().
-                        getNodeList(appContext.getConfig().getNodeType(), appContext.getConfig().getNodeGroup());
-                if (CollectionUtils.isNotEmpty(nodes)) {
-                    Node newMaster = null;
-                    for (Node node : nodes) {
-                        if (newMaster == null) {
-                            newMaster = node;
-                        } else {
-                            if (newMaster.getCreateTime() > node.getCreateTime()) {
+                if (masterRemoved) {
+                    // 如果挂掉的是master, 需要重新选举
+                    List<Node> nodes = appContext.getSubscribedNodeManager().
+                            getNodeList(appContext.getConfig().getNodeType(), appContext.getConfig().getNodeGroup());
+                    if (CollectionUtils.isNotEmpty(nodes)) {
+                        Node newMaster = null;
+                        for (Node node : nodes) {
+                            if (newMaster == null) {
                                 newMaster = node;
+                            } else {
+                                if (newMaster.getCreateTime() > node.getCreateTime()) {
+                                    newMaster = node;
+                                }
                             }
                         }
+                        master = newMaster;
+                        notifyListener();
                     }
-                    master = newMaster;
-                    notifyListener();
                 }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -126,7 +140,6 @@ public class MasterElector {
         }
         EventInfo eventInfo = new EventInfo(EcTopic.MASTER_CHANGED);
         eventInfo.setParam("master", master);
-        eventInfo.setParam("isMaster", isMaster);
         appContext.getEventCenter().publishSync(eventInfo);
     }
 

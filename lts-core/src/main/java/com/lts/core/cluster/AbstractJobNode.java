@@ -8,6 +8,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.commons.utils.NetUtils;
 import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.constant.EcTopic;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
 import com.lts.core.json.JSONFactory;
@@ -23,6 +24,7 @@ import com.lts.core.spi.ServiceLoader;
 import com.lts.core.spi.SpiExtensionKey;
 import com.lts.core.support.AliveKeeping;
 import com.lts.ec.EventCenter;
+import com.lts.ec.EventInfo;
 import com.lts.remoting.serialize.AdaptiveSerializable;
 
 import java.util.ArrayList;
@@ -74,13 +76,13 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
                 AliveKeeping.start();
 
-                LOGGER.info("Start success!");
+                LOGGER.info("Start success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
             }
         } catch (Throwable e) {
             if (e.getMessage().contains("Address already in use")) {
-                LOGGER.error("Start failed at listen port {}!", config.getListenPort(), e);
+                LOGGER.error("Start failed at listen port {}, nodeType={}, identity={}", config.getListenPort(), config.getNodeType(), config.getIdentity(), e);
             } else {
-                LOGGER.error("Start failed!", e);
+                LOGGER.error("Start failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
             }
         }
     }
@@ -108,20 +110,20 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                     registry.unregister(node);
                 }
 
+                appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_SHUT_DOWN));
+
                 beforeRemotingStop();
 
                 remotingStop();
 
                 afterRemotingStop();
 
-                // appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_STOP));
-
                 AliveKeeping.stop();
 
-                LOGGER.info("Stop success!");
+                LOGGER.info("Stop success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
             }
         } catch (Throwable e) {
-            LOGGER.error("Stop failed!", e);
+            LOGGER.error("Stop failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
         }
     }
 
@@ -129,9 +131,9 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
     public void destroy() {
         try {
             registry.destroy();
-            LOGGER.info("Destroy success!");
+            LOGGER.info("Destroy success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
         } catch (Throwable e) {
-            LOGGER.error("Destroy failed!", e);
+            LOGGER.error("Destroy failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
         }
     }
 
