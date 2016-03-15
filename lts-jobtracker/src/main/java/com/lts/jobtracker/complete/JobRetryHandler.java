@@ -40,7 +40,7 @@ public class JobRetryHandler implements JobCompleteHandler {
 
             JobWrapper jobWrapper = result.getJobWrapper();
             // 1. 加入到重试队列
-            JobPo jobPo = appContext.getExecutingJobQueue().get(jobWrapper.getJobId());
+            JobPo jobPo = appContext.getExecutingJobQueue().getJob(jobWrapper.getJobId());
             if (jobPo == null) {    // 表示已经被删除了
                 continue;
             }
