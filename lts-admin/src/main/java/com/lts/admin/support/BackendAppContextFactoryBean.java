@@ -99,7 +99,7 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         appContext.setSuspendJobQueue(factory.getSuspendJobQueue(config));
         appContext.setJobFeedbackQueue(factory.getJobFeedbackQueue(config));
         appContext.setNodeGroupStore(factory.getNodeGroupStore(config));
-        appContext.setJobLogger(new SmartJobLogger(config));
+        appContext.setJobLogger(new SmartJobLogger(appContext));
     }
 
     private void initAccess(Config config) {
