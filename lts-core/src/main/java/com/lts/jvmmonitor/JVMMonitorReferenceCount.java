@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class JVMMonitorReferenceCount implements ReferenceCount {
 
-    // 这里必须为static
+    // 这里必须为static, 保证所有实例引用的都是一个REF_COUNT
     private static final AtomicLong REF_COUNT = new AtomicLong(0);
 
     @Override

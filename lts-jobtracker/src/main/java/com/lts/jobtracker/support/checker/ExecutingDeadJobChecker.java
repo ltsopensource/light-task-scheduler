@@ -15,18 +15,18 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobAskRequest;
 import com.lts.core.protocol.command.JobAskResponse;
 import com.lts.core.remoting.RemotingServerDelegate;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.channel.ChannelWrapper;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
-import com.lts.store.jdbc.exception.DupEntryException;
 import com.lts.remoting.AsyncCallback;
 import com.lts.remoting.Channel;
 import com.lts.remoting.ResponseFuture;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
+import com.lts.store.jdbc.exception.DupEntryException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,9 +48,6 @@ public class ExecutingDeadJobChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutingDeadJobChecker.class);
 
-    // 2 分钟没有收到反馈信息，需要去检查这个任务是否还在执行
-    private static final long MAX_DEAD_CHECK_TIME = 2 * 60 * 1000;
-
     private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutingJobQueue-Fix-Executor", true));
 
     private JobTrackerAppContext appContext;
@@ -67,6 +64,13 @@ public class ExecutingDeadJobChecker {
     public void start() {
         try {
             if (start.compareAndSet(false, true)) {
+                int fixCheckPeriodSeconds = appContext.getConfig().getParameter("jobtracker.executing.job.fix.check.interval.seconds", 30);
+                if (fixCheckPeriodSeconds < 5) {
+                    fixCheckPeriodSeconds = 5;
+                } else if (fixCheckPeriodSeconds > 5 * 60) {
+                    fixCheckPeriodSeconds = 5 * 60;
+                }
+
                 scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {
@@ -75,12 +79,12 @@ public class ExecutingDeadJobChecker {
                             if (!appContext.getRegistryStatMonitor().isAvailable()) {
                                 return;
                             }
-                            fix();
+                            checkAndFix();
                         } catch (Throwable t) {
                             LOGGER.error("Check executing dead job error ", t);
                         }
                     }
-                }, 30, 60, TimeUnit.SECONDS);// 1分钟执行一次
+                }, fixCheckPeriodSeconds, fixCheckPeriodSeconds, TimeUnit.SECONDS);
             }
             LOGGER.info("Executing dead job checker started!");
         } catch (Throwable e) {
@@ -88,11 +92,20 @@ public class ExecutingDeadJobChecker {
         }
     }
 
-    private void fix() throws RemotingSendException {
+    private void checkAndFix() throws RemotingSendException {
+
+        // 30s没有收到反馈信息，需要去检查这个任务是否还在执行
+        int maxDeadCheckTime = appContext.getConfig().getParameter("jobtracker.executing.job.fix.deadline.seconds", 20);
+        if (maxDeadCheckTime < 10) {
+            maxDeadCheckTime = 10;
+        } else if (maxDeadCheckTime > 5 * 60) {
+            maxDeadCheckTime = 5 * 60;
+        }
+
         // 查询出所有死掉的任务 (其实可以直接在数据库中fix的, 查询出来主要是为了日志打印)
         // 一般来说这个是没有多大的，我就不分页去查询了
         List<JobPo> maybeDeadJobPos = appContext.getExecutingJobQueue().getDeadJobs(
-                SystemClock.now() - MAX_DEAD_CHECK_TIME);
+                SystemClock.now() - maxDeadCheckTime * 1000);
         if (CollectionUtils.isNotEmpty(maybeDeadJobPos)) {
 
             Map<String/*taskTrackerIdentity*/, List<JobPo>> jobMap = new HashMap<String, List<JobPo>>();
@@ -113,7 +126,7 @@ public class ExecutingDeadJobChecker {
                 if (channelWrapper == null && taskTrackerIdentity != null) {
                     Long offlineTimestamp = appContext.getChannelManager().getOfflineTimestamp(taskTrackerIdentity);
                     // 已经离线太久，直接修复
-                    if (offlineTimestamp == null || SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
+                    if (offlineTimestamp == null || SystemClock.now() - offlineTimestamp > Constants.DEFAULT_TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                         // fixDeadJob
                         fixDeadJob(entry.getValue());
                     }
@@ -201,7 +214,7 @@ public class ExecutingDeadJobChecker {
         } catch (Throwable t) {
             LOGGER.error(t.getMessage(), t);
         }
-        LOGGER.info("fix dead job ! {}", JSON.toJSONString(jobPo));
+        LOGGER.info("checkAndFix dead job ! {}", JSON.toJSONString(jobPo));
     }
 
     public void stop() {

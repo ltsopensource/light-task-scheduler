@@ -44,7 +44,7 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
     protected void beforeStart() {
         // injectRemotingServer
         appContext.setRemotingServer(remotingServer);
-        appContext.setJobLogger(new SmartJobLogger(config));
+        appContext.setJobLogger(new SmartJobLogger(appContext));
 
         JobQueueFactory factory = ServiceLoader.load(JobQueueFactory.class, config);
 

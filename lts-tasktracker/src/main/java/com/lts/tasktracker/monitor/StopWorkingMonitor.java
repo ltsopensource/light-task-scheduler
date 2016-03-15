@@ -58,7 +58,7 @@ public class StopWorkingMonitor {
                             }
 
                             if (offlineTimestamp != null &&
-                                    SystemClock.now() - offlineTimestamp > Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
+                                    SystemClock.now() - offlineTimestamp > Constants.DEFAULT_TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                                 // 停止所有任务
                                 appContext.getRunnerPool().stopWorking();
                                 offlineTimestamp = null;
@@ -67,7 +67,7 @@ public class StopWorkingMonitor {
                             LOGGER.error("Check ", t);
                         }
                     }
-                }, 5, 5, TimeUnit.SECONDS);
+                }, 3, 3, TimeUnit.SECONDS);
                 LOGGER.info("start succeed ");
             }
         } catch (Throwable t) {
