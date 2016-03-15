@@ -63,7 +63,7 @@ public class ChannelManager {
                             if (offlineTaskTrackerMap.size() > 0) {
                                 for (Map.Entry<String, Long> entry : offlineTaskTrackerMap.entrySet()) {
                                     // 清除离线超过一定时间的信息
-                                    if (SystemClock.now() - entry.getValue() > 2 * Constants.TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
+                                    if (SystemClock.now() - entry.getValue() > 2 * Constants.DEFAULT_TASK_TRACKER_OFFLINE_LIMIT_MILLIS) {
                                         offlineTaskTrackerMap.remove(entry.getKey());
                                     }
                                 }

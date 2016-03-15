@@ -42,7 +42,6 @@ public class JobNodeChangeListener implements NodeChangeListener {
         for (Node node : nodes) {
             if (node.getNodeType().equals(NodeType.TASK_TRACKER)) {
                 appContext.getTaskTrackerManager().removeNode(node);
-//                appContext.getExecutingDeadJobChecker().fixedDeadNodeJob(node);
             } else if (node.getNodeType().equals(NodeType.JOB_CLIENT)) {
                 appContext.getJobClientManager().removeNode(node);
             }

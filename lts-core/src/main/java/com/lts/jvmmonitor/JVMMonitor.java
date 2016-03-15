@@ -26,7 +26,7 @@ public class JVMMonitor {
 
     private static final MBeanServer MBEAN_SERVER = ManagementFactory.getPlatformMBeanServer();
     private static final AtomicBoolean start = new AtomicBoolean(false);
-    // 保证多个ClassLoader都是同一个对象
+    // 保证多个ClassLoader都是同一个类
     private static final ReferenceCount REF_COUNT = getRefCount();
 
     private final static Map<String, Object> MONITOR_MAP = new HashMap<String, Object>();

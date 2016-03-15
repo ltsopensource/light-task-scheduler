@@ -40,7 +40,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void afterStart() {
-        if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_SWITCH, false)) {
+        if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_ENABLE, false)) {
             appContext.getStopWorkingMonitor().start();
         }
     }
