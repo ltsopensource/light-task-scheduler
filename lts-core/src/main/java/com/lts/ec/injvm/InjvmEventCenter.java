@@ -1,6 +1,6 @@
 package com.lts.ec.injvm;
 
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;

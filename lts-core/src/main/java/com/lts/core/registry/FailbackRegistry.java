@@ -2,7 +2,7 @@ package com.lts.core.registry;
 
 import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.commons.utils.Callable;
 import com.lts.core.constant.Constants;
 import com.lts.core.factory.NamedThreadFactory;

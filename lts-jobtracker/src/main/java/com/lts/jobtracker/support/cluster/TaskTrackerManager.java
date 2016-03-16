@@ -3,7 +3,7 @@ package com.lts.jobtracker.support.cluster;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobtracker.channel.ChannelWrapper;
