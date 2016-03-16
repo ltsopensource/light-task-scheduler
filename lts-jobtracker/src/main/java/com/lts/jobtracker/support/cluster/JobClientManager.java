@@ -2,7 +2,7 @@ package com.lts.jobtracker.support.cluster;
 
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.loadbalance.LoadBalance;
 import com.lts.core.logger.Logger;

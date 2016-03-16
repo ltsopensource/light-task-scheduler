@@ -1,4 +1,4 @@
-package com.lts.core.commons.collect;
+package com.lts.core.commons.concurrent;
 
 import java.util.AbstractSet;
 import java.util.Collection;

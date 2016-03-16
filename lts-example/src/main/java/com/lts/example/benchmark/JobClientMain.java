@@ -33,7 +33,7 @@ public class JobClientMain {
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         // 可选址  leveldb(默认), rocksdb, berkeleydb
         // taskTracker.addConfig("job.fail.store", "leveldb");
-        jobClient.addConfig("job.submit.concurrency.size", "100");
+        jobClient.addConfig("job.submit.maxQPS", "100");
         jobClient.start();
 
         try {

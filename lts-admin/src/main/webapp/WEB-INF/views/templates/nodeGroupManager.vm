@@ -29,8 +29,8 @@
                             <div class="col-sm-2">
                                 <select name="nodeType" class="form-control">
                                     <option value="">所有</option>
-                                    <option value="JOB_CLIENT">JobClient</option>
-                                    <option value="TASK_TRACKER">TaskTracker</option>
+                                    <option value="JOB_CLIENT">JOB_CLIENT</option>
+                                    <option value="TASK_TRACKER">TASK_TRACKER</option>
                                 </select>
                             </div>
                             <div class="col-sm-1" style="margin-left:10px;width:70px;">

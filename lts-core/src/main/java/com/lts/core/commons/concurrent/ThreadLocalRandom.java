@@ -1,4 +1,4 @@
-package com.lts.core.commons.utils;
+package com.lts.core.commons.concurrent;
 
 import java.util.Random;
 
