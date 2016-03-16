@@ -11,6 +11,10 @@
     <packaging>jar</packaging>
     <artifactId>lts-spring</artifactId>
 
+    <properties>
+        <quartz.version>2.2.2</quartz.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.lts</groupId>
@@ -46,6 +50,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${springframework.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+            <version>${quartz.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
