@@ -6,7 +6,7 @@ import com.lts.cmd.HttpCmdResponse;
 
 /**
  * 一些系统配置更改CMD
- * Created by hugui.hg on 3/16/16.
+ * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
 public class SysConfigModifyHttpCmd implements HttpCmdProc {
 

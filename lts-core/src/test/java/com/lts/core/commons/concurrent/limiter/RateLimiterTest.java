@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by hugui.hg on 3/16/16.
+ * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
 public class RateLimiterTest {
 
