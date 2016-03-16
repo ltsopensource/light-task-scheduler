@@ -63,8 +63,8 @@ public interface Constants {
     int DEFAULT_REGISTRY_RECONNECT_PERIOD = 3 * 1000;
 
     // 客户端提交并发请求size
-    String JOB_SUBMIT_CONCURRENCY_SIZE = "job.submit.concurrency.size";
-    int DEFAULT_JOB_SUBMIT_CONCURRENCY_SIZE = 100;
+    String JOB_SUBMIT_MAX_QPS = "job.submit.maxQPS";
+    int DEFAULT_JOB_SUBMIT_MAX_QPS = 500;
 
     String PROCESSOR_THREAD = "job.processor.thread";
     int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;

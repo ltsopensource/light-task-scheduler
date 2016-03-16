@@ -2,7 +2,7 @@ package com.lts.core.registry;
 
 import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;

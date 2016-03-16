@@ -1,6 +1,6 @@
 package com.lts.queue;
 
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.queue.domain.JobPo;
 
 import java.util.Comparator;
