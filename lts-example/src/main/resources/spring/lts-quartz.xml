@@ -26,7 +26,7 @@
         </property>
     </bean>
 
-    <bean class="com.lts.spring.quartz.LTSQuartzProxyBean">
+    <bean class="com.lts.spring.quartz.QuartzLTSProxyBean">
         <property name="clusterName" value="test_cluster"/>
         <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="nodeGroup" value="quartz_test_group"/>

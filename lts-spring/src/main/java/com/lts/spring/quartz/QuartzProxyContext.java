@@ -5,19 +5,19 @@ package com.lts.spring.quartz;
  */
 class QuartzProxyContext {
 
-    private LTSQuartzConfig ltsQuartzConfig;
-    private LTSQuartzProxyAgent agent;
+    private QuartzLTSConfig quartzLTSConfig;
+    private QuartzLTSProxyAgent agent;
 
-    public QuartzProxyContext(LTSQuartzConfig ltsQuartzConfig, LTSQuartzProxyAgent agent) {
-        this.ltsQuartzConfig = ltsQuartzConfig;
+    public QuartzProxyContext(QuartzLTSConfig quartzLTSConfig, QuartzLTSProxyAgent agent) {
+        this.quartzLTSConfig = quartzLTSConfig;
         this.agent = agent;
     }
 
-    public LTSQuartzConfig getLtsQuartzConfig() {
-        return ltsQuartzConfig;
+    public QuartzLTSConfig getQuartzLTSConfig() {
+        return quartzLTSConfig;
     }
 
-    public LTSQuartzProxyAgent getAgent() {
+    public QuartzLTSProxyAgent getAgent() {
         return agent;
     }
 }

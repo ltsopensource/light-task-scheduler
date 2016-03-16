@@ -20,15 +20,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
-class LTSQuartzProxyAgent {
+class QuartzLTSProxyAgent {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LTSQuartzProxyAgent.class);
-    private LTSQuartzConfig ltsQuartzConfig;
+    private static final Logger LOGGER = LoggerFactory.getLogger(QuartzLTSProxyAgent.class);
+    private QuartzLTSConfig quartzLTSConfig;
     private List<QuartzCronJob> quartzCronJobs = new CopyOnWriteArrayList<QuartzCronJob>();
     private volatile boolean already = false;
 
-    public LTSQuartzProxyAgent(LTSQuartzConfig ltsQuartzConfig) {
-        this.ltsQuartzConfig = ltsQuartzConfig;
+    public QuartzLTSProxyAgent(QuartzLTSConfig quartzLTSConfig) {
+        this.quartzLTSConfig = quartzLTSConfig;
     }
 
     // 开始代理
@@ -76,10 +76,10 @@ class LTSQuartzProxyAgent {
 
     private void startTaskTracker() {
         TaskTracker taskTracker = new TaskTracker();
-        taskTracker.setRegistryAddress(ltsQuartzConfig.getRegistryAddress());
-        taskTracker.setClusterName(ltsQuartzConfig.getClusterName());
-        taskTracker.setNodeGroup(ltsQuartzConfig.getTaskTrackerNodeGroup());
-        taskTracker.setDataPath(ltsQuartzConfig.getDataPath());
+        taskTracker.setRegistryAddress(quartzLTSConfig.getRegistryAddress());
+        taskTracker.setClusterName(quartzLTSConfig.getClusterName());
+        taskTracker.setNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
+        taskTracker.setDataPath(quartzLTSConfig.getDataPath());
         taskTracker.setWorkThreads(quartzCronJobs.size());
         taskTracker.setJobRunnerClass(QuartzJobRunnerDispatcher.class);
 
@@ -96,10 +96,10 @@ class LTSQuartzProxyAgent {
 
     private JobClient startJobClient() {
         JobClient jobClient = new RetryJobClient();
-        jobClient.setRegistryAddress(ltsQuartzConfig.getRegistryAddress());
-        jobClient.setClusterName(ltsQuartzConfig.getClusterName());
-        jobClient.setNodeGroup(ltsQuartzConfig.getJobClientNodeGroup());
-        jobClient.setDataPath(ltsQuartzConfig.getDataPath());
+        jobClient.setRegistryAddress(quartzLTSConfig.getRegistryAddress());
+        jobClient.setClusterName(quartzLTSConfig.getClusterName());
+        jobClient.setNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
+        jobClient.setDataPath(quartzLTSConfig.getDataPath());
         jobClient.start();
         return jobClient;
     }
@@ -118,8 +118,8 @@ class LTSQuartzProxyAgent {
             job.setTaskId(name);
             job.setPriority(priority);
             job.setCronExpression(cronExpression);
-            job.setSubmitNodeGroup(ltsQuartzConfig.getJobClientNodeGroup());
-            job.setTaskTrackerNodeGroup(ltsQuartzConfig.getTaskTrackerNodeGroup());
+            job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
+            job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
             job.setReplaceOnExist(true);
             job.setParam("description", description);
             job.setNeedFeedback(false);
