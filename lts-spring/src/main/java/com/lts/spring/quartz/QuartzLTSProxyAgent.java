@@ -1,12 +1,13 @@
 package com.lts.spring.quartz;
 
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.commons.utils.QuietUtils;
 import com.lts.core.domain.Job;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.jobclient.JobClient;
-import com.lts.jobclient.RetryJobClient;
 import com.lts.jobclient.domain.Response;
 import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
@@ -16,6 +17,7 @@ import org.quartz.impl.triggers.CronTriggerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
@@ -25,7 +27,7 @@ class QuartzLTSProxyAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzLTSProxyAgent.class);
     private QuartzLTSConfig quartzLTSConfig;
     private List<QuartzCronJob> quartzCronJobs = new CopyOnWriteArrayList<QuartzCronJob>();
-    private volatile boolean already = false;
+    private AtomicBoolean ready = new AtomicBoolean(false);
 
     public QuartzLTSProxyAgent(QuartzLTSConfig quartzLTSConfig) {
         this.quartzLTSConfig = quartzLTSConfig;
@@ -38,26 +40,21 @@ class QuartzLTSProxyAgent {
         }
         quartzCronJobs.addAll(cronJobs);
 
-        if (already) {
+        if (!ready.compareAndSet(false, true)) {
             return;
         }
-        new Thread(new Runnable() {
+        new NamedThreadFactory(QuartzLTSProxyAgent.class.getSimpleName() + "_LazyStart").newThread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    try {
-                        // 3S之后启动 JobClient和TaskTracker, 为了防止有多个SchedulerFactoryBean, 从而这个方法被调用多次
-                        Thread.sleep(3000L);
-                    } catch (InterruptedException ignored) {
-                    }
+                    // 3S之后启动 JobClient和TaskTracker, 为了防止有多个SchedulerFactoryBean, 从而这个方法被调用多次
+                    QuietUtils.sleep(3000);
                     startProxy0();
                 } catch (Throwable t) {
-                    LOGGER.error("Error on start LTSQuartzProxyAgent", t);
+                    LOGGER.error("Error on start " + QuartzLTSProxyAgent.class.getSimpleName(), t);
                 }
             }
         }).start();
-
-        already = true;
     }
 
     private void startProxy0() {
@@ -69,9 +66,6 @@ class QuartzLTSProxyAgent {
 
         // 3. 提交任务
         submitJobs(jobClient);
-
-        // 4. 关闭jobClient
-        jobClient.stop();
     }
 
     private void startTaskTracker() {
@@ -95,7 +89,7 @@ class QuartzLTSProxyAgent {
     }
 
     private JobClient startJobClient() {
-        JobClient jobClient = new RetryJobClient();
+        JobClient jobClient = new JobClient();
         jobClient.setRegistryAddress(quartzLTSConfig.getRegistryAddress());
         jobClient.setClusterName(quartzLTSConfig.getClusterName());
         jobClient.setNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
@@ -105,6 +99,7 @@ class QuartzLTSProxyAgent {
     }
 
     private void submitJobs(JobClient jobClient) {
+
         List<Job> jobs = new ArrayList<Job>(quartzCronJobs.size());
         for (QuartzCronJob quartzCronJob : quartzCronJobs) {
 
@@ -120,16 +115,38 @@ class QuartzLTSProxyAgent {
             job.setCronExpression(cronExpression);
             job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
             job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
-            job.setReplaceOnExist(true);
+            job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
             job.setParam("description", description);
             job.setNeedFeedback(false);
 
             jobs.add(job);
         }
+        LOGGER.info("=============LTS=========== Submit start");
+        submitJobs0(jobClient, jobs);
+        LOGGER.info("=============LTS=========== Submit end");
+    }
 
-        Response response = jobClient.submitJob(jobs);
-        if (!response.isSuccess()) {
-            LOGGER.warn("Submit Quartz Jobs to LTS failed: {}", JSON.toJSONString(response));
+    private void submitJobs0(JobClient jobClient, List<Job> jobs) {
+        List<Job> failedJobs = null;
+        try {
+            Response response = jobClient.submitJob(jobs);
+            if (!response.isSuccess()) {
+                LOGGER.warn("Submit Quartz Jobs to LTS failed: {}", JSON.toJSONString(response));
+                failedJobs = response.getFailedJobs();
+            }
+        } catch (Throwable e) {
+            LOGGER.warn("Submit Quartz Jobs to LTS error", e);
+            failedJobs = jobs;
         }
+
+        if (CollectionUtils.isNotEmpty(failedJobs)) {
+            // 没提交成功要重试 3S 之后重试
+            LOGGER.info("=============LTS=========== Sleep 3 seconds and retry");
+            QuietUtils.sleep(3000);
+            submitJobs0(jobClient, failedJobs);
+        }
+
+        // 如果成功了, 关闭jobClient
+        jobClient.stop();
     }
 }
