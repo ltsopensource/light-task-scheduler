@@ -1,8 +1,7 @@
 package com.lts.jobtracker.processor;
 
 import com.lts.core.cluster.NodeType;
-import com.lts.core.logger.Logger;
-import com.lts.core.logger.LoggerFactory;
+import com.lts.core.commons.concurrent.limiter.RateLimiter;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.AbstractRemotingCommandBody;
 import com.lts.jobtracker.channel.ChannelWrapper;
@@ -15,7 +14,6 @@ import com.lts.remoting.protocol.RemotingProtos;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import static com.lts.core.protocol.JobProtos.RequestCode;
@@ -27,10 +25,9 @@ import static com.lts.core.protocol.JobProtos.RequestCode;
 public class RemotingDispatcher extends AbstractRemotingProcessor {
 
     private final Map<RequestCode, RemotingProcessor> processors = new HashMap<RequestCode, RemotingProcessor>();
-    private Semaphore reqLimitSemaphore;
-    private int reqLimitAcquireTimeout = 200;
+    private RateLimiter rateLimiter;
+    private int reqLimitAcquireTimeout = 50;
     private boolean reqLimitEnable = false;
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingDispatcher.class);
 
     public RemotingDispatcher(JobTrackerAppContext appContext) {
         super(appContext);
@@ -41,9 +38,9 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
         processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(appContext));
 
         this.reqLimitEnable = appContext.getConfig().getParameter("remoting.req.limit.enable", false);
-        Integer maxQPS = appContext.getConfig().getParameter("remoting.req.limit.maxQPS", 500);
-        this.reqLimitSemaphore = new Semaphore(maxQPS);
-        this.reqLimitAcquireTimeout = appContext.getConfig().getParameter("remoting.req.limit.acquire.timeout", 200);
+        Integer maxQPS = appContext.getConfig().getParameter("remoting.req.limit.maxQPS", 5000);
+        this.rateLimiter = RateLimiter.create(maxQPS);
+        this.reqLimitAcquireTimeout = appContext.getConfig().getParameter("remoting.req.limit.acquire.timeout", 50);
     }
 
     @Override
@@ -64,23 +61,11 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
      * 限流处理
      */
     private RemotingCommand doBizWithReqLimit(Channel channel, RemotingCommand request) throws RemotingCommandException {
-        boolean acquired = false;
-        try {
-            try {
-                acquired = reqLimitSemaphore.tryAcquire(reqLimitAcquireTimeout, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                LOGGER.warn("acquire lock error", e);
-            }
 
-            if (!acquired) {
-                return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_BUSY.code(), "remoting server is busy!");
-            }
+        if (rateLimiter.tryAcquire(reqLimitAcquireTimeout, TimeUnit.MILLISECONDS)) {
             return doBiz(channel, request);
-        } finally {
-            if (acquired) {
-                reqLimitSemaphore.release();
-            }
         }
+        return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SYSTEM_BUSY.code(), "remoting server is busy!");
     }
 
     private RemotingCommand doBiz(Channel channel, RemotingCommand request) throws RemotingCommandException {

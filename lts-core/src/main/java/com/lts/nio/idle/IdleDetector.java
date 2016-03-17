@@ -1,6 +1,6 @@
 package com.lts.nio.idle;
 
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.support.SystemClock;
 import com.lts.nio.channel.NioChannel;
 import com.lts.nio.channel.NioChannelImpl;

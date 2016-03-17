@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+>
+
+    <bean name="quartzTest" class="com.lts.example.support.quartz.QuartzTest"/>
+    <bean id="quartzTestJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="quartzTest"/>
+        <property name="targetMethod" value="autoRun"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+
+    <bean id="quartzTestTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="quartzTestJob"/>
+        <property name="cronExpression" value="*/5 * * * * ?"/> <!-- 5s一次 -->
+        <property name="description" value="测试哈哈哈哈"/>
+    </bean>
+
+    <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="quartzTestTrigger"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="com.lts.spring.quartz.QuartzLTSProxyBean">
+        <property name="clusterName" value="test_cluster"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+        <property name="nodeGroup" value="quartz_test_group"/>
+    </bean>
+
+</beans>

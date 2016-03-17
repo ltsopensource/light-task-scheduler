@@ -2,7 +2,7 @@ package com.lts.core.cluster;
 
 
 import com.lts.core.AppContext;
-import com.lts.core.commons.collect.ConcurrentHashSet;
+import com.lts.core.commons.concurrent.ConcurrentHashSet;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.ListUtils;
 import com.lts.core.constant.EcTopic;
