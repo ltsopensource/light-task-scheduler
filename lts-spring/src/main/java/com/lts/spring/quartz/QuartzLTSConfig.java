@@ -29,6 +29,12 @@ class QuartzLTSConfig {
      */
     private int workThreads;
 
+    /**
+     * 如果为true, 每次启动时, 则以本地为准, 覆盖lts上的
+     * 如果为false,每次启动是, 则以lts为准, 如果lts上已经存在, 则不添加
+     */
+    private boolean replaceOnExist = true;
+
     public String getClusterName() {
         return clusterName;
     }
@@ -75,5 +81,13 @@ class QuartzLTSConfig {
 
     public void setWorkThreads(int workThreads) {
         this.workThreads = workThreads;
+    }
+
+    public boolean isReplaceOnExist() {
+        return replaceOnExist;
+    }
+
+    public void setReplaceOnExist(boolean replaceOnExist) {
+        this.replaceOnExist = replaceOnExist;
     }
 }

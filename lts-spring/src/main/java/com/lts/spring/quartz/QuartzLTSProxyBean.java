@@ -31,6 +31,11 @@ public class QuartzLTSProxyBean implements BeanFactoryPostProcessor {
      * 提交失败任务存储路径 , 默认用户目录
      */
     private String dataPath;
+    /**
+     * 如果为true, 每次启动时, 则以本地为准, 覆盖lts上的
+     * 如果为false,每次启动是, 则以lts为准, 如果lts上已经存在, 则不添加
+     */
+    private boolean replaceOnExist = true;
 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -44,6 +49,7 @@ public class QuartzLTSProxyBean implements BeanFactoryPostProcessor {
             quartzLTSConfig.setNodeGroup(nodeGroup);
             quartzLTSConfig.setRegistryAddress(registryAddress);
             quartzLTSConfig.setDataPath(dataPath);
+            quartzLTSConfig.setReplaceOnExist(replaceOnExist);
 
             QuartzLTSProxyAgent agent = new QuartzLTSProxyAgent(quartzLTSConfig);
             QuartzProxyContext context = new QuartzProxyContext(quartzLTSConfig, agent);
@@ -71,5 +77,9 @@ public class QuartzLTSProxyBean implements BeanFactoryPostProcessor {
 
     public void setDataPath(String dataPath) {
         this.dataPath = dataPath;
+    }
+
+    public void setReplaceOnExist(boolean replaceOnExist) {
+        this.replaceOnExist = replaceOnExist;
     }
 }
