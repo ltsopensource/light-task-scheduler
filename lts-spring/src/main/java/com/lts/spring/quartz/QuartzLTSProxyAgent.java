@@ -144,6 +144,7 @@ class QuartzLTSProxyAgent {
             LOGGER.info("=============LTS=========== Sleep 3 seconds and retry");
             QuietUtils.sleep(3000);
             submitJobs0(jobClient, failedJobs);
+            return;
         }
 
         // 如果成功了, 关闭jobClient
