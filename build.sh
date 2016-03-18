@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.6.5-SNAPSHOT"
+VERSION="1.6.5"
 
 LTS_BIN="${BASH_SOURCE-$0}"
 LTS_BIN="$(dirname "${LTS_BIN}")"
@@ -28,7 +28,7 @@ TaskTracker_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-tasktracker"
 cd $TaskTracker_Startup_Dir
 mvn assembly:assembly -DskipTests
 
-# TaskTracker 打包
+# LTS-Monitor 打包
 LTS_Monitor_Startup_Dir="$LTS_Bin_Dir/lts-monitor"
 cd $LTS_Monitor_Startup_Dir
 mvn assembly:assembly -DskipTests
