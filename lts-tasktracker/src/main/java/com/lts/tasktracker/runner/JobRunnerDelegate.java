@@ -185,7 +185,7 @@ public class JobRunnerDelegate implements Runnable {
     private void checkInterrupted() {
         try {
             if (isInterrupted()) {
-                logger.info("Interrupted");
+                logger.info("SYSTEM:Interrupted");
             }
         } catch (Throwable t) {
             LOGGER.warn("checkInterrupted error", t);

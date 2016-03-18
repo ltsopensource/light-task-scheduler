@@ -30,6 +30,8 @@ LTS支持任务类型：
 * 定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。
 * Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?
 
+支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
+
 ## 架构图
 
 ![LTS architecture](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_architecture.png?dir=0&filepath=docs%2FLTS_architecture.png&oid=1e5daa62b8d032daaa47eab4a84ab1d4c8962c33&sha=774aa73d186470aedbb8f4da3c04a86a6022be05)
@@ -304,9 +306,6 @@ public class LTSSpringConfig implements ApplicationContextAware {
 |lts.monitor.interval|可选|1|JobClient,TaskTracker,JobTracker|addConfig("lts.monitor.interval", "2")|分钟，整数，建议1-5分钟|
 |lts.remoting|可选|netty|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting", "netty")|底层通讯框架，可选值netty和mina，可以混用，譬如JobTracker是netty， JobClient采用mina|
 |lts.remoting.serializable.default|可选|fastjson|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting.serializable.default", "fastjson")|底层通讯默认序列化方式，可选值 fastjson, hessian2 ，java，底层会自动识别你请求的序列化方式，然后返回数据也是采用与请求的序列化方式返回，假设JobTracker设置的是fastjson，而JobClient是hessian2，那么JobClient提交任务的时候，序列化方式是hessian2，当JobTracker收到请求的时候采用hessian2解码，然后也会将响应数据采用hessian2编码返回给JobClient|
-|lts.compiler|可选|javassist|JobClient,TaskTracker,JobTracker|addConfig("lts.compiler", "javassist")|java编译器,可选值 jdk, javassist(需要引入javassist包)|
-
-
 
 
 ##使用建议
@@ -380,6 +379,18 @@ public class TestJobRunnerTester extends JobRunnerTester {
 }
 ```
 
+##Spring Quartz Cron任务无缝接入
+对于Quartz的Cron任务只需要在Spring配置中增加一下代码就可以接入LTS平台
+
+```xml
+<bean class="com.lts.spring.quartz.QuartzLTSProxyBean">
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="quartz_test_group"/>
+</bean>
+```
+
+
 ##多网卡选择问题
 当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
 
@@ -390,14 +401,8 @@ public class TestJobRunnerTester extends JobRunnerTester {
 如果在节点启动的时候设置节点标识,LTS会默认设置一个UUID为节点标识,可读性会比较差,但是能保证每个节点的唯一性,如果用户能自己保证节点标识的唯一性,可以通过 `setIdentity` 来设置,譬如如果每个节点都是部署在一台机器(一个虚拟机)上,那么可以将identity设置为主机名称
 
 ##SPI扩展说明
-###LTS-Logger扩展
-1. 引入`lts-logger-api-{version}.jar`
-2. 实现`JobLogger`和`JobLoggerFactory`接口
-3. 在 resources `META-INF/lts/com.lts.biz.logger.JobLoggerFactory`文件,文件内容为`xxx=com.lts.biz.logger.xxx.XxxJobLoggerFactory`
-4. 使用自己的logger扩展，修改jobtracker参数配置 configs.job.logger=xxx。（如果你自己引入JobTracker jar包的方式的话，使用 `jobtracker.addConfig("job.logger", "xxx"))`
+支持JobLogger,JobQueue等等的SPI扩展
 
-###LTS-Queue扩展
-实现方式和LTS-Logger扩展类似，具体参考`lts-queue-mysql`或`lts-queue-mongo`模块的实现
 ##和其它解决方案比较
 ###和MQ比较
 见docs/LTS业务场景说明.pdf

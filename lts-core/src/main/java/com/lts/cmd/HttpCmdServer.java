@@ -5,7 +5,6 @@ import com.lts.core.logger.LoggerFactory;
 
 import java.io.IOException;
 import java.net.BindException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -23,6 +22,7 @@ public class HttpCmdServer {
     private int port;
     private String bindAddr;
     private HttpCmdContext context;
+    private int portFindTimes;
 
     private HttpCmdServer(String bindAddr, int port) {
         this.port = port > 0 ? port : 8719;
@@ -50,10 +50,9 @@ public class HttpCmdServer {
             serverSocket = new ServerSocket(port, 100);
             serverSocket.setReuseAddress(true);
         } catch (BindException e) {
-            if (e.getMessage().contains("Address already in use")) {
-                port = port + 1;
-                serverSocket = getServerSocket();
-            } else {
+            port = port + 1;
+            serverSocket = getServerSocket();
+            if (portFindTimes++ > 50) {
                 throw e;
             }
         }
