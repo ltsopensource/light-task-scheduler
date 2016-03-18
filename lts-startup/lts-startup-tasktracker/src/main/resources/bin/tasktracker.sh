@@ -30,7 +30,7 @@ NODE_NAME="$1"  # zoo
 CONF_HOME="$TASK_TRACKER_HOME/../tasktracker"
 CONF_HOME=$(cd "$(dirname "$CONF_HOME")"; pwd)
 CONF_HOME="$CONF_HOME/tasktracker/conf/$NODE_NAME"
-# echo $CONF_HOME
+echo $CONF_HOME
 
 _LTS_DAEMON_OUT="$TASK_TRACKER_HOME/../logs/tasktracker-$NODE_NAME.out"
 LTS_MAIN="com.lts.startup.TaskTrackerStartup"
