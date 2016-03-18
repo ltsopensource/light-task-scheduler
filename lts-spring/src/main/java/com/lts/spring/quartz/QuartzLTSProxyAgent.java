@@ -141,7 +141,7 @@ class QuartzLTSProxyAgent {
 
         if (CollectionUtils.isNotEmpty(failedJobs)) {
             // 没提交成功要重试 3S 之后重试
-            LOGGER.info("=============LTS=========== Sleep 3 seconds and retry");
+            LOGGER.info("=============LTS=========== Sleep 3 Seconds and retry");
             QuietUtils.sleep(3000);
             submitJobs0(jobClient, failedJobs);
             return;

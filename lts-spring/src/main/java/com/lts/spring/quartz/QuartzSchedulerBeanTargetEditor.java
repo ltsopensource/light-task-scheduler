@@ -28,6 +28,9 @@ class QuartzSchedulerBeanTargetEditor extends PropertyEditorSupport {
     @Override
     @SuppressWarnings({"unchecked"})
     public void setValue(Object value) {
+
+        List<Object> nativeQuartzTriggers = new ArrayList<Object>();
+
         if (value != null && value instanceof Collection) {
 
             Collection<Trigger> triggers = (Collection<Trigger>) value;
@@ -36,12 +39,13 @@ class QuartzSchedulerBeanTargetEditor extends PropertyEditorSupport {
                 if (trigger instanceof CronTriggerImpl) {
                     quartzCronJobs.add(buildQuartzCronJob((CronTriggerImpl) trigger));
                 } else {
-                    LOGGER.error("Can't Proxy " + trigger.getClass().getName());
+                    LOGGER.warn("Can't Proxy " + trigger.getClass().getName() + " Then Use Quartz Scheduler");
+                    nativeQuartzTriggers.add(trigger);
                 }
             }
             context.getAgent().startProxy(quartzCronJobs);
         }
-        super.setValue(new ArrayList<Trigger>(0));
+        super.setValue(nativeQuartzTriggers);
     }
 
     private QuartzCronJob buildQuartzCronJob(CronTriggerImpl cronTrigger) {
