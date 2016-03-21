@@ -5,8 +5,6 @@ import com.lts.core.listener.MasterChangeListener;
 import com.lts.jobclient.JobClient;
 import com.lts.jobclient.RetryJobClient;
 import com.lts.jobclient.support.JobCompletedHandler;
-import com.lts.tasktracker.TaskTracker;
-
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
