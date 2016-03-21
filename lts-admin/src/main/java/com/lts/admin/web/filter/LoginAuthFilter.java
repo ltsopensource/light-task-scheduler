@@ -28,7 +28,7 @@ public class LoginAuthFilter implements Filter {
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
-        username = AppConfigurer.getProperty("console.usename", username);
+        username = AppConfigurer.getProperty("console.username", username);
         password = AppConfigurer.getProperty("console.password", password);
 
         String excludedURLs = filterConfig.getInitParameter("excludedURLs");

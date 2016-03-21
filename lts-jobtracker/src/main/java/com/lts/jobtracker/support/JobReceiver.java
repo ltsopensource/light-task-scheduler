@@ -120,11 +120,19 @@ public class JobReceiver {
     private void addJob(Job job, JobPo jobPo) throws DupEntryException {
         if (job.isSchedule()) {
             addCronJob(jobPo);
-            LOGGER.info("Receive Cron Job success. {}", job);
         } else {
-            appContext.getExecutableJobQueue().add(jobPo);
-            LOGGER.info("Receive Job success. {}", job);
+            boolean needAdd2ExecutableJobQueue = true;
+            String ignoreAddOnExecuting = job.getParam("__LTS_ignoreAddOnExecuting");
+            if (ignoreAddOnExecuting != null && "true".equals(ignoreAddOnExecuting)) {
+                if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) != null) {
+                    needAdd2ExecutableJobQueue = false;
+                }
+            }
+            if (needAdd2ExecutableJobQueue) {
+                appContext.getExecutableJobQueue().add(jobPo);
+            }
         }
+        LOGGER.info("Receive Cron Job success. {}", job);
     }
 
     /**

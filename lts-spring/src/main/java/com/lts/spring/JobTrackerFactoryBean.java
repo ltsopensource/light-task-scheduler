@@ -5,7 +5,6 @@ import com.lts.core.listener.MasterChangeListener;
 import com.lts.jobtracker.JobTracker;
 import com.lts.jobtracker.support.OldDataHandler;
 import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
-import com.lts.tasktracker.TaskTracker;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
