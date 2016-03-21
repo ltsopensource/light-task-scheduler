@@ -64,7 +64,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
 
     @Override
     public Class<?> getObjectType() {
-        return TaskTracker.class;
+        return JobClient.class;
     }
 
     @Override
