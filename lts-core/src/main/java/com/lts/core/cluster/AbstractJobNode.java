@@ -45,7 +45,7 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
     protected Context appContext;
     private List<NodeChangeListener> nodeChangeListeners;
     private List<MasterChangeListener> masterChangeListeners;
-    private AtomicBoolean started = new AtomicBoolean(false);
+    protected AtomicBoolean started = new AtomicBoolean(false);
 
     public AbstractJobNode() {
         appContext = getAppContext();
@@ -110,13 +110,13 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
                     registry.unregister(node);
                 }
 
-                appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_SHUT_DOWN));
-
                 beforeRemotingStop();
 
                 remotingStop();
 
                 afterRemotingStop();
+
+                appContext.getEventCenter().publishSync(new EventInfo(EcTopic.NODE_SHUT_DOWN));
 
                 AliveKeeping.stop();
 
@@ -176,6 +176,12 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
         String ltsJson = config.getParameter(SpiExtensionKey.LTS_JSON);
         if (StringUtils.isNotEmpty(ltsJson)) {
             JSONFactory.setJSONAdapter(ltsJson);
+        }
+
+        // 设置logger
+        String logger = config.getParameter(SpiExtensionKey.LTS_LOGGER);
+        if (StringUtils.isNotEmpty(logger)) {
+            LoggerFactory.setLoggerAdapter(logger);
         }
     }
 

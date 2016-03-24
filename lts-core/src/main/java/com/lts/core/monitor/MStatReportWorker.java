@@ -14,8 +14,10 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.domain.monitor.MData;
 import com.lts.core.domain.monitor.MNode;
 import com.lts.core.json.JSON;
+import com.lts.core.loadbalance.LoadBalance;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.SystemClock;
 import com.lts.jvmmonitor.JVMCollector;
 
@@ -39,11 +41,13 @@ public class MStatReportWorker implements Runnable {
     private final static int MAX_RETRY_RETAIN = 500;
     private final static int BATCH_REPORT_SIZE = 10;
     private volatile boolean running = false;
+    private LoadBalance loadBalance;
 
     public MStatReportWorker(AppContext appContext, AbstractMStatReporter reporter) {
         this.appContext = appContext;
         this.reporter = reporter;
         interval = appContext.getConfig().getParameter("lts.monitor.report.interval", 1);
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "monitor.select.loadbalance");
     }
 
     @Override
@@ -141,8 +145,8 @@ public class MStatReportWorker implements Runnable {
 
     // 发送请求
     private boolean sendReq(List<Node> monitorNodes, HttpCmd cmd) {
-        boolean success = false;
-        for (Node node : monitorNodes) {
+        while (true) {
+            Node node = selectMNode(monitorNodes);
             try {
                 cmd.setNodeIdentity(node.getIdentity());
                 HttpCmdResponse response = HttpCmdClient.doPost(node.getIp(), node.getPort(), cmd);
@@ -150,19 +154,24 @@ public class MStatReportWorker implements Runnable {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Report Monitor Data Success.");
                     }
-                    success = true;
-                    break;
+                    return true;
                 } else {
                     LOGGER.warn("Report Monitor Data Failed: " + response.getMsg());
+                    monitorNodes.remove(node);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Report Monitor Data Error: " + e.getMessage(), e);
                 // 重试下一个
             }
+            if (monitorNodes.size() == 0) {
+                return false;
+            }
         }
-        return success;
     }
 
+    private Node selectMNode(List<Node> monitorNodes) {
+        return loadBalance.select(monitorNodes, appContext.getConfig().getIdentity());
+    }
 
     private MNode buildMNode() {
         MNode mNode = new MNode();
