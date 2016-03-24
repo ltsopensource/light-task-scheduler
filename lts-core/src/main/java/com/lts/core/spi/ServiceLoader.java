@@ -37,6 +37,12 @@ public class ServiceLoader {
         return load(clazz, dynamicServiceName, identity);
     }
 
+    public static <T> T load(Class<T> clazz, Config config, String configKey) {
+        String dynamicServiceName = config.getParameter(configKey);
+        String identity = config.getIdentity();
+        return load(clazz, dynamicServiceName, identity);
+    }
+
     public static <T> T loadDefault(Class<T> clazz) {
         return load(clazz, "");
     }
