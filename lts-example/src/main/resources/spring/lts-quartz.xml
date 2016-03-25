@@ -18,18 +18,26 @@
         <property name="description" value="测试哈哈哈哈"/>
     </bean>
 
+    <bean id="simpleTriggerTest" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="quartzTestJob"/>
+        <property name="repeatInterval" value="5000"/>
+        <property name="description" value="测试哈哈哈哈"/>
+    </bean>
+
+
     <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
             <list>
-                <ref bean="quartzTestTrigger"/>
+                <!--<ref bean="quartzTestTrigger"/>-->
+                <ref bean="simpleTriggerTest"/>
             </list>
         </property>
     </bean>
 
-    <bean class="com.lts.spring.quartz.QuartzLTSProxyBean">
-        <property name="clusterName" value="test_cluster"/>
-        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-        <property name="nodeGroup" value="quartz_test_group"/>
-    </bean>
+    <!--<bean class="com.lts.spring.quartz.QuartzLTSProxyBean">-->
+        <!--<property name="clusterName" value="test_cluster"/>-->
+        <!--<property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>-->
+        <!--<property name="nodeGroup" value="quartz_test_group"/>-->
+    <!--</bean>-->
 
 </beans>
