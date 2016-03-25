@@ -165,6 +165,9 @@ public class NetUtils {
                 while (interfaces.hasMoreElements()) {
                     try {
                         NetworkInterface network = interfaces.nextElement();
+                        if (network.isLoopback() || network.isVirtual() || !network.isUp()) {
+                            continue;
+                        }
                         Enumeration<InetAddress> addresses = network.getInetAddresses();
                         while (addresses.hasMoreElements()) {
                             try {
