@@ -2,14 +2,13 @@ package com.lts.jobtracker.sender;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
-import com.lts.core.json.JSON;
 import com.lts.core.constant.Level;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.support.LoggerName;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
 
@@ -18,7 +17,7 @@ import com.lts.store.jdbc.exception.DupEntryException;
  */
 public class JobSender {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
+    private final Logger LOGGER = LoggerFactory.getLogger(JobSender.class);
 
     private JobTrackerAppContext appContext;
 

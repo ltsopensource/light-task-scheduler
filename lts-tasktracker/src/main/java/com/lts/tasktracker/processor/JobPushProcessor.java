@@ -2,8 +2,8 @@ package com.lts.tasktracker.processor;
 
 import com.lts.core.commons.utils.Callable;
 import com.lts.core.constant.Constants;
-import com.lts.core.domain.JobWrapper;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobMeta;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.logger.Logger;
@@ -12,7 +12,6 @@ import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.JobCompletedRequest;
 import com.lts.core.protocol.command.JobPushRequest;
 import com.lts.core.remoting.RemotingClientDelegate;
-import com.lts.core.support.LoggerName;
 import com.lts.core.support.NodeShutdownHook;
 import com.lts.core.support.RetryScheduler;
 import com.lts.core.support.SystemClock;
@@ -37,23 +36,23 @@ import java.util.concurrent.TimeUnit;
  */
 public class JobPushProcessor extends AbstractProcessor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobPushProcessor.class);
 
-    private RetryScheduler<TaskTrackerJobResult> retryScheduler;
+    private RetryScheduler<JobRunResult> retryScheduler;
     private JobRunnerCallback jobRunnerCallback;
     private RemotingClientDelegate remotingClient;
 
     protected JobPushProcessor(TaskTrackerAppContext appContext) {
         super(appContext);
         this.remotingClient = appContext.getRemotingClient();
-        retryScheduler = new RetryScheduler<TaskTrackerJobResult>(appContext, 3) {
+        retryScheduler = new RetryScheduler<JobRunResult>(appContext, 3) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
             }
 
             @Override
-            protected boolean retry(List<TaskTrackerJobResult> results) {
+            protected boolean retry(List<JobRunResult> results) {
                 return retrySendJobResults(results);
             }
         };
@@ -78,10 +77,10 @@ public class JobPushProcessor extends AbstractProcessor {
         JobPushRequest requestBody = request.getBody();
 
         // JobTracker 分发来的 job
-        final JobWrapper jobWrapper = requestBody.getJobWrapper();
+        final JobMeta jobMeta = requestBody.getJobMeta();
 
         try {
-            appContext.getRunnerPool().execute(jobWrapper, jobRunnerCallback);
+            appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
         } catch (NoAvailableJobRunnerException e) {
             // 任务推送失败
             return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
@@ -98,15 +97,15 @@ public class JobPushProcessor extends AbstractProcessor {
      */
     private class JobRunnerCallback implements RunnerCallback {
         @Override
-        public JobWrapper runComplete(Response response) {
+        public JobMeta runComplete(Response response) {
             // 发送消息给 JobTracker
-            final TaskTrackerJobResult taskTrackerJobResult = new TaskTrackerJobResult();
-            taskTrackerJobResult.setTime(SystemClock.now());
-            taskTrackerJobResult.setJobWrapper(response.getJobWrapper());
-            taskTrackerJobResult.setAction(response.getAction());
-            taskTrackerJobResult.setMsg(response.getMsg());
+            final JobRunResult jobRunResult = new JobRunResult();
+            jobRunResult.setTime(SystemClock.now());
+            jobRunResult.setJobMeta(response.getJobMeta());
+            jobRunResult.setAction(response.getAction());
+            jobRunResult.setMsg(response.getMsg());
             JobCompletedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
-            requestBody.addJobResult(taskTrackerJobResult);
+            requestBody.addJobResult(jobRunResult);
             requestBody.setReceiveNewJob(response.isReceiveNewJob());     // 设置可以接受新任务
 
             int requestCode = JobProtos.RequestCode.JOB_COMPLETED.code();
@@ -126,15 +125,15 @@ public class JobPushProcessor extends AbstractProcessor {
                             if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                                 JobPushRequest jobPushRequest = commandResponse.getBody();
                                 if (jobPushRequest != null) {
-                                    LOGGER.info("Get new job :{}", jobPushRequest.getJobWrapper());
-                                    returnResponse.setJobWrapper(jobPushRequest.getJobWrapper());
+                                    LOGGER.info("Get new job :{}", jobPushRequest.getJobMeta());
+                                    returnResponse.setJobMeta(jobPushRequest.getJobMeta());
                                 }
                             } else {
-                                LOGGER.info("Job feedback failed, save local files。{}", taskTrackerJobResult);
+                                LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
                                 try {
                                     retryScheduler.inSchedule(
-                                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + SystemClock.now(),
-                                            taskTrackerJobResult);
+                                            jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
+                                            jobRunResult);
                                 } catch (Exception e) {
                                     LOGGER.error("Job feedback failed", e);
                                 }
@@ -154,24 +153,24 @@ public class JobPushProcessor extends AbstractProcessor {
                 try {
                     LOGGER.warn("No job tracker available! save local files.");
                     retryScheduler.inSchedule(
-                            taskTrackerJobResult.getJobWrapper().getJobId().concat("_") + SystemClock.now(),
-                            taskTrackerJobResult);
+                            jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
+                            jobRunResult);
                 } catch (Exception e1) {
-                    LOGGER.error("Save files failed, {}", taskTrackerJobResult.getJobWrapper(), e1);
+                    LOGGER.error("Save files failed, {}", jobRunResult.getJobMeta(), e1);
                 }
             }
 
-            return returnResponse.getJobWrapper();
+            return returnResponse.getJobMeta();
         }
     }
 
     /**
      * 发送JobResults
      */
-    private boolean retrySendJobResults(List<TaskTrackerJobResult> results) {
+    private boolean retrySendJobResults(List<JobRunResult> results) {
         // 发送消息给 JobTracker
         JobCompletedRequest requestBody = appContext.getCommandBodyWrapper().wrapper(new JobCompletedRequest());
-        requestBody.setTaskTrackerJobResults(results);
+        requestBody.setJobRunResults(results);
         requestBody.setReSend(true);
 
         int requestCode = JobProtos.RequestCode.JOB_COMPLETED.code();

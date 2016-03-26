@@ -3,7 +3,7 @@ package com.lts.core.failstore.berkeleydb;
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.json.JSON;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.logger.Logger;
@@ -99,10 +99,10 @@ public class BerkeleydbFailStore extends AbstractFailStore {
     }
 
     @Override
-    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+    public <T> List<Pair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
         Cursor cursor = null;
         try {
-            List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>();
+            List<Pair<String, T>> list = new ArrayList<Pair<String, T>>();
 
             cursor = db.openCursor(null, CursorConfig.DEFAULT);
             DatabaseEntry foundKey = new DatabaseEntry();
@@ -113,7 +113,7 @@ public class BerkeleydbFailStore extends AbstractFailStore {
                 String valueString = new String(foundValue.getData(), "UTF-8");
 
                 T value = JSON.parse(valueString, type);
-                KVPair<String, T> pair = new KVPair<String, T>(key, value);
+                Pair<String, T> pair = new Pair<String, T>(key, value);
                 list.add(pair);
                 if (list.size() >= size) {
                     break;

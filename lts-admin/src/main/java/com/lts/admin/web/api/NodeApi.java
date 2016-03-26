@@ -12,7 +12,7 @@ import com.lts.admin.web.vo.RestfulResponse;
 import com.lts.core.cluster.Node;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.NodeGroupGetRequest;
+import com.lts.core.domain.NodeGroupGetReq;
 import com.lts.queue.domain.NodeGroupPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,10 +59,10 @@ public class NodeApi extends AbstractMVC {
     @RequestMapping("node-group-get")
     public RestfulResponse getNodeGroup(NodeGroupRequest request) {
         RestfulResponse response = new RestfulResponse();
-        NodeGroupGetRequest nodeGroupGetRequest = new NodeGroupGetRequest();
-        nodeGroupGetRequest.setNodeGroup(request.getNodeGroup());
-        nodeGroupGetRequest.setNodeType(request.getNodeType());
-        PaginationRsp<NodeGroupPo> paginationRsp = appContext.getNodeGroupStore().getNodeGroup(nodeGroupGetRequest);
+        NodeGroupGetReq nodeGroupGetReq = new NodeGroupGetReq();
+        nodeGroupGetReq.setNodeGroup(request.getNodeGroup());
+        nodeGroupGetReq.setNodeType(request.getNodeType());
+        PaginationRsp<NodeGroupPo> paginationRsp = appContext.getNodeGroupStore().getNodeGroup(nodeGroupGetReq);
 
         response.setResults(paginationRsp.getResults());
         response.setRows(paginationRsp.getRows());

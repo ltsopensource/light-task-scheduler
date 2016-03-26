@@ -43,7 +43,7 @@ public class GroovyEngine {
                                      Class<?>[] parameterTypes,
                                      Object[] args) throws GroovyException {
 
-        Class groovyClass = parseClass(groovySource);
+        Class<?> groovyClass = parseClass(groovySource);
         try {
             if (parameterTypes == null || parameterTypes.length == 0) {
                 return groovyClass.getConstructor().newInstance();

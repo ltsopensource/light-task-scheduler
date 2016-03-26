@@ -1,13 +1,13 @@
 package com.lts.jobtracker.support;
 
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 
 import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/3/15.
  */
-public interface ClientNotifyHandler<T extends TaskTrackerJobResult> {
+public interface ClientNotifyHandler<T extends JobRunResult> {
 
     /**
      * 通知成功的处理

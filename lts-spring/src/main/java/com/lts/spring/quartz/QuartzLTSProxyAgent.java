@@ -13,6 +13,7 @@ import com.lts.tasktracker.TaskTracker;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.RunnerFactory;
 import org.quartz.impl.triggers.CronTriggerImpl;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ class QuartzLTSProxyAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzLTSProxyAgent.class);
     private QuartzLTSConfig quartzLTSConfig;
-    private List<QuartzCronJob> quartzCronJobs = new CopyOnWriteArrayList<QuartzCronJob>();
+    private List<QuartzJob> quartzJobs = new CopyOnWriteArrayList<QuartzJob>();
     private AtomicBoolean ready = new AtomicBoolean(false);
 
     public QuartzLTSProxyAgent(QuartzLTSConfig quartzLTSConfig) {
@@ -34,11 +35,11 @@ class QuartzLTSProxyAgent {
     }
 
     // 开始代理
-    public void startProxy(List<QuartzCronJob> cronJobs) {
+    public void startProxy(List<QuartzJob> cronJobs) {
         if (CollectionUtils.isEmpty(cronJobs)) {
             return;
         }
-        quartzCronJobs.addAll(cronJobs);
+        quartzJobs.addAll(cronJobs);
 
         if (!ready.compareAndSet(false, true)) {
             return;
@@ -74,10 +75,10 @@ class QuartzLTSProxyAgent {
         taskTracker.setClusterName(quartzLTSConfig.getClusterName());
         taskTracker.setNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
         taskTracker.setDataPath(quartzLTSConfig.getDataPath());
-        taskTracker.setWorkThreads(quartzCronJobs.size());
+        taskTracker.setWorkThreads(quartzJobs.size());
         taskTracker.setJobRunnerClass(QuartzJobRunnerDispatcher.class);
 
-        final QuartzJobRunnerDispatcher jobRunnerDispatcher = new QuartzJobRunnerDispatcher(quartzCronJobs);
+        final QuartzJobRunnerDispatcher jobRunnerDispatcher = new QuartzJobRunnerDispatcher(quartzJobs);
         taskTracker.setRunnerFactory(new RunnerFactory() {
             @Override
             public JobRunner newRunner() {
@@ -100,30 +101,68 @@ class QuartzLTSProxyAgent {
 
     private void submitJobs(JobClient jobClient) {
 
-        List<Job> jobs = new ArrayList<Job>(quartzCronJobs.size());
-        for (QuartzCronJob quartzCronJob : quartzCronJobs) {
+        List<Job> jobs = new ArrayList<Job>(quartzJobs.size());
+        for (QuartzJob quartzJob : quartzJobs) {
 
-            CronTriggerImpl cronTrigger = quartzCronJob.getCronTrigger();
-            String cronExpression = cronTrigger.getCronExpression();
-            String description = cronTrigger.getDescription();
-            int priority = cronTrigger.getPriority();
-            String name = cronTrigger.getName();
-
-            Job job = new Job();
-            job.setTaskId(name);
-            job.setPriority(priority);
-            job.setCronExpression(cronExpression);
-            job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
-            job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
-            job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
-            job.setParam("description", description);
-            job.setNeedFeedback(false);
-
-            jobs.add(job);
+            if (QuartzJobType.CRON == quartzJob.getType()) {
+                jobs.add(buildCronJob(quartzJob));
+            } else if (QuartzJobType.SIMPLE_REPEAT == quartzJob.getType()) {
+                jobs.add(buildSimpleJob(quartzJob));
+            }
         }
         LOGGER.info("=============LTS=========== Submit start");
         submitJobs0(jobClient, jobs);
         LOGGER.info("=============LTS=========== Submit end");
+    }
+
+    private Job buildCronJob(QuartzJob quartzJob) {
+
+        CronTriggerImpl cronTrigger = (CronTriggerImpl) quartzJob.getTrigger();
+        String cronExpression = cronTrigger.getCronExpression();
+        String description = cronTrigger.getDescription();
+        int priority = cronTrigger.getPriority();
+        String name = quartzJob.getName();
+
+        Job job = new Job();
+        job.setTaskId(name);
+        job.setPriority(priority);
+        job.setCronExpression(cronExpression);
+        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
+        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
+        job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
+        job.setParam("description", description);
+        job.setNeedFeedback(false);
+
+        return job;
+    }
+
+    private Job buildSimpleJob(QuartzJob quartzJob) {
+
+        SimpleTriggerImpl simpleTrigger = (SimpleTriggerImpl) quartzJob.getTrigger();
+
+        String description = simpleTrigger.getDescription();
+        int priority = simpleTrigger.getPriority();
+        String name = quartzJob.getName();
+        int repeatCount = simpleTrigger.getRepeatCount();
+        long repeatInterval = simpleTrigger.getRepeatInterval();
+
+        Job job = new Job();
+        job.setTaskId(name);
+
+        job.setTriggerDate(simpleTrigger.getNextFireTime());
+        job.setRepeatCount(repeatCount);
+
+        if (repeatCount != 0) {
+            job.setRepeatInterval(repeatInterval);
+        }
+        job.setPriority(priority);
+        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
+        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
+        job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
+        job.setParam("description", description);
+        job.setNeedFeedback(false);
+
+        return job;
     }
 
     private void submitJobs0(JobClient jobClient, List<Job> jobs) {

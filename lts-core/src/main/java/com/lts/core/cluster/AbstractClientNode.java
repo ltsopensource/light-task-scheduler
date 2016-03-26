@@ -76,7 +76,7 @@ public abstract class AbstractClientNode<T extends Node, Context extends AppCont
     }
 
     private RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
-        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingClient(remotingClientConfig);
+        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingClient(appContext, remotingClientConfig);
     }
 
     @Override

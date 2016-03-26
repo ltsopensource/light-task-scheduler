@@ -38,11 +38,15 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         "submit_node_group",
                         "task_tracker_node_group",
                         "ext_params",
+                        "internal_ext_params",
                         "is_running",
                         "task_tracker_identity",
                         "need_feedback",
                         "cron_expression",
-                        "trigger_time")
+                        "trigger_time",
+                        "repeat_count",
+                        "repeated_count",
+                        "repeat_interval")
                 .values(jobPo.getJobId(),
                         jobPo.getPriority(),
                         jobPo.getRetryTimes(),
@@ -53,11 +57,15 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         jobPo.getSubmitNodeGroup(),
                         jobPo.getTaskTrackerNodeGroup(),
                         JSON.toJSONString(jobPo.getExtParams()),
+                        JSON.toJSONString(jobPo.getInternalExtParams()),
                         jobPo.isRunning(),
                         jobPo.getTaskTrackerIdentity(),
                         jobPo.isNeedFeedback(),
                         jobPo.getCronExpression(),
-                        jobPo.getTriggerTime())
+                        jobPo.getTriggerTime(),
+                        jobPo.getRepeatCount(),
+                        jobPo.getRepeatedCount(),
+                        jobPo.getRepeatInterval())
                 .doInsert() == 1;
     }
 
@@ -111,6 +119,8 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .setOnNotNull("max_retry_times", request.getMaxRetryTimes())
                 .setOnNotNull("submit_node_group", request.getSubmitNodeGroup())
                 .setOnNotNull("task_tracker_node_group", request.getTaskTrackerNodeGroup())
+                .setOnNotNull("repeat_count", request.getRepeatCount())
+                .setOnNotNull("repeat_interval", request.getRepeatInterval())
                 .where("job_id=?", request.getJobId())
                 .doUpdate() == 1;
     }

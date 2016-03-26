@@ -96,7 +96,7 @@ function LtsTable(options) {
         _this.showLoading();
         $.ajax({
             url: _this.url,
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
             data: params,
             success: function (json) {

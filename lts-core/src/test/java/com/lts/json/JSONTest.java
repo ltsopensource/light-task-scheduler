@@ -2,7 +2,7 @@ package com.lts.json;
 
 import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.json.TypeReference;
 import org.junit.Test;
 
@@ -63,14 +63,14 @@ public class JSONTest {
 
     @Test
     public void testEnum(){
-        TaskTrackerJobResult result = new TaskTrackerJobResult();
+        JobRunResult result = new JobRunResult();
         result.setAction(Action.EXECUTE_EXCEPTION);
         result.setMsg("fxxdfdasaf");
 
         String json = new JSONObject(result).toString();
         System.out.println(json);
 
-        TaskTrackerJobResult result2 = JSONObject.parseObject(json, new TypeReference<TaskTrackerJobResult>() {
+        JobRunResult result2 = JSONObject.parseObject(json, new TypeReference<JobRunResult>() {
         }.getType());
         System.out.println(result2);
     }

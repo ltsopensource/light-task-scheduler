@@ -2,7 +2,7 @@ package com.lts.queue.mysql;
 
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
-import com.lts.core.domain.NodeGroupGetRequest;
+import com.lts.core.domain.NodeGroupGetReq;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
@@ -68,7 +68,7 @@ public class MysqlNodeGroupStore extends JdbcAbstractAccess implements NodeGroup
                 .list(RshHolder.NODE_GROUP_LIST_RSH);
     }
 
-    public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request) {
+    public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetReq request) {
         PaginationRsp<NodeGroupPo> response = new PaginationRsp<NodeGroupPo>();
 
         Long results = new SelectSql(getSqlTemplate())

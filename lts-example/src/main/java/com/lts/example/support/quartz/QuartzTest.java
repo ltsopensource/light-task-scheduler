@@ -9,8 +9,11 @@ import java.util.Date;
  */
 public class QuartzTest {
 
-    public void autoRun() {
-        System.out.println(DateUtils.formatYMD_HMS(new Date()) + " 我执行了...");
+    public void autoRun() throws InterruptedException {
+        System.out.println(DateUtils.formatYMD_HMS(new Date()) + " 我开始执行了...");
+//        Thread.sleep(6000);
+//        System.out.println(DateUtils.formatYMD_HMS(new Date()) + " 我执行完了...");
+
     }
 
 }

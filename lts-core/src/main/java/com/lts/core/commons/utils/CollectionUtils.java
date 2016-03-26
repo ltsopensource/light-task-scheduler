@@ -10,6 +10,27 @@ public class CollectionUtils {
     private CollectionUtils() {
     }
 
+    public static <T> List<T> newArrayListOnNull(List<T> list) {
+        if (list == null) {
+            list = new ArrayList<T>();
+        }
+        return list;
+    }
+
+    public static <T> Set<T> newHashSetOnNull(Set<T> set) {
+        if (set == null) {
+            set = new HashSet<T>();
+        }
+        return set;
+    }
+
+    public static <K, V> Map<K, V> newHashMapOnNull(Map<K, V> map) {
+        if (map == null) {
+            map = new HashMap<K, V>();
+        }
+        return map;
+    }
+
     public static boolean isNotEmpty(Map<?, ?> map) {
         return map != null && map.size() > 0;
     }
@@ -24,6 +45,13 @@ public class CollectionUtils {
 
     public static boolean isEmpty(Collection<?> collection) {
         return !isNotEmpty(collection);
+    }
+
+    public static <K, V> V getValue(Map<K, V> map , K key){
+        if(map == null){
+            return null;
+        }
+        return map.get(key);
     }
 
     public static int sizeOf(Collection<?> collection) {
@@ -66,7 +94,7 @@ public class CollectionUtils {
     }
 
     public static <T> List<T> arrayToList(T[] t) {
-        if(t == null || t.length == 0){
+        if (t == null || t.length == 0) {
             return new ArrayList<T>(0);
         }
         List<T> list = new ArrayList<T>(t.length);

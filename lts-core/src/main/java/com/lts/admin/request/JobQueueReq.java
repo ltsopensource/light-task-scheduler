@@ -36,6 +36,10 @@ public class JobQueueReq extends PaginationReq {
 
     private Integer maxRetryTimes;
 
+    private Integer repeatCount;
+
+    private Long repeatInterval;
+
     public String getJobId() {
         return jobId;
     }
@@ -146,5 +150,21 @@ public class JobQueueReq extends PaginationReq {
 
     public void setMaxRetryTimes(Integer maxRetryTimes) {
         this.maxRetryTimes = maxRetryTimes;
+    }
+
+    public Integer getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(Integer repeatCount) {
+        this.repeatCount = repeatCount;
+    }
+
+    public Long getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(Long repeatInterval) {
+        this.repeatInterval = repeatInterval;
     }
 }

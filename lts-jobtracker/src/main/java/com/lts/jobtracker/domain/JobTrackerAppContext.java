@@ -47,13 +47,10 @@ public class JobTrackerAppContext extends AppContext {
     private JobFeedbackQueue jobFeedbackQueue;
     // job id generator
     private IdGenerator idGenerator;
-
 	private SuspendJobQueue suspendJobQueue;
-
+    private RepeatJobQueue repeatJobQueue;
     private PreLoader preLoader;
-
     private JobReceiver jobReceiver;
-
     private JobSender jobSender;
 
     public JobSender getJobSender() {
@@ -191,4 +188,12 @@ public class JobTrackerAppContext extends AppContext {
 	public void setSuspendJobQueue(SuspendJobQueue suspendJobQueue) {
 		this.suspendJobQueue = suspendJobQueue;
 	}
+
+    public RepeatJobQueue getRepeatJobQueue() {
+        return repeatJobQueue;
+    }
+
+    public void setRepeatJobQueue(RepeatJobQueue repeatJobQueue) {
+        this.repeatJobQueue = repeatJobQueue;
+    }
 }

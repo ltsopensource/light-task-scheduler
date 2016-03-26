@@ -106,10 +106,6 @@ public class TaskTrackerManager {
 
     /**
      * 更新节点的 可用线程数
-     *
-     * @param nodeGroup
-     * @param identity
-     * @param availableThreads
      * @param timestamp        时间戳, 只有当 时间戳大于上次更新的时间 才更新可用线程数
      */
     public void updateTaskTrackerAvailableThreads(

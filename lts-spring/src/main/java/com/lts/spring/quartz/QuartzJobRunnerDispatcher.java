@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentMap;
  */
 class QuartzJobRunnerDispatcher implements JobRunner {
 
-    private ConcurrentMap<String, QuartzCronJob> JOB_MAP = new ConcurrentHashMap<String, QuartzCronJob>();
+    private ConcurrentMap<String, QuartzJob> JOB_MAP = new ConcurrentHashMap<String, QuartzJob>();
 
-    public QuartzJobRunnerDispatcher(List<QuartzCronJob> quartzCronJobs) {
-        for (QuartzCronJob quartzCronJob : quartzCronJobs) {
-            String name = quartzCronJob.getCronTrigger().getName();
-            JOB_MAP.put(name, quartzCronJob);
+    public QuartzJobRunnerDispatcher(List<QuartzJob> quartzJobs) {
+        for (QuartzJob quartzJob : quartzJobs) {
+            String name = quartzJob.getName();
+            JOB_MAP.put(name, quartzJob);
         }
     }
 
@@ -27,12 +27,12 @@ class QuartzJobRunnerDispatcher implements JobRunner {
     public Result run(Job job) throws Throwable {
         String taskId = job.getTaskId();
 
-        QuartzCronJob quartzCronJob = JOB_MAP.get(taskId);
-        if (quartzCronJob == null) {
+        QuartzJob quartzJob = JOB_MAP.get(taskId);
+        if (quartzJob == null) {
             return new Result(Action.EXECUTE_FAILED, "Can't find the taskId[" + taskId + "]'s QuartzCronJob");
         }
 
-        quartzCronJob.getMethodInvoker().invoke();
+        quartzJob.getMethodInvoker().invoke();
 
         return new Result(Action.EXECUTE_SUCCESS);
     }

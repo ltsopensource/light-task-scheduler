@@ -127,7 +127,7 @@ public class JobPusher {
 
                 // 发送给TaskTracker执行
                 JobPushRequest body = appContext.getCommandBodyWrapper().wrapper(new JobPushRequest());
-                body.setJobWrapper(JobDomainConverter.convert(jobPo));
+                body.setJobMeta(JobDomainConverter.convert(jobPo));
                 RemotingCommand commandRequest = RemotingCommand.createRequestCommand(JobProtos.RequestCode.PUSH_JOB.code(), body);
 
                 // 是否分发推送任务成功

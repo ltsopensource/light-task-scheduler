@@ -5,7 +5,7 @@ import com.lts.core.commons.utils.Holder;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.JobResult;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.exception.RemotingSendException;
 import com.lts.core.exception.RequestTimeoutException;
 import com.lts.core.logger.Logger;
@@ -42,7 +42,7 @@ public class ClientNotifier {
      * 发送给客户端
      * @return 返回成功的个数
      */
-	public <T extends TaskTrackerJobResult> int send(List<T> jobResults) {
+	public <T extends JobRunResult> int send(List<T> jobResults) {
         if (CollectionUtils.isEmpty(jobResults)) {
             return 0;
         }
@@ -50,35 +50,35 @@ public class ClientNotifier {
         // 单个 就不用 分组了
         if (jobResults.size() == 1) {
 
-            TaskTrackerJobResult result = jobResults.get(0);
-            if (!send0(result.getJobWrapper().getJob().getSubmitNodeGroup(), Collections.singletonList(result))) {
+            JobRunResult result = jobResults.get(0);
+            if (!send0(result.getJobMeta().getJob().getSubmitNodeGroup(), Collections.singletonList(result))) {
                 // 如果没有完成就返回
                 clientNotifyHandler.handleFailed(jobResults);
                 return 0;
             }
         } else if (jobResults.size() > 1) {
 
-            List<TaskTrackerJobResult> failedTaskTrackerJobResult = new ArrayList<TaskTrackerJobResult>();
+            List<JobRunResult> failedJobRunResult = new ArrayList<JobRunResult>();
 
             // 有多个要进行分组 (出现在 失败重发的时候)
-            Map<String/*nodeGroup*/, List<TaskTrackerJobResult>> groupMap = new HashMap<String, List<TaskTrackerJobResult>>();
+            Map<String/*nodeGroup*/, List<JobRunResult>> groupMap = new HashMap<String, List<JobRunResult>>();
 
             for (T jobResult : jobResults) {
-                List<TaskTrackerJobResult> results = groupMap.get(jobResult.getJobWrapper().getJob().getSubmitNodeGroup());
+                List<JobRunResult> results = groupMap.get(jobResult.getJobMeta().getJob().getSubmitNodeGroup());
                 if (results == null) {
-                    results = new ArrayList<TaskTrackerJobResult>();
-                    groupMap.put(jobResult.getJobWrapper().getJob().getSubmitNodeGroup(), results);
+                    results = new ArrayList<JobRunResult>();
+                    groupMap.put(jobResult.getJobMeta().getJob().getSubmitNodeGroup(), results);
                 }
                 results.add(jobResult);
             }
-            for (Map.Entry<String, List<TaskTrackerJobResult>> entry : groupMap.entrySet()) {
+            for (Map.Entry<String, List<JobRunResult>> entry : groupMap.entrySet()) {
 
                 if (!send0(entry.getKey(), entry.getValue())) {
-                    failedTaskTrackerJobResult.addAll(entry.getValue());
+                    failedJobRunResult.addAll(entry.getValue());
                 }
             }
-            clientNotifyHandler.handleFailed(failedTaskTrackerJobResult);
-            return jobResults.size() - failedTaskTrackerJobResult.size();
+            clientNotifyHandler.handleFailed(failedJobRunResult);
+            return jobResults.size() - failedJobRunResult.size();
         }
         return jobResults.size();
     }
@@ -87,7 +87,7 @@ public class ClientNotifier {
      * 发送给客户端
      * 返回是否发送成功还是失败
      */
-    private boolean send0(String nodeGroup, final List<TaskTrackerJobResult> results) {
+    private boolean send0(String nodeGroup, final List<JobRunResult> results) {
         // 得到 可用的客户端节点
         JobClientNode jobClientNode = appContext.getJobClientManager().getAvailableJobClient(nodeGroup);
 
@@ -95,9 +95,9 @@ public class ClientNotifier {
             return false;
         }
         List<JobResult> jobResults = new ArrayList<JobResult>(results.size());
-        for (TaskTrackerJobResult result : results) {
+        for (JobRunResult result : results) {
             JobResult jobResult = new JobResult();
-            jobResult.setJob(result.getJobWrapper().getJob());
+            jobResult.setJob(result.getJobMeta().getJob());
             jobResult.setSuccess(Action.EXECUTE_SUCCESS.equals(result.getAction()));
             jobResult.setMsg(result.getMsg());
             jobResult.setTime(result.getTime());

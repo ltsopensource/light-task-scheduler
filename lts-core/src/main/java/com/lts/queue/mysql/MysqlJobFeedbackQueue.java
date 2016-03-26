@@ -48,11 +48,11 @@ public class MysqlJobFeedbackQueue extends JdbcAbstractAccess implements JobFeed
         }
         // insert ignore duplicate record
         for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
-            String jobClientNodeGroup = jobFeedbackPo.getTaskTrackerJobResult().getJobWrapper().getJob().getSubmitNodeGroup();
+            String jobClientNodeGroup = jobFeedbackPo.getJobRunResult().getJobMeta().getJob().getSubmitNodeGroup();
             new InsertSql(getSqlTemplate())
                     .insertIgnore(getTableName(jobClientNodeGroup))
                     .columns("gmt_created", "job_result")
-                    .values(jobFeedbackPo.getGmtCreated(), JSON.toJSONString(jobFeedbackPo.getTaskTrackerJobResult()))
+                    .values(jobFeedbackPo.getGmtCreated(), JSON.toJSONString(jobFeedbackPo.getJobRunResult()))
                     .doInsert();
         }
         return true;

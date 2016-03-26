@@ -5,7 +5,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.BizLog;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
@@ -34,7 +34,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
     private Level level;
     private RemotingClientDelegate remotingClient;
     private TaskTrackerAppContext appContext;
-    private final ThreadLocal<KVPair<String, String>> jobTL;
+    private final ThreadLocal<Pair<String, String>> jobTL;
     private RetryScheduler<BizLog> retryScheduler;
 
     public BizLoggerImpl(Level level, final RemotingClientDelegate remotingClient, TaskTrackerAppContext appContext) {
@@ -44,7 +44,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         }
         this.appContext = appContext;
         this.remotingClient = remotingClient;
-        this.jobTL = new ThreadLocal<KVPair<String, String>>();
+        this.jobTL = new ThreadLocal<Pair<String, String>>();
         String storePath = getStorePath();
         this.retryScheduler = new RetryScheduler<BizLog>(appContext, storePath) {
             @Override
@@ -76,7 +76,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
     }
 
     public void setId(String jobId, String taskId) {
-        jobTL.set(new KVPair<String, String>(jobId, taskId));
+        jobTL.set(new Pair<String, String>(jobId, taskId));
     }
 
     public void removeId() {

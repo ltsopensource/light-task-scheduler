@@ -276,79 +276,6 @@ public final class CronExpression implements Serializable, Cloneable {
     }
 
     /**
-     * Indicates whether the given date satisfies the cron expression. Note that
-     * milliseconds are ignored, so two Dates falling on different milliseconds
-     * of the same second will always have the same result here.
-     *
-     * @param date the date to evaluate
-     * @return a boolean indicating whether the given date satisfies the cron
-     *         expression
-     */
-    public boolean isSatisfiedBy(Date date) {
-        Calendar testDateCal = Calendar.getInstance(getTimeZone());
-        testDateCal.setTime(date);
-        testDateCal.set(Calendar.MILLISECOND, 0);
-        Date originalDate = testDateCal.getTime();
-
-        testDateCal.add(Calendar.SECOND, -1);
-
-        Date timeAfter = getTimeAfter(testDateCal.getTime());
-
-        return ((timeAfter != null) && (timeAfter.equals(originalDate)));
-    }
-
-    /**
-     * Returns the next date/time <I>after</I> the given date/time which
-     * satisfies the cron expression.
-     *
-     * @param date the date/time at which to begin the search for the next valid
-     *             date/time
-     * @return the next valid date/time
-     */
-    public Date getNextValidTimeAfter(Date date) {
-        return getTimeAfter(date);
-    }
-
-    /**
-     * Returns the next date/time <I>after</I> the given date/time which does
-     * <I>not</I> satisfy the expression
-     *
-     * @param date the date/time at which to begin the search for the next
-     *             invalid date/time
-     * @return the next valid date/time
-     */
-    public Date getNextInvalidTimeAfter(Date date) {
-        long difference = 1000;
-
-        //move back to the nearest second so differences will be accurate
-        Calendar adjustCal = Calendar.getInstance(getTimeZone());
-        adjustCal.setTime(date);
-        adjustCal.set(Calendar.MILLISECOND, 0);
-        Date lastDate = adjustCal.getTime();
-
-        Date newDate;
-
-        //FUTURE_TODO: (QUARTZ-481) IMPROVE THIS! The following is a BAD solution to this problem. Performance will be very bad here, depending on the cron expression. It is, however A solution.
-
-        //keep getting the next included time until it's farther than one second
-        // apart. At that point, lastDate is the last valid fire time. We return
-        // the second immediately following it.
-        while (difference == 1000) {
-            newDate = getTimeAfter(lastDate);
-            if(newDate == null)
-                break;
-
-            difference = newDate.getTime() - lastDate.getTime();
-
-            if (difference == 1000) {
-                lastDate = newDate;
-            }
-        }
-
-        return new Date(lastDate.getTime() + 1000);
-    }
-
-    /**
      * Returns the time zone for which this <code>CronExpression</code>
      * will be resolved.
      */
@@ -396,12 +323,6 @@ public final class CronExpression implements Serializable, Cloneable {
 
         return true;
     }
-
-    public static void validateExpression(String cronExpression) throws ParseException {
-
-        new CronExpression(cronExpression);
-    }
-
 
     ////////////////////////////////////////////////////////////////////////////
     //
@@ -818,98 +739,6 @@ public final class CronExpression implements Serializable, Cloneable {
 
     public String getCronExpression() {
         return cronExpression;
-    }
-
-    public String getExpressionSummary() {
-        StringBuilder buf = new StringBuilder();
-
-        buf.append("seconds: ");
-        buf.append(getExpressionSetSummary(seconds));
-        buf.append("\n");
-        buf.append("minutes: ");
-        buf.append(getExpressionSetSummary(minutes));
-        buf.append("\n");
-        buf.append("hours: ");
-        buf.append(getExpressionSetSummary(hours));
-        buf.append("\n");
-        buf.append("daysOfMonth: ");
-        buf.append(getExpressionSetSummary(daysOfMonth));
-        buf.append("\n");
-        buf.append("months: ");
-        buf.append(getExpressionSetSummary(months));
-        buf.append("\n");
-        buf.append("daysOfWeek: ");
-        buf.append(getExpressionSetSummary(daysOfWeek));
-        buf.append("\n");
-        buf.append("lastdayOfWeek: ");
-        buf.append(lastdayOfWeek);
-        buf.append("\n");
-        buf.append("nearestWeekday: ");
-        buf.append(nearestWeekday);
-        buf.append("\n");
-        buf.append("NthDayOfWeek: ");
-        buf.append(nthdayOfWeek);
-        buf.append("\n");
-        buf.append("lastdayOfMonth: ");
-        buf.append(lastdayOfMonth);
-        buf.append("\n");
-        buf.append("years: ");
-        buf.append(getExpressionSetSummary(years));
-        buf.append("\n");
-
-        return buf.toString();
-    }
-
-    protected String getExpressionSetSummary(java.util.Set<Integer> set) {
-
-        if (set.contains(NO_SPEC)) {
-            return "?";
-        }
-        if (set.contains(ALL_SPEC)) {
-            return "*";
-        }
-
-        StringBuilder buf = new StringBuilder();
-
-        Iterator<Integer> itr = set.iterator();
-        boolean first = true;
-        while (itr.hasNext()) {
-            Integer iVal = itr.next();
-            String val = iVal.toString();
-            if (!first) {
-                buf.append(",");
-            }
-            buf.append(val);
-            first = false;
-        }
-
-        return buf.toString();
-    }
-
-    protected String getExpressionSetSummary(java.util.ArrayList<Integer> list) {
-
-        if (list.contains(NO_SPEC)) {
-            return "?";
-        }
-        if (list.contains(ALL_SPEC)) {
-            return "*";
-        }
-
-        StringBuilder buf = new StringBuilder();
-
-        Iterator<Integer> itr = list.iterator();
-        boolean first = true;
-        while (itr.hasNext()) {
-            Integer iVal = itr.next();
-            String val = iVal.toString();
-            if (!first) {
-                buf.append(",");
-            }
-            buf.append(val);
-            first = false;
-        }
-
-        return buf.toString();
     }
 
     protected int skipWhiteSpace(int i, String s) {
@@ -1550,24 +1379,6 @@ public final class CronExpression implements Serializable, Cloneable {
         }
     }
 
-    /**
-     * NOT YET IMPLEMENTED: Returns the time before the given time
-     * that the <code>CronExpression</code> matches.
-     */
-    public Date getTimeBefore(Date endTime) {
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
-    }
-
-    /**
-     * NOT YET IMPLEMENTED: Returns the final time that the
-     * <code>CronExpression</code> will match.
-     */
-    public Date getFinalFireTime() {
-        // FUTURE_TODO: implement QUARTZ-423
-        return null;
-    }
-
     protected boolean isLeapYear(int year) {
         return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
     }
@@ -1614,12 +1425,6 @@ public final class CronExpression implements Serializable, Cloneable {
             buildExpression(cronExpression);
         } catch (Exception ignore) {
         } // never happens
-    }
-
-    @Override
-    @Deprecated
-    public Object clone() {
-        return new CronExpression(this);
     }
 }
 

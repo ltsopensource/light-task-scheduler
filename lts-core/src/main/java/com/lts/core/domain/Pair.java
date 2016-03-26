@@ -3,11 +3,11 @@ package com.lts.core.domain;
 /**
  * @author Robert HG (254963746@qq.com) on 3/6/15.
  */
-public class KVPair<Key, Value> {
+public class Pair<Key, Value> {
     private Key key;
     private Value value;
 
-    public KVPair(Key key, Value value) {
+    public Pair(Key key, Value value) {
         this.key = key;
         this.value = value;
     }
