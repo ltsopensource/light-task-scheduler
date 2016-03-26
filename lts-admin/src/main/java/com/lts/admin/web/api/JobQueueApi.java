@@ -197,7 +197,7 @@ public class JobQueueApi extends AbstractMVC {
     }
 
     @RequestMapping("/job-queue/job-add")
-    public RestfulResponse jobAdd(JobQueueReq request) {
+    public RestfulResponse jobAdd(String jobType, JobQueueReq request) {
         // 表单check
 
         try {
@@ -225,11 +225,11 @@ public class JobQueueApi extends AbstractMVC {
             return Builder.build(false, e.getMessage());
         }
 
-        Pair<Boolean, String> pair = addJob(request);
+        Pair<Boolean, String> pair = addJob(jobType, request);
         return Builder.build(pair.getKey(), pair.getValue());
     }
 
-    private Pair<Boolean, String> addJob(JobQueueReq request) {
+    private Pair<Boolean, String> addJob(String jobType, JobQueueReq request) {
 
         Job job = new Job();
         job.setTaskId(request.getTaskId());
@@ -244,14 +244,33 @@ public class JobQueueApi extends AbstractMVC {
 
         job.setNeedFeedback(request.getNeedFeedback());
         job.setReplaceOnExist(true);
+
         // 这个是 cron expression 和 quartz 一样，可选
         job.setCronExpression(request.getCronExpression());
         if (request.getTriggerTime() != null) {
             job.setTriggerTime(request.getTriggerTime().getTime());
         }
+        job.setRepeatCount(request.getRepeatCount());
+        job.setRepeatInterval(request.getRepeatInterval());
+
         job.setPriority(request.getPriority());
         job.setMaxRetryTimes(request.getMaxRetryTimes() == null ? 0 : request.getMaxRetryTimes());
 
+        if ("REAL_TIME_JOB".equals(jobType)) {
+            job.setCronExpression(null);
+            job.setTriggerTime(null);
+            job.setRepeatInterval(null);
+            job.setRepeatCount(0);
+        } else if ("TRIGGER_TIME_JOB".equals(jobType)) {
+            job.setCronExpression(null);
+            job.setRepeatInterval(null);
+            job.setRepeatCount(0);
+        } else if ("CRON_JOB".equals(jobType)) {
+            job.setRepeatInterval(null);
+            job.setRepeatCount(0);
+        } else if ("REPEAT_JOB".equals(jobType)) {
+            job.setCronExpression(null);
+        }
         return addJob(job);
     }
 

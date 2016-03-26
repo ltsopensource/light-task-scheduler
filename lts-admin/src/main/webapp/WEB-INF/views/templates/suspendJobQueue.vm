@@ -120,7 +120,7 @@
                             <label class="col-sm-2 control-label w_120">重复次数</label>
 
                             <div class="col-sm-3 w_250">
-                                <input type="text" class="form-control" name="repeatCount" value="-1"
+                                <input type="text" class="form-control" name="repeatCount" value="0"
                                        placeholder="-1表示无限重复, 必须大于等于 -1">
                             </div>
                         </div>

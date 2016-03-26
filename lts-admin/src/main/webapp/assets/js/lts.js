@@ -33,6 +33,10 @@ LTS.colFormatter.formatGroup = function (v, row) {
     }
 };
 
+LTS.colFormatter.formatRetryTimes = function (v, row) {
+    return row['retryTimes']  + "/" + row['maxRetryTimes'];
+};
+
 LTS.colFormatter.repeatIntervalFormat = function (v, row) {
     if (!row['repeatInterval']) {
         return "";
@@ -41,7 +45,7 @@ LTS.colFormatter.repeatIntervalFormat = function (v, row) {
 };
 
 LTS.colFormatter.repeatCountFormat = function (v, row) {
-    if (!row['repeatedCount']) {
+    if (!row['repeatInterval']) {
         return "";
     }
     if (row['repeatCount'] == -1) {
