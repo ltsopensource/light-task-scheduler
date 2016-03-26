@@ -215,7 +215,7 @@
             <td>{{row.taskId}}</td>
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
-            <td>{{row.repeatInterval}}ms</td>
+            <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
             <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.maxRetryTimes}}</td>
@@ -252,13 +252,6 @@
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-suspend-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-success"><i class="fa fa-lock"></i> 暂停</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
-        };
-
-        LTS.colFormatter.repeatCountFormat = function (v, row) {
-            if (row['repeatCount'] == -1) {
-                return row['repeatedCount'] + '/(不限)';
-            }
-            return row['repeatedCount'] + '/' + (row['repeatCount'])
         };
 
         $(document).on("click", ".job-del-btn", function () {
@@ -369,6 +362,7 @@
                 sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
                 return;
             }
+            params['cronExpression'] = null;
             var extParams = params['extParams'];
             if (extParams) {
                 try {

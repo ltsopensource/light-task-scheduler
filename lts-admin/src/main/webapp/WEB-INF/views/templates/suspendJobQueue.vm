@@ -1,9 +1,9 @@
 <div class="row wrapper border-bottom white-bg page-heading">
     <div class="col-lg-12">
-        <h2>Cron暂停任务</h2>
+        <h2>暂停任务</h2>
         <ol class="breadcrumb">
             <li><a>任务队列管理</a></li>
-            <li class="active"><b>Cron暂停任务</b></li>
+            <li class="active"><b>暂停任务</b></li>
         </ol>
     </div>
 </div>
@@ -13,7 +13,7 @@
         <div class="col-lg-12">
             <div class="ibox">
                 <div class="ibox-title">
-                    <h3><span class="text-navy">Cron暂停任务</span></h3>
+                    <h3><span class="text-navy">暂停任务</span></h3>
                 </div>
                 <div class="ibox-content">
                     <form method="post" id="form" class="form-horizontal" onsubmit="return false">
@@ -98,13 +98,30 @@
                     <form method="post" id="editForm" class="form-horizontal" onsubmit="return false">
                         <input type="hidden" class="form-control" name="jobId"/>
                         <input type="hidden" class="form-control" name="taskId"/>
+                        <input type="hidden" class="form-control" name="jobType"/>
 
-                        <div class="form-group">
+                        <div class="form-group lts-cron-group">
                             <label class="col-sm-2 control-label w_120">Cron表达式</label>
 
                             <div class="col-sm-3">
                                 <input type="text" class="form-control w_250" name="cronExpression"
                                        placeholder="请输入CronExpression">
+                            </div>
+                        </div>
+                        <div class="form-group lts-repeat-group">
+                            <label class="col-sm-2 control-label w_120">重复时间间隔</label>
+
+                            <div class="col-sm-3 w_250">
+                                <input type="text" class="form-control" name="repeatInterval" value="0"
+                                       placeholder="毫秒数">
+                            </div>
+                        </div>
+                        <div class="form-group lts-repeat-group">
+                            <label class="col-sm-2 control-label w_120">重复次数</label>
+
+                            <div class="col-sm-3 w_250">
+                                <input type="text" class="form-control" name="repeatCount" value="-1"
+                                       placeholder="-1表示无限重复, 必须大于等于 -1">
                             </div>
                         </div>
                         <div class="form-group">
@@ -191,6 +208,8 @@
             <th data-hide="all">提交节点组</th>
             <th>执行节点组</th>
             <th>Cron表达式</th>
+            <th>重复时间间隔</th>
+            <th data-hide="all">重复次数</th>
             <th data-hide="all">优先级</th>
             <th data-hide="all">最大重试次数</th>
             <th>反馈客户端</th>
@@ -207,6 +226,8 @@
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
+            <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
+            <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.maxRetryTimes}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
@@ -259,7 +280,7 @@
                 confirmButtonText: "确认删除",
                 closeOnConfirm: false
             }, function (isConfirm) {
-                if(isConfirm){
+                if (isConfirm) {
                     $.ajax({
                         url: 'api/job-queue/suspend-job-delete',
                         type: 'POST',
@@ -294,12 +315,23 @@
                 } else {
                     value = value + '';
                 }
-                if($(this)[0].tagName.toUpperCase() == 'SELECT'){
+                if ($(this)[0].tagName.toUpperCase() == 'SELECT') {
                     $(this).selectpicker('val', value);
-                }else{
+                } else {
                     $(this).val(value);
                 }
             });
+
+            if (job['cronExpression']) {
+                $("input[name='jobType']").val("CRON");
+                $(".lts-repeat-group").hide();
+                $(".lts-cron-group").show();
+            } else {
+                $("input[name='jobType']").val("REPEAT");
+                $(".lts-repeat-group").show();
+                $(".lts-cron-group").hide();
+            }
+
             $("#job-edit-modal").modal("show");
         });
 
@@ -311,10 +343,33 @@
                 params[name] = value;
             });
 
-            var cronExpression = params['cronExpression'];
-            if (!cronExpression) {
-                sweetAlert("请输入Cron表达式", "", "error");
-                return;
+            var jobType = $("input[name='jobType']").val();
+            if (jobType == 'CRON') {
+                var cronExpression = params['cronExpression'];
+                if (!cronExpression) {
+                    sweetAlert("请输入Cron表达式", "", "error");
+                    return;
+                }
+            } else {
+                var repeatInterval = params['repeatInterval'];
+                if (!repeatInterval) {
+                    sweetAlert("请输入重复时间间隔", "必须为数字，毫秒数", "error");
+                    return;
+                }
+                if (!LTS.ReExp.number.test(repeatInterval)) {
+                    sweetAlert("重复时间间隔", "必须为数字，毫秒数", "error");
+                    return;
+                }
+                var repeatCount = params['repeatCount'];
+                if (!repeatCount) {
+                    sweetAlert("请输入重复次数", "-1表示无限重复, 必须大于等于 -1", "error");
+                    return;
+                }
+                if (repeatCount != -1 && !/^\d+$/.test(repeatCount)) {
+                    sweetAlert("重复次数格式错误", "-1表示无限重复, 必须大于等于 -1", "error");
+                    return;
+                }
+                params['cronExpression'] = null;
             }
             var priority = params['priority'];
             if (!priority) {
@@ -333,7 +388,7 @@
                 sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
                 return;
             }
-            if(!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])){
+            if (!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])) {
                 sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
                 return;
             }
@@ -381,7 +436,7 @@
                 confirmButtonText: "确认恢复",
                 closeOnConfirm: false
             }, function (isConfirm) {
-                if(isConfirm){
+                if (isConfirm) {
                     $.ajax({
                         url: 'api/job-queue/suspend-job-recovery',
                         type: 'POST',
@@ -415,5 +470,6 @@
             ltsTable.post(params, 1);
         });
         $("#searchBtn").trigger("click");
-    });
+    })
+    ;
 </script>

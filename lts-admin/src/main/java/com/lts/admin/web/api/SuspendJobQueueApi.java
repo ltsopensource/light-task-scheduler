@@ -41,19 +41,48 @@ public class SuspendJobQueueApi extends AbstractMVC {
     }
 
     @RequestMapping("/job-queue/suspend-job-update")
-    public RestfulResponse suspendJobUpdate(JobQueueReq request) {
+    public RestfulResponse suspendJobUpdate(String jobType, JobQueueReq request) {
         // 检查参数
         try {
             Assert.hasLength(request.getJobId(), "jobId不能为空!");
-            Assert.hasLength(request.getCronExpression(), "cronExpression不能为空!");
+            Assert.hasLength(jobType, "jobType不能为空!");
         } catch (IllegalArgumentException e) {
             return Builder.build(false, e.getMessage());
         }
-        // 1. 检测 cronExpression是否是正确的
         try {
-            CronExpression expression = new CronExpression(request.getCronExpression());
-            if (expression.getTimeAfter(new Date()) == null) {
-                return Builder.build(false, StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
+
+            JobPo jobPo = appContext.getSuspendJobQueue().getJob(request.getJobId());
+
+            if ("CRON".equals(jobType)) {
+                // 检查参数
+                try {
+                    Assert.hasLength(request.getCronExpression(), "cronExpression不能为空!");
+                } catch (IllegalArgumentException e) {
+                    return Builder.build(false, e.getMessage());
+                }
+                // 1. 检测 cronExpression是否是正确的
+                CronExpression expression = new CronExpression(request.getCronExpression());
+                if (expression.getTimeAfter(new Date()) == null) {
+                    return Builder.build(false, StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
+                }
+                // 看CronExpression是否有修改,如果有修改,需要更新triggerTime
+                if (!request.getCronExpression().equals(jobPo.getCronExpression())) {
+                    request.setTriggerTime(expression.getTimeAfter(new Date()));
+                }
+            } else {
+                try {
+                    Assert.notNull(request.getRepeatInterval(), "repeatInterval不能为空!");
+                    Assert.isTrue(request.getRepeatInterval() > 0, "repeatInterval必须大于0");
+                    Assert.isTrue(request.getRepeatCount() >= -1, "repeatCount必须>= -1");
+                } catch (IllegalArgumentException e) {
+                    return Builder.build(false, e.getMessage());
+                }
+                // 如果repeatInterval有修改,需要把triggerTime也要修改下
+                if (!request.getRepeatInterval().equals(jobPo.getRepeatInterval())) {
+                    long nextTriggerTime = JobUtils.getRepeatTriggerTime(jobPo);
+                    request.setTriggerTime(new Date(nextTriggerTime));
+                }
+                request.setCronExpression(null);
             }
 
             boolean success = appContext.getSuspendJobQueue().selectiveUpdate(request);

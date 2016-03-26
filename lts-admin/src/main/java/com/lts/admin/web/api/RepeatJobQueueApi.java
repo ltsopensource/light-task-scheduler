@@ -52,12 +52,16 @@ public class RepeatJobQueueApi extends AbstractMVC {
         } catch (IllegalArgumentException e) {
             return Builder.build(false, e.getMessage());
         }
+        request.setCronExpression(null);
+        JobPo jobPo = appContext.getRepeatJobQueue().getJob(request.getJobId());
         boolean success = appContext.getRepeatJobQueue().selectiveUpdate(request);
         if (success) {
             try {
-                JobPo jobPo = appContext.getRepeatJobQueue().getJob(request.getJobId());
-                long nextTriggerTime = JobUtils.getRepeatTriggerTime(jobPo);
-                request.setTriggerTime(new Date(nextTriggerTime));
+                // 如果repeatInterval有修改,需要把triggerTime也要修改下
+                if (!request.getRepeatInterval().equals(jobPo.getRepeatInterval())) {
+                    long nextTriggerTime = JobUtils.getRepeatTriggerTime(jobPo);
+                    request.setTriggerTime(new Date(nextTriggerTime));
+                }
                 // 把等待执行的队列也更新一下
                 appContext.getExecutableJobQueue().selectiveUpdate(request);
             } catch (Exception e) {

@@ -58,12 +58,14 @@ public class CronJobQueueApi extends AbstractMVC {
             if (expression.getTimeAfter(new Date()) == null) {
                 return Builder.build(false, StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
             }
-
+            JobPo cronJobPo = appContext.getCronJobQueue().getJob(request.getJobId());
             boolean success = appContext.getCronJobQueue().selectiveUpdate(request);
             if (success) {
                 try {
-                    // 把等待执行的队列也更新一下
-                    request.setTriggerTime(expression.getTimeAfter(new Date()));
+                    // 看CronExpression是否有修改,如果有修改,需要更新triggerTime
+                    if (!request.getCronExpression().equals(cronJobPo.getCronExpression())) {
+                        request.setTriggerTime(expression.getTimeAfter(new Date()));
+                    }
                     appContext.getExecutableJobQueue().selectiveUpdate(request);
                 } catch (Exception e) {
                     return Builder.build(false, "更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
@@ -117,7 +119,7 @@ public class CronJobQueueApi extends AbstractMVC {
             return Builder.build(false, "删除Cron任务失败，请手动删除! error:" + e.getMessage());
         }
         try {
-            appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId())
+            appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
         } catch (Exception e) {
             return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:" + e.getMessage());
         }

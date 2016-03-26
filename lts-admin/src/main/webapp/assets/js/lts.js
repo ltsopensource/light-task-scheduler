@@ -33,6 +33,23 @@ LTS.colFormatter.formatGroup = function (v, row) {
     }
 };
 
+LTS.colFormatter.repeatIntervalFormat = function (v, row) {
+    if (!row['repeatInterval']) {
+        return "";
+    }
+    return row['repeatInterval'] + "ms";
+};
+
+LTS.colFormatter.repeatCountFormat = function (v, row) {
+    if (!row['repeatedCount']) {
+        return "";
+    }
+    if (row['repeatCount'] == -1) {
+        return row['repeatedCount'] + '/(无限)';
+    }
+    return row['repeatedCount'] + '/' + (row['repeatCount'])
+};
+
 template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
     if (!date) {
