@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.AppContext;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -29,9 +30,11 @@ public class NettyRemotingClient extends AbstractRemotingClient {
     private final Bootstrap bootstrap = new Bootstrap();
     private final EventLoopGroup eventLoopGroup;
     private DefaultEventExecutorGroup defaultEventExecutorGroup;
+    private AppContext appContext;
 
-    public NettyRemotingClient(final RemotingClientConfig remotingClientConfig) {
+    public NettyRemotingClient(AppContext appContext, final RemotingClientConfig remotingClientConfig) {
         this(remotingClientConfig, null);
+        this.appContext = appContext;
     }
 
     public NettyRemotingClient(final RemotingClientConfig remotingClientConfig,
@@ -51,7 +54,7 @@ public class NettyRemotingClient extends AbstractRemotingClient {
                 new NamedThreadFactory("NettyClientWorkerThread_")
         );
 
-        final NettyCodecFactory nettyCodecFactory = new NettyCodecFactory(getCodec());
+        final NettyCodecFactory nettyCodecFactory = new NettyCodecFactory(appContext, getCodec());
 
         this.bootstrap.group(this.eventLoopGroup).channel(NioSocketChannel.class)
                 .option(ChannelOption.TCP_NODELAY, true).handler(new ChannelInitializer<SocketChannel>() {

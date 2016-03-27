@@ -1,18 +1,17 @@
-package com.lts.jobtracker.complete.chain;
+package com.lts.jobtracker.complete.biz;
 
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.Action;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobCompletedRequest;
-import com.lts.core.support.LoggerName;
+import com.lts.core.support.JobDomainConverter;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.remoting.protocol.RemotingCommand;
 import com.lts.remoting.protocol.RemotingProtos;
 
@@ -22,23 +21,23 @@ import java.util.List;
  * 任务数据统计 Chain
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
-public class JobStatisticChain implements JobCompletedChain {
+public class JobStatBiz implements JobCompletedBiz {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
+    private final Logger LOGGER = LoggerFactory.getLogger(JobStatBiz.class);
 
     private JobTrackerAppContext appContext;
     private JobTrackerMStatReporter stat;
 
-    public JobStatisticChain(JobTrackerAppContext appContext) {
+    public JobStatBiz(JobTrackerAppContext appContext) {
         this.appContext = appContext;
         this.stat = (JobTrackerMStatReporter) appContext.getMStatReporter();
 
     }
 
     @Override
-    public RemotingCommand doChain(JobCompletedRequest request) {
+    public RemotingCommand doBiz(JobCompletedRequest request) {
 
-        List<TaskTrackerJobResult> results = request.getTaskTrackerJobResults();
+        List<JobRunResult> results = request.getJobRunResults();
 
         if (CollectionUtils.isEmpty(results)) {
             return RemotingCommand.createResponseCommand(RemotingProtos
@@ -50,10 +49,10 @@ public class JobStatisticChain implements JobCompletedChain {
 
         LogType logType = request.isReSend() ? LogType.RESEND : LogType.FINISHED;
 
-        for (TaskTrackerJobResult result : results) {
+        for (JobRunResult result : results) {
 
             // 记录日志
-            JobLogPo jobLogPo = JobDomainConverter.convertJobLog(result.getJobWrapper());
+            JobLogPo jobLogPo = JobDomainConverter.convertJobLog(result.getJobMeta());
             jobLogPo.setMsg(result.getMsg());
             jobLogPo.setLogType(logType);
             jobLogPo.setSuccess(Action.EXECUTE_SUCCESS.equals(result.getAction()));

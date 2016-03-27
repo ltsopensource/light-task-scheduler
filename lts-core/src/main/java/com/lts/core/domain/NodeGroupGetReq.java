@@ -6,7 +6,7 @@ import com.lts.admin.request.PaginationReq;
 /**
  * @author Robert HG (254963746@qq.com) on 9/5/15.
  */
-public class NodeGroupGetRequest extends PaginationReq {
+public class NodeGroupGetReq extends PaginationReq {
 
     private NodeType nodeType;
 

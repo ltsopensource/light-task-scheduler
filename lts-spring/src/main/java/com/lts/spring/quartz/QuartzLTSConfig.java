@@ -1,9 +1,6 @@
 package com.lts.spring.quartz;
 
-import com.lts.core.cluster.NodeType;
-
 /**
- *
  * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
 class QuartzLTSConfig {
@@ -51,12 +48,12 @@ class QuartzLTSConfig {
         this.nodeGroup = nodeGroup;
     }
 
-    public String getJobClientNodeGroup(){
-        return NodeType.JOB_CLIENT + "_" + this.nodeGroup;
+    public String getJobClientNodeGroup() {
+        return "JC_" + this.nodeGroup;
     }
 
-    public String getTaskTrackerNodeGroup(){
-        return NodeType.TASK_TRACKER + "_" + this.nodeGroup;
+    public String getTaskTrackerNodeGroup() {
+        return "TT_" + this.nodeGroup;
     }
 
     public String getRegistryAddress() {

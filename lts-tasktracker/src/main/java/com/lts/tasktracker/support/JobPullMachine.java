@@ -160,9 +160,9 @@ public class JobPullMachine {
             Double maxCpuTimeRate = appContext.getConfig().getParameter(Constants.LB_CPU_USED_RATE_MAX, 90d);
             Object processCpuTimeRate = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME, "ProcessCpuTimeRate");
             if (processCpuTimeRate != null) {
-                Double cpuRate = Double.valueOf(processCpuTimeRate.toString());
+                Double cpuRate = Double.valueOf(processCpuTimeRate.toString()) / (Constants.AVAILABLE_PROCESSOR * 1.0);
                 if (cpuRate >= maxCpuTimeRate) {
-                    LOGGER.info("Pause Pull, CPU USAGE is " + cpuRate + " >= " + maxCpuTimeRate);
+                    LOGGER.info("Pause Pull, CPU USAGE is " + String.format("%.2f", cpuRate) + "% >= " + String.format("%.2f", maxCpuTimeRate) + "%");
                     enough = false;
                     return false;
                 }

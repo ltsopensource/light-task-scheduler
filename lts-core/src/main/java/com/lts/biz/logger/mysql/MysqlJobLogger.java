@@ -67,11 +67,16 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                         "submit_node_group",
                         "task_tracker_node_group",
                         "ext_params",
+                        "internal_ext_params",
                         "need_feedback",
                         "cron_expression",
                         "trigger_time",
                         "retry_times",
-                        "max_retry_times");
+                        "max_retry_times",
+                        "repeat_count",
+                        "repeated_count",
+                        "repeat_interval"
+                        );
     }
 
     private InsertSql setInsertSqlValues(InsertSql insertSql, JobLogPo jobLogPo) {
@@ -88,11 +93,15 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.getSubmitNodeGroup(),
                 jobLogPo.getTaskTrackerNodeGroup(),
                 JSON.toJSONString(jobLogPo.getExtParams()),
+                JSON.toJSONString(jobLogPo.getInternalExtParams()),
                 jobLogPo.isNeedFeedback(),
                 jobLogPo.getCronExpression(),
                 jobLogPo.getTriggerTime(),
                 jobLogPo.getRetryTimes(),
-                jobLogPo.getMaxRetryTimes());
+                jobLogPo.getMaxRetryTimes(),
+                jobLogPo.getRepeatCount(),
+                jobLogPo.getRepeatedCount(),
+                jobLogPo.getRepeatInterval());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.AppContext;
 import com.lts.remoting.*;
 
 /**
@@ -8,12 +9,12 @@ import com.lts.remoting.*;
 public class NettyRemotingTransporter implements RemotingTransporter {
 
     @Override
-    public RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
-        return new NettyRemotingServer(remotingServerConfig);
+    public RemotingServer getRemotingServer(AppContext appContext, RemotingServerConfig remotingServerConfig) {
+        return new NettyRemotingServer(appContext, remotingServerConfig);
     }
 
     @Override
-    public RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
-        return new NettyRemotingClient(remotingClientConfig);
+    public RemotingClient getRemotingClient(AppContext appContext, RemotingClientConfig remotingClientConfig) {
+        return new NettyRemotingClient(appContext, remotingClientConfig);
     }
 }

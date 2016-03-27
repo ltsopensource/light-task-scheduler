@@ -56,7 +56,7 @@ public abstract class AbstractServerNode<T extends Node, App extends AppContext>
     }
 
     private RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
-        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingServer(remotingServerConfig);
+        return ServiceLoader.load(RemotingTransporter.class, config).getRemotingServer(appContext, remotingServerConfig);
     }
 
     @Override

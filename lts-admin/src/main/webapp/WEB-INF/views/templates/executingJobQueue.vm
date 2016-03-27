@@ -94,8 +94,7 @@
             <th>Cron表达式</th>
             <th data-hide="all">优先级</th>
             <th>反馈客户端</th>
-            <th>当前重试次数</th>
-            <th>最大重试次数</th>
+            <th>重试次数</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
             <th data-hide="all">修改时间</th>
@@ -111,8 +110,7 @@
             <td>{{row.cronExpression}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
-            <td>{{row.retryTimes}}</td>
-            <td>{{row.maxRetryTimes}}</td>
+            <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtModified | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>

@@ -2,10 +2,9 @@ package com.lts.tasktracker.runner;
 
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
-import com.lts.core.domain.JobWrapper;
+import com.lts.core.domain.JobMeta;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
@@ -29,8 +28,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class JobRunnerDelegate implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.TaskTracker);
-    private JobWrapper jobWrapper;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerDelegate.class);
+    private JobMeta jobMeta;
     private RunnerCallback callback;
     private BizLoggerAdapter logger;
     private TaskTrackerAppContext appContext;
@@ -41,10 +40,10 @@ public class JobRunnerDelegate implements Runnable {
     private Thread thread;
 
     public JobRunnerDelegate(TaskTrackerAppContext appContext,
-                             JobWrapper jobWrapper, RunnerCallback callback) {
+                             JobMeta jobMeta, RunnerCallback callback) {
         this.appContext = appContext;
         this.callback = callback;
-        this.jobWrapper = jobWrapper;
+        this.jobMeta = jobMeta;
 
         this.logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
                 appContext.getBizLogLevel(),
@@ -71,17 +70,17 @@ public class JobRunnerDelegate implements Runnable {
 
             LtsLoggerFactory.setLogger(logger);
 
-            while (jobWrapper != null) {
+            while (jobMeta != null) {
                 long startTime = SystemClock.now();
                 // 设置当前context中的jobId
-                logger.setId(jobWrapper.getJobId(), jobWrapper.getJob().getTaskId());
+                logger.setId(jobMeta.getJobId(), jobMeta.getJob().getTaskId());
                 Response response = new Response();
-                response.setJobWrapper(jobWrapper);
+                response.setJobMeta(jobMeta);
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
-                            .in(jobWrapper.getJobId(), this);
+                            .in(jobMeta.getJobId(), this);
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
-                    Result result = this.curJobRunner.run(jobWrapper.getJob());
+                    Result result = this.curJobRunner.run(jobMeta.getJob());
 
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -96,7 +95,7 @@ public class JobRunnerDelegate implements Runnable {
 
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute completed : {}, time:{} ms.", jobWrapper, time);
+                    LOGGER.info("Job execute completed : {}, time:{} ms.", jobMeta.getJob(), time);
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
@@ -104,12 +103,12 @@ public class JobRunnerDelegate implements Runnable {
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute error : {}, time: {}, {}", jobWrapper, time, t.getMessage(), t);
+                    LOGGER.info("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
                 } finally {
                     checkInterrupted();
                     logger.removeId();
                     appContext.getRunnerPool().getRunningJobManager()
-                            .out(jobWrapper.getJobId());
+                            .out(jobMeta.getJobId());
                 }
                 // 统计数据
                 stat(response.getAction());
@@ -117,7 +116,7 @@ public class JobRunnerDelegate implements Runnable {
                 if (isStopToGetNewJob()) {
                     response.setReceiveNewJob(false);
                 }
-                this.jobWrapper = callback.runComplete(response);
+                this.jobMeta = callback.runComplete(response);
 
             }
         } finally {
@@ -196,7 +195,7 @@ public class JobRunnerDelegate implements Runnable {
         return thread;
     }
 
-    public JobWrapper currentJob() {
-        return jobWrapper;
+    public JobMeta currentJob() {
+        return jobMeta;
     }
 }

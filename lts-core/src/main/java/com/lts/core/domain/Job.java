@@ -45,6 +45,18 @@ public class Job implements Serializable {
     private String cronExpression;
 
     /**
+     * 重复次数 (-1 表示无限制重复)
+     */
+    private int repeatCount = 0;
+    /**
+     * 已经重复的次数, (用户不要设置)
+     */
+    private Integer repeatedCount = 0;
+    /**
+     * 重复interval
+     */
+    private Long repeatInterval;
+    /**
      * 任务的最触发发时间
      * 如果设置了 cronExpression， 那么这个字段没用
      */
@@ -132,8 +144,12 @@ public class Job implements Serializable {
         this.cronExpression = cronExpression;
     }
 
-    public boolean isSchedule() {
+    public boolean isCron() {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
+    }
+
+    public boolean isRepeatable() {
+        return (this.repeatInterval != null && this.repeatInterval > 0) && (this.repeatCount >= -1 && this.repeatCount != 0);
     }
 
     public void setTriggerDate(Date date) {
@@ -166,6 +182,30 @@ public class Job implements Serializable {
         this.maxRetryTimes = maxRetryTimes;
     }
 
+    public int getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(int repeatCount) {
+        this.repeatCount = repeatCount;
+    }
+
+    public Long getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(Long repeatInterval) {
+        this.repeatInterval = repeatInterval;
+    }
+
+    public Integer getRepeatedCount() {
+        return repeatedCount;
+    }
+
+    public void setRepeatedCount(Integer repeatedCount) {
+        this.repeatedCount = repeatedCount;
+    }
+
     @Override
     public String toString() {
         return JSON.toJSONString(this);
@@ -183,6 +223,9 @@ public class Job implements Serializable {
         }
         if (maxRetryTimes < 0) {
             throw new JobSubmitException("maxRetryTimes invalid, must be great than zero! job is " + toString());
+        }
+        if (repeatCount < -1) {
+            throw new JobSubmitException("repeatCount invalid, must be great than -1! job is " + toString());
         }
     }
 }

@@ -51,7 +51,7 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
     }
 
     @Override
-    public JobPo finish(String jobId) {
+    public JobPo getJob(String jobId) {
         Query<JobPo> query = template.createQuery(JobPo.class);
         query.field("jobId").equal(jobId);
         return query.get();

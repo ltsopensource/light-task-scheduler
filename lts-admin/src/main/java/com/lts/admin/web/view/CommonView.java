@@ -78,6 +78,12 @@ public class CommonView {
         return "cronJobQueue";
     }
 
+    @RequestMapping("repeat-job-queue")
+    public String repeatJobQueueUI(Model model) {
+        setAttr(model);
+        return "repeatJobQueue";
+    }
+
     @RequestMapping("executable-job-queue")
     public String executableJobQueueUI(Model model) {
         setAttr(model);

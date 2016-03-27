@@ -13,6 +13,7 @@ import com.lts.queue.*;
 public class BackendAppContext extends AppContext {
 
     private CronJobQueue cronJobQueue;
+    private RepeatJobQueue repeatJobQueue;
     private ExecutableJobQueue executableJobQueue;
     private ExecutingJobQueue executingJobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
@@ -45,6 +46,14 @@ public class BackendAppContext extends AppContext {
 
     public void setCronJobQueue(CronJobQueue cronJobQueue) {
         this.cronJobQueue = cronJobQueue;
+    }
+
+    public RepeatJobQueue getRepeatJobQueue() {
+        return repeatJobQueue;
+    }
+
+    public void setRepeatJobQueue(RepeatJobQueue repeatJobQueue) {
+        this.repeatJobQueue = repeatJobQueue;
     }
 
     public ExecutableJobQueue getExecutableJobQueue() {

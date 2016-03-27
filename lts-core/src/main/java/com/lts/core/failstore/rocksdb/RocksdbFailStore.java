@@ -2,7 +2,7 @@ package com.lts.core.failstore.rocksdb;
 
 import com.lts.core.commons.file.FileUtils;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.json.JSON;
@@ -106,16 +106,16 @@ public class RocksdbFailStore extends AbstractFailStore {
     }
 
     @Override
-    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+    public <T> List<Pair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
         RocksIterator iterator = null;
         try {
-            List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
+            List<Pair<String, T>> list = new ArrayList<Pair<String, T>>(size);
             iterator = db.newIterator();
             for (iterator.seekToFirst(); iterator.isValid(); iterator.next()) {
                 iterator.status();
                 String key = new String(iterator.key(), "UTF-8");
                 T value = JSON.parse(new String(iterator.value(), "UTF-8"), type);
-                KVPair<String, T> pair = new KVPair<String, T>(key, value);
+                Pair<String, T> pair = new Pair<String, T>(key, value);
                 list.add(pair);
                 if (list.size() >= size) {
                     break;

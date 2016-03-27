@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `lts_admin_jvm_thread` (
             `identity` varchar(64) DEFAULT NULL,
             `timestamp` bigint(20) NULL DEFAULT NULL,
             `node_type` varchar(32) NULL DEFAULT NULL,
-            `node_group` varchar(32) NULL DEFAULT NULL,
+            `node_group` varchar(64) NULL DEFAULT NULL,
             `daemon_thread_count` int(11) NULL DEFAULT NULL,
             `thread_count` int(11) NULL DEFAULT NULL,
             `total_started_thread_count` bigint(20) NULL DEFAULT NULL,

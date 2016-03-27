@@ -1,6 +1,6 @@
 package com.lts.core.failstore;
 
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -20,7 +20,7 @@ public interface FailStore {
 
     public void delete(List<String> keys) throws FailStoreException;
 
-    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException;
+    public <T> List<Pair<String, T>> fetchTop(int size, Type type) throws FailStoreException;
 
     public void close() throws FailStoreException;
 

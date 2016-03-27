@@ -206,7 +206,7 @@ public class HttpCmdExecutor implements Runnable {
                 String[] postPair = aPostData.split("=");
                 String key = postPair[0];
                 String value = postPair[1];
-                if(value != null){
+                if(StringUtils.isNotEmpty(value)){
                     value = URLDecoder.decode(value, "UTF-8");
                 }
                 postVars.put(key, value);

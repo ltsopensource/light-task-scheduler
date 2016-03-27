@@ -1,10 +1,10 @@
 package com.lts.jobtracker.processor;
 
 import com.lts.core.protocol.command.JobCompletedRequest;
-import com.lts.jobtracker.complete.chain.GetNewJobChain;
-import com.lts.jobtracker.complete.chain.JobCompletedChain;
-import com.lts.jobtracker.complete.chain.JobProcessChain;
-import com.lts.jobtracker.complete.chain.JobStatisticChain;
+import com.lts.jobtracker.complete.biz.JobCompletedBiz;
+import com.lts.jobtracker.complete.biz.JobProcBiz;
+import com.lts.jobtracker.complete.biz.JobStatBiz;
+import com.lts.jobtracker.complete.biz.PushNewJobBiz;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.remoting.Channel;
 import com.lts.remoting.exception.RemotingCommandException;
@@ -20,15 +20,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class JobCompletedProcessor extends AbstractRemotingProcessor {
 
-    private List<JobCompletedChain> chains;
+    private List<JobCompletedBiz> bizChain;
 
     public JobCompletedProcessor(final JobTrackerAppContext appContext) {
         super(appContext);
 
-        this.chains = new CopyOnWriteArrayList<JobCompletedChain>();
-        this.chains.add(new JobStatisticChain(appContext));        // 统计
-        this.chains.add(new JobProcessChain(appContext));          // 完成处理
-        this.chains.add(new GetNewJobChain(appContext));           // 获取新任务
+        this.bizChain = new CopyOnWriteArrayList<JobCompletedBiz>();
+        this.bizChain.add(new JobStatBiz(appContext));        // 统计
+        this.bizChain.add(new JobProcBiz(appContext));          // 完成处理
+        this.bizChain.add(new PushNewJobBiz(appContext));           // 获取新任务
 
     }
 
@@ -38,15 +38,13 @@ public class JobCompletedProcessor extends AbstractRemotingProcessor {
 
         JobCompletedRequest requestBody = request.getBody();
 
-        // chain invoke
-        for (JobCompletedChain chain : chains) {
-            RemotingCommand remotingCommand = chain.doChain(requestBody);
+        for (JobCompletedBiz biz : bizChain) {
+            RemotingCommand remotingCommand = biz.doBiz(requestBody);
             if (remotingCommand != null) {
                 return remotingCommand;
             }
         }
-        return RemotingCommand.createResponseCommand(RemotingProtos
-                .ResponseCode.SUCCESS.code());
+        return RemotingCommand.createResponseCommand(RemotingProtos.ResponseCode.SUCCESS.code());
     }
 
 }

@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `lts_admin_jvm_memory` (
             `identity` varchar(64) DEFAULT NULL,
             `timestamp` bigint(20) NULL DEFAULT NULL,
             `node_type` varchar(32) NULL DEFAULT NULL,
-            `node_group` varchar(32) NULL DEFAULT NULL,
+            `node_group` varchar(64) NULL DEFAULT NULL,
             `heap_memory_committed` bigint(20) NULL DEFAULT NULL,
             `heap_memory_init` bigint(20) NULL DEFAULT NULL,
             `heap_memory_max` bigint(20) NULL DEFAULT NULL,

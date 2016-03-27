@@ -30,7 +30,7 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
     }
 
     @Override
-    public JobPo finish(String jobId) {
+    public JobPo getJob(String jobId) {
         return new SelectSql(getSqlTemplate())
                 .select()
                 .all()

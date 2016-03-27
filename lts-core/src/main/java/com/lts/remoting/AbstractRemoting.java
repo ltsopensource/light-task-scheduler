@@ -1,7 +1,7 @@
 package com.lts.remoting;
 
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.SystemClock;
@@ -39,11 +39,11 @@ public abstract class AbstractRemoting {
     protected final ConcurrentHashMap<Integer /* opaque */, ResponseFuture> responseTable =
             new ConcurrentHashMap<Integer, ResponseFuture>(256);
     // 注册的各个RPC处理器
-    protected final HashMap<Integer/* request code */, KVPair<RemotingProcessor, ExecutorService>> processorTable =
-            new HashMap<Integer, KVPair<RemotingProcessor, ExecutorService>>(64);
+    protected final HashMap<Integer/* request code */, Pair<RemotingProcessor, ExecutorService>> processorTable =
+            new HashMap<Integer, Pair<RemotingProcessor, ExecutorService>>(64);
     protected final RemotingEventExecutor remotingEventExecutor = new RemotingEventExecutor();
     // 默认请求代码处理器
-    protected KVPair<RemotingProcessor, ExecutorService> defaultRequestProcessor;
+    protected Pair<RemotingProcessor, ExecutorService> defaultRequestProcessor;
     protected final ChannelEventListener channelEventListener;
 
     public AbstractRemoting(final int permitsOneway, final int permitsAsync, ChannelEventListener channelEventListener) {
@@ -61,8 +61,8 @@ public abstract class AbstractRemoting {
     }
 
     public void processRequestCommand(final Channel channel, final RemotingCommand cmd) {
-        final KVPair<RemotingProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
-        final KVPair<RemotingProcessor, ExecutorService> pair =
+        final Pair<RemotingProcessor, ExecutorService> matched = this.processorTable.get(cmd.getCode());
+        final Pair<RemotingProcessor, ExecutorService> pair =
                 null == matched ? this.defaultRequestProcessor : matched;
 
         if (pair != null) {
@@ -157,13 +157,13 @@ public abstract class AbstractRemoting {
                                 try {
                                     responseFuture.executeInvokeCallback();
                                 } catch (Exception e) {
-                                    LOGGER.warn("excute callback in executor exception, and callback throw", e);
+                                    LOGGER.warn("execute callback in executor exception, and callback throw", e);
                                 }
                             }
                         });
                     } catch (Exception e) {
                         runInThisThread = true;
-                        LOGGER.warn("excute callback in executor exception, maybe executor busy", e);
+                        LOGGER.warn("execute callback in executor exception, maybe executor busy", e);
                     }
                 } else {
                     runInThisThread = true;

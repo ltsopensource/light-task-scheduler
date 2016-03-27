@@ -42,7 +42,7 @@ public interface Constants {
 
     String UNSUBSCRIBE = "unsubscribe";
 
-    int DEFAULT_BUFFER_SIZE = 16 * 1024;
+    int DEFAULT_BUFFER_SIZE = 16 * 1024 * 1024;
     /**
      * 注册中心失败事件重试事件
      */
@@ -108,4 +108,6 @@ public interface Constants {
     String LB_CPU_USED_RATE_MAX = "lb.cpuUsedRate.max";
 
     String LB_MACHINE_RES_CHECK_ENABLE = "lb.machine.res.check.enable";
+
+    String QUARTZ_FIRST_FIRE_TIME = "__LTS_Quartz_First_Fire_Time";
 }

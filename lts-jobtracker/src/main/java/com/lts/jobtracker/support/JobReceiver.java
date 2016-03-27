@@ -14,7 +14,6 @@ import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.core.support.JobDomainConverter;
-import com.lts.core.support.LoggerName;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.jobtracker.id.IdGenerator;
@@ -31,7 +30,7 @@ import java.util.List;
  */
 public class JobReceiver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobReceiver.class);
 
     private JobTrackerAppContext appContext;
     private IdGenerator idGenerator;
@@ -118,11 +117,13 @@ public class JobReceiver {
      * 添加任务
      */
     private void addJob(Job job, JobPo jobPo) throws DupEntryException {
-        if (job.isSchedule()) {
+        if (job.isCron()) {
             addCronJob(jobPo);
+        } else if (job.isRepeatable()) {
+            addRepeatJob(jobPo);
         } else {
             boolean needAdd2ExecutableJobQueue = true;
-            String ignoreAddOnExecuting = job.getParam("__LTS_ignoreAddOnExecuting");
+            String ignoreAddOnExecuting = CollectionUtils.getValue(jobPo.getInternalExtParams(), "__LTS_ignoreAddOnExecuting");
             if (ignoreAddOnExecuting != null && "true".equals(ignoreAddOnExecuting)) {
                 if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) != null) {
                     needAdd2ExecutableJobQueue = false;
@@ -132,7 +133,7 @@ public class JobReceiver {
                 appContext.getExecutableJobQueue().add(jobPo);
             }
         }
-        LOGGER.info("Receive Cron Job success. {}", job);
+        LOGGER.info("Receive Job success. {}", job);
     }
 
     /**
@@ -142,8 +143,10 @@ public class JobReceiver {
 
         // 得到老的jobId
         JobPo oldJobPo;
-        if (job.isSchedule()) {
+        if (job.isCron()) {
             oldJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+        } else if (job.isRepeatable()) {
+            oldJobPo = appContext.getRepeatJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         } else {
             oldJobPo = appContext.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
         }
@@ -151,8 +154,10 @@ public class JobReceiver {
             String jobId = oldJobPo.getJobId();
             // 1. 删除任务
             appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
-            if (job.isSchedule()) {
+            if (job.isCron()) {
                 appContext.getCronJobQueue().remove(jobId);
+            } else if (job.isRepeatable()) {
+                appContext.getRepeatJobQueue().remove(jobId);
             }
             jobPo.setJobId(jobId);
         }
@@ -187,40 +192,56 @@ public class JobReceiver {
     }
 
     /**
+     * 添加Repeat 任务
+     */
+    private void addRepeatJob(JobPo jobPo) throws DupEntryException {
+        // 1.add to repeat job queue
+        appContext.getRepeatJobQueue().add(jobPo);
+
+        // 没有正在执行, 则添加
+        if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+            // 2. add to executable queue
+            appContext.getExecutableJobQueue().add(jobPo);
+        }
+    }
+
+    /**
      * 记录任务日志
      */
     private void jobBizLog(JobPo jobPo, BizLogCode code) {
-        if (jobPo != null) {
-            try {
-                // 记录日志
-                JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
-                jobLogPo.setSuccess(true);
-                jobLogPo.setLogType(LogType.RECEIVE);
-                jobLogPo.setLogTime(SystemClock.now());
+        if (jobPo == null) {
+            return;
+        }
 
-                switch (code) {
-                    case SUCCESS:
-                        jobLogPo.setLevel(Level.INFO);
-                        jobLogPo.setMsg("添加任务成功.");
-                        break;
-                    case DUP_IGNORE:
-                        jobLogPo.setLevel(Level.WARN);
-                        jobLogPo.setMsg("在任务队列中已经存在,忽略本次提交.");
-                        break;
-                    case DUP_FAILED:
-                        jobLogPo.setLevel(Level.ERROR);
-                        jobLogPo.setMsg("在任务队列中已经存在,更新时失败.");
-                        break;
-                    case DUP_REPLACE:
-                        jobLogPo.setLevel(Level.INFO);
-                        jobLogPo.setMsg("在任务队列中已经存在,更新成功.");
-                        break;
-                }
+        try {
+            // 记录日志
+            JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
+            jobLogPo.setSuccess(true);
+            jobLogPo.setLogType(LogType.RECEIVE);
+            jobLogPo.setLogTime(SystemClock.now());
 
-                appContext.getJobLogger().log(jobLogPo);
-            } catch (Throwable t) {     // 日志记录失败不影响正常运行
-                LOGGER.error("Receive Job Log error ", t);
+            switch (code) {
+                case SUCCESS:
+                    jobLogPo.setLevel(Level.INFO);
+                    jobLogPo.setMsg("Receive Success");
+                    break;
+                case DUP_IGNORE:
+                    jobLogPo.setLevel(Level.WARN);
+                    jobLogPo.setMsg("Already Exist And Ignored");
+                    break;
+                case DUP_FAILED:
+                    jobLogPo.setLevel(Level.ERROR);
+                    jobLogPo.setMsg("Already Exist And Update Failed");
+                    break;
+                case DUP_REPLACE:
+                    jobLogPo.setLevel(Level.INFO);
+                    jobLogPo.setMsg("Already Exist And Update Success");
+                    break;
             }
+
+            appContext.getJobLogger().log(jobLogPo);
+        } catch (Throwable t) {     // 日志记录失败不影响正常运行
+            LOGGER.error("Receive Job Log error ", t);
         }
     }
 

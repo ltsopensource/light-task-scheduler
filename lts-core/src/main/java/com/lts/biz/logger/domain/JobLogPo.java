@@ -35,6 +35,10 @@ public class JobLogPo {
     protected String taskTrackerNodeGroup;
 
     protected Map<String, String> extParams;
+    /**
+     * 内部使用的扩展参数
+     */
+    private Map<String, String> internalExtParams;
     // 是否要反馈给客户端
     protected boolean needFeedback = true;
     /**
@@ -49,6 +53,27 @@ public class JobLogPo {
 
     private Integer retryTimes = 0;
     private Integer maxRetryTimes = 0;
+
+    /**
+     * 重复次数
+     */
+    private Integer repeatCount = 0;
+    /**
+     * 已经重复的次数
+     */
+    private Integer repeatedCount = 0;
+    /**
+     * 重复interval
+     */
+    private Long repeatInterval;
+
+    public Map<String, String> getInternalExtParams() {
+        return internalExtParams;
+    }
+
+    public void setInternalExtParams(Map<String, String> internalExtParams) {
+        this.internalExtParams = internalExtParams;
+    }
 
     public Integer getRetryTimes() {
         return retryTimes;
@@ -192,5 +217,29 @@ public class JobLogPo {
 
     public void setMaxRetryTimes(Integer maxRetryTimes) {
         this.maxRetryTimes = maxRetryTimes;
+    }
+
+    public Integer getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(Integer repeatCount) {
+        this.repeatCount = repeatCount;
+    }
+
+    public Integer getRepeatedCount() {
+        return repeatedCount;
+    }
+
+    public void setRepeatedCount(Integer repeatedCount) {
+        this.repeatedCount = repeatedCount;
+    }
+
+    public Long getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(Long repeatInterval) {
+        this.repeatInterval = repeatInterval;
     }
 }

@@ -5,7 +5,7 @@ import com.lts.core.cluster.Node;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.GenericsUtils;
 import com.lts.core.constant.EcTopic;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStore;
@@ -180,21 +180,21 @@ public abstract class RetryScheduler<T> {
                     return;
                 }
 
-                List<KVPair<String, T>> kvPairs = null;
+                List<Pair<String, T>> pairs = null;
                 do {
                     try {
                         lock.tryLock(1000, TimeUnit.MILLISECONDS);
-                        kvPairs = failStore.fetchTop(batchSize, type);
+                        pairs = failStore.fetchTop(batchSize, type);
 
-                        if (CollectionUtils.isEmpty(kvPairs)) {
+                        if (CollectionUtils.isEmpty(pairs)) {
                             break;
                         }
 
-                        List<T> values = new ArrayList<T>(kvPairs.size());
-                        List<String> keys = new ArrayList<String>(kvPairs.size());
-                        for (KVPair<String, T> kvPair : kvPairs) {
-                            keys.add(kvPair.getKey());
-                            values.add(kvPair.getValue());
+                        List<T> values = new ArrayList<T>(pairs.size());
+                        List<String> keys = new ArrayList<String>(pairs.size());
+                        for (Pair<String, T> pair : pairs) {
+                            keys.add(pair.getKey());
+                            values.add(pair.getValue());
                         }
                         if (retry(values)) {
                             LOGGER.info("{} RetryScheduler, local files send success, identity=[{}], size: {}, {}", name, appContext.getConfig().getIdentity(), values.size(), JSON.toJSONString(values));
@@ -207,7 +207,7 @@ public abstract class RetryScheduler<T> {
                             lock.unlock();
                         }
                     }
-                } while (CollectionUtils.isNotEmpty(kvPairs));
+                } while (CollectionUtils.isNotEmpty(pairs));
 
             } catch (Throwable e) {
                 LOGGER.error("Run {} RetryScheduler error , identity=[{}]", name, appContext.getConfig().getIdentity(), e);
@@ -238,17 +238,17 @@ public abstract class RetryScheduler<T> {
                     store.open();
 
                     while (true) {
-                        List<KVPair<String, T>> kvPairs = store.fetchTop(batchSize, type);
-                        if (CollectionUtils.isEmpty(kvPairs)) {
+                        List<Pair<String, T>> pairs = store.fetchTop(batchSize, type);
+                        if (CollectionUtils.isEmpty(pairs)) {
                             store.destroy();
                             LOGGER.info("{} RetryScheduler, delete store dir[{}] success, identity=[{}] ", name, store.getPath(), appContext.getConfig().getIdentity());
                             break;
                         }
-                        List<T> values = new ArrayList<T>(kvPairs.size());
-                        List<String> keys = new ArrayList<String>(kvPairs.size());
-                        for (KVPair<String, T> kvPair : kvPairs) {
-                            keys.add(kvPair.getKey());
-                            values.add(kvPair.getValue());
+                        List<T> values = new ArrayList<T>(pairs.size());
+                        List<String> keys = new ArrayList<String>(pairs.size());
+                        for (Pair<String, T> pair : pairs) {
+                            keys.add(pair.getKey());
+                            values.add(pair.getValue());
                         }
                         if (retry(values)) {
                             LOGGER.info("{} RetryScheduler, dead local files send success, identity=[{}], size: {}, {}"
