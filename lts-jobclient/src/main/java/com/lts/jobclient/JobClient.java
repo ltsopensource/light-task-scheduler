@@ -7,16 +7,15 @@ import com.lts.core.commons.utils.BatchUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
+import com.lts.core.domain.DepJobGroup;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
 import com.lts.core.exception.JobTrackerNotFoundException;
+import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
-import com.lts.core.protocol.command.CommandBodyWrapper;
-import com.lts.core.protocol.command.JobCancelRequest;
-import com.lts.core.protocol.command.JobSubmitRequest;
-import com.lts.core.protocol.command.JobSubmitResponse;
+import com.lts.core.protocol.command.*;
 import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
@@ -42,7 +41,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
-    private static final int BATCH_SIZE = 50;
+    private static final int BATCH_SIZE = 10;
 
     // 过载保护的提交者
     private JobSubmitProtector protector;
@@ -259,6 +258,66 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
         return response;
     }
 
+    public Response submitJob(final DepJobGroup jobGroup) {
+        return submitJob(jobGroup, SubmitType.ASYNC);
+    }
+
+    protected Response submitJob(final DepJobGroup jobGroup, SubmitType type) {
+        // 检查参数
+        final Response response = new Response();
+        try {
+            DepJobSubmitRequest jobSubmitRequest = CommandBodyWrapper.wrapper(appContext, new DepJobSubmitRequest());
+            jobSubmitRequest.setJobGroup(jobGroup);
+
+            RemotingCommand requestCommand = RemotingCommand.createRequestCommand(
+                    JobProtos.RequestCode.SUBMIT_DEP_JOB_GROUP.code(), jobSubmitRequest);
+
+            SubmitCallback submitCallback = new SubmitCallback() {
+                @Override
+                public void call(RemotingCommand responseCommand) {
+                    if (responseCommand == null) {
+                        response.setSuccess(false);
+                        response.setMsg("Submit Job failed: JobTracker is broken");
+                        return;
+                    }
+
+                    if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
+                        LOGGER.info("Submit Job success: {}", JSON.toJSONString(jobGroup));
+                        response.setSuccess(true);
+                        return;
+                    }
+                    // 失败的job
+                    DepJobSubmitResponse jobSubmitResponse = responseCommand.getBody();
+                    response.setSuccess(false);
+                    response.setCode(JobProtos.ResponseCode.valueOf(responseCommand.getCode()).name());
+                    response.setMsg("Submit Job failed: " + responseCommand.getRemark() + " " + jobSubmitResponse.getMsg());
+                    LOGGER.warn("Submit Job failed: {}, {}, {}", JSON.toJSONString(jobGroup), responseCommand.getRemark(), jobSubmitResponse.getMsg());
+                }
+            };
+            if (SubmitType.ASYNC.equals(type)) {
+                asyncSubmit(requestCommand, submitCallback);
+            } else {
+                syncSubmit(requestCommand, submitCallback);
+            }
+        } catch (JobTrackerNotFoundException e) {
+            response.setSuccess(false);
+            response.setCode(ResponseCode.JOB_TRACKER_NOT_FOUND);
+            response.setMsg("Can not found JobTracker node!");
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setCode(ResponseCode.SYSTEM_ERROR);
+            response.setMsg(StringUtils.toString(e));
+        } finally {
+            // 统计
+            if (response.isSuccess()) {
+                stat.incSubmitSuccessNum(1);
+            } else {
+                stat.incSubmitFailedNum(1);
+            }
+        }
+        return null;
+    }
+
     @Override
     protected RemotingProcessor getDefaultProcessor() {
         return new RemotingDispatcher(appContext);
@@ -276,8 +335,8 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
         ASYNC   // 异步
     }
 
-    private void checkStart(){
-        if(!started.get()){
+    private void checkStart() {
+        if (!started.get()) {
             throw new JobSubmitException("JobClient did not started");
         }
     }

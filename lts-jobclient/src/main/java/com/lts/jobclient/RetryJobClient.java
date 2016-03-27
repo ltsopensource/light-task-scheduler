@@ -1,5 +1,6 @@
 package com.lts.jobclient;
 
+import com.lts.core.domain.DepJobGroup;
 import com.lts.core.domain.Job;
 import com.lts.core.json.JSON;
 import com.lts.core.support.RetryScheduler;
@@ -18,18 +19,17 @@ import java.util.List;
  */
 public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext> {
 
-    private RetryScheduler<Job> retryScheduler;
+    private RetryScheduler<Job> jobRetryScheduler;
+    private RetryScheduler<DepJobGroup> depJobRetryScheduler;
 
     @Override
     protected void beforeStart() {
         super.beforeStart();
-        retryScheduler = new RetryScheduler<Job>(appContext, 30) {
-            @Override
+        jobRetryScheduler = new RetryScheduler<Job>(appContext, 10) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
 
-            @Override
             protected boolean retry(List<Job> jobs) {
                 Response response = null;
                 try {
@@ -46,14 +46,39 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
                 return false;
             }
         };
-        retryScheduler.setName(RetryJobClient.class.getSimpleName());
-        retryScheduler.start();
+        jobRetryScheduler.setName(RetryJobClient.class.getSimpleName());
+        jobRetryScheduler.start();
+
+        depJobRetryScheduler = new RetryScheduler<DepJobGroup>(appContext, 1) {
+            protected boolean isRemotingEnable() {
+                return isServerEnable();
+            }
+
+            protected boolean retry(List<DepJobGroup> list) {
+                Response response = null;
+                try {
+                    DepJobGroup jobGroup = list.get(0);
+                    // 重试必须走同步，不然会造成文件锁，死锁
+                    response = superSubmitJob(jobGroup, SubmitType.SYNC);
+                    return response.isSuccess();
+                } catch (Throwable t) {
+                    RetryScheduler.LOGGER.error(t.getMessage(), t);
+                } finally {
+                    if (response != null && response.isSuccess()) {
+                        stat.incSubmitFailStoreNum(1);
+                    }
+                }
+                return false;
+            }
+        };
+        depJobRetryScheduler.setName("DepJobGroup_RetryJobClient");
+        depJobRetryScheduler.start();
     }
 
     @Override
     protected void beforeStop() {
         super.beforeStop();
-        retryScheduler.stop();
+        jobRetryScheduler.stop();
     }
 
     @Override
@@ -72,12 +97,12 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
             response.setSuccess(false);
             response.setFailedJobs(jobs);
             response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
-            response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
+            response.setMsg(response.getMsg() + ", submit too busy");
         }
         if (!response.isSuccess()) {
             try {
                 for (Job job : response.getFailedJobs()) {
-                    retryScheduler.inSchedule(job.getTaskId(), job);
+                    jobRetryScheduler.inSchedule(job.getTaskId(), job);
                     stat.incFailStoreNum();
                 }
                 response.setSuccess(true);
@@ -93,11 +118,41 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
         return response;
     }
 
+    public Response submitJob(DepJobGroup jobGroup) {
+        Response response;
+        try {
+            response = super.submitJob(jobGroup);
+        } catch (JobSubmitProtectException e) {
+            response = new Response();
+            response.setSuccess(false);
+            response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
+            response.setMsg(response.getMsg() + ", submit too busy");
+        }
+        if (!response.isSuccess()) {
+            try {
+                depJobRetryScheduler.inSchedule(jobGroup.getGroupId(), jobGroup);
+                stat.incFailStoreNum();
+                response.setSuccess(true);
+                response.setCode(ResponseCode.SUBMIT_FAILED_AND_SAVE_FOR_LATER);
+                response.setMsg(response.getMsg() + ", save local fail store and send later !");
+                LOGGER.warn(JSON.toJSONString(response));
+            } catch (Exception e) {
+                response.setSuccess(false);
+                response.setMsg(e.getMessage());
+            }
+        }
+        return response;
+    }
+
     private Response superSubmitJob(List<Job> jobs) {
         return super.submitJob(jobs);
     }
 
     private Response superSubmitJob(List<Job> jobs, SubmitType type) {
         return super.submitJob(jobs, type);
+    }
+
+    private Response superSubmitJob(DepJobGroup jobGroup, SubmitType type) {
+        return super.submitJob(jobGroup, type);
     }
 }
