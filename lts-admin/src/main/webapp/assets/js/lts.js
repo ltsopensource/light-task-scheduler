@@ -33,6 +33,27 @@ LTS.colFormatter.formatGroup = function (v, row) {
     }
 };
 
+LTS.colFormatter.formatRetryTimes = function (v, row) {
+    return row['retryTimes']  + "/" + row['maxRetryTimes'];
+};
+
+LTS.colFormatter.repeatIntervalFormat = function (v, row) {
+    if (!row['repeatInterval']) {
+        return "";
+    }
+    return row['repeatInterval'] + "ms";
+};
+
+LTS.colFormatter.repeatCountFormat = function (v, row) {
+    if (!row['repeatInterval']) {
+        return "";
+    }
+    if (row['repeatCount'] == -1) {
+        return row['repeatedCount'] + '/(无限)';
+    }
+    return row['repeatedCount'] + '/' + (row['repeatCount'])
+};
+
 template.defaults.escape = false; // 关闭转移功能
 template.helper('dateFormat', function (date, format) {
     if (!date) {
@@ -96,7 +117,7 @@ function LtsTable(options) {
         _this.showLoading();
         $.ajax({
             url: _this.url,
-            type: 'GET',
+            type: 'POST',
             dataType: 'json',
             data: params,
             success: function (json) {

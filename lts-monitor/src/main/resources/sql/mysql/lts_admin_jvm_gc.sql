@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `lts_admin_jvm_gc` (
             `identity` varchar(64) DEFAULT NULL,
             `timestamp` bigint(20) NULL DEFAULT NULL,
             `node_type` varchar(32) NULL DEFAULT NULL,
-            `node_group` varchar(32) NULL DEFAULT NULL,
+            `node_group` varchar(64) NULL DEFAULT NULL,
             `young_gc_collection_count` bigint(20) NULL DEFAULT NULL,
             `young_gc_collection_time` bigint(20) NULL DEFAULT NULL,
             `full_gc_collection_count` bigint(20) NULL DEFAULT NULL,

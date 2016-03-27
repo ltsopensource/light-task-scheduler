@@ -58,7 +58,7 @@ public class SelectSql {
     }
 
     public SelectSql table(String table) {
-        sql.append(table);
+        sql.append("`").append(table).append("`");
         return this;
     }
 

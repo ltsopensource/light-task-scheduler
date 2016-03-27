@@ -1,5 +1,6 @@
 package com.lts.remoting.netty;
 
+import com.lts.core.AppContext;
 import com.lts.core.constant.Constants;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -23,8 +24,10 @@ public class NettyCodecFactory {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
 
     private Codec codec;
+    private AppContext appContext;
 
-    public NettyCodecFactory(Codec codec) {
+    public NettyCodecFactory(AppContext appContext, Codec codec) {
+        this.appContext = appContext;
         this.codec = codec;
     }
 
@@ -52,10 +55,10 @@ public class NettyCodecFactory {
 
     public class NettyDecoder extends LengthFieldBasedFrameDecoder {
 
-        private static final int FRAME_MAX_LENGTH = Constants.DEFAULT_BUFFER_SIZE;
+//        private static final int FRAME_MAX_LENGTH = Constants.DEFAULT_BUFFER_SIZE;
 
         public NettyDecoder() {
-            super(FRAME_MAX_LENGTH, 0, 4, 0, 4);
+            super(appContext.getConfig().getParameter("netty.frame.length.max", Constants.DEFAULT_BUFFER_SIZE), 0, 4, 0, 4);
         }
 
         @Override

@@ -1,6 +1,6 @@
 package com.lts.remoting;
 
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -15,8 +15,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -77,14 +75,14 @@ public abstract class AbstractRemotingServer extends AbstractRemoting implements
             executorThis = this.publicExecutor;
         }
 
-        KVPair<RemotingProcessor, ExecutorService> pair =
-                new KVPair<RemotingProcessor, ExecutorService>(processor, executorThis);
+        Pair<RemotingProcessor, ExecutorService> pair =
+                new Pair<RemotingProcessor, ExecutorService>(processor, executorThis);
         this.processorTable.put(requestCode, pair);
     }
 
     @Override
     public void registerDefaultProcessor(RemotingProcessor processor, ExecutorService executor) {
-        this.defaultRequestProcessor = new KVPair<RemotingProcessor, ExecutorService>(processor, executor);
+        this.defaultRequestProcessor = new Pair<RemotingProcessor, ExecutorService>(processor, executor);
     }
 
     @Override

@@ -8,11 +8,11 @@ import java.io.Serializable;
  * @author Robert HG (254963746@qq.com) on 8/19/14.
  * TaskTracker 任务执行结果
  */
-public class TaskTrackerJobResult implements Serializable{
+public class JobRunResult implements Serializable{
 
 	private static final long serialVersionUID = 8622758290605000897L;
 
-	private JobWrapper jobWrapper;
+	private JobMeta jobMeta;
 
     private Action action;
 
@@ -20,12 +20,12 @@ public class TaskTrackerJobResult implements Serializable{
     // 任务完成时间
     private Long time;
 
-    public JobWrapper getJobWrapper() {
-        return jobWrapper;
+    public JobMeta getJobMeta() {
+        return jobMeta;
     }
 
-    public void setJobWrapper(JobWrapper jobWrapper) {
-        this.jobWrapper = jobWrapper;
+    public void setJobMeta(JobMeta jobMeta) {
+        this.jobMeta = jobMeta;
     }
 
     public Action getAction() {

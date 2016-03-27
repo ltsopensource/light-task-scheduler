@@ -1,13 +1,13 @@
 package com.lts.queue.mongo;
 
+import com.lts.admin.request.JobQueueReq;
+import com.lts.admin.response.PaginationRsp;
 import com.lts.core.cluster.Config;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.JdbcException;
 import com.lts.store.mongo.MongoRepository;
-import com.lts.admin.request.JobQueueReq;
-import com.lts.admin.response.PaginationRsp;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
@@ -76,6 +76,8 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "maxRetryTimes", request.getMaxRetryTimes());
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
         addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addUpdateField(operations, "repeatCount", request.getRepeatCount());
+        addUpdateField(operations, "repeatInterval", request.getRepeatInterval());
 
         UpdateResults ur = template.update(query, operations);
         return ur.getUpdatedCount() == 1;

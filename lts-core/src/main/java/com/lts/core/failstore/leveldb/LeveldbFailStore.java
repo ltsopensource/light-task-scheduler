@@ -1,7 +1,7 @@
 package com.lts.core.failstore.leveldb;
 
 import com.lts.core.commons.file.FileUtils;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.failstore.AbstractFailStore;
 import com.lts.core.failstore.FailStoreException;
 import com.lts.core.json.JSON;
@@ -104,11 +104,11 @@ public class LeveldbFailStore extends AbstractFailStore {
     }
 
     @Override
-    public <T> List<KVPair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
+    public <T> List<Pair<String, T>> fetchTop(int size, Type type) throws FailStoreException {
         Snapshot snapshot = db.getSnapshot();
         DBIterator iterator = null;
         try {
-            List<KVPair<String, T>> list = new ArrayList<KVPair<String, T>>(size);
+            List<Pair<String, T>> list = new ArrayList<Pair<String, T>>(size);
             ReadOptions options = new ReadOptions();
             options.snapshot(snapshot);
             iterator = db.iterator(options);
@@ -116,7 +116,7 @@ public class LeveldbFailStore extends AbstractFailStore {
                 Map.Entry<byte[], byte[]> entry = iterator.peekNext();
                 String key = new String(entry.getKey(), "UTF-8");
                 T value = JSON.parse(new String(entry.getValue(), "UTF-8"), type);
-                KVPair<String, T> pair = new KVPair<String, T>(key, value);
+                Pair<String, T> pair = new Pair<String, T>(key, value);
                 list.add(pair);
                 if (list.size() >= size) {
                     break;

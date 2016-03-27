@@ -40,7 +40,7 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
 
         if (job != null) {
             appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), job.getJobId());
-            if (job.isSchedule()) {
+            if (job.isCron()) {
                 appContext.getCronJobQueue().remove(job.getJobId());
             }
             // 记录日志

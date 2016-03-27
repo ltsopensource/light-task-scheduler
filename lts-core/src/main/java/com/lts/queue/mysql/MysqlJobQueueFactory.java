@@ -1,5 +1,6 @@
 package com.lts.queue.mysql;
 
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.queue.*;
 
@@ -11,6 +12,11 @@ public class MysqlJobQueueFactory implements JobQueueFactory {
     @Override
     public CronJobQueue getCronJobQueue(Config config) {
         return new MysqlCronJobQueue(config);
+    }
+
+    @Override
+    public RepeatJobQueue getRepeatJobQueue(Config config) {
+        return new MysqlRepeatJobQueue(config);
     }
 
     @Override
@@ -39,7 +45,7 @@ public class MysqlJobQueueFactory implements JobQueueFactory {
     }
 
     @Override
-    public PreLoader getPreLoader(Config config) {
-        return new MysqlPreLoader(config);
+    public PreLoader getPreLoader(AppContext appContext) {
+        return new MysqlPreLoader(appContext);
     }
 }

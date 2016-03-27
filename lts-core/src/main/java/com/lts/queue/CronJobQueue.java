@@ -20,7 +20,7 @@ public interface CronJobQueue extends JobQueue{
     /**
      * 完成某一次执行，返回队列中的这条记录
      */
-    JobPo finish(String jobId);
+    JobPo getJob(String jobId);
 
     /**
      * 移除Cron Job

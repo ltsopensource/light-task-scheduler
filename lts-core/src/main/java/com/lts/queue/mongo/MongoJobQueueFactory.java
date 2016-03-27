@@ -1,5 +1,6 @@
 package com.lts.queue.mongo;
 
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.queue.*;
 
@@ -10,6 +11,11 @@ public class MongoJobQueueFactory implements JobQueueFactory {
     @Override
     public CronJobQueue getCronJobQueue(Config config) {
         return new MongoCronJobQueue(config);
+    }
+
+    @Override
+    public RepeatJobQueue getRepeatJobQueue(Config config) {
+        return new MongoRepeatJobQueue(config);
     }
 
     @Override
@@ -38,7 +44,7 @@ public class MongoJobQueueFactory implements JobQueueFactory {
     }
 
     @Override
-    public PreLoader getPreLoader(Config config) {
-        return new MongoPreLoader(config);
+    public PreLoader getPreLoader(AppContext appContext) {
+        return new MongoPreLoader(appContext);
     }
 }

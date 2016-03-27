@@ -6,7 +6,7 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
-import com.lts.core.domain.KVPair;
+import com.lts.core.domain.Pair;
 import com.lts.core.failstore.FailStore;
 import com.lts.core.failstore.FailStoreException;
 import org.junit.Before;
@@ -47,10 +47,10 @@ public class BerkeleydbFailStoreTest {
 
     @Test
     public void fetchTop() throws FailStoreException {
-        List<KVPair<String, Job>> kvPairs = failStore.fetchTop(5, Job.class);
-        if (CollectionUtils.isNotEmpty(kvPairs)) {
-            for (KVPair<String, Job> kvPair : kvPairs) {
-                System.out.println(JSON.toJSONString(kvPair));
+        List<Pair<String, Job>> pairs = failStore.fetchTop(5, Job.class);
+        if (CollectionUtils.isNotEmpty(pairs)) {
+            for (Pair<String, Job> pair : pairs) {
+                System.out.println(JSON.toJSONString(pair));
             }
         }
     }

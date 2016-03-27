@@ -1,5 +1,6 @@
 package com.lts.remoting;
 
+import com.lts.core.AppContext;
 import com.lts.core.spi.SPI;
 import com.lts.core.spi.SpiExtensionKey;
 
@@ -9,8 +10,8 @@ import com.lts.core.spi.SpiExtensionKey;
 @SPI(key = SpiExtensionKey.REMOTING, dftValue = "netty")
 public interface RemotingTransporter {
 
-    RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig);
+    RemotingServer getRemotingServer(AppContext appContext, RemotingServerConfig remotingServerConfig);
 
-    RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig);
+    RemotingClient getRemotingClient(AppContext appContext, RemotingClientConfig remotingClientConfig);
 
 }

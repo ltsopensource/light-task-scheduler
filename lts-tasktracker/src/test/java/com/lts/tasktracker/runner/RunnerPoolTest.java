@@ -4,7 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.LTSConfig;
 import com.lts.core.constant.Environment;
 import com.lts.core.domain.Job;
-import com.lts.core.domain.JobWrapper;
+import com.lts.core.domain.JobMeta;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.json.JSON;
 import com.lts.ec.injvm.InjvmEventCenter;
@@ -50,7 +50,7 @@ public class RunnerPoolTest {
         RunnerCallback callback = new RunnerCallback() {
 
             @Override
-            public JobWrapper runComplete(Response response) {
+            public JobMeta runComplete(Response response) {
                 System.out.println("complete:" + JSON.toJSONString(response));
                 return null;
             }
@@ -59,11 +59,11 @@ public class RunnerPoolTest {
         Job job = new Job();
         job.setTaskId("fdsafas");
 
-        JobWrapper jobWrapper = new JobWrapper();
-        jobWrapper.setJobId("111111");
-        jobWrapper.setJob(job);
+        JobMeta jobMeta = new JobMeta();
+        jobMeta.setJobId("111111");
+        jobMeta.setJob(job);
 
-        runnerPool.execute(jobWrapper, callback);
+        runnerPool.execute(jobMeta, callback);
         System.out.println(runnerPool.getAvailablePoolSize());
 
         try {

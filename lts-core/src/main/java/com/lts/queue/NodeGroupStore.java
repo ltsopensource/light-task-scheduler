@@ -1,7 +1,7 @@
 package com.lts.queue;
 
 import com.lts.core.cluster.NodeType;
-import com.lts.core.domain.NodeGroupGetRequest;
+import com.lts.core.domain.NodeGroupGetReq;
 import com.lts.queue.domain.NodeGroupPo;
 import com.lts.admin.response.PaginationRsp;
 
@@ -30,5 +30,5 @@ public interface NodeGroupStore {
     /**
      * 分页查询
      */
-    PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request);
+    PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetReq request);
 }

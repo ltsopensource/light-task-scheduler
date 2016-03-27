@@ -1,7 +1,7 @@
 package com.lts.jobtracker.support.checker;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
@@ -46,17 +46,17 @@ public class FeedbackJobSendChecker {
     public FeedbackJobSendChecker(final JobTrackerAppContext appContext) {
         this.appContext = appContext;
 
-        clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<TaskTrackerJobResultWrapper>() {
+        clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<JobRunResultWrapper>() {
             @Override
-            public void handleSuccess(List<TaskTrackerJobResultWrapper> jobResults) {
-                for (TaskTrackerJobResultWrapper jobResult : jobResults) {
-                    String submitNodeGroup = jobResult.getJobWrapper().getJob().getSubmitNodeGroup();
+            public void handleSuccess(List<JobRunResultWrapper> jobResults) {
+                for (JobRunResultWrapper jobResult : jobResults) {
+                    String submitNodeGroup = jobResult.getJobMeta().getJob().getSubmitNodeGroup();
                     appContext.getJobFeedbackQueue().remove(submitNodeGroup, jobResult.getId());
                 }
             }
 
             @Override
-            public void handleFailed(List<TaskTrackerJobResultWrapper> jobResults) {
+            public void handleFailed(List<JobRunResultWrapper> jobResults) {
                 // do nothing
             }
         });
@@ -147,12 +147,12 @@ public class FeedbackJobSendChecker {
                 if (CollectionUtils.isEmpty(jobFeedbackPos)) {
                     return;
                 }
-                List<TaskTrackerJobResultWrapper> jobResults = new ArrayList<TaskTrackerJobResultWrapper>(jobFeedbackPos.size());
+                List<JobRunResultWrapper> jobResults = new ArrayList<JobRunResultWrapper>(jobFeedbackPos.size());
                 for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
                     // 判断是否是过时的数据，如果是，那么移除
                     if (appContext.getOldDataHandler() == null ||
                             (!appContext.getOldDataHandler().handle(appContext.getJobFeedbackQueue(), jobFeedbackPo, jobFeedbackPo))) {
-                        jobResults.add(new TaskTrackerJobResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getTaskTrackerJobResult()));
+                        jobResults.add(new JobRunResultWrapper(jobFeedbackPo.getId(), jobFeedbackPo.getJobRunResult()));
                     }
                 }
                 // 返回发送成功的个数
@@ -163,7 +163,7 @@ public class FeedbackJobSendChecker {
         }
     }
 
-    private class TaskTrackerJobResultWrapper extends TaskTrackerJobResult {
+    private class JobRunResultWrapper extends JobRunResult {
 		
     	private static final long serialVersionUID = 6257259684477618571L;
     	
@@ -173,9 +173,9 @@ public class FeedbackJobSendChecker {
             return id;
         }
 
-        public TaskTrackerJobResultWrapper(String id, TaskTrackerJobResult result) {
+        public JobRunResultWrapper(String id, JobRunResult result) {
             this.id = id;
-            setJobWrapper(result.getJobWrapper());
+            setJobMeta(result.getJobMeta());
             setMsg(result.getMsg());
             setAction(result.getAction());
             setTime(result.getTime());

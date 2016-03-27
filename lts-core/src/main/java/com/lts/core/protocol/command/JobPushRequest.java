@@ -1,6 +1,6 @@
 package com.lts.core.protocol.command;
 
-import com.lts.core.domain.JobWrapper;
+import com.lts.core.domain.JobMeta;
 import com.lts.remoting.annotation.NotNull;
 
 /**
@@ -11,13 +11,13 @@ public class JobPushRequest extends AbstractRemotingCommandBody {
 	private static final long serialVersionUID = 2986743693237022215L;
 	
 	@NotNull
-    private JobWrapper jobWrapper;
+    private JobMeta jobMeta;
 
-    public JobWrapper getJobWrapper() {
-        return jobWrapper;
+    public JobMeta getJobMeta() {
+        return jobMeta;
     }
 
-    public void setJobWrapper(JobWrapper jobWrapper) {
-        this.jobWrapper = jobWrapper;
+    public void setJobMeta(JobMeta jobMeta) {
+        this.jobMeta = jobMeta;
     }
 }

@@ -4,7 +4,7 @@ import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.constant.Level;
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.json.JSON;
 import com.lts.core.json.TypeReference;
 import com.lts.queue.domain.JobFeedbackPo;
@@ -51,6 +51,7 @@ public class RshHolder {
         jobPo.setPriority(rs.getInt("priority"));
         jobPo.setRetryTimes(rs.getInt("retry_times"));
         jobPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
+        jobPo.setInternalExtParams(JSON.parse(rs.getString("internal_ext_params"), new TypeReference<HashMap<String, String>>(){}));
         jobPo.setTaskId(rs.getString("task_id"));
         jobPo.setGmtCreated(rs.getLong("gmt_created"));
         jobPo.setGmtModified(rs.getLong("gmt_modified"));
@@ -63,6 +64,9 @@ public class RshHolder {
         jobPo.setCronExpression(rs.getString("cron_expression"));
         jobPo.setNeedFeedback(rs.getBoolean("need_feedback"));
         jobPo.setTriggerTime(rs.getLong("trigger_time"));
+        jobPo.setRepeatCount(rs.getInt("repeat_count"));
+        jobPo.setRepeatedCount(rs.getInt("repeated_count"));
+        jobPo.setRepeatInterval(rs.getLong("repeat_interval"));
         return jobPo;
     }
 
@@ -73,7 +77,7 @@ public class RshHolder {
             while (rs.next()) {
                 JobFeedbackPo jobFeedbackPo = new JobFeedbackPo();
                 jobFeedbackPo.setId(rs.getString("id"));
-                jobFeedbackPo.setTaskTrackerJobResult(JSON.parse(rs.getString("job_result"), new TypeReference<TaskTrackerJobResult>() {
+                jobFeedbackPo.setJobRunResult(JSON.parse(rs.getString("job_result"), new TypeReference<JobRunResult>() {
                 }));
                 jobFeedbackPo.setGmtCreated(rs.getLong("gmt_created"));
                 jobFeedbackPos.add(jobFeedbackPo);
@@ -117,11 +121,15 @@ public class RshHolder {
                 jobLogPo.setTaskTrackerNodeGroup(rs.getString("task_tracker_node_group"));
                 jobLogPo.setExtParams(JSON.parse(rs.getString("ext_params"), new TypeReference<Map<String, String>>() {
                 }));
+                jobLogPo.setInternalExtParams(JSON.parse(rs.getString("internal_ext_params"), new TypeReference<HashMap<String, String>>(){}));
                 jobLogPo.setNeedFeedback(rs.getBoolean("need_feedback"));
                 jobLogPo.setCronExpression(rs.getString("cron_expression"));
                 jobLogPo.setTriggerTime(rs.getLong("trigger_time"));
                 jobLogPo.setRetryTimes(rs.getInt("retry_times"));
                 jobLogPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
+                jobLogPo.setRepeatCount(rs.getInt("repeat_count"));
+                jobLogPo.setRepeatedCount(rs.getInt("repeated_count"));
+                jobLogPo.setRepeatInterval(rs.getLong("repeat_interval"));
                 result.add(jobLogPo);
             }
             return result;

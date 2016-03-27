@@ -1,7 +1,7 @@
 package com.lts.tasktracker.domain;
 
 import com.lts.core.domain.Action;
-import com.lts.core.domain.JobWrapper;
+import com.lts.core.domain.JobMeta;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/14/14.
@@ -12,7 +12,7 @@ public class Response {
 
     private String msg;
 
-    private JobWrapper jobWrapper;
+    private JobMeta jobMeta;
 
     /**
      * 是否接收新任务
@@ -27,12 +27,12 @@ public class Response {
         this.msg = msg;
     }
 
-    public JobWrapper getJobWrapper() {
-        return jobWrapper;
+    public JobMeta getJobMeta() {
+        return jobMeta;
     }
 
-    public void setJobWrapper(JobWrapper jobWrapper) {
-        this.jobWrapper = jobWrapper;
+    public void setJobMeta(JobMeta jobMeta) {
+        this.jobMeta = jobMeta;
     }
 
     public boolean isReceiveNewJob() {

@@ -59,7 +59,7 @@ public class MongoJobFeedbackQueue extends MongoRepository implements JobFeedbac
         }
         for (JobFeedbackPo jobFeedbackPo : jobFeedbackPos) {
             String tableName = JobQueueUtils.getFeedbackQueueName(
-                    jobFeedbackPo.getTaskTrackerJobResult().getJobWrapper().getJob().getSubmitNodeGroup());
+                    jobFeedbackPo.getJobRunResult().getJobMeta().getJob().getSubmitNodeGroup());
             try {
                 template.save(tableName, jobFeedbackPo);
             } catch (DuplicateKeyException e) {

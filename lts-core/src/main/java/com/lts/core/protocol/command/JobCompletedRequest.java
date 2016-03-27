@@ -1,6 +1,6 @@
 package com.lts.core.protocol.command;
 
-import com.lts.core.domain.TaskTrackerJobResult;
+import com.lts.core.domain.JobRunResult;
 import com.lts.remoting.annotation.NotNull;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class JobCompletedRequest extends AbstractRemotingCommandBody {
     private boolean receiveNewJob = false;
 
     @NotNull
-    private List<TaskTrackerJobResult> taskTrackerJobResults;
+    private List<JobRunResult> jobRunResults;
 
     // 是否是重发(重发是批量发)
     private boolean reSend = false;
@@ -40,18 +40,18 @@ public class JobCompletedRequest extends AbstractRemotingCommandBody {
         this.receiveNewJob = receiveNewJob;
     }
 
-    public List<TaskTrackerJobResult> getTaskTrackerJobResults() {
-        return taskTrackerJobResults;
+    public List<JobRunResult> getJobRunResults() {
+        return jobRunResults;
     }
 
-    public void setTaskTrackerJobResults(List<TaskTrackerJobResult> taskTrackerJobResults) {
-        this.taskTrackerJobResults = taskTrackerJobResults;
+    public void setJobRunResults(List<JobRunResult> jobRunResults) {
+        this.jobRunResults = jobRunResults;
     }
 
-    public void addJobResult(TaskTrackerJobResult taskTrackerJobResult) {
-        if (taskTrackerJobResults == null) {
-            taskTrackerJobResults = new ArrayList<TaskTrackerJobResult>();
+    public void addJobResult(JobRunResult jobRunResult) {
+        if (jobRunResults == null) {
+            jobRunResults = new ArrayList<JobRunResult>();
         }
-        taskTrackerJobResults.add(taskTrackerJobResult);
+        jobRunResults.add(jobRunResult);
     }
 }

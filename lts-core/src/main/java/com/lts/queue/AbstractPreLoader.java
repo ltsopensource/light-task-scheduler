@@ -1,10 +1,11 @@
 package com.lts.queue;
 
-import com.lts.core.cluster.Config;
+import com.lts.core.AppContext;
 import com.lts.core.commons.concurrent.ConcurrentHashSet;
-import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.commons.utils.*;
+import com.lts.core.commons.utils.Callable;
 import com.lts.core.factory.NamedThreadFactory;
+import com.lts.core.support.NodeShutdownHook;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 
@@ -31,11 +32,11 @@ public abstract class AbstractPreLoader implements PreLoader {
     private AtomicBoolean start = new AtomicBoolean(false);
     private String FORCE_PREFIX = "force_"; // 强制加载的信号
 
-    public AbstractPreLoader(final Config config) {
+    public AbstractPreLoader(final AppContext appContext) {
         if (start.compareAndSet(false, true)) {
 
-            loadSize = config.getParameter("job.preloader.size", 300);
-            factor = config.getParameter("job.preloader.factor", 0.2);
+            loadSize = appContext.getConfig().getParameter("job.preloader.size", 300);
+            factor = appContext.getConfig().getParameter("job.preloader.factor", 0.2);
 
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override
@@ -68,6 +69,15 @@ public abstract class AbstractPreLoader implements PreLoader {
                     }
                 }
             }, 500, 500, TimeUnit.MILLISECONDS);
+
+            NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+                @Override
+                public void call() throws Exception {
+                    scheduledFuture.cancel(true);
+                    LOAD_EXECUTOR_SERVICE.shutdown();
+                    start.set(false);
+                }
+            });
         }
     }
 

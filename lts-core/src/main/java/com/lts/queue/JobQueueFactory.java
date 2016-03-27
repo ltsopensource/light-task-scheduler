@@ -1,5 +1,6 @@
 package com.lts.queue;
 
+import com.lts.core.AppContext;
 import com.lts.core.cluster.Config;
 import com.lts.core.spi.SPI;
 import com.lts.core.spi.SpiExtensionKey;
@@ -12,6 +13,8 @@ public interface JobQueueFactory {
 
     CronJobQueue getCronJobQueue(Config config);
 
+    RepeatJobQueue getRepeatJobQueue(Config config);
+
     ExecutableJobQueue getExecutableJobQueue(Config config);
 
     ExecutingJobQueue getExecutingJobQueue(Config config);
@@ -22,6 +25,6 @@ public interface JobQueueFactory {
 
     SuspendJobQueue getSuspendJobQueue(Config config);
 
-    PreLoader getPreLoader(Config config);
+    PreLoader getPreLoader(AppContext appContext);
 }
 

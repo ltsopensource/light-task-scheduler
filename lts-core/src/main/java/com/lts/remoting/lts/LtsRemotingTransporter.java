@@ -1,5 +1,6 @@
 package com.lts.remoting.lts;
 
+import com.lts.core.AppContext;
 import com.lts.remoting.*;
 
 /**
@@ -7,12 +8,12 @@ import com.lts.remoting.*;
  */
 public class LtsRemotingTransporter implements RemotingTransporter {
     @Override
-    public RemotingServer getRemotingServer(RemotingServerConfig remotingServerConfig) {
+    public RemotingServer getRemotingServer(AppContext appContext, RemotingServerConfig remotingServerConfig) {
         return new LtsRemotingServer(remotingServerConfig);
     }
 
     @Override
-    public RemotingClient getRemotingClient(RemotingClientConfig remotingClientConfig) {
+    public RemotingClient getRemotingClient(AppContext appContext, RemotingClientConfig remotingClientConfig) {
         return new LtsRemotingClient(remotingClientConfig);
     }
 }

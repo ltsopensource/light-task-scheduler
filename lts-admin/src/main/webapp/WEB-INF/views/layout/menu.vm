@@ -24,7 +24,8 @@
                 <ul class="nav nav-second-level collapse">
                     <li><a href="${contextPath}/job-add.htm">任务添加</a></li>
                     <li><a href="${contextPath}/cron-job-queue.htm">Cron任务</a></li>
-                    <li><a href="${contextPath}/suspend-job-queue.htm">Cron暂停任务</a></li>
+                    <li><a href="${contextPath}/repeat-job-queue.htm">Repeat任务</a></li>
+                    <li><a href="${contextPath}/suspend-job-queue.htm">暂停任务</a></li>
                     <li><a href="${contextPath}/executing-job-queue.htm">执行中的任务</a></li>
                     <li><a href="${contextPath}/executable-job-queue.htm">等待执行的任务</a></li>
                     <li><a href="${contextPath}/load-job.htm">手动加载任务</a></li>

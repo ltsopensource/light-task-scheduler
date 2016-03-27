@@ -2,6 +2,7 @@ package com.lts.queue.domain;
 
 import com.lts.core.json.JSON;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,6 +40,10 @@ public class JobPo {
      */
     private Map<String, String> extParams;
     /**
+     * 内部使用的扩展参数
+     */
+    private Map<String, String> internalExtParams;
+    /**
      * 是否正在执行
      */
     private boolean isRunning = false;
@@ -66,6 +71,19 @@ public class JobPo {
     private Integer retryTimes = 0;
 
     private Integer maxRetryTimes = 0;
+
+    /**
+     * 重复次数
+     */
+    private Integer repeatCount = 0;
+    /**
+     * 已经重复的次数
+     */
+    private Integer repeatedCount = 0;
+    /**
+     * 重复interval
+     */
+    private Long repeatInterval;
 
     public Integer getRetryTimes() {
         return retryTimes;
@@ -179,8 +197,12 @@ public class JobPo {
         this.taskTrackerIdentity = taskTrackerIdentity;
     }
 
-    public boolean isSchedule() {
+    public boolean isCron() {
         return this.cronExpression != null && !"".equals(this.cronExpression.trim());
+    }
+
+    public boolean isRepeatable() {
+        return (this.repeatInterval != null && this.repeatInterval > 0) && (this.repeatCount >= -1 && this.repeatCount != 0);
     }
 
     public Integer getMaxRetryTimes() {
@@ -189,6 +211,56 @@ public class JobPo {
 
     public void setMaxRetryTimes(Integer maxRetryTimes) {
         this.maxRetryTimes = maxRetryTimes;
+    }
+
+    public Integer getRepeatCount() {
+        return repeatCount;
+    }
+
+    public void setRepeatCount(Integer repeatCount) {
+        this.repeatCount = repeatCount;
+    }
+
+    public Long getRepeatInterval() {
+        return repeatInterval;
+    }
+
+    public void setRepeatInterval(Long repeatInterval) {
+        this.repeatInterval = repeatInterval;
+    }
+
+    public Integer getRepeatedCount() {
+        return repeatedCount;
+    }
+
+    public void setRepeatedCount(Integer repeatedCount) {
+        this.repeatedCount = repeatedCount;
+    }
+
+    public Map<String, String> getInternalExtParams() {
+        return internalExtParams;
+    }
+
+    public void setInternalExtParams(Map<String, String> internalExtParams) {
+        this.internalExtParams = internalExtParams;
+    }
+
+    public String getInternalExtParam(String key) {
+        if (internalExtParams == null) {
+            return null;
+        }
+        return internalExtParams.get(key);
+    }
+
+    public void setInternalExtParam(String key, String value) {
+        if (internalExtParams == null) {
+            internalExtParams = new HashMap<String, String>();
+        }
+        internalExtParams.put(key, value);
+    }
+
+    public void setRunning(boolean running) {
+        isRunning = running;
     }
 
     @Override

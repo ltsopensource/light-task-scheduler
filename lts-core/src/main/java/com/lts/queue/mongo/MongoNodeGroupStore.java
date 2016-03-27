@@ -4,7 +4,7 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.NodeGroupGetRequest;
+import com.lts.core.domain.NodeGroupGetReq;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.NodeGroupStore;
@@ -64,7 +64,7 @@ public class MongoNodeGroupStore extends MongoRepository implements NodeGroupSto
     }
 
     @Override
-    public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetRequest request) {
+    public PaginationRsp<NodeGroupPo> getNodeGroup(NodeGroupGetReq request) {
         Query<NodeGroupPo> query = template.createQuery(NodeGroupPo.class);
         if (request.getNodeType() != null) {
             query.field("nodeType").equal(request.getNodeType());

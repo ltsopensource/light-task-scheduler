@@ -1,16 +1,15 @@
 package com.lts.jobtracker.complete;
 
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.commons.utils.DateUtils;
+import com.lts.core.domain.JobMeta;
+import com.lts.core.domain.JobRunResult;
 import com.lts.core.json.JSON;
-import com.lts.core.domain.JobWrapper;
-import com.lts.core.domain.TaskTrackerJobResult;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.support.LoggerName;
+import com.lts.core.support.CronExpressionUtils;
+import com.lts.core.support.JobUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
-import com.lts.core.support.CronExpressionUtils;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
 
@@ -20,27 +19,28 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
-public class JobRetryHandler implements JobCompleteHandler {
+public class JobRetryHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobTracker);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JobRetryHandler.class);
 
     private JobTrackerAppContext appContext;
+    private long retryInterval = 30 * 1000;     // 默认30s
 
     public JobRetryHandler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
+        this.retryInterval = appContext.getConfig().getParameter("jobtracker.job.retry.interval.millis", 30 * 1000);
     }
 
-    @Override
-    public void onComplete(List<TaskTrackerJobResult> results) {
+    public void onComplete(List<JobRunResult> results) {
 
         if (CollectionUtils.isEmpty(results)) {
             return;
         }
-        for (TaskTrackerJobResult result : results) {
+        for (JobRunResult result : results) {
 
-            JobWrapper jobWrapper = result.getJobWrapper();
+            JobMeta jobMeta = result.getJobMeta();
             // 1. 加入到重试队列
-            JobPo jobPo = appContext.getExecutingJobQueue().getJob(jobWrapper.getJobId());
+            JobPo jobPo = appContext.getExecutingJobQueue().getJob(jobMeta.getJobId());
             if (jobPo == null) {    // 表示已经被删除了
                 continue;
             }
@@ -48,19 +48,38 @@ public class JobRetryHandler implements JobCompleteHandler {
             // 重试次数+1
             jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
             // 1 分钟重试一次吧
-            Long nextRetryTriggerTime = DateUtils.addMinute(new Date(), 1).getTime();
+            Long nextRetryTriggerTime = SystemClock.now() + retryInterval;
 
-            if (jobPo.isSchedule()) {
+            if (jobPo.isCron()) {
                 // 如果是 cron Job, 判断任务下一次执行时间和重试时间的比较
-                JobPo cronJobPo = appContext.getCronJobQueue().finish(jobWrapper.getJobId());
+                JobPo cronJobPo = appContext.getCronJobQueue().getJob(jobMeta.getJobId());
                 if (cronJobPo != null) {
                     Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronJobPo.getCronExpression());
                     if (nextTriggerTime != null && nextTriggerTime.getTime() < nextRetryTriggerTime) {
                         // 表示下次还要执行, 并且下次执行时间比下次重试时间要早, 那么不重试，直接使用下次的执行时间
                         nextRetryTriggerTime = nextTriggerTime.getTime();
                         jobPo = cronJobPo;
+                    } else {
+                        jobPo.setInternalExtParam("isRetry", "true");
                     }
                 }
+            } else if (jobPo.isRepeatable()) {
+                JobPo repeatJobPo = appContext.getRepeatJobQueue().getJob(jobMeta.getJobId());
+                if (repeatJobPo != null) {
+                    // 比较下一次重复时间和重试时间
+                    if (repeatJobPo.getRepeatCount() == -1 || (repeatJobPo.getRepeatedCount() < repeatJobPo.getRepeatCount())) {
+                        long nexTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
+                        if (nexTriggerTime < nextRetryTriggerTime) {
+                            // 表示下次还要执行, 并且下次执行时间比下次重试时间要早, 那么不重试，直接使用下次的执行时间
+                            nextRetryTriggerTime = nexTriggerTime;
+                            jobPo = repeatJobPo;
+                        } else {
+                            jobPo.setInternalExtParam("isRetry", "true");
+                        }
+                    }
+                }
+            } else {
+                jobPo.setInternalExtParam("isRetry", "true");
             }
 
             // 加入到队列, 重试

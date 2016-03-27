@@ -17,7 +17,6 @@ import com.lts.core.protocol.command.CommandBodyWrapper;
 import com.lts.core.protocol.command.JobCancelRequest;
 import com.lts.core.protocol.command.JobSubmitRequest;
 import com.lts.core.protocol.command.JobSubmitResponse;
-import com.lts.core.support.LoggerName;
 import com.lts.jobclient.domain.JobClientAppContext;
 import com.lts.jobclient.domain.JobClientNode;
 import com.lts.jobclient.domain.Response;
@@ -41,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class JobClient<T extends JobClientNode, Context extends AppContext> extends
         AbstractClientNode<JobClientNode, JobClientAppContext> {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(LoggerName.JobClient);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
     private static final int BATCH_SIZE = 50;
 
@@ -76,6 +75,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     }
 
     public Response submitJob(Job job) throws JobSubmitException {
+        checkStart();
         return protectSubmit(Collections.singletonList(job));
     }
 
@@ -92,6 +92,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
      * 取消任务
      */
     public Response cancelJob(String taskId, String taskTrackerNodeGroup) {
+        checkStart();
 
         final Response response = new Response();
 
@@ -238,7 +239,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     }
 
     public Response submitJob(List<Job> jobs) throws JobSubmitException {
-
+        checkStart();
         Response response = new Response();
         response.setSuccess(true);
         int size = jobs.size();
@@ -273,5 +274,11 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     enum SubmitType {
         SYNC,   // 同步
         ASYNC   // 异步
+    }
+
+    private void checkStart(){
+        if(!started.get()){
+            throw new JobSubmitException("JobClient did not started");
+        }
     }
 }
