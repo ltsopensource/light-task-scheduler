@@ -27,7 +27,7 @@ class QuartzLTSProxyAgent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(QuartzLTSProxyAgent.class);
     private QuartzLTSConfig quartzLTSConfig;
-    private List<QuartzJob> quartzJobs = new CopyOnWriteArrayList<QuartzJob>();
+    private List<QuartzJobContext> quartzJobContexts = new CopyOnWriteArrayList<QuartzJobContext>();
     private AtomicBoolean ready = new AtomicBoolean(false);
 
     public QuartzLTSProxyAgent(QuartzLTSConfig quartzLTSConfig) {
@@ -35,11 +35,11 @@ class QuartzLTSProxyAgent {
     }
 
     // 开始代理
-    public void startProxy(List<QuartzJob> cronJobs) {
+    public void startProxy(List<QuartzJobContext> cronJobs) {
         if (CollectionUtils.isEmpty(cronJobs)) {
             return;
         }
-        quartzJobs.addAll(cronJobs);
+        quartzJobContexts.addAll(cronJobs);
 
         if (!ready.compareAndSet(false, true)) {
             return;
@@ -75,10 +75,10 @@ class QuartzLTSProxyAgent {
         taskTracker.setClusterName(quartzLTSConfig.getClusterName());
         taskTracker.setNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
         taskTracker.setDataPath(quartzLTSConfig.getDataPath());
-        taskTracker.setWorkThreads(quartzJobs.size());
+        taskTracker.setWorkThreads(quartzJobContexts.size());
         taskTracker.setJobRunnerClass(QuartzJobRunnerDispatcher.class);
 
-        final QuartzJobRunnerDispatcher jobRunnerDispatcher = new QuartzJobRunnerDispatcher(quartzJobs);
+        final QuartzJobRunnerDispatcher jobRunnerDispatcher = new QuartzJobRunnerDispatcher(quartzJobContexts);
         taskTracker.setRunnerFactory(new RunnerFactory() {
             @Override
             public JobRunner newRunner() {
@@ -101,13 +101,13 @@ class QuartzLTSProxyAgent {
 
     private void submitJobs(JobClient jobClient) {
 
-        List<Job> jobs = new ArrayList<Job>(quartzJobs.size());
-        for (QuartzJob quartzJob : quartzJobs) {
+        List<Job> jobs = new ArrayList<Job>(quartzJobContexts.size());
+        for (QuartzJobContext quartzJobContext : quartzJobContexts) {
 
-            if (QuartzJobType.CRON == quartzJob.getType()) {
-                jobs.add(buildCronJob(quartzJob));
-            } else if (QuartzJobType.SIMPLE_REPEAT == quartzJob.getType()) {
-                jobs.add(buildSimpleJob(quartzJob));
+            if (QuartzJobType.CRON == quartzJobContext.getType()) {
+                jobs.add(buildCronJob(quartzJobContext));
+            } else if (QuartzJobType.SIMPLE_REPEAT == quartzJobContext.getType()) {
+                jobs.add(buildSimpleJob(quartzJobContext));
             }
         }
         LOGGER.info("=============LTS=========== Submit start");
@@ -115,13 +115,13 @@ class QuartzLTSProxyAgent {
         LOGGER.info("=============LTS=========== Submit end");
     }
 
-    private Job buildCronJob(QuartzJob quartzJob) {
+    private Job buildCronJob(QuartzJobContext quartzJobContext) {
 
-        CronTriggerImpl cronTrigger = (CronTriggerImpl) quartzJob.getTrigger();
+        CronTriggerImpl cronTrigger = (CronTriggerImpl) quartzJobContext.getTrigger();
         String cronExpression = cronTrigger.getCronExpression();
         String description = cronTrigger.getDescription();
         int priority = cronTrigger.getPriority();
-        String name = quartzJob.getName();
+        String name = quartzJobContext.getName();
 
         Job job = new Job();
         job.setTaskId(name);
@@ -136,13 +136,13 @@ class QuartzLTSProxyAgent {
         return job;
     }
 
-    private Job buildSimpleJob(QuartzJob quartzJob) {
+    private Job buildSimpleJob(QuartzJobContext quartzJobContext) {
 
-        SimpleTriggerImpl simpleTrigger = (SimpleTriggerImpl) quartzJob.getTrigger();
+        SimpleTriggerImpl simpleTrigger = (SimpleTriggerImpl) quartzJobContext.getTrigger();
 
         String description = simpleTrigger.getDescription();
         int priority = simpleTrigger.getPriority();
-        String name = quartzJob.getName();
+        String name = quartzJobContext.getName();
         int repeatCount = simpleTrigger.getRepeatCount();
         long repeatInterval = simpleTrigger.getRepeatInterval();
 

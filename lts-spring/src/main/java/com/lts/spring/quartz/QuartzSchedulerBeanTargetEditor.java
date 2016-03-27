@@ -2,6 +2,9 @@ package com.lts.spring.quartz;
 
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.spring.quartz.invoke.JobDetailJobExecution;
+import com.lts.spring.quartz.invoke.MethodInvokeJobExecution;
+import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
@@ -10,9 +13,7 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.springframework.util.MethodInvoker;
 
 import java.beans.PropertyEditorSupport;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
@@ -35,50 +36,67 @@ class QuartzSchedulerBeanTargetEditor extends PropertyEditorSupport {
         if (value != null && value instanceof Collection) {
 
             Collection<Trigger> triggers = (Collection<Trigger>) value;
-            List<QuartzJob> quartzJobs = new ArrayList<QuartzJob>(triggers.size());
+            List<QuartzJobContext> quartzJobContexts = new ArrayList<QuartzJobContext>(triggers.size());
             for (Trigger trigger : triggers) {
                 if (trigger instanceof CronTriggerImpl) {
-                    quartzJobs.add(buildQuartzCronJob((CronTriggerImpl) trigger));
+                    quartzJobContexts.add(buildQuartzCronJob((CronTriggerImpl) trigger));
                 } else if (trigger instanceof SimpleTriggerImpl) {
-                    quartzJobs.add(buildQuartzSimpleJob((SimpleTriggerImpl) trigger));
+                    quartzJobContexts.add(buildQuartzSimpleJob((SimpleTriggerImpl) trigger));
                 } else {
                     LOGGER.warn("Can't Proxy " + trigger.getClass().getName() + " Then Use Quartz Scheduler");
                     nativeQuartzTriggers.add(trigger);
                 }
             }
-            context.getAgent().startProxy(quartzJobs);
+            context.getAgent().startProxy(quartzJobContexts);
         }
         super.setValue(nativeQuartzTriggers);
     }
 
-    private QuartzJob buildQuartzCronJob(CronTriggerImpl cronTrigger) {
-        JobDataMap jobDataMap = cronTrigger.getJobDataMap();
-        JobDetail jobDetail = (JobDetail) jobDataMap.get("jobDetail");
+    private QuartzJobContext buildQuartzCronJob(CronTriggerImpl cronTrigger) {
+        QuartzJobContext quartzJobContext = new QuartzJobContext();
+        quartzJobContext.setTrigger(cronTrigger);
+        quartzJobContext.setType(QuartzJobType.CRON);
+        quartzJobContext.setName(cronTrigger.getName());
 
-        // 要执行的类
-        MethodInvoker methodInvoker = (MethodInvoker) jobDetail.getJobDataMap().get("methodInvoker");
+        buildQuartzJobContext(quartzJobContext, cronTrigger);
 
-        QuartzJob quartzJob = new QuartzJob();
-        quartzJob.setTrigger(cronTrigger);
-        quartzJob.setType(QuartzJobType.CRON);
-        quartzJob.setName(cronTrigger.getName());
-        quartzJob.setMethodInvoker(methodInvoker);
-
-        return quartzJob;
+        return quartzJobContext;
     }
 
-    private QuartzJob buildQuartzSimpleJob(SimpleTriggerImpl simpleTrigger) {
-        JobDataMap jobDataMap = simpleTrigger.getJobDataMap();
-        JobDetail jobDetail = (JobDetail) jobDataMap.get("jobDetail");
+    private QuartzJobContext buildQuartzSimpleJob(SimpleTriggerImpl simpleTrigger) {
+        QuartzJobContext quartzJobContext = new QuartzJobContext();
+        quartzJobContext.setTrigger(simpleTrigger);
+        quartzJobContext.setName(simpleTrigger.getName());
+        quartzJobContext.setType(QuartzJobType.SIMPLE_REPEAT);
 
+        buildQuartzJobContext(quartzJobContext, simpleTrigger);
+
+        return quartzJobContext;
+    }
+
+    private QuartzJobContext buildQuartzJobContext(QuartzJobContext quartzJobContext, Trigger trigger) {
+        JobDataMap triggerJobDataMap = trigger.getJobDataMap();
+        JobDetail jobDetail = (JobDetail) triggerJobDataMap.get("jobDetail");
         // 要执行的类
         MethodInvoker methodInvoker = (MethodInvoker) jobDetail.getJobDataMap().get("methodInvoker");
-        QuartzJob quartzJob = new QuartzJob();
-        quartzJob.setTrigger(simpleTrigger);
-        quartzJob.setName(simpleTrigger.getName());
-        quartzJob.setType(QuartzJobType.SIMPLE_REPEAT);
-        quartzJob.setMethodInvoker(methodInvoker);
+        Map<String, Object> jobDataMap = new HashMap<String, Object>();
+        jobDataMap.putAll(triggerJobDataMap);
+        jobDataMap.putAll(jobDetail.getJobDataMap());
+        jobDataMap.remove("jobDetail");
+        jobDataMap.remove("methodInvoker");
 
-        return quartzJob;
+        quartzJobContext.setJobDataMap(jobDataMap);
+        if (methodInvoker != null) {
+            quartzJobContext.setJobExecution(new MethodInvokeJobExecution(methodInvoker));
+        } else {
+            Class<? extends Job> jobClass = jobDetail.getJobClass();
+            try {
+                Job job = jobClass.newInstance();
+                quartzJobContext.setJobExecution(new JobDetailJobExecution(job));
+            } catch (Exception e) {
+                throw new QuartzProxyException("Instance JobClass[" + (jobClass == null ? null : jobClass.getName()) + "] error", e);
+            }
+        }
+        return quartzJobContext;
     }
 }

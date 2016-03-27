@@ -16,12 +16,34 @@
         <property name="jobDetail" ref="quartzTestJob"/>
         <property name="cronExpression" value="*/5 * * * * ?"/> <!-- 5s一次 -->
         <property name="description" value="测试哈哈哈哈"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean name="quartzTestJob2" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.lts.example.support.quartz.QuartzTestJob" />
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
     </bean>
 
     <bean id="simpleTriggerTest" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
-        <property name="jobDetail" ref="quartzTestJob"/>
+        <property name="jobDetail" ref="quartzTestJob2"/>
         <property name="repeatInterval" value="5000"/>
         <property name="description" value="测试Repeat任务"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key3" value="v3"/>
+                <entry key="key4" value="v4"/>
+            </map>
+        </property>
     </bean>
 
     <bean id="simpleTriggerTest2" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
@@ -29,6 +51,12 @@
         <property name="repeatCount" value="5"/>
         <property name="repeatInterval" value="5000"/>
         <property name="description" value="测试Repeat2任务"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
     </bean>
 
     <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -39,6 +67,7 @@
                 <ref bean="simpleTriggerTest2"/>
             </list>
         </property>
+        <property name="configLocation" value=""/>
     </bean>
 
     <bean class="com.lts.spring.quartz.QuartzLTSProxyBean">

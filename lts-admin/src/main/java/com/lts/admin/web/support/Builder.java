@@ -3,7 +3,7 @@ package com.lts.admin.web.support;
 import com.lts.admin.web.vo.RestfulResponse;
 
 /**
- * Created by hugui.hg on 3/26/16.
+ * @author Robert HG (254963746@qq.com) on 3/26/16.
  */
 public class Builder {
 

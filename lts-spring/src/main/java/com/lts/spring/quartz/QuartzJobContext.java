@@ -1,12 +1,14 @@
 package com.lts.spring.quartz;
 
+import com.lts.spring.quartz.invoke.JobExecution;
 import org.quartz.Trigger;
-import org.springframework.util.MethodInvoker;
+
+import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
-class QuartzJob {
+public class QuartzJobContext {
 
     private String name;
 
@@ -14,7 +16,9 @@ class QuartzJob {
 
     private Trigger trigger;
 
-    private MethodInvoker methodInvoker;
+    private JobExecution jobExecution;
+
+    private Map<String, Object> jobDataMap;
 
     public String getName() {
         return name;
@@ -22,14 +26,6 @@ class QuartzJob {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public MethodInvoker getMethodInvoker() {
-        return methodInvoker;
-    }
-
-    public void setMethodInvoker(MethodInvoker methodInvoker) {
-        this.methodInvoker = methodInvoker;
     }
 
     public QuartzJobType getType() {
@@ -46,5 +42,21 @@ class QuartzJob {
 
     public void setTrigger(Trigger trigger) {
         this.trigger = trigger;
+    }
+
+    public JobExecution getJobExecution() {
+        return jobExecution;
+    }
+
+    public void setJobExecution(JobExecution jobExecution) {
+        this.jobExecution = jobExecution;
+    }
+
+    public Map<String, Object> getJobDataMap() {
+        return jobDataMap;
+    }
+
+    public void setJobDataMap(Map<String, Object> jobDataMap) {
+        this.jobDataMap = jobDataMap;
     }
 }
