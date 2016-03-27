@@ -21,7 +21,7 @@ public class DropTableSql {
     }
 
     public DropTableSql drop(String table) {
-        sql.append("DROP TABLE IF EXIST ").append(table);
+        sql.append("DROP TABLE IF EXISTS ").append(table);
         return this;
     }
 
