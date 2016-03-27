@@ -33,7 +33,7 @@ public class MysqlJobFeedbackQueue extends JdbcAbstractAccess implements JobFeed
     @Override
     public boolean removeQueue(String jobClientNodeGroup) {
         return new DropTableSql(getSqlTemplate())
-                .drop(JobQueueUtils.getExecutableQueueName(jobClientNodeGroup))
+                .drop(JobQueueUtils.getFeedbackQueueName(jobClientNodeGroup))
                 .doDrop();
     }
 
