@@ -120,7 +120,7 @@ public class MStatReportWorker implements Runnable {
                             break;
                         }
                     } catch (Exception e) {
-                        LOGGER.warn("Report monitor data Error : " + e.getMessage());
+                        LOGGER.warn("Report monitor data Error : " + e.getMessage(), e);
                         break;
                     }
                 }
