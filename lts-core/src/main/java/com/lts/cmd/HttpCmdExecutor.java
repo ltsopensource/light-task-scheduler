@@ -1,17 +1,15 @@
 package com.lts.cmd;
 
-import com.lts.core.commons.utils.StringUtils;
+import com.lts.core.commons.utils.Assert;
+import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.json.JSON;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Robert HG (254963746@qq.com)  on 2/17/16.
@@ -22,9 +20,6 @@ public class HttpCmdExecutor implements Runnable {
     private HttpCmdContext context;
     private Socket socket;
 
-    private BufferedReader in = null;
-    private PrintWriter out = null;
-
     public HttpCmdExecutor(HttpCmdContext context, Socket socket) {
         this.context = context;
         this.socket = socket;
@@ -33,188 +28,191 @@ public class HttpCmdExecutor implements Runnable {
     @Override
     public void run() {
 
-        HttpCmdResponse response = null;
-
         try {
             // 解析请求
             HttpCmdRequest request = parseRequest();
 
-            if (request == null) {
-                response = HttpCmdResponse.newResponse(false, "Request Error");
-                return;
-            }
+            Assert.notNull(request, "Request Error");
 
-            if (StringUtils.isEmpty(request.getCommand())) {
-                response = HttpCmdResponse.newResponse(false, "Command is blank");
-                return;
-            }
+            Assert.hasText(request.getCommand(), "Command is blank");
 
-            if (StringUtils.isEmpty(request.getNodeIdentity())) {
-                response = HttpCmdResponse.newResponse(false, "nodeIdentity is blank");
-                return;
-            }
+            Assert.hasText(request.getNodeIdentity(), "nodeIdentity is blank");
 
             HttpCmdProc httpCmdProc = context.getCmdProcessor(request.getNodeIdentity(), request.getCommand());
 
-            if (httpCmdProc != null) {
-                response = httpCmdProc.execute(request);
-            } else {
-                response = HttpCmdResponse.newResponse(false, "Can not find the command:[" + request.getCommand() + "]");
-            }
+            Assert.notNull(httpCmdProc, "Can not find the command:[" + request.getCommand() + "]");
+
+            sendResponse(HTTP_OK, JSON.toJSONString(httpCmdProc.execute(request)));
+
+        } catch (HttpCMDErrorException ignored) {
+            // 忽略
+        } catch (IllegalArgumentException e) {
+            sendError(HTTP_BADREQUEST, JSON.toJSONString(HttpCmdResponse.newResponse(false, e.getMessage())), false);
         } catch (Throwable t) {
-            LOGGER.error("Execute command error", t);
-            response = HttpCmdResponse.newResponse(false, "Execute command error, message is " + t.getMessage());
-        } finally {
-            if (response != null && out != null) {
-                PrintWriter writer = new PrintWriter(out);
-                writer.print(JSON.toJSONString(response));
-                writer.close();
-                out.flush();
-            }
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (in != null) {
-                    in.close();
-                }
-                socket.close();
-            } catch (Exception ignored) {
-            }
+            LOGGER.error("Error When Execute Command", t);
+            sendError(HTTP_INTERNALERROR, JSON.toJSONString(HttpCmdResponse.newResponse(false, "Error:" + t.getMessage())), false);
         }
     }
 
     private HttpCmdRequest parseRequest() throws Exception {
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-        this.out = new PrintWriter(socket.getOutputStream());
 
-        String line = in.readLine();
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 
-        HttpCmdRequest request = null;
-        if (line.startsWith("GET")) {
-            request = parseGet(line);
-        } else if (line.startsWith("POST")) {        // 当做POST处理
-            request = parsePost(in, line);
-        } else {
-            out.print("HTTP/1.1 405 Method Not Allowed\r\n\r\n");
-            out.flush();
-            return null;
+        StringTokenizer st = new StringTokenizer(in.readLine());
+        if (!st.hasMoreTokens())
+            sendError(HTTP_BADREQUEST, "BAD REQUEST: Syntax error");
+
+        String method = st.nextToken();
+
+        if (!st.hasMoreTokens())
+            sendError(HTTP_BADREQUEST, "BAD REQUEST: Missing URI");
+
+        String uri = st.nextToken();
+
+        Properties params = new Properties();
+        assert uri != null;
+        int qmi = uri.indexOf('?');
+        if (qmi >= 0) {
+            decodeParams(uri.substring(qmi + 1), params);
+            uri = uri.substring(0, qmi);
         }
-        out.print("HTTP/1.1 200 OK\r\n\r\n");
-        out.flush();
-        return request;
-    }
 
-    private HttpCmdRequest parsePost(BufferedReader in, String line) throws Exception {
-        HttpRequest httpRequest = new HttpRequest();
-
-        final String firstLine = line;
-        char[] postData;
-        while (true) {
-            if (line == null || line.equals("")) {
-                int contentLength = Integer.parseInt(httpRequest.headers.get("Content-Length"));
-                if (contentLength > 0) {
-                    postData = new char[contentLength];
-                    in.read(postData);
-                    httpRequest.parsePost(new String(postData));
-                }
-                break;
+        Properties header = new Properties();
+        if (st.hasMoreTokens()) {
+            String line = in.readLine();
+            while (line.trim().length() > 0) {
+                int p = line.indexOf(':');
+                header.put(line.substring(0, p).trim().toLowerCase(), line.substring(p + 1).trim());
+                line = in.readLine();
             }
-            httpRequest.parseRequestLine(line);
-            line = in.readLine();
         }
 
-        HttpCmdRequest request = parseGet(firstLine);
-        for (Map.Entry<String, String> entry : httpRequest.postVars.entrySet()) {
-            request.addParam(entry.getKey(), entry.getValue());
+        if (method.equalsIgnoreCase("POST")) {
+            long size = 0x7FFFFFFFFFFFFFFFL;
+            String contentLength = header.getProperty("content-length");
+            if (contentLength != null) {
+                size = Integer.parseInt(contentLength);
+            }
+            String postLine = "";
+            char buf[] = new char[512];
+            int read = in.read(buf);
+            while (read >= 0 && size > 0 && !postLine.endsWith("\r\n")) {
+                size -= read;
+                postLine += String.valueOf(buf, 0, read);
+                if (size > 0)
+                    read = in.read(buf);
+            }
+            postLine = postLine.trim();
+            decodeParams(postLine, params);
         }
-        return request;
+        return resolveRequest(uri, params);
     }
 
-    /**
-     * GET /nodeIdentity/xxxCommand?xxx=yyyyy HTTP/1.1
-     */
-    protected static HttpCmdRequest parseGet(String url) throws Exception {
+
+    protected static HttpCmdRequest resolveRequest(String uri, Properties params) {
 
         HttpCmdRequest request = new HttpCmdRequest();
-
-        if (StringUtils.isEmpty(url)) {
-            return request;
-        }
-        int start = url.indexOf('/');
-        int ask = url.indexOf('?') == -1 ? url.lastIndexOf(' ') : url.indexOf('?');
-        int space = url.lastIndexOf(' ');
-        String path = url.substring(start != -1 ? start + 1 : 0, ask != -1 ? ask : url.length());
-        String nodeIdentity = path.substring(0, path.indexOf('/'));
-        String command = path.substring(path.indexOf('/') + 1, path.length());
+        String[] pathNode = uri.substring(1, uri.length()).split("/");
+        String nodeIdentity = pathNode[0];
+        String command = pathNode[1];;
         request.setCommand(command);
         request.setNodeIdentity(nodeIdentity);
 
-        if (ask == -1 || ask == space) {
-            return request;
-        }
-
-        String paramStr = url.substring(ask + 1, space != -1 ? space : url.length());
-
-        for (String param : paramStr.split("&")) {
-            if (StringUtils.isEmpty(param)) {
-                continue;
-            }
-            String[] kvPair = param.split("=");
-            if (kvPair.length != 2) {
-                continue;
-            }
-
-            String key = StringUtils.trim(kvPair[0]);
-            String value = StringUtils.trim(kvPair[1]);
-            value = URLDecoder.decode(value, "UTF-8");
-
-            request.addParam(key, value);
+        for (Map.Entry<Object, Object> entry : params.entrySet()) {
+            request.addParam(String.valueOf(entry.getKey()), String.valueOf(entry.getValue()));
         }
         return request;
     }
 
-    private static class HttpRequest {
+    public static final String HTTP_OK = "200 OK", HTTP_REDIRECT = "301 Moved Permanently",
+            HTTP_FORBIDDEN = "403 Forbidden", HTTP_NOTFOUND = "404 Not Found",
+            HTTP_BADREQUEST = "400 Bad Request", HTTP_INTERNALERROR = "500 Internal Server Error",
+            HTTP_NOTIMPLEMENTED = "501 Not Implemented";
 
-        protected String method = null;
-        protected String url = null;
-        protected String protocol = null;
+    public static final String MIME_PLAINTEXT = "text/plain", MIME_HTML = "text/html",
+            MIME_DEFAULT_BINARY = "application/octet-stream";
 
-        protected HashMap<String, String> headers = new HashMap<String, String>();
-        protected HashMap<String, String> postVars = new HashMap<String, String>();
+    private void sendError(String status, String msg) {
+        sendError(status, msg, true);
+    }
 
-        protected String parseError = null;
+    private void sendError(String status, String msg, boolean needInterrupt) {
+        sendResponse(status, msg);
+        if (needInterrupt) {
+            throw new HttpCMDErrorException();
+        }
+    }
 
-        public void parseRequestLine(String line) {
-            if (line == null) {
-                parseError();
-            } else if (!line.contains(":")) {
-                String[] lineParts = line.split(" ");
-                method = lineParts[0];
-                if (lineParts[1] != null)
-                    url = lineParts[1];
-                if (lineParts[2] != null) protocol = lineParts[2];
-            } else {
-                String[] parts = line.split(": ");
-                headers.put(parts[0], parts[1]);
+    private void sendResponse(String status, String msg) {
+        sendResponse(status, MIME_PLAINTEXT, null, new ByteArrayInputStream(msg.getBytes()));
+    }
+
+    private void decodeParams(String params, Properties p) throws Exception {
+        if (params == null)
+            return;
+
+        StringTokenizer st = new StringTokenizer(params, "&");
+        while (st.hasMoreTokens()) {
+            String e = st.nextToken();
+            int sep = e.indexOf('=');
+            if (sep >= 0) {
+                String key = e.substring(0, sep);
+                String value = URLDecoder.decode((e.substring(sep + 1)), "UTF-8");
+                p.put(key, value);
             }
         }
+    }
 
-        public void parsePost(String post) throws Exception {
-            String[] postData = post.split("&");
-            for (String aPostData : postData) {
-                String[] postPair = aPostData.split("=");
-                String key = postPair[0];
-                String value = postPair[1];
-                if(StringUtils.isNotEmpty(value)){
-                    value = URLDecoder.decode(value, "UTF-8");
+    private void sendResponse(String status, String mime, Properties header, InputStream data) {
+        try {
+            if (status == null)
+                throw new Error("sendResponse(): Status can't be null.");
+            OutputStream out = socket.getOutputStream();
+            PrintWriter pw = new PrintWriter(out);
+            pw.print("HTTP/1.0 " + status + " \r\n");
+
+            if (mime != null)
+                pw.print("Content-Type: " + mime + "\r\n");
+
+            if (header == null || header.getProperty("Date") == null)
+                pw.print("Date: " + DateUtils.formatYMD_HMS(new Date()) + "\r\n");
+
+            if (header != null) {
+                Enumeration e = header.keys();
+                while (e.hasMoreElements()) {
+                    String key = (String) e.nextElement();
+                    String value = header.getProperty(key);
+                    pw.print(key + ": " + value + "\r\n");
                 }
-                postVars.put(key, value);
+            }
+
+            pw.print("\r\n");
+            pw.flush();
+
+            if (data != null) {
+                byte[] buff = new byte[2048];
+                while (true) {
+                    int read = data.read(buff, 0, 2048);
+                    if (read <= 0)
+                        break;
+                    out.write(buff, 0, read);
+                }
+            }
+            out.flush();
+            out.close();
+            if (data != null)
+                data.close();
+        } catch (IOException ioe) {
+            try {
+                socket.close();
+            } catch (Throwable ignored) {
             }
         }
+    }
 
-        public String parseError() {
-            return this.parseError;
+    private class HttpCMDErrorException extends RuntimeException {
+        public HttpCMDErrorException() {
+            super();
         }
     }
 }
