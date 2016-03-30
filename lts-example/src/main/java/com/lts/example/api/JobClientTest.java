@@ -90,7 +90,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        jobClient.setIdentity("test_jobclient_0000001");
 //        jobClient.addConfig(SpiKey.LTS_JSON, "fastjson");
 //        jobClient.addConfig("lts.remoting", "netty");
-        jobClient.addConfig("zk.client", "curator");
+//        jobClient.addConfig("zk.client", "curator");
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();
