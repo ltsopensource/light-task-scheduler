@@ -21,6 +21,7 @@ import org.apache.zookeeper.KeeperException;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/16/15.
@@ -234,6 +235,7 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
     public class PathChildrenListener {
         private PathChildrenCache childrenCache;
         private PathChildrenCacheListener childrenCacheListener;
+        private AtomicBoolean start = new AtomicBoolean(false);
 
         public PathChildrenListener(String path, final ChildListener listener) {
             childrenCache = new PathChildrenCache(client, path, true);
@@ -259,8 +261,10 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
 
         public void startListener() {
             try {
-                childrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-                childrenCache.getListenable().addListener(childrenCacheListener);
+                if (start.compareAndSet(false, true)) {
+                    childrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+                    childrenCache.getListenable().addListener(childrenCacheListener);
+                }
             } catch (Exception e) {
                 throw new ZkException(e);
             }
@@ -268,9 +272,11 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
 
         public void stopListener() {
             try {
-                childrenCache.getListenable().removeListener(childrenCacheListener);
-                childrenCache.clear();
-                childrenCache.close();
+                if (start.compareAndSet(true, false)) {
+                    childrenCache.getListenable().removeListener(childrenCacheListener);
+                    childrenCache.clear();
+                    childrenCache.close();
+                }
             } catch (IOException e) {
                 throw new ZkException(e);
             }
@@ -290,9 +296,9 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
 
                     Object data = nodeCache.getCurrentData().getData();
 
-                    if(data == null){
+                    if (data == null) {
                         listener.dataDeleted(path);
-                    }else{
+                    } else {
                         listener.dataChange(path, data);
                     }
                 }
