@@ -15,7 +15,7 @@
     <context:component-scan base-package="com.lts"/>
 
     <bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
-        <!-- 使用LtsJobRunner注解一定要使用 JobDispatcher -->
+        <!-- 使用JobRunnerItem注解一定要使用 JobDispatcher -->
         <property name="jobRunnerClass" value="com.lts.spring.tasktracker.JobDispatcher"/>
         <!-- 如果指定为taskId, 取job.getTaskId() , 否则从 job.getParam("shardField") -->
         <property name="shardField" value="taskId"/>
