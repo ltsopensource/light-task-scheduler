@@ -89,7 +89,10 @@ public class HttpCmdExecutor implements Runnable {
 
         if (method.equalsIgnoreCase("POST")) {
             long size = 0x7FFFFFFFFFFFFFFFL;
-            String contentLength = header.getProperty("content-length");
+            String contentLength = header.getProperty("Content-Length");
+            if (contentLength == null) {
+                contentLength = header.getProperty("content-length");
+            }
             if (contentLength != null) {
                 size = Integer.parseInt(contentLength);
             }
@@ -114,7 +117,8 @@ public class HttpCmdExecutor implements Runnable {
         HttpCmdRequest request = new HttpCmdRequest();
         String[] pathNode = uri.substring(1, uri.length()).split("/");
         String nodeIdentity = pathNode[0];
-        String command = pathNode[1];;
+        String command = pathNode[1];
+        ;
         request.setCommand(command);
         request.setNodeIdentity(nodeIdentity);
 

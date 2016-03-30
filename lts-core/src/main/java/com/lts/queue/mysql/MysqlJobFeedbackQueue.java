@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MysqlJobFeedbackQueue extends JdbcAbstractAccess implements JobFeedbackQueue {
 
-    private final ConcurrentHashMap<String, String> SQL_CACHE_MAP = new ConcurrentHashMap<String, String>();
-
     public MysqlJobFeedbackQueue(Config config) {
         super(config);
     }

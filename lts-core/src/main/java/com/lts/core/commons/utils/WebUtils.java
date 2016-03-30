@@ -92,6 +92,7 @@ public class WebUtils {
         String rsp = null;
         try {
             conn = getConnection(new URL(url), METHOD_POST, ctype, headerMap);
+            conn.setRequestProperty("Content-Length", String.valueOf(content.length));
             conn.setConnectTimeout(connectTimeout);
             conn.setReadTimeout(readTimeout);
             out = conn.getOutputStream();
