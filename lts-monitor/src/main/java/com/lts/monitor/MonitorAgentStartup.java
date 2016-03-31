@@ -3,23 +3,29 @@ package com.lts.monitor;
 import com.lts.core.commons.utils.StringUtils;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/5/16.
  */
 public class MonitorAgentStartup {
 
+    private final static MonitorAgent agent = new MonitorAgent();
+    private static final AtomicBoolean started = new AtomicBoolean(false);
+
     public static void main(String[] args) {
         String cfgPath = args[0];
         start(cfgPath);
     }
 
-    private static void start(String cfgPath) {
+    public static void start(String cfgPath) {
+
+        if (!started.compareAndSet(false, true)) {
+            return;
+        }
 
         try {
             MonitorCfg cfg = MonitorCfgLoader.load(cfgPath);
-
-            final MonitorAgent agent = new MonitorAgent();
 
             agent.setRegistryAddress(cfg.getRegistryAddress());
             agent.setClusterName(cfg.getClusterName());
@@ -43,6 +49,12 @@ public class MonitorAgentStartup {
         } catch (CfgException e) {
             System.err.println("Monitor Startup Error: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    public static void stop() {
+        if (started.compareAndSet(true, false)) {
+            agent.stop();
         }
     }
 
