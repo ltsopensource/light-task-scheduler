@@ -47,12 +47,12 @@ public class SystemInitListener implements ServletContextListener {
             if (StringUtils.isEmpty(ltsMonitorCfgPath)) {
                 ltsMonitorCfgPath = this.getClass().getResource("/").getPath();
             }
-            MonitorAgentStartup.main(new String[]{ltsMonitorCfgPath});
+            MonitorAgentStartup.start(ltsMonitorCfgPath);
         }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
-
+        MonitorAgentStartup.stop();
     }
 }
