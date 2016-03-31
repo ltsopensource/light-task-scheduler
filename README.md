@@ -166,7 +166,7 @@ Response response = jobClient.submitJob(job);
             <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
         </list>
     </property>
-    <property name="jobFinishedHandler">
+    <property name="jobCompletedHandler">
         <bean class="com.lts.example.support.JobFinishedHandlerImpl"/>
     </property>
     <property name="configs">
