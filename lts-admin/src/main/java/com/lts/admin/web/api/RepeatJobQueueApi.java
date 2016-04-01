@@ -59,7 +59,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
             try {
                 // 如果repeatInterval有修改,需要把triggerTime也要修改下
                 if (!request.getRepeatInterval().equals(jobPo.getRepeatInterval())) {
-                    long nextTriggerTime = JobUtils.getRepeatTriggerTime(jobPo);
+                    long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
                     request.setTriggerTime(new Date(nextTriggerTime));
                 }
                 // 把等待执行的队列也更新一下
