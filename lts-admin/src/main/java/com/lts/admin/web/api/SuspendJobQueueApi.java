@@ -79,7 +79,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                 }
                 // 如果repeatInterval有修改,需要把triggerTime也要修改下
                 if (!request.getRepeatInterval().equals(jobPo.getRepeatInterval())) {
-                    long nextTriggerTime = JobUtils.getRepeatTriggerTime(jobPo);
+                    long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
                     request.setTriggerTime(new Date(nextTriggerTime));
                 }
                 request.setCronExpression(null);
@@ -161,7 +161,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                 try {
                     // 2. add to executable queue
                     JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
-                    long nextTriggerTime = JobUtils.getRepeatTriggerTime(repeatJob);
+                    long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
                     jobPo.setTriggerTime(nextTriggerTime);
                     appContext.getExecutableJobQueue().add(jobPo);
                 } catch (DupEntryException e) {

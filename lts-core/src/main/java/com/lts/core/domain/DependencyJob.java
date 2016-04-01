@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by hugui.hg on 3/27/16.
  */
-public class DepJob extends Job {
+public class DependencyJob extends Job {
 
     /**
      * 依赖的任务

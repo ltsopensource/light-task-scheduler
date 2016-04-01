@@ -250,7 +250,7 @@ public class JobQueueApi extends AbstractMVC {
         if (request.getTriggerTime() != null) {
             job.setTriggerTime(request.getTriggerTime().getTime());
         }
-        job.setRepeatCount(request.getRepeatCount());
+        job.setRepeatCount(request.getRepeatCount() == null ? 0 : request.getRepeatCount());
         job.setRepeatInterval(request.getRepeatInterval());
 
         job.setPriority(request.getPriority());

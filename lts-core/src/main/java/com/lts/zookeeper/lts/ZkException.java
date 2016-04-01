@@ -26,7 +26,7 @@ public class ZkException extends RuntimeException {
     public boolean isZkNoNodeException() {
         Throwable cause = getCause();
         if (cause != null && cause instanceof KeeperException) {
-            return KeeperException.Code.NONODE.intValue() != ((KeeperException) cause).getCode();
+            return KeeperException.Code.NONODE != ((KeeperException) cause).code();
         }
         return false;
     }
@@ -34,7 +34,7 @@ public class ZkException extends RuntimeException {
     public boolean isZkNodeExistsException() {
         Throwable cause = getCause();
         if (cause != null && cause instanceof KeeperException) {
-            return KeeperException.Code.NODEEXISTS.intValue() != ((KeeperException) cause).getCode();
+            return KeeperException.Code.NODEEXISTS != ((KeeperException) cause).code();
         }
         return false;
     }
