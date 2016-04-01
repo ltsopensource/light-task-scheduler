@@ -14,7 +14,7 @@ public abstract class AbstractFailStoreFactory implements FailStoreFactory {
     @Override
     public final FailStore getFailStore(Config config, String storePath) {
         if (StringUtils.isEmpty(storePath)) {
-            storePath = config.getFailStorePath();
+            throw new IllegalStateException("storePath should not be empty");
         }
         File dbPath = new File(storePath.concat(getName()).concat("/").concat(config.getIdentity()));
         try {

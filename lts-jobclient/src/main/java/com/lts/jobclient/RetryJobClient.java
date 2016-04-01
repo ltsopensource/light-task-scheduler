@@ -2,6 +2,7 @@ package com.lts.jobclient;
 
 import com.lts.core.domain.DepJobGroup;
 import com.lts.core.domain.Job;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.json.JSON;
 import com.lts.core.support.RetryScheduler;
 import com.lts.jobclient.domain.JobClientAppContext;
@@ -25,7 +26,8 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
     @Override
     protected void beforeStart() {
         super.beforeStart();
-        jobRetryScheduler = new RetryScheduler<Job>(appContext, 10) {
+        jobRetryScheduler = new RetryScheduler<Job>(appContext,
+                FailStorePathBuilder.getJobSubmitFailStorePath(appContext), 10) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
@@ -49,7 +51,8 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
         jobRetryScheduler.setName(RetryJobClient.class.getSimpleName());
         jobRetryScheduler.start();
 
-        depJobRetryScheduler = new RetryScheduler<DepJobGroup>(appContext, 1) {
+        depJobRetryScheduler = new RetryScheduler<DepJobGroup>(appContext,
+                FailStorePathBuilder.getDepJobSubmitFailStorePath(appContext), 1) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }

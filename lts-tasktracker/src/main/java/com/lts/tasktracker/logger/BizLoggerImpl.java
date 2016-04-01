@@ -7,6 +7,7 @@ import com.lts.core.constant.Level;
 import com.lts.core.domain.BizLog;
 import com.lts.core.domain.Pair;
 import com.lts.core.exception.JobTrackerNotFoundException;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
 import com.lts.core.protocol.command.CommandBodyWrapper;
@@ -45,8 +46,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         this.appContext = appContext;
         this.remotingClient = remotingClient;
         this.jobTL = new ThreadLocal<Pair<String, String>>();
-        String storePath = getStorePath();
-        this.retryScheduler = new RetryScheduler<BizLog>(appContext, storePath) {
+        this.retryScheduler = new RetryScheduler<BizLog>(appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -66,13 +66,6 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
                 retryScheduler.stop();
             }
         });
-    }
-
-    private String getStorePath() {
-        return appContext.getConfig().getDataPath()
-                + "/.lts" + "/" +
-                appContext.getConfig().getNodeType() + "/" +
-                appContext.getConfig().getNodeGroup() + "/bizlog/";
     }
 
     public void setId(String jobId, String taskId) {

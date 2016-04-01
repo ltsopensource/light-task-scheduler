@@ -55,9 +55,9 @@ public abstract class RetryScheduler<T> {
     private ReentrantLock lock = new ReentrantLock();
     private AppContext appContext;
 
-    public RetryScheduler(AppContext appContext) {
-        this(appContext, appContext.getConfig().getFailStorePath());
-    }
+//    public RetryScheduler(AppContext appContext) {
+//        this(appContext, appContext.getConfig().getFailStorePath());
+//    }
 
     public RetryScheduler(final AppContext appContext, String storePath) {
         this.appContext = appContext;
@@ -93,10 +93,10 @@ public abstract class RetryScheduler<T> {
         this.batchSize = batchSize;
     }
 
-    protected RetryScheduler(AppContext appContext, int batchSize) {
-        this(appContext);
-        this.batchSize = batchSize;
-    }
+//    protected RetryScheduler(AppContext appContext, int batchSize) {
+//        this(appContext);
+//        this.batchSize = batchSize;
+//    }
 
     public void setName(String name) {
         this.name = name;
@@ -197,7 +197,8 @@ public abstract class RetryScheduler<T> {
                             values.add(pair.getValue());
                         }
                         if (retry(values)) {
-                            LOGGER.info("{} RetryScheduler, local files send success, identity=[{}], size: {}, {}", name, appContext.getConfig().getIdentity(), values.size(), JSON.toJSONString(values));
+                            LOGGER.info("{} RetryScheduler, local files send success, identity=[{}], size: {}, {}",
+                                    name, appContext.getConfig().getIdentity(), values.size(), JSON.toJSONString(values));
                             failStore.delete(keys);
                         } else {
                             break;

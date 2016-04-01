@@ -30,8 +30,12 @@ public class RocksdbFailStoreTest {
         config.setDataPath(Constants.USER_HOME);
         config.setNodeGroup("test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        failStore = new RocksdbFailStoreFactory().getFailStore(config, config.getFailStorePath());
+        failStore = new RocksdbFailStoreFactory().getFailStore(config, getFailStorePath(config));
         failStore.open();
+    }
+
+    public String getFailStorePath(Config config) {
+        return config.getDataPath() + "/.lts" + "/" + config.getNodeType() + "/" + config.getNodeGroup() + "/failstore/";
     }
 
     @Test

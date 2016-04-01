@@ -6,6 +6,7 @@ import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.exception.RequestTimeoutException;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
@@ -45,7 +46,8 @@ public class JobPushProcessor extends AbstractProcessor {
     protected JobPushProcessor(TaskTrackerAppContext appContext) {
         super(appContext);
         this.remotingClient = appContext.getRemotingClient();
-        retryScheduler = new RetryScheduler<JobRunResult>(appContext, 3) {
+        retryScheduler = new RetryScheduler<JobRunResult>(appContext,
+                FailStorePathBuilder.getJobFeedbackPath(appContext), 3) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
