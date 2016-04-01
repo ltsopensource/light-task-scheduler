@@ -10,12 +10,12 @@ public class JobUtils {
 
     public static long getRepeatNextTriggerTime(JobPo jobPo) {
         long firstTriggerTime = Long.valueOf(jobPo.getInternalExtParam(Constants.QUARTZ_FIRST_FIRE_TIME));
-        return firstTriggerTime + (jobPo.getRepeatedCount() + 1) * jobPo.getRepeatInterval();
-    }
-
-    public static long getRepeatTriggerTime(JobPo jobPo) {
-        long firstTriggerTime = Long.valueOf(jobPo.getInternalExtParam(Constants.QUARTZ_FIRST_FIRE_TIME));
-        return firstTriggerTime + jobPo.getRepeatedCount() * jobPo.getRepeatInterval();
+        long now = SystemClock.now();
+        long remainder = (now - firstTriggerTime) % jobPo.getRepeatInterval();
+        if (remainder == 0) {
+            return now;
+        }
+        return now + (jobPo.getRepeatInterval() - remainder);
     }
 
 }
