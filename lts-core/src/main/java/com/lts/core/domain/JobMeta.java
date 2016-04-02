@@ -13,10 +13,15 @@ public class JobMeta implements Serializable {
 
     private static final long serialVersionUID = 1476984243004969158L;
 
+    private Job job;
+
     private String jobId;
     private Map<String, String> internalExtParams;
-
-    private Job job;
+    // 已经重试的次数
+    private int retryTimes;
+    // 已经重复的次数
+    private Integer repeatedCount;
+    private String realTaskId;
 
     public JobMeta() {
     }
@@ -57,6 +62,30 @@ public class JobMeta implements Serializable {
             internalExtParams = new HashMap<String, String>();
         }
         internalExtParams.put(key, value);
+    }
+
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
+    public Integer getRepeatedCount() {
+        return repeatedCount;
+    }
+
+    public void setRepeatedCount(Integer repeatedCount) {
+        this.repeatedCount = repeatedCount;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 
     @Override

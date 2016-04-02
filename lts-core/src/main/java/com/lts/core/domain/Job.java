@@ -34,8 +34,6 @@ public class Job implements Serializable {
     private Map<String, String> extParams;
     // 是否要反馈给客户端
     private boolean needFeedback = false;
-    // 已经重试的次数 (用户不要设置)
-    private int retryTimes = 0;
     // 该任务最大的重试次数
     private int maxRetryTimes = 0;
     /**
@@ -48,10 +46,6 @@ public class Job implements Serializable {
      * 重复次数 (-1 表示无限制重复)
      */
     private int repeatCount = 0;
-    /**
-     * 已经重复的次数, (用户不要设置)
-     */
-    private Integer repeatedCount = 0;
     /**
      * 重复interval
      */
@@ -100,14 +94,6 @@ public class Job implements Serializable {
 
     public boolean isNeedFeedback() {
         return needFeedback;
-    }
-
-    public Integer getRetryTimes() {
-        return retryTimes;
-    }
-
-    public void setRetryTimes(int retryTimes) {
-        this.retryTimes = retryTimes;
     }
 
     public void setNeedFeedback(boolean needFeedback) {
@@ -196,14 +182,6 @@ public class Job implements Serializable {
 
     public void setRepeatInterval(Long repeatInterval) {
         this.repeatInterval = repeatInterval;
-    }
-
-    public Integer getRepeatedCount() {
-        return repeatedCount;
-    }
-
-    public void setRepeatedCount(Integer repeatedCount) {
-        this.repeatedCount = repeatedCount;
     }
 
     @Override

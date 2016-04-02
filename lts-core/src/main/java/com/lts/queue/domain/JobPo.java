@@ -19,10 +19,12 @@ public class JobPo {
      * 优先级 (数值越大 优先级越低)
      */
     private Integer priority;
-    /**
-     * 客户端传过来的ID
-     */
+
     private String taskId;
+    /**
+     * 真实的taskId
+     */
+    private String realTaskId;
     // 创建时间
     private Long gmtCreated;
     // 修改时间
@@ -203,6 +205,14 @@ public class JobPo {
 
     public boolean isRepeatable() {
         return (this.repeatInterval != null && this.repeatInterval > 0) && (this.repeatCount >= -1 && this.repeatCount != 0);
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 
     public Integer getMaxRetryTimes() {

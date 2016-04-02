@@ -3,6 +3,7 @@ package com.lts.spring.quartz;
 import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
+import com.lts.tasktracker.runner.JobContext;
 import com.lts.tasktracker.runner.JobRunner;
 
 import java.util.List;
@@ -24,7 +25,8 @@ class QuartzJobRunnerDispatcher implements JobRunner {
     }
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
+        Job job = jobContext.getJob();
         String taskId = job.getTaskId();
 
         QuartzJobContext quartzJobContext = JOB_MAP.get(taskId);

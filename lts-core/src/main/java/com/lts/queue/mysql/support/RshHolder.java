@@ -53,6 +53,7 @@ public class RshHolder {
         jobPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
         jobPo.setInternalExtParams(JSON.parse(rs.getString("internal_ext_params"), new TypeReference<HashMap<String, String>>(){}));
         jobPo.setTaskId(rs.getString("task_id"));
+        jobPo.setRealTaskId(rs.getString("real_task_id"));
         jobPo.setGmtCreated(rs.getLong("gmt_created"));
         jobPo.setGmtModified(rs.getLong("gmt_modified"));
         jobPo.setSubmitNodeGroup(rs.getString("submit_node_group"));

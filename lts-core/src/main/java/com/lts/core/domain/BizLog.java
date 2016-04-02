@@ -15,6 +15,8 @@ public class BizLog implements Serializable {
 
     private String jobId;
 
+    private String realTaskId;
+
     private String msg;
 
     private Level level;
@@ -79,5 +81,13 @@ public class BizLog implements Serializable {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 }

@@ -23,24 +23,25 @@ public class JobLogPo {
     // 日志记录级别
     private Level level;
 
-    protected String jobId;
-    protected String taskId;
+    private String jobId;
+    private String taskId;
+    private String realTaskId;
     /**
      * 优先级 (数值越大 优先级越低)
      */
-    protected Integer priority = 100;
+    private Integer priority = 100;
     // 提交的节点
-    protected String submitNodeGroup;
+    private String submitNodeGroup;
     // 执行的节点
-    protected String taskTrackerNodeGroup;
+    private String taskTrackerNodeGroup;
 
-    protected Map<String, String> extParams;
+    private Map<String, String> extParams;
     /**
      * 内部使用的扩展参数
      */
     private Map<String, String> internalExtParams;
     // 是否要反馈给客户端
-    protected boolean needFeedback = true;
+    private boolean needFeedback = true;
     /**
      * 执行表达式 和 quartz 的一样
      * 如果这个为空，表示立即执行的
@@ -241,5 +242,13 @@ public class JobLogPo {
 
     public void setRepeatInterval(Long repeatInterval) {
         this.repeatInterval = repeatInterval;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 }

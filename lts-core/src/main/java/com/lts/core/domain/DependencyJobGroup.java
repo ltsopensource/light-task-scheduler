@@ -3,9 +3,9 @@ package com.lts.core.domain;
 import java.util.List;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
-public class DepJobGroup {
+public class DependencyJobGroup {
 
     private List<Job> jobs;
 
@@ -26,7 +26,7 @@ public class DepJobGroup {
     /**
      * 是否依赖上一周期, 等待上一周期执行完成之后再能提交下一周期
      */
-    private Boolean depPrev;
+    private Boolean depPrevCycle;
 
     public List<Job> getJobs() {
         return jobs;
@@ -76,11 +76,11 @@ public class DepJobGroup {
         this.triggerTime = triggerTime;
     }
 
-    public Boolean getDepPrev() {
-        return depPrev;
+    public Boolean getDepPrevCycle() {
+        return depPrevCycle;
     }
 
-    public void setDepPrev(Boolean depPrev) {
-        this.depPrev = depPrev;
+    public void setDepPrevCycle(Boolean depPrevCycle) {
+        this.depPrevCycle = depPrevCycle;
     }
 }

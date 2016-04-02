@@ -25,6 +25,8 @@ public class JobDomainConverter {
         JobPo jobPo = new JobPo();
         jobPo.setPriority(job.getPriority());
         jobPo.setTaskId(job.getTaskId());
+        jobPo.setRealTaskId(jobPo.getTaskId());
+        jobPo.setRealTaskId(jobPo.getTaskId());
         jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         jobPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
@@ -80,15 +82,15 @@ public class JobDomainConverter {
         job.setNeedFeedback(jobPo.isNeedFeedback());
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
-        job.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         job.setMaxRetryTimes(jobPo.getMaxRetryTimes() == null ? 0 : jobPo.getMaxRetryTimes());
         job.setRepeatCount(jobPo.getRepeatCount());
-        job.setRepeatedCount(jobPo.getRepeatedCount());
         job.setRepeatInterval(jobPo.getRepeatInterval());
         JobMeta jobMeta = new JobMeta();
         jobMeta.setJobId(jobPo.getJobId());
         jobMeta.setJob(job);
         jobMeta.setInternalExtParams(jobPo.getInternalExtParams());
+        jobMeta.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
+        jobMeta.setRepeatedCount(jobPo.getRepeatedCount());
         return jobMeta;
     }
 
@@ -103,14 +105,14 @@ public class JobDomainConverter {
         jobLogPo.setTaskId(job.getTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
-        jobLogPo.setRetryTimes(job.getRetryTimes());
+        jobLogPo.setRetryTimes(jobMeta.getRetryTimes());
         jobLogPo.setMaxRetryTimes(job.getMaxRetryTimes());
         jobLogPo.setJobId(jobMeta.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
 
         jobLogPo.setRepeatCount(job.getRepeatCount());
-        jobLogPo.setRepeatedCount(job.getRepeatedCount());
+        jobLogPo.setRepeatedCount(jobMeta.getRepeatedCount());
         jobLogPo.setRepeatInterval(job.getRepeatInterval());
         return jobLogPo;
     }

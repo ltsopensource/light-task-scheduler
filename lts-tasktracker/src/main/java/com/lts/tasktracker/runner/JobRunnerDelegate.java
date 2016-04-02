@@ -73,14 +73,14 @@ public class JobRunnerDelegate implements Runnable {
             while (jobMeta != null) {
                 long startTime = SystemClock.now();
                 // 设置当前context中的jobId
-                logger.setId(jobMeta.getJobId(), jobMeta.getJob().getTaskId());
+                logger.setJobMeta(jobMeta);
                 Response response = new Response();
                 response.setJobMeta(jobMeta);
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
                             .in(jobMeta.getJobId(), this);
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
-                    Result result = this.curJobRunner.run(jobMeta.getJob());
+                    Result result = this.curJobRunner.run(buildJobContext(jobMeta));
 
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -106,7 +106,7 @@ public class JobRunnerDelegate implements Runnable {
                     LOGGER.info("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
                 } finally {
                     checkInterrupted();
-                    logger.removeId();
+                    logger.removeJobMeta();
                     appContext.getRunnerPool().getRunningJobManager()
                             .out(jobMeta.getJobId());
                 }
@@ -124,6 +124,19 @@ public class JobRunnerDelegate implements Runnable {
 
             blockedOn(null);
         }
+    }
+
+    private JobContext buildJobContext(JobMeta jobMeta) {
+        JobContext jobContext = new JobContext();
+        jobContext.setJob(jobMeta.getJob());
+
+        JobExtInfo jobExtInfo = new JobExtInfo();
+        jobExtInfo.setRealTaskId(jobMeta.getRealTaskId());
+        jobExtInfo.setRepeatedCount(jobMeta.getRepeatedCount());
+        jobExtInfo.setRetryTimes(jobMeta.getRetryTimes());
+
+        jobContext.setJobExtInfo(jobExtInfo);
+        return jobContext;
     }
 
     private void interrupt() {

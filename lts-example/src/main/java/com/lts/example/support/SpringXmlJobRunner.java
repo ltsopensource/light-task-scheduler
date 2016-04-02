@@ -6,6 +6,7 @@ import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.logger.BizLogger;
+import com.lts.tasktracker.runner.JobContext;
 import com.lts.tasktracker.runner.JobRunner;
 import com.lts.tasktracker.runner.LtsLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +21,14 @@ public class SpringXmlJobRunner implements JobRunner {
     SpringBean springBean;
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         try {
             Thread.sleep(1000L);
 
             springBean.hello();
 
             // TODO 业务逻辑
-            LOGGER.info("我要执行：" + job);
+            LOGGER.info("我要执行：" + jobContext);
             BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
             // 会发送到 LTS (JobTracker上)
             bizLogger.info("测试，业务日志啊啊啊啊啊");

@@ -6,9 +6,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
-public class DepJobPo implements Serializable {
+public class DependencyJobPo implements Serializable {
 
     private String depTaskId;
 

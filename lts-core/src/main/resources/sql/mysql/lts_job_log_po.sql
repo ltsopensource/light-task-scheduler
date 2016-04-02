@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `task_tracker_identity` varchar(64) COMMENT '执行节点唯一标识',
   `level` varchar(32) COMMENT '日志记录级别',
   `task_id` varchar(64) COMMENT '客户端ID',
+  `real_task_id` varchar(64) COMMENT '客户端ID',
   `job_id` varchar(64) DEFAULT '' COMMENT '服务端生成ID',
   `priority` int(11) COMMENT '优先级',
   `submit_node_group` varchar(64) COMMENT '提交节点组',

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
 public class DependencyJob extends Job {
 

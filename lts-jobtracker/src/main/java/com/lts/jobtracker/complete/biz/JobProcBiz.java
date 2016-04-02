@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 任务完成 China
+ * 任务完成
  *
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
@@ -104,7 +104,7 @@ public class JobProcBiz implements JobCompletedBiz {
 
         // 判断重试次数
         Job job = result.getJobMeta().getJob();
-        Integer retryTimes = job.getRetryTimes();
+        Integer retryTimes = result.getJobMeta().getRetryTimes();
         int jobMaxRetryTimes = job.getMaxRetryTimes();
         return !(retryTimes >= globalMaxRetryTimes || retryTimes >= jobMaxRetryTimes);
     }

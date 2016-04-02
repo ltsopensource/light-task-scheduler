@@ -1,9 +1,9 @@
 package com.lts.example.support;
 
 import com.lts.core.domain.Action;
-import com.lts.core.domain.Job;
 import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
+import com.lts.tasktracker.runner.JobContext;
 import com.lts.tasktracker.runner.JobRunner;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +23,7 @@ public class NoopJobRunner implements JobRunner {
     }
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         System.out.println(num.incrementAndGet() + "  time : " + (SystemClock.now() - start) + "ms");
         return new Result(Action.EXECUTE_SUCCESS);
     }

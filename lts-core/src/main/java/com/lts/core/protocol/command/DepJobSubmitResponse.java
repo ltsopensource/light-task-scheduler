@@ -1,7 +1,7 @@
 package com.lts.core.protocol.command;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
 public class DepJobSubmitResponse extends AbstractRemotingCommandBody {
 

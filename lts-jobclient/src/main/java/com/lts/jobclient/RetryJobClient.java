@@ -1,6 +1,6 @@
 package com.lts.jobclient;
 
-import com.lts.core.domain.DepJobGroup;
+import com.lts.core.domain.DependencyJobGroup;
 import com.lts.core.domain.Job;
 import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.json.JSON;
@@ -21,7 +21,7 @@ import java.util.List;
 public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext> {
 
     private RetryScheduler<Job> jobRetryScheduler;
-    private RetryScheduler<DepJobGroup> depJobRetryScheduler;
+    private RetryScheduler<DependencyJobGroup> depJobRetryScheduler;
 
     @Override
     protected void beforeStart() {
@@ -51,16 +51,16 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
         jobRetryScheduler.setName(RetryJobClient.class.getSimpleName());
         jobRetryScheduler.start();
 
-        depJobRetryScheduler = new RetryScheduler<DepJobGroup>(appContext,
+        depJobRetryScheduler = new RetryScheduler<DependencyJobGroup>(appContext,
                 FailStorePathBuilder.getDepJobSubmitFailStorePath(appContext), 1) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
 
-            protected boolean retry(List<DepJobGroup> list) {
+            protected boolean retry(List<DependencyJobGroup> list) {
                 Response response = null;
                 try {
-                    DepJobGroup jobGroup = list.get(0);
+                    DependencyJobGroup jobGroup = list.get(0);
                     // 重试必须走同步，不然会造成文件锁，死锁
                     response = superSubmitJob(jobGroup, SubmitType.SYNC);
                     return response.isSuccess();
@@ -121,7 +121,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
         return response;
     }
 
-    public Response submitJob(DepJobGroup jobGroup) {
+    public Response submitJob(DependencyJobGroup jobGroup) {
         Response response;
         try {
             response = super.submitJob(jobGroup);
@@ -155,7 +155,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
         return super.submitJob(jobs, type);
     }
 
-    private Response superSubmitJob(DepJobGroup jobGroup, SubmitType type) {
+    private Response superSubmitJob(DependencyJobGroup jobGroup, SubmitType type) {
         return super.submitJob(jobGroup, type);
     }
 }

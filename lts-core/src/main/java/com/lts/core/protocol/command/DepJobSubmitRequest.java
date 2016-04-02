@@ -1,21 +1,21 @@
 package com.lts.core.protocol.command;
 
-import com.lts.core.domain.DepJobGroup;
+import com.lts.core.domain.DependencyJobGroup;
 import com.lts.remoting.annotation.NotNull;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
 public class DepJobSubmitRequest extends AbstractRemotingCommandBody {
 
     @NotNull
-    private DepJobGroup jobGroup;
+    private DependencyJobGroup jobGroup;
 
-    public DepJobGroup getJobGroup() {
+    public DependencyJobGroup getJobGroup() {
         return jobGroup;
     }
 
-    public void setJobGroup(DepJobGroup jobGroup) {
+    public void setJobGroup(DependencyJobGroup jobGroup) {
         this.jobGroup = jobGroup;
     }
 }

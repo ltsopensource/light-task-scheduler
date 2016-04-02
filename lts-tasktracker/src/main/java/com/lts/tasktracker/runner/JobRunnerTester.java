@@ -3,7 +3,6 @@ package com.lts.tasktracker.runner;
 import com.lts.core.cluster.LTSConfig;
 import com.lts.core.constant.Environment;
 import com.lts.core.constant.Level;
-import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.logger.BizLoggerFactory;
 
@@ -14,7 +13,7 @@ import com.lts.tasktracker.logger.BizLoggerFactory;
  */
 public abstract class JobRunnerTester {
 
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         // 1. 设置LTS环境为 UNIT_TEST
         LTSConfig.setEnvironment(Environment.UNIT_TEST);
         // 设置 BizLogger
@@ -24,7 +23,7 @@ public abstract class JobRunnerTester {
         // 3. new jobRunner
         JobRunner jobRunner = newJobRunner();
         // 4. run job
-        return jobRunner.run(job);
+        return jobRunner.run(jobContext);
     }
 
     /**

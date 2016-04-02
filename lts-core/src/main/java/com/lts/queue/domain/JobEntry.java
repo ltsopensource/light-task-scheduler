@@ -3,7 +3,7 @@ package com.lts.queue.domain;
 import java.io.Serializable;
 
 /**
- * Created by hugui.hg on 3/27/16.
+ * @author Robert HG (254963746@qq.com) 3/27/16.
  */
 public class JobEntry implements Serializable {
 

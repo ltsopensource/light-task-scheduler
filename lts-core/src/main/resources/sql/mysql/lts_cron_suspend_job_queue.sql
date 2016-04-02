@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `retry_times` int(11) DEFAULT '0' COMMENT '重试次数',
   `max_retry_times` int(11) DEFAULT '0' COMMENT '最大重试次数',
   `task_id` varchar(64) COMMENT '任务ID,客户端传过来的任务ID',
+  `real_task_id` varchar(64) COMMENT '任务ID,客户端传过来的任务ID',
   `gmt_created` bigint(20) COMMENT '创建时间',
   `gmt_modified` bigint(11) COMMENT '修改时间',
   `submit_node_group` varchar(64) COMMENT '提交节点组,提交客户端的节点组',

@@ -1,6 +1,5 @@
 package com.lts.tasktracker.runner;
 
-import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
 
 /**
@@ -13,6 +12,6 @@ public interface JobRunner {
      * 执行任务
      * 抛出异常则消费失败, 返回null则认为是消费成功
      */
-    public Result run(Job job) throws Throwable;
+    public Result run(JobContext jobContext) throws Throwable;
 
 }

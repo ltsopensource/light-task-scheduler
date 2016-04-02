@@ -7,7 +7,7 @@ import com.lts.core.commons.utils.BatchUtils;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
-import com.lts.core.domain.DepJobGroup;
+import com.lts.core.domain.DependencyJobGroup;
 import com.lts.core.domain.Job;
 import com.lts.core.exception.JobSubmitException;
 import com.lts.core.exception.JobTrackerNotFoundException;
@@ -258,11 +258,11 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
         return response;
     }
 
-    public Response submitJob(final DepJobGroup jobGroup) {
+    public Response submitJob(final DependencyJobGroup jobGroup) {
         return submitJob(jobGroup, SubmitType.ASYNC);
     }
 
-    protected Response submitJob(final DepJobGroup jobGroup, SubmitType type) {
+    protected Response submitJob(final DependencyJobGroup jobGroup, SubmitType type) {
         // 检查参数
         final Response response = new Response();
         try {
