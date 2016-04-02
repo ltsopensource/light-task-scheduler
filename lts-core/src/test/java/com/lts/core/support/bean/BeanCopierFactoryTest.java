@@ -26,14 +26,14 @@ public class BeanCopierFactoryTest {
 
     @Test
     public void testGetBeanCopier() throws Exception {
-        BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, JobPo.class);
+        BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.createCopier(JobPo.class, JobPo.class);
 
         JobPo jobPo2 = new JobPo();
         beanCopier.copyProps(jobPo, jobPo2);
         System.out.println(jobPo2);
 
         Job job = new Job();
-        BeanCopier<JobPo, Job> beanCopier2 = BeanCopierFactory.getBeanCopier(JobPo.class, Job.class);
+        BeanCopier<JobPo, Job> beanCopier2 = BeanCopierFactory.createCopier(JobPo.class, Job.class);
         beanCopier2.copyProps(jobPo, job);
         System.out.println(job);
     }
@@ -42,7 +42,7 @@ public class BeanCopierFactoryTest {
     public void testPropConvert() {
         Map<String, PropConverter<?, ?>> map = new HashMap<String, PropConverter<?, ?>>();
         map.put("taskId", new MyPropConverter());
-        BeanCopier<JobPo, Job> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, Job.class, map);
+        BeanCopier<JobPo, Job> beanCopier = BeanCopierFactory.createCopier(JobPo.class, Job.class, map);
         Job job = new Job();
         beanCopier.copyProps(jobPo, job);
         System.out.println(job);
@@ -50,7 +50,7 @@ public class BeanCopierFactoryTest {
 
     @Test
     public void testDeepCopy(){
-        BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, JobPo.class, true);
+        BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.createCopier(JobPo.class, JobPo.class, true);
         JobPo jobPo2 = new JobPo();
         beanCopier.copyProps(jobPo, jobPo2);
         System.out.println(jobPo2);

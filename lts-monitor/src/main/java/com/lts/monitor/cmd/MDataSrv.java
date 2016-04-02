@@ -23,11 +23,11 @@ public class MDataSrv {
     private MonitorAppContext appContext;
 
     private static final BeanCopier<JobClientMData, JobClientMDataPo> jobClientMDataBeanCopier
-            = BeanCopierFactory.getBeanCopier(JobClientMData.class, JobClientMDataPo.class);
+            = BeanCopierFactory.createCopier(JobClientMData.class, JobClientMDataPo.class);
     private static final BeanCopier<JobTrackerMData, JobTrackerMDataPo> jobTrackerMDataBeanCopier
-            = BeanCopierFactory.getBeanCopier(JobTrackerMData.class, JobTrackerMDataPo.class);
+            = BeanCopierFactory.createCopier(JobTrackerMData.class, JobTrackerMDataPo.class);
     private static final BeanCopier<TaskTrackerMData, TaskTrackerMDataPo> taskTrackerMDataBeanCopier
-            = BeanCopierFactory.getBeanCopier(TaskTrackerMData.class, TaskTrackerMDataPo.class);
+            = BeanCopierFactory.createCopier(TaskTrackerMData.class, TaskTrackerMDataPo.class);
 
     public MDataSrv(MonitorAppContext appContext) {
         this.appContext = appContext;

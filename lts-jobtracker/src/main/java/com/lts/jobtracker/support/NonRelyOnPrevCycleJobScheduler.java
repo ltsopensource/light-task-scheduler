@@ -17,7 +17,7 @@ import java.util.Date;
 public class NonRelyOnPrevCycleJobScheduler {
 
     private JobTrackerAppContext appContext;
-    private static final BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, JobPo.class, true);
+    private static final BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.createCopier(JobPo.class, JobPo.class, true);
 
     public NonRelyOnPrevCycleJobScheduler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
@@ -52,7 +52,6 @@ public class NonRelyOnPrevCycleJobScheduler {
             } else {
                 if (nextTriggerTime.getTime() <= afterOneHour) {
                     // 添加任务
-
 
                 } else {
                     stop = true;

@@ -28,23 +28,23 @@ public final class BeanCopierFactory {
     private static final AtomicInteger SEQ = new AtomicInteger(0);
     private static final ConcurrentMap<Integer, Map<String, PropConverter<?, ?>>> SEQ_PROP_CVT_MAP = new ConcurrentHashMap<Integer, Map<String, PropConverter<?, ?>>>();
 
-    public static <Source, Target> BeanCopier<Source, Target> getBeanCopier(
+    public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass) {
-        return getBeanCopier(sourceClass, targetClass, false, null);
+        return createCopier(sourceClass, targetClass, false, null);
     }
 
-    public static <Source, Target> BeanCopier<Source, Target> getBeanCopier(
+    public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass, boolean deepCopy) {
-        return getBeanCopier(sourceClass, targetClass, deepCopy, null);
+        return createCopier(sourceClass, targetClass, deepCopy, null);
     }
 
-    public static <Source, Target> BeanCopier<Source, Target> getBeanCopier(
+    public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass, Map<String, PropConverter<?, ?>> propCvtMap) {
-        return getBeanCopier(sourceClass, targetClass, false, propCvtMap);
+        return createCopier(sourceClass, targetClass, false, propCvtMap);
     }
 
     @SuppressWarnings("unchecked")
-    public static <Source, Target> BeanCopier<Source, Target> getBeanCopier(
+    public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass,
             boolean deepCopy, Map<String, PropConverter<?, ?>> propCvtMap
     ) {
@@ -159,6 +159,8 @@ public final class BeanCopierFactory {
                         methodCode.append("target.").append(setMethod.getName()).append("(");
                         methodCode.append("source.").append(getMethod.getName()).append("() == null ? ").append(String.valueOf(ClassHelper.getPrimitiveDftValue(targetFieldClass))).append(" : ").append("source.").append(getMethod.getName()).append("()");
                         methodCode.append(");\n");
+                    } else if (ClassHelper.isPrimitiveWrapperType(targetFieldClass) && ClassHelper.getWrapperTypeByPrimitive(getMethod.getReturnType()) == targetFieldClass) {
+                        methodCode.append("target.").append(setMethod.getName()).append("(").append("source.").append(getMethod.getName()).append("()").append(");\n");
                     }
                 }
             }
