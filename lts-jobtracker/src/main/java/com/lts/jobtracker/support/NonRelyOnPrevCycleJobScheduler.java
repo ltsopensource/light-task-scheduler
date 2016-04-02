@@ -1,10 +1,11 @@
 package com.lts.jobtracker.support;
 
-import com.lts.core.commons.utils.BeanUtils;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.exception.LtsRuntimeException;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.core.support.JobUtils;
+import com.lts.core.support.bean.BeanCopier;
+import com.lts.core.support.bean.BeanCopierFactory;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.queue.domain.JobPo;
 
@@ -16,6 +17,7 @@ import java.util.Date;
 public class NonRelyOnPrevCycleJobScheduler {
 
     private JobTrackerAppContext appContext;
+    private static final BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, JobPo.class, true);
 
     public NonRelyOnPrevCycleJobScheduler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
@@ -33,9 +35,10 @@ public class NonRelyOnPrevCycleJobScheduler {
     /**
      * 为当前时间以后的一个小时时间添加任务
      */
-    private void addCronJobForOneHour(JobPo jobPo) {
-        // TODO clone JobPo
-
+    private void addCronJobForOneHour(final JobPo finalJobPo) {
+        // deepCopy
+        JobPo jobPo = new JobPo();
+        beanCopier.copyProps(finalJobPo, jobPo);
 
         String cronExpression = jobPo.getCronExpression();
         Date now = new Date();

@@ -48,6 +48,14 @@ public class BeanCopierFactoryTest {
         System.out.println(job);
     }
 
+    @Test
+    public void testDeepCopy(){
+        BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.getBeanCopier(JobPo.class, JobPo.class, true);
+        JobPo jobPo2 = new JobPo();
+        beanCopier.copyProps(jobPo, jobPo2);
+        System.out.println(jobPo2);
+    }
+
     public class MyPropConverter implements PropConverter<JobPo, String> {
         @Override
         public String convert(JobPo jobPo) {

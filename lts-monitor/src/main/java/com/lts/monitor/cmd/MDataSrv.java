@@ -1,12 +1,11 @@
 package com.lts.monitor.cmd;
 
-import com.lts.core.commons.utils.BeanUtils;
 import com.lts.core.commons.utils.CollectionUtils;
-import com.lts.core.domain.monitor.JvmMData;
-import com.lts.core.domain.monitor.MData;
-import com.lts.core.domain.monitor.MNode;
+import com.lts.core.domain.monitor.*;
 import com.lts.core.exception.LtsRuntimeException;
 import com.lts.core.support.SystemClock;
+import com.lts.core.support.bean.BeanCopier;
+import com.lts.core.support.bean.BeanCopierFactory;
 import com.lts.monitor.MonitorAppContext;
 import com.lts.monitor.access.domain.*;
 
@@ -22,6 +21,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MDataSrv {
 
     private MonitorAppContext appContext;
+
+    private static final BeanCopier<JobClientMData, JobClientMDataPo> jobClientMDataBeanCopier
+            = BeanCopierFactory.getBeanCopier(JobClientMData.class, JobClientMDataPo.class);
+    private static final BeanCopier<JobTrackerMData, JobTrackerMDataPo> jobTrackerMDataBeanCopier
+            = BeanCopierFactory.getBeanCopier(JobTrackerMData.class, JobTrackerMDataPo.class);
+    private static final BeanCopier<TaskTrackerMData, TaskTrackerMDataPo> taskTrackerMDataBeanCopier
+            = BeanCopierFactory.getBeanCopier(TaskTrackerMData.class, TaskTrackerMDataPo.class);
 
     public MDataSrv(MonitorAppContext appContext) {
         this.appContext = appContext;
@@ -51,7 +57,7 @@ public class MDataSrv {
         List<JobClientMDataPo> pos = new ArrayList<JobClientMDataPo>(mDatas.size());
         for (MData mData : mDatas) {
             JobClientMDataPo po = new JobClientMDataPo();
-            BeanUtils.copyProperties(po, mData);
+            jobClientMDataBeanCopier.copyProps((JobClientMData) mData, po);
             po.setNodeType(mNode.getNodeType());
             po.setIdentity(mNode.getIdentity());
             po.setNodeGroup(mNode.getNodeGroup());
@@ -70,7 +76,7 @@ public class MDataSrv {
         List<JobTrackerMDataPo> pos = new ArrayList<JobTrackerMDataPo>(mDatas.size());
         for (MData mData : mDatas) {
             JobTrackerMDataPo po = new JobTrackerMDataPo();
-            BeanUtils.copyProperties(po, mData);
+            jobTrackerMDataBeanCopier.copyProps((JobTrackerMData) mData, po);
             po.setNodeType(mNode.getNodeType());
             po.setIdentity(mNode.getIdentity());
             po.setNodeGroup(mNode.getNodeGroup());
@@ -89,7 +95,7 @@ public class MDataSrv {
         List<TaskTrackerMDataPo> pos = new ArrayList<TaskTrackerMDataPo>(mDatas.size());
         for (MData mData : mDatas) {
             TaskTrackerMDataPo po = new TaskTrackerMDataPo();
-            BeanUtils.copyProperties(po, mData);
+            taskTrackerMDataBeanCopier.copyProps((TaskTrackerMData) mData, po);
             po.setNodeType(mNode.getNodeType());
             po.setIdentity(mNode.getIdentity());
             po.setNodeGroup(mNode.getNodeGroup());
