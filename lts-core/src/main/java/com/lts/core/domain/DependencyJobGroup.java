@@ -26,7 +26,7 @@ public class DependencyJobGroup {
     /**
      * 是否依赖上一周期, 等待上一周期执行完成之后再能提交下一周期
      */
-    private Boolean depPrevCycle;
+    private Boolean relyOnPrevCycle;
 
     public List<Job> getJobs() {
         return jobs;
@@ -76,11 +76,11 @@ public class DependencyJobGroup {
         this.triggerTime = triggerTime;
     }
 
-    public Boolean getDepPrevCycle() {
-        return depPrevCycle;
+    public Boolean getRelyOnPrevCycle() {
+        return relyOnPrevCycle;
     }
 
-    public void setDepPrevCycle(Boolean depPrevCycle) {
-        this.depPrevCycle = depPrevCycle;
+    public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
     }
 }

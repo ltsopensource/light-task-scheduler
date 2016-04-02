@@ -87,6 +87,11 @@ public class JobPo {
      */
     private Long repeatInterval;
 
+    /**
+     * 是否依赖上一个执行周期(对于周期性任务才起作用)
+     */
+    private Boolean relyOnPrevCycle = true;
+
     public Integer getRetryTimes() {
         return retryTimes;
     }
@@ -271,6 +276,14 @@ public class JobPo {
 
     public void setRunning(boolean running) {
         isRunning = running;
+    }
+
+    public Boolean getRelyOnPrevCycle() {
+        return relyOnPrevCycle;
+    }
+
+    public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
     }
 
     @Override

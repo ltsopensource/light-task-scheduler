@@ -27,11 +27,6 @@ public class DependencyJobPo implements Serializable {
     private List<JobEntry> rootJobs;
 
     private List<JobEntry> leafJobs;
-
-    /**
-     * 是否依赖上一周期, 等待上一周期执行完成之后再能提交下一周期
-     */
-    private Boolean depPrev;
     /**
      * 当前周期ID
      */
@@ -95,14 +90,6 @@ public class DependencyJobPo implements Serializable {
 
     public void setRepeatCount(Integer repeatCount) {
         this.repeatCount = repeatCount;
-    }
-
-    public Boolean getDepPrev() {
-        return depPrev;
-    }
-
-    public void setDepPrev(Boolean depPrev) {
-        this.depPrev = depPrev;
     }
 
     public Integer getCurrentSeqId() {

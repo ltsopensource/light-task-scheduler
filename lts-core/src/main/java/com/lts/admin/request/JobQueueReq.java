@@ -40,6 +40,8 @@ public class JobQueueReq extends PaginationReq {
 
     private Long repeatInterval;
 
+    private Boolean relyOnPrevCycle;
+
     public String getJobId() {
         return jobId;
     }
@@ -166,5 +168,13 @@ public class JobQueueReq extends PaginationReq {
 
     public void setRepeatInterval(Long repeatInterval) {
         this.repeatInterval = repeatInterval;
+    }
+
+    public Boolean getRelyOnPrevCycle() {
+        return relyOnPrevCycle;
+    }
+
+    public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
     }
 }

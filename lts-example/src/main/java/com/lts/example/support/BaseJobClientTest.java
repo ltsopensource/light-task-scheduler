@@ -99,7 +99,7 @@ public class BaseJobClientTest {
         Job job = new Job();
         job.setTaskId(StringUtils.generateUUID());
         job.setParam("shopId", "111");
-        job.setMaxRetryTimes(5);
+//        job.setMaxRetryTimes(5);
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         job.setNeedFeedback(true);
         if (triggerTime != null && !"".equals(triggerTime.trim())) {

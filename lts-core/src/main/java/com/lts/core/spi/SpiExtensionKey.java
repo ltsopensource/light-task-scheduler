@@ -17,8 +17,6 @@ public interface SpiExtensionKey {
 
     String ZK_CLIENT_KEY = "zk.client";
 
-    String JOB_ID_GENERATOR = "id.generator";
-
     String JOB_LOGGER = "job.logger";
 
     String LTS_LOGGER = "lts.logger";

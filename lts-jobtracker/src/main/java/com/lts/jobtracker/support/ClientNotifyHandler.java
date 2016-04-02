@@ -12,11 +12,11 @@ public interface ClientNotifyHandler<T extends JobRunResult> {
     /**
      * 通知成功的处理
      */
-    public void handleSuccess(List<T> jobResults);
+    void handleSuccess(List<T> jobResults);
 
     /**
      * 通知失败的处理
      */
-    public void handleFailed(List<T> jobResults);
+    void handleFailed(List<T> jobResults);
 
 }

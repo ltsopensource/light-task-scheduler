@@ -68,6 +68,8 @@ public class JobLogPo {
      */
     private Long repeatInterval;
 
+    private Boolean depPreCycle;
+
     public Map<String, String> getInternalExtParams() {
         return internalExtParams;
     }
@@ -250,5 +252,13 @@ public class JobLogPo {
 
     public void setRealTaskId(String realTaskId) {
         this.realTaskId = realTaskId;
+    }
+
+    public Boolean getDepPreCycle() {
+        return depPreCycle;
+    }
+
+    public void setDepPreCycle(Boolean depPreCycle) {
+        this.depPreCycle = depPreCycle;
     }
 }

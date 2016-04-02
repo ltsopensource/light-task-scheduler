@@ -59,6 +59,10 @@ public class Job implements Serializable {
      * 当任务队列中存在这个任务的时候，是否替换更新
      */
     private boolean replaceOnExist = false;
+    /**
+     * 是否依赖上一个执行周期(对于周期性任务才起作用)
+     */
+    private boolean relyOnPrevCycle = false;
 
     public Integer getPriority() {
         return priority;
@@ -182,6 +186,14 @@ public class Job implements Serializable {
 
     public void setRepeatInterval(Long repeatInterval) {
         this.repeatInterval = repeatInterval;
+    }
+
+    public boolean isRelyOnPrevCycle() {
+        return relyOnPrevCycle;
+    }
+
+    public void setRelyOnPrevCycle(boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
     }
 
     @Override

@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `trigger_time` bigint(20) COMMENT '触发时间',
   `retry_times` int(11) COMMENT '重试次数',
   `max_retry_times` int(11) DEFAULT '0' COMMENT '最大重试次数',
+  `rely_on_prev_cycle` tinyint(4) COMMENT '是否依赖上一个执行周期',
   `repeat_count` int(11) DEFAULT '0' COMMENT '重复一次',
   `repeated_count` int(11) DEFAULT '0' COMMENT '已经重复的次数',
   `repeat_interval` bigint(20) DEFAULT '0' COMMENT '重复间隔',

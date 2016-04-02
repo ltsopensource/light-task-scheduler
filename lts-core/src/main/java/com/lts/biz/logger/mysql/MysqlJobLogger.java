@@ -1,5 +1,6 @@
 package com.lts.biz.logger.mysql;
 
+import com.lts.admin.response.PaginationRsp;
 import com.lts.biz.logger.JobLogger;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.JobLoggerRequest;
@@ -13,7 +14,6 @@ import com.lts.store.jdbc.builder.OrderByType;
 import com.lts.store.jdbc.builder.SelectSql;
 import com.lts.store.jdbc.builder.WhereSql;
 import com.lts.store.jdbc.dbutils.JdbcTypeUtils;
-import com.lts.admin.response.PaginationRsp;
 
 import java.util.List;
 
@@ -62,6 +62,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                         "task_tracker_identity",
                         "level",
                         "task_id",
+                        "real_task_id",
                         "job_id",
                         "priority",
                         "submit_node_group",
@@ -73,10 +74,11 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                         "trigger_time",
                         "retry_times",
                         "max_retry_times",
+                        "rely_on_prev_cycle",
                         "repeat_count",
                         "repeated_count",
                         "repeat_interval"
-                        );
+                );
     }
 
     private InsertSql setInsertSqlValues(InsertSql insertSql, JobLogPo jobLogPo) {
@@ -88,6 +90,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.getTaskTrackerIdentity(),
                 jobLogPo.getLevel().name(),
                 jobLogPo.getTaskId(),
+                jobLogPo.getRealTaskId(),
                 jobLogPo.getJobId(),
                 jobLogPo.getPriority(),
                 jobLogPo.getSubmitNodeGroup(),
@@ -99,6 +102,7 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 jobLogPo.getTriggerTime(),
                 jobLogPo.getRetryTimes(),
                 jobLogPo.getMaxRetryTimes(),
+                jobLogPo.getDepPreCycle(),
                 jobLogPo.getRepeatCount(),
                 jobLogPo.getRepeatedCount(),
                 jobLogPo.getRepeatInterval());

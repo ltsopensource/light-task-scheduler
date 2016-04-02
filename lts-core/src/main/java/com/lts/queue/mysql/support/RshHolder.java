@@ -51,6 +51,7 @@ public class RshHolder {
         jobPo.setPriority(rs.getInt("priority"));
         jobPo.setRetryTimes(rs.getInt("retry_times"));
         jobPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
+        jobPo.setRelyOnPrevCycle(rs.getBoolean("rely_on_prev_cycle"));
         jobPo.setInternalExtParams(JSON.parse(rs.getString("internal_ext_params"), new TypeReference<HashMap<String, String>>(){}));
         jobPo.setTaskId(rs.getString("task_id"));
         jobPo.setRealTaskId(rs.getString("real_task_id"));
@@ -116,6 +117,7 @@ public class RshHolder {
                 jobLogPo.setTaskTrackerIdentity(rs.getString("task_tracker_identity"));
                 jobLogPo.setLevel(Level.valueOf(rs.getString("level")));
                 jobLogPo.setTaskId(rs.getString("task_id"));
+                jobLogPo.setRealTaskId(rs.getString("real_task_id"));
                 jobLogPo.setJobId(rs.getString("job_id"));
                 jobLogPo.setPriority(rs.getInt("priority"));
                 jobLogPo.setSubmitNodeGroup(rs.getString("submit_node_group"));
@@ -128,6 +130,7 @@ public class RshHolder {
                 jobLogPo.setTriggerTime(rs.getLong("trigger_time"));
                 jobLogPo.setRetryTimes(rs.getInt("retry_times"));
                 jobLogPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
+                jobLogPo.setDepPreCycle(rs.getBoolean("dev_prev_cycle"));
                 jobLogPo.setRepeatCount(rs.getInt("repeat_count"));
                 jobLogPo.setRepeatedCount(rs.getInt("repeated_count"));
                 jobLogPo.setRepeatInterval(rs.getLong("repeat_interval"));

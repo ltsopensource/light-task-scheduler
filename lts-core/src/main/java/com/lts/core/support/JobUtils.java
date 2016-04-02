@@ -1,5 +1,6 @@
 package com.lts.core.support;
 
+import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Constants;
 import com.lts.queue.domain.JobPo;
 
@@ -16,6 +17,14 @@ public class JobUtils {
             return now;
         }
         return now + (jobPo.getRepeatInterval() - remainder);
+    }
+
+    public static boolean isRelyOnPrevCycle(JobPo jobPo) {
+        return jobPo.getRelyOnPrevCycle() == null || jobPo.getRelyOnPrevCycle();
+    }
+
+    public static String generateJobId(){
+        return StringUtils.generateUUID();
     }
 
 }

@@ -53,6 +53,7 @@ public class JobDomainConverter {
         jobPo.setNeedFeedback(job.isNeedFeedback());
         jobPo.setCronExpression(job.getCronExpression());
         jobPo.setMaxRetryTimes(job.getMaxRetryTimes());
+        jobPo.setRelyOnPrevCycle(job.isRelyOnPrevCycle());
         jobPo.setRepeatCount(job.getRepeatCount());
         if (!jobPo.isCron()) {
             if (job.getTriggerTime() == null) {
@@ -83,6 +84,7 @@ public class JobDomainConverter {
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
         job.setMaxRetryTimes(jobPo.getMaxRetryTimes() == null ? 0 : jobPo.getMaxRetryTimes());
+        job.setRelyOnPrevCycle(jobPo.getRelyOnPrevCycle() == null ? false : jobPo.getRelyOnPrevCycle());
         job.setRepeatCount(jobPo.getRepeatCount());
         job.setRepeatInterval(jobPo.getRepeatInterval());
         JobMeta jobMeta = new JobMeta();
@@ -103,10 +105,12 @@ public class JobDomainConverter {
         jobLogPo.setInternalExtParams(jobMeta.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobLogPo.setTaskId(job.getTaskId());
+        jobLogPo.setRealTaskId(jobMeta.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
         jobLogPo.setRetryTimes(jobMeta.getRetryTimes());
         jobLogPo.setMaxRetryTimes(job.getMaxRetryTimes());
+        jobLogPo.setDepPreCycle(jobMeta.getJob().isRelyOnPrevCycle());
         jobLogPo.setJobId(jobMeta.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
@@ -125,6 +129,7 @@ public class JobDomainConverter {
         jobLogPo.setInternalExtParams(jobPo.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());
         jobLogPo.setTaskId(jobPo.getTaskId());
+        jobLogPo.setRealTaskId(jobPo.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(jobPo.isNeedFeedback());
         jobLogPo.setJobId(jobPo.getJobId());
@@ -133,6 +138,7 @@ public class JobDomainConverter {
         jobLogPo.setTaskTrackerIdentity(jobPo.getTaskTrackerIdentity());
         jobLogPo.setRetryTimes(jobPo.getRetryTimes());
         jobLogPo.setMaxRetryTimes(jobPo.getMaxRetryTimes());
+        jobLogPo.setDepPreCycle(jobPo.getRelyOnPrevCycle());
 
         jobLogPo.setRepeatCount(jobPo.getRepeatCount());
         jobLogPo.setRepeatedCount(jobPo.getRepeatedCount());
