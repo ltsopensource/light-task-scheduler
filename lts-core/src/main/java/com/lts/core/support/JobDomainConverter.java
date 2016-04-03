@@ -90,6 +90,7 @@ public class JobDomainConverter {
         JobMeta jobMeta = new JobMeta();
         jobMeta.setJobId(jobPo.getJobId());
         jobMeta.setJob(job);
+        jobMeta.setRealTaskId(jobPo.getRealTaskId());
         jobMeta.setInternalExtParams(jobPo.getInternalExtParams());
         jobMeta.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         jobMeta.setRepeatedCount(jobPo.getRepeatedCount());

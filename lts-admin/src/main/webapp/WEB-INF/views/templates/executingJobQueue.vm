@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label" style="width:10%">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId"
+                                <input type="text" class="form-control" name="realTaskId"
                                        placeholder="请输入任务ID(TaskId)">
                             </div>
 
@@ -104,7 +104,7 @@
         <tbody>
         {{each rows as row index}}
         <tr>
-            <td>{{row.taskId}}</td>
+            <td>{{row.realTaskId}}</td>
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
@@ -138,7 +138,7 @@
     $(document).ready(function () {
 
         LTS.colFormatter.optFormat = function (v, row) {
-            var logUrl = "job-logger.htm?taskId=" + row.taskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
+            var logUrl = "job-logger.htm?realTaskId=" + row.realTaskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;'+
                     '<a href="javascript:;" class="job-terminate-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 强制终止</span></a>';;
         }

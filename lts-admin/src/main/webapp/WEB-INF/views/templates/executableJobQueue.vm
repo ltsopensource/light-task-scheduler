@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label" style="width:10%">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId"
+                                <input type="text" class="form-control" name="realTaskId"
                                        placeholder="请输入任务ID(TaskId)">
                             </div>
 
@@ -185,8 +185,7 @@
             <th>执行时间</th>
             <th>Cron表达式</th>
             <th data-hide="all">优先级</th>
-            <th data-hide="all">当前重试次数</th>
-            <th data-hide="all">最大重试次数</th>
+            <th data-hide="all">重试次数</th>
             <th>反馈客户端</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
@@ -197,14 +196,13 @@
         <tbody>
         {{each rows as row index}}
         <tr>
-            <td>{{row.taskId}}</td>
+            <td>{{row.realTaskId}}</td>
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.triggerTime | dateFormat:'yyyy-MM-dd HH:mm:ss' }}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.priority}}</td>
-            <td>{{row.retryTimes}}</td>
-            <td>{{row.maxRetryTimes}}</td>
+            <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
@@ -233,7 +231,7 @@
     $(document).ready(function () {
 
         LTS.colFormatter.optFormat = function (v, row) {
-            var logUrl = "job-logger.htm?taskId=" + row['taskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
+            var logUrl = "job-logger.htm?realTaskId=" + row['realTaskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '" cronExpression="' + row['cronExpression'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';

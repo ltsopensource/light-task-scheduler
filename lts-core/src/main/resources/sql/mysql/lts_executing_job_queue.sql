@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),
   UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`),
+  KEY `idx_realTaskId_taskTrackerNodeGroup` (`real_task_id`, `task_tracker_node_group`),
   KEY `idx_taskTrackerIdentity` (`task_tracker_identity`),
   KEY `idx_gmtCreated` (`gmt_created`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='执行中任务';

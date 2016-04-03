@@ -44,7 +44,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         }
         this.appContext = appContext;
         this.remotingClient = remotingClient;
-        this.retryScheduler = new RetryScheduler<BizLog>(appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
+        this.retryScheduler = new RetryScheduler<BizLog>(BizLogger.class.getSimpleName(), appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -55,7 +55,6 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
                 return sendBizLog(list);
             }
         };
-        retryScheduler.setName(BizLogger.class.getSimpleName());
         this.retryScheduler.start();
 
         NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {

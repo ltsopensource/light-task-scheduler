@@ -133,6 +133,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
         return new WhereSql()
                 .andOnNotEmpty("job_id = ?", request.getJobId())
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
+                .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
                 .andOnNotEmpty("submit_node_group = ?", request.getSubmitNodeGroup())
                 .andOnNotNull("need_feedback = ?", request.getNeedFeedback())

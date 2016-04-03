@@ -201,7 +201,7 @@ public class JobQueueApi extends AbstractMVC {
         // 表单check
 
         try {
-            Assert.hasLength(request.getTaskId(), "taskId不能为空!");
+            Assert.hasLength(request.getRealTaskId(), I18nManager.getMessage("realTaskId.not.null"));
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
             if (request.getNeedFeedback()) {
                 Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");

@@ -55,7 +55,8 @@ public abstract class RetryScheduler<T> {
     private ReentrantLock lock = new ReentrantLock();
     private AppContext appContext;
 
-    public RetryScheduler(final AppContext appContext, String storePath) {
+    public RetryScheduler(String name, final AppContext appContext, String storePath) {
+        this.name = name;
         this.appContext = appContext;
         FailStoreFactory failStoreFactory = ServiceLoader.load(FailStoreFactory.class, appContext.getConfig());
         failStore = failStoreFactory.getFailStore(appContext.getConfig(), storePath);
@@ -84,13 +85,9 @@ public abstract class RetryScheduler<T> {
         }
     }
 
-    public RetryScheduler(AppContext appContext, String storePath, int batchSize) {
-        this(appContext, storePath);
+    public RetryScheduler(String name, AppContext appContext, String storePath, int batchSize) {
+        this(name, appContext, storePath);
         this.batchSize = batchSize;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void start() {

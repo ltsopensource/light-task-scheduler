@@ -130,7 +130,7 @@ public class RshHolder {
                 jobLogPo.setTriggerTime(rs.getLong("trigger_time"));
                 jobLogPo.setRetryTimes(rs.getInt("retry_times"));
                 jobLogPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
-                jobLogPo.setDepPreCycle(rs.getBoolean("dev_prev_cycle"));
+                jobLogPo.setDepPreCycle(rs.getBoolean("rely_on_prev_cycle"));
                 jobLogPo.setRepeatCount(rs.getInt("repeat_count"));
                 jobLogPo.setRepeatedCount(rs.getInt("repeated_count"));
                 jobLogPo.setRepeatInterval(rs.getLong("repeat_interval"));

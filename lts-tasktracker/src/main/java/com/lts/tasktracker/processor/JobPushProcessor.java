@@ -46,7 +46,7 @@ public class JobPushProcessor extends AbstractProcessor {
     protected JobPushProcessor(TaskTrackerAppContext appContext) {
         super(appContext);
         this.remotingClient = appContext.getRemotingClient();
-        retryScheduler = new RetryScheduler<JobRunResult>(appContext,
+        retryScheduler = new RetryScheduler<JobRunResult>(JobPushProcessor.class.getSimpleName(), appContext,
                 FailStorePathBuilder.getJobFeedbackPath(appContext), 3) {
             @Override
             protected boolean isRemotingEnable() {
@@ -58,7 +58,6 @@ public class JobPushProcessor extends AbstractProcessor {
                 return retrySendJobResults(results);
             }
         };
-        retryScheduler.setName("JobPush");
         retryScheduler.start();
 
         // 线程安全的

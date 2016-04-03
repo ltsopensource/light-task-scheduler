@@ -26,7 +26,7 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
     @Override
     protected void beforeStart() {
         super.beforeStart();
-        jobRetryScheduler = new RetryScheduler<Job>(appContext,
+        jobRetryScheduler = new RetryScheduler<Job>(RetryJobClient.class.getSimpleName(), appContext,
                 FailStorePathBuilder.getJobSubmitFailStorePath(appContext), 10) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
@@ -48,10 +48,9 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
                 return false;
             }
         };
-        jobRetryScheduler.setName(RetryJobClient.class.getSimpleName());
         jobRetryScheduler.start();
 
-        depJobRetryScheduler = new RetryScheduler<DependencyJobGroup>(appContext,
+        depJobRetryScheduler = new RetryScheduler<DependencyJobGroup>("DepJobGroup_RetryJobClient", appContext,
                 FailStorePathBuilder.getDepJobSubmitFailStorePath(appContext), 1) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
@@ -74,7 +73,6 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
                 return false;
             }
         };
-        depJobRetryScheduler.setName("DepJobGroup_RetryJobClient");
         depJobRetryScheduler.start();
     }
 

@@ -23,5 +23,6 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `repeat_interval` bigint(20) DEFAULT '0' COMMENT '重复间隔',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),
-  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`)
+  UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`),
+  KEY `idx_realTaskId_taskTrackerNodeGroup` (`real_task_id`, `task_tracker_node_group`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Repeat任务';

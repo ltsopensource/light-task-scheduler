@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId" value="$!taskId"
+                                <input type="text" class="form-control" name="realTaskId" value="$!realTaskId"
                                        placeholder="请输入你提交的任务ID(TaskId)">
                             </div>
 
@@ -112,7 +112,7 @@
         <tbody>
         {{each rows as row index}}
         <tr>
-            <td>{{row.taskId}}</td>
+            <td>{{row.realTaskId}}</td>
             <td>{{row.logTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
@@ -186,7 +186,7 @@
         });
 
         $(document).on("click", "#searchBtn", function () {
-            var taskId = $("input[name='taskId']").val();
+            var realTaskId = $("input[name='realTaskId']").val();
 //            if (!taskId) {
 //                sweetAlert("请输入任务ID", "请输入你提交的任务ID(TaskId)", "error");
 //                return;
@@ -212,11 +212,11 @@
             }
 
             var params = {
-                taskId: taskId,
+                realTaskId: realTaskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
                 startLogTime: startLogTime, endLogTime: endLogTime
             };
-            if (!taskId) {
+            if (!realTaskId) {
                 // 如果没有按ID查询，那么要对时间跨度长的做提醒(超过1小时的)
                 if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 60 * 60 * 1000) {
                     swal({
@@ -242,8 +242,8 @@
 
         });
 
-        var taskId = $("input[name='taskId']").val();
-        if (taskId) {
+        var realTaskId = $("input[name='realTaskId']").val();
+        if (realTaskId) {
             // 如果是按ID查询，要把时间设置长一点
             var startLongTime = DateUtil.formatYMDHMD(DateUtil.getDate(new Date(), -10));
             $("input[name='startLogTime']").val(startLongTime);

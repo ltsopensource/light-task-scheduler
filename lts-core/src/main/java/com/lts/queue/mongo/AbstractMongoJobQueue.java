@@ -29,6 +29,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         addCondition(query, "jobId", request.getJobId());
         addCondition(query, "taskId", request.getTaskId());
+        addCondition(query, "realTaskId", request.getRealTaskId());
         addCondition(query, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
         addCondition(query, "submitNodeGroup", request.getSubmitNodeGroup());
         addCondition(query, "needFeedback", request.getNeedFeedback());

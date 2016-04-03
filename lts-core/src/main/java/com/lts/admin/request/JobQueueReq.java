@@ -12,6 +12,7 @@ public class JobQueueReq extends PaginationReq {
     private String jobId;
 
     private String taskId;
+    private String realTaskId;
 
     private String submitNodeGroup;
 
@@ -176,5 +177,13 @@ public class JobQueueReq extends PaginationReq {
 
     public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
         this.relyOnPrevCycle = relyOnPrevCycle;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 }
