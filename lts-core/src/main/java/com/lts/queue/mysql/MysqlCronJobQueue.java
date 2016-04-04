@@ -1,5 +1,6 @@
 package com.lts.queue.mysql;
 
+import com.lts.admin.request.JobQueueReq;
 import com.lts.core.cluster.Config;
 import com.lts.core.support.JobQueueUtils;
 import com.lts.queue.CronJobQueue;
@@ -7,12 +8,11 @@ import com.lts.queue.domain.JobPo;
 import com.lts.queue.mysql.support.RshHolder;
 import com.lts.store.jdbc.builder.DeleteSql;
 import com.lts.store.jdbc.builder.SelectSql;
-import com.lts.admin.request.JobQueueReq;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/31/15.
  */
-public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQueue {
+public class MysqlCronJobQueue extends MysqlSchedulerJobQueue implements CronJobQueue {
 
     public MysqlCronJobQueue(Config config) {
         super(config);
@@ -63,7 +63,7 @@ public class MysqlCronJobQueue extends AbstractMysqlJobQueue implements CronJobQ
                 .single(RshHolder.JOB_PO_RSH);
     }
 
-    private String getTableName() {
+    protected String getTableName() {
         return JobQueueUtils.CRON_JOB_QUEUE;
     }
 

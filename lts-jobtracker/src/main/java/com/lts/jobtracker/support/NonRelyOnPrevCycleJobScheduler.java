@@ -1,19 +1,27 @@
 package com.lts.jobtracker.support;
 
+import com.lts.core.commons.utils.Callable;
+import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Constants;
 import com.lts.core.exception.LtsRuntimeException;
+import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.core.support.JobUtils;
-import com.lts.core.support.bean.BeanCopier;
-import com.lts.core.support.bean.BeanCopierFactory;
+import com.lts.core.support.NodeShutdownHook;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
 
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Robert HG (254963746@qq.com) on 4/2/16.
@@ -22,41 +30,142 @@ public class NonRelyOnPrevCycleJobScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NonRelyOnPrevCycleJobScheduler.class);
     private JobTrackerAppContext appContext;
-    private static final BeanCopier<JobPo, JobPo> BEAN_COPIER = BeanCopierFactory.createCopier(JobPo.class, JobPo.class, true);
+    private int scheduleIntervalMinute;
+    private ScheduledExecutorService executorService;
+    private ScheduledFuture<?> scheduledFuture;
+    private AtomicBoolean running = new AtomicBoolean(false);
+
+    private AtomicBoolean start = new AtomicBoolean(false);
 
     public NonRelyOnPrevCycleJobScheduler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
+        this.scheduleIntervalMinute = this.appContext.getConfig().getParameter("jobtracker.nonRelyOnPrevCycleJob.schedule.interval.minute", 10);
+
+        NodeShutdownHook.registerHook(appContext, this.getClass().getSimpleName(), new Callable() {
+            @Override
+            public void call() throws Exception {
+                stop();
+            }
+        });
+    }
+
+    public void start() {
+        if (!start.compareAndSet(false, true)) {
+            return;
+        }
+        try {
+            executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory(NonRelyOnPrevCycleJobScheduler.class.getSimpleName(), true));
+            this.scheduledFuture = executorService.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (running.compareAndSet(false, true)) {
+                            try {
+                                schedule();
+                            } finally {
+                                running.set(false);
+                            }
+                        }
+                    } catch (Throwable t) {
+                        LOGGER.error("Error On Schedule", t);
+                    }
+                }
+            }, 10, (scheduleIntervalMinute - 1) * 60, TimeUnit.SECONDS);
+        } catch (Throwable t) {
+            LOGGER.error("Scheduler Start Error", t);
+        }
+    }
+
+    public void stop() {
+        if (!start.compareAndSet(true, false)) {
+            return;
+        }
+        try {
+            if (scheduledFuture != null) {
+                scheduledFuture.cancel(true);
+            }
+            if (executorService != null) {
+                executorService.shutdownNow();
+                executorService = null;
+            }
+        } catch (Throwable t) {
+            LOGGER.error("Scheduler Stop Error", t);
+        }
+    }
+
+    private void schedule() {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("========= Scheduler start =========");
+        }
+
+        Date now = new Date();
+        Date checkTime = DateUtils.addMinute(now, 10);
+        //  cron任务
+        while (true) {
+            List<JobPo> jobPos = appContext.getCronJobQueue().getNeedGenerateJobPos(checkTime.getTime(), 10);
+            if (CollectionUtils.sizeOf(jobPos) == 0) {
+                break;
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("========= CronJob size[{}] =========", CollectionUtils.sizeOf(jobPos));
+            }
+            for (JobPo jobPo : jobPos) {
+                Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+                if (lastGenerateTriggerTime == null) {
+                    lastGenerateTriggerTime = new Date().getTime();
+                }
+                addCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
+            }
+        }
+
+        // repeat 任务
+        while (true) {
+            List<JobPo> jobPos = appContext.getRepeatJobQueue().getNeedGenerateJobPos(checkTime.getTime(), 10);
+            if (CollectionUtils.sizeOf(jobPos) == 0) {
+                break;
+            }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("========= Repeat size[{}] =========", CollectionUtils.sizeOf(jobPos));
+            }
+            for (JobPo jobPo : jobPos) {
+                Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+                if (lastGenerateTriggerTime == null) {
+                    lastGenerateTriggerTime = new Date().getTime();
+                }
+                addRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
+            }
+        }
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("========= Scheduler End =========");
+        }
     }
 
     public void addScheduleJobForOneHour(JobPo jobPo) {
         if (jobPo.isCron()) {
-            addCronJobForOneHour(jobPo);
+            addCronJobForInterval(jobPo, new Date());
         } else if (jobPo.isRepeatable()) {
-            addRepeatJobForOneHour(jobPo);
+            addRepeatJobForInterval(jobPo, new Date());
         } else {
             throw new LtsRuntimeException("Only For Cron Or Repeat Job Now");
         }
     }
 
     /**
-     * 为当前时间以后的一个小时时间添加任务
+     * 生成一个小时的任务
      */
-    private void addCronJobForOneHour(final JobPo finalJobPo) {
-        // deepCopy
-        JobPo jobPo = new JobPo();
-        BEAN_COPIER.copyProps(finalJobPo, jobPo);
+    private void addCronJobForInterval(final JobPo finalJobPo, Date lastGenerateTime) {
+        JobPo jobPo = JobUtils.copy(finalJobPo);
 
         String cronExpression = jobPo.getCronExpression();
-        Date now = new Date();
-        long afterOneHour = DateUtils.addHour(now, 1).getTime();
-        Date timeAfter = now;
+        long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
+        Date timeAfter = lastGenerateTime;
         boolean stop = false;
         while (!stop) {
             Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronExpression, timeAfter);
             if (nextTriggerTime == null) {
                 stop = true;
             } else {
-                if (nextTriggerTime.getTime() <= afterOneHour) {
+                if (nextTriggerTime.getTime() <= endTime) {
                     // 添加任务
                     jobPo.setTriggerTime(nextTriggerTime.getTime());
                     jobPo.setJobId(JobUtils.generateJobId());
@@ -74,25 +183,26 @@ public class NonRelyOnPrevCycleJobScheduler {
             }
             timeAfter = nextTriggerTime;
         }
+        appContext.getCronJobQueue().updateLastGenerateTriggerTime(finalJobPo.getJobId(), endTime);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Add CronJob {} to {}", jobPo, DateUtils.formatYMD_HMS(new Date(endTime)));
+        }
     }
 
-    private void addRepeatJobForOneHour(JobPo finalJobPo) {
-        // deepCopy
-        JobPo jobPo = new JobPo();
-        BEAN_COPIER.copyProps(finalJobPo, jobPo);
+    private void addRepeatJobForInterval(final JobPo finalJobPo, Date lastGenerateTime) {
+        JobPo jobPo = JobUtils.copy(finalJobPo);
 
         Long repeatInterval = jobPo.getRepeatInterval();
         Integer repeatCount = jobPo.getRepeatCount();
         Long firstTriggerTime = jobPo.getTriggerTime();
 
-        Date now = new Date();
-        long afterOneHour = DateUtils.addHour(now, 1).getTime();
+        long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
         boolean stop = false;
         int repeatedCount = 0;
         while (!stop) {
             Long nextTriggerTime = firstTriggerTime + repeatedCount * repeatInterval;
 
-            if (nextTriggerTime <= afterOneHour &&
+            if (nextTriggerTime <= endTime &&
                     (repeatCount == -1 || repeatedCount <= repeatCount)) {
                 // 添加任务
                 jobPo.setTriggerTime(nextTriggerTime);
@@ -110,6 +220,11 @@ public class NonRelyOnPrevCycleJobScheduler {
             } else {
                 stop = true;
             }
+        }
+        // 更新时间
+        appContext.getRepeatJobQueue().updateLastGenerateTriggerTime(finalJobPo.getJobId(), endTime);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Add RepeatJob {} to {}", jobPo, DateUtils.formatYMD_HMS(new Date(endTime)));
         }
     }
 }

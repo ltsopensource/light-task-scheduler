@@ -48,7 +48,7 @@ public class JobPo {
     /**
      * 是否正在执行
      */
-    private boolean isRunning = false;
+    private Boolean isRunning = false;
     /**
      * 执行的taskTracker
      * identity
@@ -91,6 +91,8 @@ public class JobPo {
      * 是否依赖上一个执行周期(对于周期性任务才起作用)
      */
     private Boolean relyOnPrevCycle = true;
+    // 最后生成的triggerTime
+    private Long lastGenerateTriggerTime;
 
     public Integer getRetryTimes() {
         return retryTimes;
@@ -164,7 +166,7 @@ public class JobPo {
         this.extParams = extParams;
     }
 
-    public boolean isRunning() {
+    public Boolean isRunning() {
         return isRunning;
     }
 
@@ -176,7 +178,7 @@ public class JobPo {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
     }
 
-    public void setIsRunning(boolean isRunning) {
+    public void setIsRunning(Boolean isRunning) {
         this.isRunning = isRunning;
     }
 
@@ -284,6 +286,18 @@ public class JobPo {
 
     public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
         this.relyOnPrevCycle = relyOnPrevCycle;
+    }
+
+    public Long getLastGenerateTriggerTime() {
+        return lastGenerateTriggerTime;
+    }
+
+    public void setLastGenerateTriggerTime(Long lastGenerateTriggerTime) {
+        this.lastGenerateTriggerTime = lastGenerateTriggerTime;
+    }
+
+    public void setRunning(Boolean running) {
+        isRunning = running;
     }
 
     @Override

@@ -167,7 +167,9 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
                     }
 
                     if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                        LOGGER.info("Submit Job success: {}", jobs);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Submit Job success: {}", jobs);
+                        }
                         response.setSuccess(true);
                         return;
                     }
@@ -282,7 +284,9 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
                     }
 
                     if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                        LOGGER.info("Submit Job success: {}", JSON.toJSONString(jobGroup));
+                        if(LOGGER.isDebugEnabled()){
+                            LOGGER.debug("Submit Job success: {}", JSON.toJSONString(jobGroup));
+                        }
                         response.setSuccess(true);
                         return;
                     }

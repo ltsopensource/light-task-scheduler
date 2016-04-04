@@ -96,11 +96,14 @@ public class JobReceiver {
                 code = success ? BizLogCode.DUP_REPLACE : BizLogCode.DUP_FAILED;
             } else {
                 code = BizLogCode.DUP_IGNORE;
-                LOGGER.info("Job already exist. nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.info("Job already exist And ignore. nodeGroup={}, {}", request.getNodeGroup(), job);
             }
         } finally {
             if (success) {
                 stat.incReceiveJobNum();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Receive Job success. {}", job);
+                }
             }
         }
 
@@ -130,7 +133,6 @@ public class JobReceiver {
                 appContext.getExecutableJobQueue().add(jobPo);
             }
         }
-        LOGGER.info("Receive Job success. {}", job);
     }
 
     /**

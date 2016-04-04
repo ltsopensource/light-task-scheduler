@@ -22,7 +22,7 @@ public class TestJobRunnerTester extends JobRunnerTester {
         jobContext.setJob(job);
 
         JobExtInfo jobExtInfo = new JobExtInfo();
-        jobExtInfo.setRealTaskId(job.getTaskId());
+        jobExtInfo.setRetry(false);
 
         jobContext.setJobExtInfo(jobExtInfo);
 

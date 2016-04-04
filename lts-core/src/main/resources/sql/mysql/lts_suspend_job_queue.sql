@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   `repeat_count` int(11) DEFAULT '0' COMMENT '重复一次',
   `repeated_count` int(11) DEFAULT '0' COMMENT '已经重复的次数',
   `repeat_interval` bigint(20) DEFAULT '0' COMMENT '重复间隔',
+  `last_generate_trigger_time` bigint(20) DEFAULT '0' COMMENT '最后生成的triggerTime时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_job_id` (`job_id`),
   UNIQUE KEY `idx_taskId_taskTrackerNodeGroup` (`task_id`, `task_tracker_node_group`),

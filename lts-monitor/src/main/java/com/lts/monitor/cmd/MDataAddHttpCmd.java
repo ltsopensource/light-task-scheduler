@@ -69,7 +69,9 @@ public class MDataAddHttpCmd implements HttpCmdProc {
             return HttpCmdResponse.newResponse(false, "Add Monitor Data error: " + e.getMessage());
         }
 
-        LOGGER.info("Add Monitor Data success, mNode=" + mNodeJson + ", mData=" + mDataJson);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Add Monitor Data success, mNode=" + mNodeJson + ", mData=" + mDataJson);
+        }
 
         return HttpCmdResponse.newResponse(true, "Add Monitor Data success");
     }

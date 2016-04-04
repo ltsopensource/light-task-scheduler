@@ -126,11 +126,15 @@ public class JobPushProcessor extends AbstractProcessor {
                             if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                                 JobPushRequest jobPushRequest = commandResponse.getBody();
                                 if (jobPushRequest != null) {
-                                    LOGGER.info("Get new job :{}", jobPushRequest.getJobMeta());
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("Get new job :{}", jobPushRequest.getJobMeta());
+                                    }
                                     returnResponse.setJobMeta(jobPushRequest.getJobMeta());
                                 }
                             } else {
-                                LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
+                                }
                                 try {
                                     retryScheduler.inSchedule(
                                             jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),

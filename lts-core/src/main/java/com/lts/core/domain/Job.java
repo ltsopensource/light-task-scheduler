@@ -62,7 +62,7 @@ public class Job implements Serializable {
     /**
      * 是否依赖上一个执行周期(对于周期性任务才起作用)
      */
-    private boolean relyOnPrevCycle = false;
+    private boolean relyOnPrevCycle = true;
 
     public Integer getPriority() {
         return priority;

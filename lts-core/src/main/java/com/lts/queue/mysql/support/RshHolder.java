@@ -49,6 +49,7 @@ public class RshHolder {
         JobPo jobPo = new JobPo();
         jobPo.setJobId(rs.getString("job_id"));
         jobPo.setPriority(rs.getInt("priority"));
+        jobPo.setLastGenerateTriggerTime(rs.getLong("last_generate_trigger_time"));
         jobPo.setRetryTimes(rs.getInt("retry_times"));
         jobPo.setMaxRetryTimes(rs.getInt("max_retry_times"));
         jobPo.setRelyOnPrevCycle(rs.getBoolean("rely_on_prev_cycle"));

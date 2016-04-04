@@ -20,7 +20,7 @@ public class JobDispatcher implements JobRunner {
 
         String value;
         if (shardField.equals("taskId")) {
-            value = jobContext.getJobExtInfo().getRealTaskId();
+            value = job.getTaskId();
         } else {
             value = job.getParam(shardField);
         }

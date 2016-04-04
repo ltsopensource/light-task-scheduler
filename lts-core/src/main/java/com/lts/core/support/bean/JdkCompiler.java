@@ -64,7 +64,7 @@ public class JdkCompiler {
 
     private static final Pattern CLASS_PATTERN = Pattern.compile("class\\s+([$_a-zA-Z][$_a-zA-Z0-9]*)\\s+");
 
-    public Class<?> compile(String code, ClassLoader classLoader) {
+    public Class<?> compile(String code) {
         code = code.trim();
         Matcher matcher = PACKAGE_PATTERN.matcher(code);
         String pkg;

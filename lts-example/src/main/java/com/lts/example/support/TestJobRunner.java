@@ -15,11 +15,12 @@ import com.lts.tasktracker.runner.LtsLoggerFactory;
 public class TestJobRunner implements JobRunner {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestJobRunner.class);
-    private final BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
 
     @Override
     public Result run(JobContext jobContext) throws Throwable {
         try {
+//            BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
+            BizLogger bizLogger = jobContext.getBizLogger();
 //            Thread.sleep(1000L);
 //
 //            if (job.getRetryTimes() > 5) {

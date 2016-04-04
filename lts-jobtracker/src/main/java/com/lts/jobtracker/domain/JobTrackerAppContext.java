@@ -8,7 +8,9 @@ import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobReceiver;
 import com.lts.jobtracker.support.NonRelyOnPrevCycleJobScheduler;
 import com.lts.jobtracker.support.OldDataHandler;
+import com.lts.jobtracker.support.checker.ExecutableDeadJobChecker;
 import com.lts.jobtracker.support.checker.ExecutingDeadJobChecker;
+import com.lts.jobtracker.support.checker.FeedbackJobSendChecker;
 import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.queue.*;
@@ -29,6 +31,9 @@ public class JobTrackerAppContext extends AppContext {
     private TaskTrackerManager taskTrackerManager;
     // dead job checker
     private ExecutingDeadJobChecker executingDeadJobChecker;
+    private FeedbackJobSendChecker feedbackJobSendChecker;
+    private ExecutableDeadJobChecker executableDeadJobChecker;
+
     // old data handler, dirty data
     private OldDataHandler oldDataHandler;
     // biz logger
@@ -195,5 +200,21 @@ public class JobTrackerAppContext extends AppContext {
 
     public void setNonRelyOnPrevCycleJobScheduler(NonRelyOnPrevCycleJobScheduler nonRelyOnPrevCycleJobScheduler) {
         this.nonRelyOnPrevCycleJobScheduler = nonRelyOnPrevCycleJobScheduler;
+    }
+
+    public FeedbackJobSendChecker getFeedbackJobSendChecker() {
+        return feedbackJobSendChecker;
+    }
+
+    public void setFeedbackJobSendChecker(FeedbackJobSendChecker feedbackJobSendChecker) {
+        this.feedbackJobSendChecker = feedbackJobSendChecker;
+    }
+
+    public ExecutableDeadJobChecker getExecutableDeadJobChecker() {
+        return executableDeadJobChecker;
+    }
+
+    public void setExecutableDeadJobChecker(ExecutableDeadJobChecker executableDeadJobChecker) {
+        this.executableDeadJobChecker = executableDeadJobChecker;
     }
 }

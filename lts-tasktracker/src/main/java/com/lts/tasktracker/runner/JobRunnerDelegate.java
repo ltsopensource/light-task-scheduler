@@ -2,9 +2,11 @@ package com.lts.tasktracker.runner;
 
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
+import com.lts.core.domain.Job;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.JobUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
@@ -95,7 +97,9 @@ public class JobRunnerDelegate implements Runnable {
 
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute completed : {}, time:{} ms.", jobMeta.getJob(), time);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Job execute completed : {}, time:{} ms.", jobMeta.getJob(), time);
+                    }
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
@@ -103,7 +107,9 @@ public class JobRunnerDelegate implements Runnable {
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
+                    }
                 } finally {
                     checkInterrupted();
                     logger.removeJobMeta();
@@ -128,14 +134,19 @@ public class JobRunnerDelegate implements Runnable {
 
     private JobContext buildJobContext(JobMeta jobMeta) {
         JobContext jobContext = new JobContext();
-        jobContext.setJob(jobMeta.getJob());
+        // 采用deepopy的方式 防止用户修改任务数据
+        Job job = JobUtils.copy(jobMeta.getJob());
+        job.setTaskId(jobMeta.getRealTaskId());     // 这个对于用户需要转换为用户提交的taskId
+        jobContext.setJob(job);
 
         JobExtInfo jobExtInfo = new JobExtInfo();
-        jobExtInfo.setRealTaskId(jobMeta.getRealTaskId());
         jobExtInfo.setRepeatedCount(jobMeta.getRepeatedCount());
         jobExtInfo.setRetryTimes(jobMeta.getRetryTimes());
+        jobExtInfo.setRetry(Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.IS_RETRY_JOB)));
 
         jobContext.setJobExtInfo(jobExtInfo);
+
+        jobContext.setBizLogger(LtsLoggerFactory.getBizLogger());
         return jobContext;
     }
 

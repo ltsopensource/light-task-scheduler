@@ -11,11 +11,19 @@ public class JobExtInfo {
     /**
      * 已经重复的次数, (用户不要设置)
      */
-    private Integer repeatedCount = 0;
+    private int repeatedCount = 0;
     /**
-     * 真实的taskId
+     * 是否是重试
      */
-    private String realTaskId;
+    private boolean retry;
+
+    public boolean isRetry() {
+        return retry;
+    }
+
+    public void setRetry(boolean retry) {
+        this.retry = retry;
+    }
 
     public int getRetryTimes() {
         return retryTimes;
@@ -25,19 +33,11 @@ public class JobExtInfo {
         this.retryTimes = retryTimes;
     }
 
-    public Integer getRepeatedCount() {
+    public int getRepeatedCount() {
         return repeatedCount;
     }
 
-    public void setRepeatedCount(Integer repeatedCount) {
+    public void setRepeatedCount(int repeatedCount) {
         this.repeatedCount = repeatedCount;
-    }
-
-    public String getRealTaskId() {
-        return realTaskId;
-    }
-
-    public void setRealTaskId(String realTaskId) {
-        this.realTaskId = realTaskId;
     }
 }

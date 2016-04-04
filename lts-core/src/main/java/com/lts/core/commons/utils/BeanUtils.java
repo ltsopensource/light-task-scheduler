@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
@@ -26,6 +28,17 @@ public class BeanUtils {
         } catch (Exception e) {
             throw new LtsRuntimeException(e.getMessage(), e);
         }
+    }
+
+    public static Map<String, String> copyMap(Map<String, String> source) {
+        int size = CollectionUtils.sizeOf(source);
+        Map<String, String> map = new HashMap<String, String>(size);
+        if (source != null) {
+            for (Map.Entry<String, String> entry : source.entrySet()) {
+                map.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return map;
     }
 
 }

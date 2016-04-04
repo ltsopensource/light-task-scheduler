@@ -52,15 +52,13 @@ public final class BeanCopierFactory {
         Assert.notNull(sourceClass, "sourceClass can't be null");
         Assert.notNull(targetClass, "targetClass can't be null");
 
-        ClassLoader classLoader = BeanCopierFactory.class.getClassLoader();
-
         Integer sequence = SEQ.incrementAndGet();
         if (propCvtMap != null) {
             SEQ_PROP_CVT_MAP.putIfAbsent(sequence, propCvtMap);
         }
 
         try {
-            Class<?> beanCopierClazz = JDK_COMPILER.compile(getClassCode(sequence, sourceClass, targetClass, deepCopy, propCvtMap), classLoader);
+            Class<?> beanCopierClazz = JDK_COMPILER.compile(getClassCode(sequence, sourceClass, targetClass, deepCopy, propCvtMap));
             return (BeanCopier<Source, Target>) beanCopierClazz.newInstance();
         } catch (Exception e) {
             throw new LtsRuntimeException("Generate BeanCopier error, sourceClass=" + sourceClass.getName() + ", targetClass=" + targetClass.getName(), e);

@@ -98,7 +98,9 @@ public class MStatReportWorker implements Runnable {
 
         List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
         if (CollectionUtils.isEmpty(monitorNodes)) {
-            LOGGER.info("Please start monitor");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Please Start LTS-Monitor");
+            }
             return;
         }
 

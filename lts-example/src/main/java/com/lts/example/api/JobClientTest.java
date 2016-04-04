@@ -23,10 +23,10 @@ public class JobClientTest extends BaseJobClientTest {
 
     public static void main(String[] args) throws IOException {
 //        submitWidthReplaceOnExist();
-//        console();
+        console();
 //        testProtector();
 //        cancelJob();
-        submitWidthNonRelyOnPrevCycle();
+//        submitWidthNonRelyOnPrevCycle();
     }
 
 	public static void submitWidthReplaceOnExist() throws IOException {
@@ -64,7 +64,7 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.start();
 
         Job job = new Job();
-        job.setTaskId("t_5556546");
+        job.setTaskId("t_test_3242424");
         job.setParam("shopId", "1122222221");
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
         job.setNeedFeedback(true);
