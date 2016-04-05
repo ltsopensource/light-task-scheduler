@@ -46,6 +46,8 @@ public class SystemInitListener implements ServletContextListener {
             String ltsMonitorCfgPath = confPath;
             if (StringUtils.isEmpty(ltsMonitorCfgPath)) {
                 ltsMonitorCfgPath = this.getClass().getResource("/").getPath();
+                // 替换window下空格问题
+                ltsMonitorCfgPath = ltsMonitorCfgPath.replaceAll("%20", " ");
             }
             MonitorAgentStartup.start(ltsMonitorCfgPath);
         }

@@ -169,7 +169,7 @@ public class NonRelyOnPrevCycleJobScheduler {
                     // 添加任务
                     jobPo.setTriggerTime(nextTriggerTime.getTime());
                     jobPo.setJobId(JobUtils.generateJobId());
-                    jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(nextTriggerTime, "MMdd-HHmmSS"));
+                    jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(nextTriggerTime, "MMdd-HHmmss"));
                     jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                     try {
                         appContext.getExecutableJobQueue().add(jobPo);
@@ -191,14 +191,15 @@ public class NonRelyOnPrevCycleJobScheduler {
 
     private void addRepeatJobForInterval(final JobPo finalJobPo, Date lastGenerateTime) {
         JobPo jobPo = JobUtils.copy(finalJobPo);
+        long firstTriggerTime = Long.valueOf(jobPo.getInternalExtParam(Constants.FIRST_FIRE_TIME));
+        // 计算出应该重复的次数
+        int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
 
         Long repeatInterval = jobPo.getRepeatInterval();
         Integer repeatCount = jobPo.getRepeatCount();
-        Long firstTriggerTime = jobPo.getTriggerTime();
 
         long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
         boolean stop = false;
-        int repeatedCount = 0;
         while (!stop) {
             Long nextTriggerTime = firstTriggerTime + repeatedCount * repeatInterval;
 
@@ -207,7 +208,7 @@ public class NonRelyOnPrevCycleJobScheduler {
                 // 添加任务
                 jobPo.setTriggerTime(nextTriggerTime);
                 jobPo.setJobId(JobUtils.generateJobId());
-                jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(new Date(nextTriggerTime), "MMdd-HHmmSS"));
+                jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(new Date(nextTriggerTime), "MMdd-HHmmss"));
                 jobPo.setRepeatedCount(repeatedCount);
                 jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                 try {

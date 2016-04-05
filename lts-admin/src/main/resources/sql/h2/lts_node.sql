@@ -1,5 +1,5 @@
 CREATE TABLE `lts_node` ( 
-    `identity` varchar(32) NOT NULL DEFAULT '', 
+    `identity` varchar(64) NOT NULL DEFAULT '',
     `available` tinyint(4) DEFAULT NULL, 
     `cluster_name` varchar(64) DEFAULT NULL,
     `node_type` varchar(64) DEFAULT NULL,

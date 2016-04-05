@@ -65,7 +65,7 @@ public class JobDomainConverter {
         if (job.getRepeatCount() != 0) {
             jobPo.setCronExpression(null);
             jobPo.setRepeatInterval(job.getRepeatInterval());
-            jobPo.setInternalExtParam(Constants.QUARTZ_FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
+            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
         }
         return jobPo;
     }

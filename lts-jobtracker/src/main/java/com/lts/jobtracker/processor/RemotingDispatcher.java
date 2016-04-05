@@ -32,7 +32,6 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
     public RemotingDispatcher(JobTrackerAppContext appContext) {
         super(appContext);
         processors.put(RequestCode.SUBMIT_JOB, new JobSubmitProcessor(appContext));
-        processors.put(RequestCode.SUBMIT_DEP_JOB_GROUP, new DepJobSubmitProcessor(appContext));
         processors.put(RequestCode.JOB_COMPLETED, new JobCompletedProcessor(appContext));
         processors.put(RequestCode.JOB_PULL, new JobPullProcessor(appContext));
         processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(appContext));

@@ -29,7 +29,7 @@ public class JobClientTest extends BaseJobClientTest {
 //        submitWidthNonRelyOnPrevCycle();
     }
 
-	public static void submitWidthReplaceOnExist() throws IOException {
+    public static void submitWidthReplaceOnExist() throws IOException {
         // 推荐使用RetryJobClient
         JobClient jobClient = new RetryJobClient();
         jobClient.setNodeGroup("test_jobClient");
@@ -64,18 +64,20 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.start();
 
         Job job = new Job();
-        job.setTaskId("t_test_3242424");
+        job.setTaskId("t_test_344444");
         job.setParam("shopId", "1122222221");
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-        job.setNeedFeedback(true);
-        job.setCronExpression("0 0/1 * * * ?");
+        job.setNeedFeedback(false);
+        job.setCronExpression("0/30 * * * * ?");
+//        job.setRepeatInterval(30 * 1000L);
+//        job.setRepeatCount(25);
         job.setRelyOnPrevCycle(false);
 //        job.setTriggerTime(DateUtils.addDay(new Date(), 1));
         Response response = jobClient.submitJob(job);
         System.out.println(response);
     }
 
-    public static void cancelJob(){
+    public static void cancelJob() {
         JobClient jobClient = new RetryJobClient();
         jobClient.setNodeGroup("test_jobClient");
         jobClient.setClusterName("test_cluster");

@@ -35,7 +35,9 @@ public class MonitorAgent {
 
     public MonitorAgent() {
         this.appContext = new MonitorAppContext();
+        this.node = NodeFactory.create(MonitorNode.class);
         this.config = JobNodeConfigFactory.getDefaultConfig();
+        this.config.setNodeType(node.getNodeType());
         this.appContext.setConfig(config);
     }
 
@@ -76,14 +78,9 @@ public class MonitorAgent {
     }
 
     private void initNode() {
-
-        if (StringUtils.isEmpty(config.getIp())) {
-            config.setIp(NetUtils.getLocalHost());
-        }
         config.setListenPort(this.appContext.getHttpCmdPort());
-        this.node = NodeFactory.create(MonitorNode.class, config);
+        NodeFactory.build(node, config);
         this.node.setHttpCmdPort(this.appContext.getHttpCmdPort());
-        this.config.setNodeType(node.getNodeType());
     }
 
     private void intConfig() {
@@ -106,6 +103,10 @@ public class MonitorAgent {
         if (StringUtils.isNotEmpty(ltsJson)) {
             JSONFactory.setJSONAdapter(ltsJson);
         }
+        if (StringUtils.isEmpty(config.getIp())) {
+            config.setIp(NetUtils.getLocalHost());
+        }
+        JobNodeConfigFactory.buildIdentity(config);
     }
 
     public void stop() {

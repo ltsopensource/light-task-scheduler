@@ -249,7 +249,8 @@
             $("input[name='startLogTime']").val(startLongTime);
             $("#searchBtn").trigger("click");
         } else {
-            ltsTable.renderEmpty();
+            $("#searchBtn").trigger("click");
+//            ltsTable.renderEmpty();
         }
     });
 </script>

@@ -109,7 +109,7 @@ public interface Constants {
 
     String LB_MACHINE_RES_CHECK_ENABLE = "lb.machine.res.check.enable";
 
-    String QUARTZ_FIRST_FIRE_TIME = "__LTS_Quartz_First_Fire_Time";
+    String FIRST_FIRE_TIME = "__LTS_Repeat_Job_First_Fire_Time";
 
     String ONCE = "__LTS_ONCE";
 

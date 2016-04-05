@@ -14,9 +14,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author Robert HG (254963746@qq.com) on 4/2/16.
- */
 public class JdkCompiler {
 
     public static final String CLASS_EXTENSION = ".class";
