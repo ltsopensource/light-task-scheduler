@@ -99,8 +99,7 @@
             <th>日志类型</th>
             <th>执行结果</th>
             <th data-hide="all">日志级别</th>
-            <th data-hide="all">当前重试次数</th>
-            <th data-hide="all">最大重试次数</th>
+            <th data-hide="all">重试次数</th>
             <th data-hide="all">优先级</th>
             <th data-hide="all">执行时间</th>
             <th>Cron表达式</th>
@@ -121,8 +120,7 @@
             <td>{{row.logType | format:'logTypeLabel'}}</td>
             <td>{{row.success | format:'successLabel'}}</td>
             <td>{{row.level}}</td>
-            <td>{{row.retryTimes}}</td>
-            <td>{{row.maxRetryTimes}}</td>
+            <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.triggerTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.cronExpression}}</td>
