@@ -25,6 +25,10 @@ LTS.colFormatter.needFeedbackLabel = function (v) {
     return v ? "需要" : "不需要";
 };
 
+LTS.colFormatter.formatRelyOnPrevCycle = function (v) {
+    return v ? "依赖" : "不依赖";
+};
+
 LTS.colFormatter.formatGroup = function (v, row) {
     if (row.nodeType == 'JOB_CLIENT' || row.nodeType == 'TASK_TRACKER') {
         return v;

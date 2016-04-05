@@ -209,10 +209,11 @@
             <th>执行节点组</th>
             <th>Cron表达式</th>
             <th>重复时间间隔</th>
+            <th>依赖上一周期</th>
             <th data-hide="all">重复次数</th>
             <th data-hide="all">优先级</th>
             <th data-hide="all">最大重试次数</th>
-            <th>反馈客户端</th>
+            <th data-hide="phone,tablet">反馈客户端</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
             <th data-hide="all">修改时间</th>
@@ -227,6 +228,7 @@
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
+            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
             <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.maxRetryTimes}}</td>

@@ -255,19 +255,19 @@ public class JobQueueApi extends AbstractMVC {
 
         job.setPriority(request.getPriority());
         job.setMaxRetryTimes(request.getMaxRetryTimes() == null ? 0 : request.getMaxRetryTimes());
-        job.setRelyOnPrevCycle(request.getRelyOnPrevCycle() == null ? false : request.getRelyOnPrevCycle());
+        job.setRelyOnPrevCycle(request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle());
 
         if ("REAL_TIME_JOB".equals(jobType)) {
             job.setCronExpression(null);
             job.setTriggerTime(null);
             job.setRepeatInterval(null);
             job.setRepeatCount(0);
-            job.setRelyOnPrevCycle(false);
+            job.setRelyOnPrevCycle(true);
         } else if ("TRIGGER_TIME_JOB".equals(jobType)) {
             job.setCronExpression(null);
             job.setRepeatInterval(null);
             job.setRepeatCount(0);
-            job.setRelyOnPrevCycle(false);
+            job.setRelyOnPrevCycle(true);
         } else if ("CRON_JOB".equals(jobType)) {
             job.setRepeatInterval(null);
             job.setRepeatCount(0);

@@ -84,7 +84,7 @@ public class JobDomainConverter {
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
         job.setMaxRetryTimes(jobPo.getMaxRetryTimes() == null ? 0 : jobPo.getMaxRetryTimes());
-        job.setRelyOnPrevCycle(jobPo.getRelyOnPrevCycle() == null ? false : jobPo.getRelyOnPrevCycle());
+        job.setRelyOnPrevCycle(jobPo.getRelyOnPrevCycle() == null ? true : jobPo.getRelyOnPrevCycle());
         job.setRepeatCount(jobPo.getRepeatCount());
         job.setRepeatInterval(jobPo.getRepeatInterval());
         JobMeta jobMeta = new JobMeta();

@@ -187,6 +187,7 @@
             <th data-hide="all">优先级</th>
             <th data-hide="all">重试次数</th>
             <th>反馈客户端</th>
+            <th data-hide="all">依赖上一周期</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
             <th data-hide="all">修改时间</th>
@@ -204,6 +205,7 @@
             <td>{{row.priority}}</td>
             <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
+            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtModified | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
