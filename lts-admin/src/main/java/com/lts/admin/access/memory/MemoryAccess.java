@@ -23,7 +23,7 @@ public abstract class MemoryAccess {
 
     public MemoryAccess() {
         Config config = new Config();
-        config.setParameter("jdbc.datasource.provider", DataSourceProvider.H2);
+        config.setParameter("jdbc.datasource.provider", "h2");
         // see http://www.h2database.com/html/features.html#in_memory_databases
         config.setParameter("jdbc.url", "jdbc:h2:mem:lts_admin;DB_CLOSE_DELAY=-1");
         config.setParameter("jdbc.username", "lts");

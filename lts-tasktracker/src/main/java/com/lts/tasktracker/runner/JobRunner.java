@@ -12,6 +12,6 @@ public interface JobRunner {
      * 执行任务
      * 抛出异常则消费失败, 返回null则认为是消费成功
      */
-    public Result run(JobContext jobContext) throws Throwable;
+    Result run(JobContext jobContext) throws Throwable;
 
 }

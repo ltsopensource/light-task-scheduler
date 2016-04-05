@@ -11,6 +11,8 @@ public interface SpiExtensionKey {
 
     String EVENT_CENTER = "event.center";
 
+    String JDBC_DATASOURCE_PROVIDER = "jdbc.datasource.provider";
+
     String REMOTING = "lts.remoting";
 
     String REMOTING_SERIALIZABLE_DFT = "lts.remoting.serializable.default";
