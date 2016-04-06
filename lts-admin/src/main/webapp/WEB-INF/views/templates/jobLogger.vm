@@ -166,6 +166,7 @@
             SENT: '派发任务',
             FINISHED: '完成任务',
             FIXED_DEAD: '修复死任务',
+            UPDATE: '更新任务',
             BIZ: '业务日志',
             RESEND: '重新反馈任务',
             DEL: '删除',

@@ -11,6 +11,8 @@ public interface JobQueue {
 
     PaginationRsp<JobPo> pageSelect(JobQueueReq request);
 
-    boolean selectiveUpdate(JobQueueReq request);
+    boolean selectiveUpdateByJobId(JobQueueReq request);
+
+    boolean selectiveUpdateByTaskId(JobQueueReq request);
 
 }

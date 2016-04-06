@@ -109,7 +109,7 @@ public class JobQueueApi extends AbstractMVC {
         } catch (IllegalArgumentException e) {
             return Builder.build(false, e.getMessage());
         }
-        boolean success = appContext.getExecutableJobQueue().selectiveUpdate(request);
+        boolean success = appContext.getExecutableJobQueue().selectiveUpdateByJobId(request);
         RestfulResponse response = new RestfulResponse();
         if (success) {
             response.setSuccess(true);

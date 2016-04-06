@@ -2,6 +2,7 @@ package com.lts.admin.cluster;
 
 import com.lts.admin.access.face.*;
 import com.lts.admin.access.memory.NodeMemCacheAccess;
+import com.lts.admin.web.support.NoRelyJobGenerator;
 import com.lts.biz.logger.JobLogger;
 import com.lts.core.AppContext;
 import com.lts.core.cluster.Node;
@@ -17,7 +18,7 @@ public class BackendAppContext extends AppContext {
     private ExecutableJobQueue executableJobQueue;
     private ExecutingJobQueue executingJobQueue;
     private JobFeedbackQueue jobFeedbackQueue;
-	private SuspendJobQueue suspendJobQueue;
+    private SuspendJobQueue suspendJobQueue;
     private NodeGroupStore nodeGroupStore;
     private JobLogger jobLogger;
     private Node node;
@@ -31,6 +32,8 @@ public class BackendAppContext extends AppContext {
     private BackendNodeOnOfflineLogAccess backendNodeOnOfflineLogAccess;
 
     private NodeMemCacheAccess nodeMemCacheAccess;
+
+    private NoRelyJobGenerator noRelyJobGenerator;
 
     public Node getNode() {
         return node;
@@ -72,15 +75,15 @@ public class BackendAppContext extends AppContext {
         this.executingJobQueue = executingJobQueue;
     }
 
-	public SuspendJobQueue getSuspendJobQueue() {
-		return suspendJobQueue;
-	}
+    public SuspendJobQueue getSuspendJobQueue() {
+        return suspendJobQueue;
+    }
 
-	public void setSuspendJobQueue(SuspendJobQueue suspendJobQueue) {
-		this.suspendJobQueue = suspendJobQueue;
-	}
+    public void setSuspendJobQueue(SuspendJobQueue suspendJobQueue) {
+        this.suspendJobQueue = suspendJobQueue;
+    }
 
-	public NodeGroupStore getNodeGroupStore() {
+    public NodeGroupStore getNodeGroupStore() {
         return nodeGroupStore;
     }
 
@@ -166,5 +169,13 @@ public class BackendAppContext extends AppContext {
 
     public void setNodeMemCacheAccess(NodeMemCacheAccess nodeMemCacheAccess) {
         this.nodeMemCacheAccess = nodeMemCacheAccess;
+    }
+
+    public NoRelyJobGenerator getNoRelyJobGenerator() {
+        return noRelyJobGenerator;
+    }
+
+    public void setNoRelyJobGenerator(NoRelyJobGenerator noRelyJobGenerator) {
+        this.noRelyJobGenerator = noRelyJobGenerator;
     }
 }

@@ -73,6 +73,18 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     }
 
     @Override
+    public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup) {
+        new DeleteSql(getSqlTemplate())
+                .delete()
+                .from()
+                .table(getTableName(taskTrackerNodeGroup))
+                .where("real_task_id = ?", realTaskId)
+                .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .doDelete();
+        return true;
+    }
+
+    @Override
     public void resume(JobPo jobPo) {
 
         new UpdateSql(getSqlTemplate())

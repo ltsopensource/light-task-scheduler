@@ -3,17 +3,14 @@ package com.lts.jobtracker.support;
 import com.lts.core.commons.utils.Callable;
 import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.DateUtils;
-import com.lts.core.constant.Constants;
 import com.lts.core.exception.LtsRuntimeException;
 import com.lts.core.factory.NamedThreadFactory;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.core.support.CronExpressionUtils;
-import com.lts.core.support.JobUtils;
 import com.lts.core.support.NodeShutdownHook;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
 import com.lts.queue.domain.JobPo;
-import com.lts.store.jdbc.exception.DupEntryException;
+import com.lts.queue.support.NonRelyJobUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -150,82 +147,13 @@ public class NonRelyOnPrevCycleJobScheduler {
         }
     }
 
-    /**
-     * 生成一个小时的任务
-     */
     private void addCronJobForInterval(final JobPo finalJobPo, Date lastGenerateTime) {
-        JobPo jobPo = JobUtils.copy(finalJobPo);
-
-        String cronExpression = jobPo.getCronExpression();
-        long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
-        Date timeAfter = lastGenerateTime;
-        boolean stop = false;
-        while (!stop) {
-            Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(cronExpression, timeAfter);
-            if (nextTriggerTime == null) {
-                stop = true;
-            } else {
-                if (nextTriggerTime.getTime() <= endTime) {
-                    // 添加任务
-                    jobPo.setTriggerTime(nextTriggerTime.getTime());
-                    jobPo.setJobId(JobUtils.generateJobId());
-                    jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(nextTriggerTime, "MMdd-HHmmss"));
-                    jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
-                    try {
-                        appContext.getExecutableJobQueue().add(jobPo);
-                    } catch (DupEntryException e) {
-                        LOGGER.warn("Cron Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",
-                                jobPo.getTaskId(), jobPo.getTaskTrackerNodeGroup());
-                    }
-                } else {
-                    stop = true;
-                }
-            }
-            timeAfter = nextTriggerTime;
-        }
-        appContext.getCronJobQueue().updateLastGenerateTriggerTime(finalJobPo.getJobId(), endTime);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Add CronJob {} to {}", jobPo, DateUtils.formatYMD_HMS(new Date(endTime)));
-        }
+        NonRelyJobUtils.addCronJobForInterval(appContext.getExecutableJobQueue(), appContext.getCronJobQueue(),
+                scheduleIntervalMinute, finalJobPo, lastGenerateTime);
     }
 
     private void addRepeatJobForInterval(final JobPo finalJobPo, Date lastGenerateTime) {
-        JobPo jobPo = JobUtils.copy(finalJobPo);
-        long firstTriggerTime = Long.valueOf(jobPo.getInternalExtParam(Constants.FIRST_FIRE_TIME));
-        // 计算出应该重复的次数
-        int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
-
-        Long repeatInterval = jobPo.getRepeatInterval();
-        Integer repeatCount = jobPo.getRepeatCount();
-
-        long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
-        boolean stop = false;
-        while (!stop) {
-            Long nextTriggerTime = firstTriggerTime + repeatedCount * repeatInterval;
-
-            if (nextTriggerTime <= endTime &&
-                    (repeatCount == -1 || repeatedCount <= repeatCount)) {
-                // 添加任务
-                jobPo.setTriggerTime(nextTriggerTime);
-                jobPo.setJobId(JobUtils.generateJobId());
-                jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(new Date(nextTriggerTime), "MMdd-HHmmss"));
-                jobPo.setRepeatedCount(repeatedCount);
-                jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
-                try {
-                    appContext.getExecutableJobQueue().add(jobPo);
-                } catch (DupEntryException e) {
-                    LOGGER.warn("Repeat Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",
-                            jobPo.getTaskId(), jobPo.getTaskTrackerNodeGroup());
-                }
-                repeatedCount++;
-            } else {
-                stop = true;
-            }
-        }
-        // 更新时间
-        appContext.getRepeatJobQueue().updateLastGenerateTriggerTime(finalJobPo.getJobId(), endTime);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Add RepeatJob {} to {}", jobPo, DateUtils.formatYMD_HMS(new Date(endTime)));
-        }
+        NonRelyJobUtils.addRepeatJobForInterval(appContext.getExecutableJobQueue(), appContext.getRepeatJobQueue(),
+                scheduleIntervalMinute, finalJobPo, lastGenerateTime);
     }
 }

@@ -6,13 +6,11 @@ import com.lts.admin.response.PaginationRsp;
 import com.lts.admin.web.AbstractMVC;
 import com.lts.admin.web.support.Builder;
 import com.lts.admin.web.vo.RestfulResponse;
-import com.lts.biz.logger.domain.JobLogPo;
+import com.lts.biz.logger.JobLogUtils;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Level;
 import com.lts.core.support.CronExpression;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
@@ -55,18 +53,53 @@ public class CronJobQueueApi extends AbstractMVC {
         try {
             // 1. 检测 cronExpression是否是正确的
             CronExpression expression = new CronExpression(request.getCronExpression());
-            if (expression.getTimeAfter(new Date()) == null) {
+            Date nextTriggerTime = expression.getTimeAfter(new Date());
+            if (nextTriggerTime == null) {
                 return Builder.build(false, StringUtils.format("该CronExpression={} 已经没有执行时间点! 请重新设置或者直接删除。", request.getCronExpression()));
             }
-            JobPo cronJobPo = appContext.getCronJobQueue().getJob(request.getJobId());
-            boolean success = appContext.getCronJobQueue().selectiveUpdate(request);
+            JobPo jobPo = appContext.getCronJobQueue().getJob(request.getJobId());
+            boolean success = appContext.getCronJobQueue().selectiveUpdateByJobId(request);
             if (success) {
                 try {
-                    // 看CronExpression是否有修改,如果有修改,需要更新triggerTime
-                    if (!request.getCronExpression().equals(cronJobPo.getCronExpression())) {
-                        request.setTriggerTime(expression.getTimeAfter(new Date()));
+                    // 判断是否有relyOnPrevCycle变更
+                    boolean relyOnPrevCycleChanged = !request.getRelyOnPrevCycle().equals(jobPo.getRelyOnPrevCycle());
+                    boolean cronExpressionChanged = !request.getCronExpression().equals(jobPo.getCronExpression());
+
+                    // 1. 修改前relyOnPrevCycle=true,并且修改后也是true
+                    if (jobPo.getRelyOnPrevCycle() && !relyOnPrevCycleChanged) {
+                        // 看CronExpression是否有修改,如果有修改,需要更新triggerTime
+                        if (cronExpressionChanged) {
+                            request.setTriggerTime(nextTriggerTime);
+                        }
+                        appContext.getExecutableJobQueue().selectiveUpdateByJobId(request);
+                    } else {
+                        // 2. 需要对批量任务做处理
+                        if (relyOnPrevCycleChanged) {
+                            // 如果relyOnPrevCycle 修改过
+                            if (jobPo.getRelyOnPrevCycle()) {
+                                // 之前是依赖的,现在不依赖,需要生成批量任务
+                                appContext.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
+                                appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date());
+                            } else {
+                                // 之前不依赖,现在依赖,需要删除批量任务
+                                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+                                // 添加新的任务
+                                jobPo.setTriggerTime(nextTriggerTime.getTime());
+                                try {
+                                    appContext.getExecutableJobQueue().add(jobPo);
+                                } catch (DupEntryException ignored) {
+                                }
+                            }
+                        } else {
+                            // 如果relyOnPrevCycle 没有修改过, 表示relyOnPrevCycle=false, 那么要看cronExpression是否修改过,如果修改过,需要删除重新生成
+                            if (cronExpressionChanged) {
+                                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+                                appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date());
+                            } else {
+                                appContext.getExecutableJobQueue().selectiveUpdateByTaskId(request);
+                            }
+                        }
                     }
-                    appContext.getExecutableJobQueue().selectiveUpdate(request);
                 } catch (Exception e) {
                     return Builder.build(false, "更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
                 }
@@ -74,6 +107,7 @@ public class CronJobQueueApi extends AbstractMVC {
             } else {
                 return Builder.build(false, "该任务已经被删除或者执行完成");
             }
+            JobLogUtils.log(LogType.UPDATE, jobPo, appContext.getJobLogger());
             return response;
         } catch (ParseException e) {
             return Builder.build(false, "请输入正确的 CronExpression!" + e.getMessage());
@@ -85,14 +119,21 @@ public class CronJobQueueApi extends AbstractMVC {
         if (StringUtils.isEmpty(request.getJobId())) {
             return Builder.build(false, "JobId 必须传!");
         }
+        JobPo jobPo = appContext.getCronJobQueue().getJob(request.getJobId());
+        if (jobPo == null) {
+            return Builder.build(true, "已经删除");
+        }
         boolean success = appContext.getCronJobQueue().remove(request.getJobId());
         if (success) {
             try {
-                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+//                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
             }
         }
+        JobLogUtils.log(LogType.DEL, jobPo, appContext.getJobLogger());
+
         return Builder.build(true, "ok");
     }
 
@@ -119,18 +160,18 @@ public class CronJobQueueApi extends AbstractMVC {
             return Builder.build(false, "删除Cron任务失败，请手动删除! error:" + e.getMessage());
         }
         try {
-            appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+            if (jobPo.getRelyOnPrevCycle()) {
+                appContext.getCronJobQueue().updateLastGenerateTriggerTime(jobPo.getJobId(), new Date().getTime());
+                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
+            } else {
+                appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+            }
         } catch (Exception e) {
             return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:" + e.getMessage());
         }
 
         // 记录日志
-        JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
-        jobLogPo.setSuccess(true);
-        jobLogPo.setLogType(LogType.SUSPEND);
-        jobLogPo.setLogTime(SystemClock.now());
-        jobLogPo.setLevel(Level.INFO);
-        appContext.getJobLogger().log(jobLogPo);
+        JobLogUtils.log(LogType.SUSPEND, jobPo, appContext.getJobLogger());
 
         return Builder.build(true, "ok");
     }

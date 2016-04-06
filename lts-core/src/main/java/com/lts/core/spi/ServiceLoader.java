@@ -226,26 +226,6 @@ public class ServiceLoader {
         return highestClassLoader;
     }
 
-//    private static List<ClassLoader> selectClassLoaders(ClassLoader classLoader) {
-//        List<ClassLoader> classLoaders = new ArrayList<ClassLoader>();
-//
-//        if (classLoader != null) {
-//            classLoaders.add(classLoader);
-//        }
-//
-//        ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-//        if (currentClassLoader != classLoader) {
-//            classLoaders.add(currentClassLoader);
-//        }
-//
-//        ClassLoader coreClassLoader = ServiceLoader.class.getClassLoader();
-//        if (coreClassLoader != classLoader && coreClassLoader != currentClassLoader) {
-//            classLoaders.add(coreClassLoader);
-//        }
-//
-//        return classLoaders;
-//    }
-
     private static final class URLDefinition {
 
         private final URI uri;

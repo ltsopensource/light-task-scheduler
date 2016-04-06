@@ -98,6 +98,7 @@
                     <form method="post" id="editForm" class="form-horizontal" onsubmit="return false">
                         <input type="hidden" class="form-control" name="jobId"/>
                         <input type="hidden" class="form-control" name="taskId"/>
+                        <input type="hidden" class="form-control" name="realTaskId"/>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label w_120">Cron表达式</label>
@@ -105,6 +106,16 @@
                             <div class="col-sm-3">
                                 <input type="text" class="form-control w_250" name="cronExpression"
                                        placeholder="请输入CronExpression">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">依赖上一周期</label>
+
+                            <div class="col-sm-3 w_250">
+                                <select name="relyOnPrevCycle" class="form-control">
+                                    <option value="true" selected>是</option>
+                                    <option value="false">否</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">

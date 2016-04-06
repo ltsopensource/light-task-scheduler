@@ -17,7 +17,7 @@ public class BeanUtils {
     public static Object deepClone(Object object) {
         try {
             if (object == null) {
-                return null;
+                throw new IllegalArgumentException("source object is null");
             }
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
