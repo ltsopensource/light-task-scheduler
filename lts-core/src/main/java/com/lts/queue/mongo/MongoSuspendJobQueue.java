@@ -30,6 +30,7 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
         // create index if not exist
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
+            template.ensureIndex("idx_jobType", "jobType");
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
             template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
         }

@@ -77,4 +77,5 @@ public class JobUtils {
         JOB_PO_BEAN_COPIER.copyProps(source, jobPo);
         return jobPo;
     }
+
 }

@@ -22,10 +22,17 @@ public class JobMeta implements Serializable {
     // 已经重复的次数
     private Integer repeatedCount;
     private String realTaskId;
+    private JobType jobType;
 
     public JobMeta() {
     }
 
+    public JobType getJobType() {
+        return jobType;
+    }
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
     public String getJobId() {
         return jobId;
     }

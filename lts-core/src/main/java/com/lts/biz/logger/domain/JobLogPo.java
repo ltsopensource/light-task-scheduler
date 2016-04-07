@@ -1,6 +1,7 @@
 package com.lts.biz.logger.domain;
 
 import com.lts.core.constant.Level;
+import com.lts.core.domain.JobType;
 
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class JobLogPo {
     private Long logTime;
     // 日志记录时间
     private Long gmtCreated;
+    private JobType jobType;
     // 日志类型
     private LogType logType;
     private boolean success;
@@ -69,6 +71,14 @@ public class JobLogPo {
     private Long repeatInterval;
 
     private Boolean depPreCycle;
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
 
     public Map<String, String> getInternalExtParams() {
         return internalExtParams;

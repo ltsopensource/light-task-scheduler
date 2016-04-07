@@ -1,5 +1,6 @@
 package com.lts.queue.domain;
 
+import com.lts.core.domain.JobType;
 import com.lts.core.json.JSON;
 
 import java.util.HashMap;
@@ -15,6 +16,10 @@ public class JobPo {
      * 服务端生成的jobId
      */
     private String jobId;
+    /**
+     * 任务类型
+     */
+    private JobType jobType;
     /**
      * 优先级 (数值越大 优先级越低)
      */
@@ -93,6 +98,14 @@ public class JobPo {
     private Boolean relyOnPrevCycle = true;
     // 最后生成的triggerTime
     private Long lastGenerateTriggerTime;
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
 
     public Integer getRetryTimes() {
         return retryTimes;

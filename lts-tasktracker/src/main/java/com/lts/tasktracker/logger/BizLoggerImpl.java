@@ -98,6 +98,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         bizLog.setJobId(jobMeta.getJobId());
         bizLog.setTaskId(jobMeta.getJob().getTaskId());
         bizLog.setRealTaskId(jobMeta.getRealTaskId());
+        bizLog.setJobType(jobMeta.getJobType());
         bizLog.setMsg(msg);
         bizLog.setLevel(level);
 

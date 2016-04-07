@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `success` tinyint(11) COMMENT '成功与否',
   `msg` text COMMENT '消息',
   `code` varchar(32) COMMENT '消息编码',
+  `job_type` varchar(32) COMMENT '任务类型',
   `task_tracker_identity` varchar(64) COMMENT '执行节点唯一标识',
   `level` varchar(32) COMMENT '日志记录级别',
   `task_id` varchar(64) COMMENT '客户端ID',

@@ -31,6 +31,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addCondition(query, "taskId", request.getTaskId());
         addCondition(query, "realTaskId", request.getRealTaskId());
         addCondition(query, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addCondition(query, "jobType", request.getJobType());
         addCondition(query, "submitNodeGroup", request.getSubmitNodeGroup());
         addCondition(query, "needFeedback", request.getNeedFeedback());
         if (request.getStartGmtCreated() != null) {

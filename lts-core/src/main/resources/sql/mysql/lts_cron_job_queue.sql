@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `{tableName}` (
   `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID,与业务无关的',
   `job_id` varchar(32) COMMENT '作业ID,程序生成的',
+  `job_type` varchar(32) COMMENT '任务类型',
   `priority` int(11) COMMENT '优先级,(数值越大,优先级越低)',
   `retry_times` int(11) DEFAULT '0' COMMENT '重试次数',
   `max_retry_times` int(11) DEFAULT '0' COMMENT '最大重试次数',

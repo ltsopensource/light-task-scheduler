@@ -221,6 +221,8 @@
                 }
             }
 
+            debugger;
+
             // check form
             if (!params['taskId']) {
                 sweetAlert("请输入任务ID", "请输入任务ID(TaskId)【必填】", "error");

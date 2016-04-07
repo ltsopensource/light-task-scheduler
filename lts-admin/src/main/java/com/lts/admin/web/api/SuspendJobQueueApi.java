@@ -153,7 +153,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                 } else {
                     // 不依赖上一周期的
                     Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                    if (lastGenerateTriggerTime == null) {
+                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                         lastGenerateTriggerTime = SystemClock.now();
                     }
                     appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));

@@ -143,6 +143,7 @@ public class JobRunnerDelegate implements Runnable {
         jobExtInfo.setRepeatedCount(jobMeta.getRepeatedCount());
         jobExtInfo.setRetryTimes(jobMeta.getRetryTimes());
         jobExtInfo.setRetry(Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.IS_RETRY_JOB)));
+        jobExtInfo.setJobType(jobMeta.getJobType());
 
         jobContext.setJobExtInfo(jobExtInfo);
 

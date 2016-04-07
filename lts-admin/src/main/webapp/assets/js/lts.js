@@ -25,6 +25,19 @@ LTS.colFormatter.needFeedbackLabel = function (v) {
     return v ? "需要" : "不需要";
 };
 
+LTS.colFormatter.jobTypeFormat = function (v) {
+    if (v == 'CRON') {
+        return "Cron任务";
+    } else if (v == "REPEAT") {
+        return "Repeat任务";
+    } else if (v == 'REAL_TIME') {
+        return "实时任务";
+    } else if (v == 'TRIGGER_TIME') {
+        return "定时任务";
+    }
+    return v;
+};
+
 LTS.colFormatter.formatRelyOnPrevCycle = function (v) {
     return v ? "依赖" : "不依赖";
 };
@@ -38,7 +51,7 @@ LTS.colFormatter.formatGroup = function (v, row) {
 };
 
 LTS.colFormatter.formatRetryTimes = function (v, row) {
-    return row['retryTimes']  + "/" + row['maxRetryTimes'];
+    return row['retryTimes'] + "/" + row['maxRetryTimes'];
 };
 
 LTS.colFormatter.repeatIntervalFormat = function (v, row) {

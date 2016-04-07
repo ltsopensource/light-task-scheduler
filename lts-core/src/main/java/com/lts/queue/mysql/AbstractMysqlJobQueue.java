@@ -30,6 +30,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
         return new InsertSql(getSqlTemplate())
                 .insert(tableName)
                 .columns("job_id",
+                        "job_type",
                         "priority",
                         "retry_times",
                         "max_retry_times",
@@ -51,6 +52,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         "repeated_count",
                         "repeat_interval")
                 .values(jobPo.getJobId(),
+                        jobPo.getJobType() == null ? null : jobPo.getJobType().name(),
                         jobPo.getPriority(),
                         jobPo.getRetryTimes(),
                         jobPo.getMaxRetryTimes(),
@@ -151,6 +153,7 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
                 .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .andOnNotEmpty("job_type = ?", request.getJobType())
                 .andOnNotEmpty("submit_node_group = ?", request.getSubmitNodeGroup())
                 .andOnNotNull("need_feedback = ?", request.getNeedFeedback())
                 .andBetween("gmt_created", JdbcTypeUtils.toTimestamp(request.getStartGmtCreated()), JdbcTypeUtils.toTimestamp(request.getEndGmtCreated()))

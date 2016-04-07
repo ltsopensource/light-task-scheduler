@@ -7,6 +7,7 @@ import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
+import com.lts.core.domain.JobType;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.domain.JobPo;
 
@@ -47,6 +48,17 @@ public class JobDomainConverter {
                     job.getExtParams().remove(key);
                 }
             }
+        }
+
+        // 设置JobType
+        if (job.isCron()) {
+            jobPo.setJobType(JobType.CRON);
+        } else if (job.isRepeatable()) {
+            jobPo.setJobType(JobType.REPEAT);
+        } else if (job.getTriggerTime() == null) {
+            jobPo.setJobType(JobType.REAL_TIME);
+        } else {
+            jobPo.setJobType(JobType.TRIGGER_TIME);
         }
 
         jobPo.setExtParams(job.getExtParams());
@@ -94,6 +106,7 @@ public class JobDomainConverter {
         jobMeta.setInternalExtParams(jobPo.getInternalExtParams());
         jobMeta.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         jobMeta.setRepeatedCount(jobPo.getRepeatedCount());
+        jobMeta.setJobType(jobPo.getJobType());
         return jobMeta;
     }
 
@@ -106,6 +119,7 @@ public class JobDomainConverter {
         jobLogPo.setInternalExtParams(jobMeta.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobLogPo.setTaskId(job.getTaskId());
+        jobLogPo.setJobType(jobMeta.getJobType());
         jobLogPo.setRealTaskId(jobMeta.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
@@ -126,6 +140,7 @@ public class JobDomainConverter {
         JobLogPo jobLogPo = new JobLogPo();
         jobLogPo.setGmtCreated(SystemClock.now());
         jobLogPo.setPriority(jobPo.getPriority());
+        jobLogPo.setJobType(jobPo.getJobType());
         jobLogPo.setExtParams(jobPo.getExtParams());
         jobLogPo.setInternalExtParams(jobPo.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());

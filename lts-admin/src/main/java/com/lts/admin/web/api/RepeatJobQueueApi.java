@@ -7,12 +7,9 @@ import com.lts.admin.web.AbstractMVC;
 import com.lts.admin.web.support.Builder;
 import com.lts.admin.web.vo.RestfulResponse;
 import com.lts.biz.logger.JobLogUtils;
-import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Level;
-import com.lts.core.support.JobDomainConverter;
 import com.lts.core.support.JobUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
@@ -54,23 +51,25 @@ public class RepeatJobQueueApi extends AbstractMVC {
             return Builder.build(false, e.getMessage());
         }
         request.setCronExpression(null);
-        JobPo jobPo = appContext.getRepeatJobQueue().getJob(request.getJobId());
+        JobPo oldJobPo = appContext.getRepeatJobQueue().getJob(request.getJobId());
         boolean success = appContext.getRepeatJobQueue().selectiveUpdateByJobId(request);
         if (success) {
             try {
-                boolean relyOnPrevCycleChanged = !request.getRelyOnPrevCycle().equals(jobPo.getRelyOnPrevCycle());
+                JobPo newJobPo = appContext.getRepeatJobQueue().getJob(request.getJobId());
+
+                boolean relyOnPrevCycleChanged = !newJobPo.getRelyOnPrevCycle().equals(oldJobPo.getRelyOnPrevCycle());
                 // repeatInterval变了或者repeatCount变少了
-                boolean repeatIntervalChanged = !request.getRepeatInterval().equals(jobPo.getRepeatInterval());
+                boolean repeatIntervalChanged = !newJobPo.getRepeatInterval().equals(oldJobPo.getRepeatInterval());
                 boolean repeatIntervalOrCountDecChanged = repeatIntervalChanged
                         || (
-                        (jobPo.getRepeatCount() == -1 && request.getRepeatCount() > 0)
-                                || (jobPo.getRepeatCount() != -1 && request.getRepeatCount() != -1 && request.getRepeatCount() < jobPo.getRepeatCount()
+                        (oldJobPo.getRepeatCount() == -1 && newJobPo.getRepeatCount() > 0)
+                                || (oldJobPo.getRepeatCount() != -1 && newJobPo.getRepeatCount() != -1 && newJobPo.getRepeatCount() < oldJobPo.getRepeatCount()
                         )
                 );
-                if (jobPo.getRelyOnPrevCycle() && !relyOnPrevCycleChanged) {
+                if (oldJobPo.getRelyOnPrevCycle() && !relyOnPrevCycleChanged) {
                     // 如果repeatInterval有修改,需要把triggerTime也要修改下
                     if (repeatIntervalChanged) {
-                        long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
+                        long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(oldJobPo);
                         request.setTriggerTime(new Date(nextTriggerTime));
                     }
                     // 把等待执行的队列也更新一下
@@ -78,25 +77,25 @@ public class RepeatJobQueueApi extends AbstractMVC {
                 } else {
                     // 2. 需要对批量任务做处理
                     if (relyOnPrevCycleChanged) {
-                        if (jobPo.getRelyOnPrevCycle()) {
+                        if (oldJobPo.getRelyOnPrevCycle()) {
                             // 之前是依赖的,现在不依赖,需要生成批量任务
-                            appContext.getExecutableJobQueue().remove(jobPo.getTaskTrackerNodeGroup(), jobPo.getJobId());
-                            appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date());
+                            appContext.getExecutableJobQueue().remove(oldJobPo.getTaskTrackerNodeGroup(), oldJobPo.getJobId());
+                            appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(newJobPo, new Date());
                         } else {
                             // 之前不依赖,现在依赖,需要删除批量任务
-                            appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
+                            appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup());
                             // 添加新的任务
-                            jobPo.setTriggerTime(JobUtils.getRepeatNextTriggerTime(jobPo));
+                            newJobPo.setTriggerTime(JobUtils.getRepeatNextTriggerTime(oldJobPo));
                             try {
-                                appContext.getExecutableJobQueue().add(jobPo);
+                                appContext.getExecutableJobQueue().add(newJobPo);
                             } catch (DupEntryException ignored) {
                             }
                         }
                     } else {
                         // 如果relyOnPrevCycle 没有修改过, 表示relyOnPrevCycle=false, 那么要看repeatIntervalOrCountDecChanged,如果修改过,需要删除重新生成
                         if (repeatIntervalOrCountDecChanged) {
-                            appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
-                            appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(jobPo, new Date());
+                            appContext.getExecutableJobQueue().removeBatch(oldJobPo.getRealTaskId(), oldJobPo.getTaskTrackerNodeGroup());
+                            appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(newJobPo, new Date());
                         } else {
                             appContext.getExecutableJobQueue().selectiveUpdateByTaskId(request);
                         }
@@ -106,7 +105,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
             } catch (Exception e) {
                 return Builder.build(false, "更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
             }
-            JobLogUtils.log(LogType.UPDATE, jobPo, appContext.getJobLogger());
+            JobLogUtils.log(LogType.UPDATE, oldJobPo, appContext.getJobLogger());
             return Builder.build(true);
         } else {
             return Builder.build(false, "该任务已经被删除或者执行完成");

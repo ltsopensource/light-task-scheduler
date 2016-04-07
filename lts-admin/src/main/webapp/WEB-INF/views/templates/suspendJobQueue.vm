@@ -206,6 +206,7 @@
         <tr>
             <th data-toggle="true">任务ID</th>
             <th data-hide="all">提交节点组</th>
+            <th>类型</th>
             <th>执行节点组</th>
             <th>Cron表达式</th>
             <th>重复时间间隔</th>
@@ -225,6 +226,7 @@
         <tr>
             <td>{{row.taskId}}</td>
             <td>{{row.submitNodeGroup}}</td>
+            <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
             <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
