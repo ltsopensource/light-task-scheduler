@@ -2,6 +2,7 @@ package com.lts.jobclient.domain;
 
 
 import com.lts.core.domain.Job;
+import com.lts.core.json.JSON;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -69,11 +70,6 @@ public class Response implements Serializable {
 
     @Override
     public String toString() {
-        return "Response{" +
-                "success=" + success +
-                ", msg='" + msg + '\'' +
-                ", code='" + code + '\'' +
-                ", failedJobs=" + failedJobs +
-                '}';
+        return JSON.toJSONString(this);
     }
 }

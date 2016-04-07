@@ -42,7 +42,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(JobClient.class);
 
-    private static final int BATCH_SIZE = 50;
+    private static final int BATCH_SIZE = 10;
 
     // 过载保护的提交者
     private JobSubmitProtector protector;
@@ -168,7 +168,9 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
                     }
 
                     if (JobProtos.ResponseCode.JOB_RECEIVE_SUCCESS.code() == responseCommand.getCode()) {
-                        LOGGER.info("Submit Job success: {}", jobs);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Submit Job success: {}", jobs);
+                        }
                         response.setSuccess(true);
                         return;
                     }
@@ -276,8 +278,8 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
         ASYNC   // 异步
     }
 
-    private void checkStart(){
-        if(!started.get()){
+    private void checkStart() {
+        if (!started.get()) {
             throw new JobSubmitException("JobClient did not started");
         }
     }

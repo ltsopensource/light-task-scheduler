@@ -12,8 +12,10 @@ public class BizLog implements Serializable {
 	private static final long serialVersionUID = -7770486329649514754L;
 
 	private String taskId;
-
+    private JobType jobType;
     private String jobId;
+
+    private String realTaskId;
 
     private String msg;
 
@@ -24,6 +26,14 @@ public class BizLog implements Serializable {
     private String taskTrackerIdentity;
 
     private String taskTrackerNodeGroup;
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
 
     public String getTaskId() {
         return taskId;
@@ -79,5 +89,13 @@ public class BizLog implements Serializable {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 }

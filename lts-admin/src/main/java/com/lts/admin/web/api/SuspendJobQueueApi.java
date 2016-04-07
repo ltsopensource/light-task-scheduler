@@ -6,12 +6,14 @@ import com.lts.admin.response.PaginationRsp;
 import com.lts.admin.web.AbstractMVC;
 import com.lts.admin.web.support.Builder;
 import com.lts.admin.web.vo.RestfulResponse;
-import com.lts.biz.logger.domain.JobLogPo;
+import com.lts.biz.logger.JobLogUtils;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.constant.Level;
-import com.lts.core.support.*;
+import com.lts.core.support.CronExpression;
+import com.lts.core.support.CronExpressionUtils;
+import com.lts.core.support.JobUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,8 +87,9 @@ public class SuspendJobQueueApi extends AbstractMVC {
                 request.setCronExpression(null);
             }
 
-            boolean success = appContext.getSuspendJobQueue().selectiveUpdate(request);
+            boolean success = appContext.getSuspendJobQueue().selectiveUpdateByJobId(request);
             if (success) {
+                JobLogUtils.log(LogType.UPDATE, jobPo, appContext.getJobLogger());
                 return Builder.build(true);
             } else {
                 return Builder.build(false, "该任务已经被删除或者执行完成");
@@ -103,6 +106,10 @@ public class SuspendJobQueueApi extends AbstractMVC {
             return Builder.build(false, "JobId 必须传!");
         }
         boolean success = appContext.getSuspendJobQueue().remove(request.getJobId());
+        if (success) {
+            JobPo jobPo = appContext.getSuspendJobQueue().getJob(request.getJobId());
+            JobLogUtils.log(LogType.DEL, jobPo, appContext.getJobLogger());
+        }
         return Builder.build(success);
     }
 
@@ -133,15 +140,25 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     return Builder.build(false, "插入Cron队列中任务错误, error:" + e.getMessage());
                 }
 
-                try {
-                    // 2. add to executable queue
-                    jobPo.setTriggerTime(nextTriggerTime.getTime());
-                    appContext.getExecutableJobQueue().add(jobPo);
-                } catch (DupEntryException e) {
-                    return Builder.build(false, "等待执行队列中任务已经存在，请检查");
-                } catch (Exception e) {
-                    return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
+                if (jobPo.getRelyOnPrevCycle()) {
+                    try {
+                        // 2. add to executable queue
+                        jobPo.setTriggerTime(nextTriggerTime.getTime());
+                        appContext.getExecutableJobQueue().add(jobPo);
+                    } catch (DupEntryException e) {
+                        return Builder.build(false, "等待执行队列中任务已经存在，请检查");
+                    } catch (Exception e) {
+                        return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
+                    }
+                } else {
+                    // 不依赖上一周期的
+                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
+                        lastGenerateTriggerTime = SystemClock.now();
+                    }
+                    appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
                 }
+
             } else {
                 return Builder.build(false, "该任务已经无效, 或者已经没有下一轮执行时间点, 请直接删除");
             }
@@ -158,16 +175,25 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     return Builder.build(false, "插入Repeat队列中任务错误, error:" + e.getMessage());
                 }
 
-                try {
-                    // 2. add to executable queue
-                    JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
-                    long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
-                    jobPo.setTriggerTime(nextTriggerTime);
-                    appContext.getExecutableJobQueue().add(jobPo);
-                } catch (DupEntryException e) {
-                    return Builder.build(false, "等待执行队列中任务已经存在，请检查");
-                } catch (Exception e) {
-                    return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
+                if (jobPo.getRelyOnPrevCycle()) {
+                    try {
+                        // 2. add to executable queue
+                        JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
+                        long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
+                        jobPo.setTriggerTime(nextTriggerTime);
+                        appContext.getExecutableJobQueue().add(jobPo);
+                    } catch (DupEntryException e) {
+                        return Builder.build(false, "等待执行队列中任务已经存在，请检查");
+                    } catch (Exception e) {
+                        return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
+                    }
+                } else {
+                    // 不依赖上一周期的
+                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+                    if (lastGenerateTriggerTime == null) {
+                        lastGenerateTriggerTime = SystemClock.now();
+                    }
+                    appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
                 }
             } else {
                 return Builder.build(false, "该任务已经无效, 或者已经没有下一轮执行时间点, 请直接删除");
@@ -179,14 +205,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
             return Builder.build(false, "恢复暂停任务失败，请重试");
         }
 
-        // 记录日志
-        JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
-        jobLogPo.setSuccess(true);
-        jobLogPo.setLogType(LogType.RESUME);
-        jobLogPo.setLogTime(SystemClock.now());
-        jobLogPo.setLevel(Level.INFO);
-        appContext.getJobLogger().log(jobLogPo);
-
+        JobLogUtils.log(LogType.RESUME, jobPo, appContext.getJobLogger());
         return Builder.build(true);
     }
 }

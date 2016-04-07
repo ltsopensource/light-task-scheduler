@@ -10,8 +10,9 @@ public class JobQueueReq extends PaginationReq {
 
     // ------------ 下面是查询条件值 ---------------
     private String jobId;
-
+    private String jobType;
     private String taskId;
+    private String realTaskId;
 
     private String submitNodeGroup;
 
@@ -39,6 +40,16 @@ public class JobQueueReq extends PaginationReq {
     private Integer repeatCount;
 
     private Long repeatInterval;
+
+    private Boolean relyOnPrevCycle;
+
+    public String getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(String jobType) {
+        this.jobType = jobType;
+    }
 
     public String getJobId() {
         return jobId;
@@ -166,5 +177,21 @@ public class JobQueueReq extends PaginationReq {
 
     public void setRepeatInterval(Long repeatInterval) {
         this.repeatInterval = repeatInterval;
+    }
+
+    public Boolean getRelyOnPrevCycle() {
+        return relyOnPrevCycle;
+    }
+
+    public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 }

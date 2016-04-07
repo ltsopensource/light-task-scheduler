@@ -1,9 +1,7 @@
 package com.lts.spring.tasktracker;
 
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
-import com.lts.tasktracker.runner.JobRunner;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.lang.reflect.Method;
@@ -53,28 +51,7 @@ public class MethodInvokingJobRunner implements InitializingBean {
             throw new IllegalArgumentException(clazz.getName() + ":" + method.getName() + " returnType must be " + Result.class.getName());
         }
 
-        final Class<?>[] pTypes = method.getParameterTypes();
-
-        final Method finalMethod = method;
-
-        JobRunnerHolder.add(shardValue, new JobRunner() {
-            @Override
-            public Result run(Job job) throws Throwable {
-                if (pTypes == null || pTypes.length == 0) {
-                    return (Result) finalMethod.invoke(targetObject);
-                }
-                Object[] pTypeValues = new Object[pTypes.length];
-
-                for (int i = 0; i < pTypes.length; i++) {
-                    if (pTypes[i] == Job.class) {
-                        pTypeValues[i] = job;
-                    } else {
-                        pTypeValues[i] = null;
-                    }
-                }
-                return (Result) finalMethod.invoke(targetObject, pTypeValues);
-            }
-        });
+        JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(targetObject, method, method.getParameterTypes()));
 
     }
 

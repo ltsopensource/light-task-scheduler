@@ -6,7 +6,7 @@ import com.lts.store.jdbc.exception.DupEntryException;
 /**
  * @author Robert HG (254963746@qq.com) on 3/26/16.
  */
-public interface RepeatJobQueue extends JobQueue{
+public interface RepeatJobQueue extends SchedulerJobQueue {
     /**
      * 添加任务
      *
@@ -33,4 +33,5 @@ public interface RepeatJobQueue extends JobQueue{
      * 增加重复次数
      */
     int incRepeatedCount(String jobId);
+
 }

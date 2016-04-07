@@ -286,6 +286,7 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
     public class NodeListener {
         private NodeCache nodeCache;
         private NodeCacheListener nodeCacheListener;
+        private AtomicBoolean start = new AtomicBoolean(false);
 
         public NodeListener(String path, final DataListener listener) {
             nodeCache = new NodeCache(client, path, false);
@@ -307,8 +308,10 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
 
         public void startListener() {
             try {
-                nodeCache.start(true);
-                nodeCache.getListenable().addListener(nodeCacheListener);
+                if (start.compareAndSet(false, true)) {
+                    nodeCache.start(true);
+                    nodeCache.getListenable().addListener(nodeCacheListener);
+                }
             } catch (Exception e) {
                 throw new ZkException(e);
             }
@@ -316,8 +319,10 @@ public class CuratorZkClient extends AbstractZkClient<CuratorZkClient.PathChildr
 
         public void stopListener() {
             try {
-                nodeCache.getListenable().removeListener(nodeCacheListener);
-                nodeCache.close();
+                if (start.compareAndSet(true, false)) {
+                    nodeCache.getListenable().removeListener(nodeCacheListener);
+                    nodeCache.close();
+                }
             } catch (IOException e) {
                 throw new ZkException(e);
             }

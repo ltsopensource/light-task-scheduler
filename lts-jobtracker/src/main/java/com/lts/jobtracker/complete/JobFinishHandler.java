@@ -3,6 +3,7 @@ package com.lts.jobtracker.complete;
 import com.lts.biz.logger.domain.JobLogPo;
 import com.lts.biz.logger.domain.LogType;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
@@ -43,12 +44,13 @@ public class JobFinishHandler {
             JobMeta jobMeta = result.getJobMeta();
 
             // 当前完成的job是否是重试的
-            boolean isRetryForThisTime = "true".equals(jobMeta.getInternalExtParam("isRetry"));
+            boolean isRetryForThisTime = Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.IS_RETRY_JOB));
+            boolean isOnce = Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.ONCE));
 
-            if (jobMeta.getJob().isCron()) {
+            if (!isOnce && jobMeta.getJob().isCron()) {
                 // 是 Cron任务
                 finishCronJob(jobMeta.getJobId());
-            } else if (jobMeta.getJob().isRepeatable()) {
+            } else if (!isOnce && jobMeta.getJob().isRepeatable()) {
                 finishRepeatJob(jobMeta.getJobId(), isRetryForThisTime);
             }
 
@@ -58,7 +60,6 @@ public class JobFinishHandler {
     }
 
     private void finishCronJob(String jobId) {
-
         JobPo jobPo = appContext.getCronJobQueue().getJob(jobId);
         if (jobPo == null) {
             // 可能任务队列中改条记录被删除了

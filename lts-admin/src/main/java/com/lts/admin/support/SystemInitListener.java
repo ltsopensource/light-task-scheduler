@@ -1,6 +1,7 @@
 package com.lts.admin.support;
 
 import com.lts.core.commons.file.FileUtils;
+import com.lts.core.commons.utils.PlatformUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.json.JSONFactory;
 import com.lts.core.logger.LoggerFactory;
@@ -46,6 +47,10 @@ public class SystemInitListener implements ServletContextListener {
             String ltsMonitorCfgPath = confPath;
             if (StringUtils.isEmpty(ltsMonitorCfgPath)) {
                 ltsMonitorCfgPath = this.getClass().getResource("/").getPath();
+                if (PlatformUtils.isWindows()) {
+                    // 替换window下空格问题
+                    ltsMonitorCfgPath = ltsMonitorCfgPath.replaceAll("%20", " ");
+                }
             }
             MonitorAgentStartup.start(ltsMonitorCfgPath);
         }

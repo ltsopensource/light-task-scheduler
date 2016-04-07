@@ -1,6 +1,7 @@
 package com.lts.jobclient;
 
 import com.lts.core.domain.Job;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.json.JSON;
 import com.lts.core.support.RetryScheduler;
 import com.lts.jobclient.domain.JobClientAppContext;
@@ -18,18 +19,17 @@ import java.util.List;
  */
 public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext> {
 
-    private RetryScheduler<Job> retryScheduler;
+    private RetryScheduler<Job> jobRetryScheduler;
 
     @Override
     protected void beforeStart() {
         super.beforeStart();
-        retryScheduler = new RetryScheduler<Job>(appContext, 30) {
-            @Override
+        jobRetryScheduler = new RetryScheduler<Job>(RetryJobClient.class.getSimpleName(), appContext,
+                FailStorePathBuilder.getJobSubmitFailStorePath(appContext), 10) {
             protected boolean isRemotingEnable() {
                 return isServerEnable();
             }
 
-            @Override
             protected boolean retry(List<Job> jobs) {
                 Response response = null;
                 try {
@@ -46,14 +46,13 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
                 return false;
             }
         };
-        retryScheduler.setName(RetryJobClient.class.getSimpleName());
-        retryScheduler.start();
+        jobRetryScheduler.start();
     }
 
     @Override
     protected void beforeStop() {
         super.beforeStop();
-        retryScheduler.stop();
+        jobRetryScheduler.stop();
     }
 
     @Override
@@ -72,12 +71,12 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
             response.setSuccess(false);
             response.setFailedJobs(jobs);
             response.setCode(ResponseCode.SUBMIT_TOO_BUSY_AND_SAVE_FOR_LATER);
-            response.setMsg(response.getMsg() + ", submit too busy , save local fail store and send later !");
+            response.setMsg(response.getMsg() + ", submit too busy");
         }
         if (!response.isSuccess()) {
             try {
                 for (Job job : response.getFailedJobs()) {
-                    retryScheduler.inSchedule(job.getTaskId(), job);
+                    jobRetryScheduler.inSchedule(job.getTaskId(), job);
                     stat.incFailStoreNum();
                 }
                 response.setSuccess(true);
@@ -100,4 +99,5 @@ public class RetryJobClient extends JobClient<JobClientNode, JobClientAppContext
     private Response superSubmitJob(List<Job> jobs, SubmitType type) {
         return super.submitJob(jobs, type);
     }
+
 }

@@ -4,6 +4,7 @@ import com.lts.admin.access.BackendAccessFactory;
 import com.lts.admin.access.memory.NodeMemCacheAccess;
 import com.lts.admin.cluster.BackendAppContext;
 import com.lts.admin.cluster.BackendNode;
+import com.lts.admin.web.support.NoRelyJobGenerator;
 import com.lts.biz.logger.SmartJobLogger;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.Node;
@@ -61,14 +62,10 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         }
         config.setClusterName(clusterName);
 
-        Config jobTConfig = new Config();
-
         for (Map.Entry<String, String> entry : AppConfigurer.allConfig().entrySet()) {
             // 将 config. 开头的配置都加入到config中
             if (entry.getKey().startsWith("configs.")) {
                 config.setParameter(entry.getKey().replaceFirst("configs.", ""), entry.getValue());
-            } else if (entry.getKey().startsWith("jobT.")) {
-                jobTConfig.setParameter(entry.getKey().replace("jobT.", ""), entry.getValue());
             }
         }
 
@@ -81,11 +78,13 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         initAccess(config);
 
         // ----------------------下面是JobQueue的配置---------------------------
-        jobTConfig = (Config) BeanUtils.deepClone(config);
+        Config jobTConfig = (Config) BeanUtils.deepClone(config);
         for (Map.Entry<String, String> entry : AppConfigurer.allConfig().entrySet()) {
             // 将 jobT. 开头的配置都加入到jobTConfig中
             if (entry.getKey().startsWith("jobT.")) {
-                jobTConfig.setParameter(entry.getKey().replace("jobT.", ""), entry.getValue());
+                String key = entry.getKey().replace("jobT.", "");
+                String value = entry.getValue();
+                jobTConfig.setParameter(key, value);
             }
         }
         initJobQueue(jobTConfig);
@@ -101,6 +100,7 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         appContext.setJobFeedbackQueue(factory.getJobFeedbackQueue(config));
         appContext.setNodeGroupStore(factory.getNodeGroupStore(config));
         appContext.setJobLogger(new SmartJobLogger(appContext));
+        appContext.setNoRelyJobGenerator(new NoRelyJobGenerator(appContext));
     }
 
     private void initAccess(Config config) {

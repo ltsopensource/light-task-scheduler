@@ -49,7 +49,9 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
     public AbstractJobNode() {
         appContext = getAppContext();
+        node = NodeFactory.create(getNodeClass());
         config = JobNodeConfigFactory.getDefaultConfig();
+        config.setNodeType(node.getNodeType());
         appContext.setConfig(config);
         nodeChangeListeners = new ArrayList<NodeChangeListener>();
         masterChangeListeners = new ArrayList<MasterChangeListener>();
@@ -148,8 +150,8 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
         if (StringUtils.isEmpty(config.getIp())) {
             config.setIp(NetUtils.getLocalHost());
         }
-        node = NodeFactory.create(getNodeClass(), config);
-        config.setNodeType(node.getNodeType());
+        JobNodeConfigFactory.buildIdentity(config);
+        NodeFactory.build(node, config);
 
         LOGGER.info("Current Node config :{}", config);
 

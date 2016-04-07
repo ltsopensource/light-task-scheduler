@@ -39,14 +39,4 @@ public class MockBizLogger extends BizLoggerAdapter implements BizLogger {
             LOGGER.error(msg);
         }
     }
-
-    @Override
-    public void setId(String jobId, String taskId) {
-
-    }
-
-    @Override
-    public void removeId() {
-
-    }
 }

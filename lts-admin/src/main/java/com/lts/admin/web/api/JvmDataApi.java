@@ -3,6 +3,7 @@ package com.lts.admin.web.api;
 import com.lts.admin.cluster.BackendAppContext;
 import com.lts.admin.support.I18nManager;
 import com.lts.admin.web.AbstractMVC;
+import com.lts.admin.web.support.Builder;
 import com.lts.admin.web.vo.RestfulResponse;
 import com.lts.cmd.DefaultHttpCmd;
 import com.lts.cmd.HttpCmd;
@@ -34,9 +35,7 @@ public class JvmDataApi extends AbstractMVC {
         Node node = appContext.getNodeMemCacheAccess().getNodeByIdentity(identity);
 
         if (node == null) {
-            restfulResponse.setSuccess(false);
-            restfulResponse.setMsg(I18nManager.getMessage("node.dose.not.alive"));
-            return restfulResponse;
+            return Builder.build(false, I18nManager.getMessage("node.dose.not.alive"));
         }
 
         HttpCmd cmd = new DefaultHttpCmd();

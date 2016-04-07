@@ -11,12 +11,11 @@ import com.lts.core.exception.JobReceiveException;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.command.JobSubmitRequest;
-import com.lts.core.spi.ServiceLoader;
 import com.lts.core.support.CronExpressionUtils;
 import com.lts.core.support.JobDomainConverter;
+import com.lts.core.support.JobUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.jobtracker.domain.JobTrackerAppContext;
-import com.lts.jobtracker.id.IdGenerator;
 import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.queue.domain.JobPo;
 import com.lts.store.jdbc.exception.DupEntryException;
@@ -33,13 +32,11 @@ public class JobReceiver {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobReceiver.class);
 
     private JobTrackerAppContext appContext;
-    private IdGenerator idGenerator;
     private JobTrackerMStatReporter stat;
 
     public JobReceiver(JobTrackerAppContext appContext) {
         this.appContext = appContext;
         this.stat = (JobTrackerMStatReporter) appContext.getMStatReporter();
-        this.idGenerator = ServiceLoader.load(IdGenerator.class, appContext.getConfig());
     }
 
     /**
@@ -55,9 +52,9 @@ public class JobReceiver {
         for (Job job : jobs) {
             try {
                 addToQueue(job, request);
-            } catch (Exception t) {
+            } catch (Exception e) {
                 if (exception == null) {
-                    exception = new JobReceiveException(t);
+                    exception = new JobReceiveException(e);
                 }
                 exception.addJob(job);
             }
@@ -83,7 +80,7 @@ public class JobReceiver {
                 jobPo.setSubmitNodeGroup(request.getNodeGroup());
             }
             // 设置 jobId
-            jobPo.setJobId(idGenerator.generate(jobPo));
+            jobPo.setJobId(JobUtils.generateJobId());
 
             // 添加任务
             addJob(job, jobPo);
@@ -99,11 +96,14 @@ public class JobReceiver {
                 code = success ? BizLogCode.DUP_REPLACE : BizLogCode.DUP_FAILED;
             } else {
                 code = BizLogCode.DUP_IGNORE;
-                LOGGER.info("Job already exist. nodeGroup={}, {}", request.getNodeGroup(), job);
+                LOGGER.info("Job already exist And ignore. nodeGroup={}, {}", request.getNodeGroup(), job);
             }
         } finally {
             if (success) {
                 stat.incReceiveJobNum();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Receive Job success. {}", job);
+                }
             }
         }
 
@@ -133,7 +133,6 @@ public class JobReceiver {
                 appContext.getExecutableJobQueue().add(jobPo);
             }
         }
-        LOGGER.info("Receive Job success. {}", job);
     }
 
     /**
@@ -182,11 +181,16 @@ public class JobReceiver {
             // 1.add to cron job queue
             appContext.getCronJobQueue().add(jobPo);
 
-            // 没有正在执行, 则添加
-            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
-                // 2. add to executable queue
-                jobPo.setTriggerTime(nextTriggerTime.getTime());
-                appContext.getExecutableJobQueue().add(jobPo);
+            if (JobUtils.isRelyOnPrevCycle(jobPo)) {
+                // 没有正在执行, 则添加
+                if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+                    // 2. add to executable queue
+                    jobPo.setTriggerTime(nextTriggerTime.getTime());
+                    appContext.getExecutableJobQueue().add(jobPo);
+                }
+            } else {
+                // 对于不需要依赖上一周期的,采取批量生成的方式
+                appContext.getNonRelyOnPrevCycleJobScheduler().addScheduleJobForOneHour(jobPo);
             }
         }
     }
@@ -198,10 +202,15 @@ public class JobReceiver {
         // 1.add to repeat job queue
         appContext.getRepeatJobQueue().add(jobPo);
 
-        // 没有正在执行, 则添加
-        if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
-            // 2. add to executable queue
-            appContext.getExecutableJobQueue().add(jobPo);
+        if (JobUtils.isRelyOnPrevCycle(jobPo)) {
+            // 没有正在执行, 则添加
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+                // 2. add to executable queue
+                appContext.getExecutableJobQueue().add(jobPo);
+            }
+        } else {
+            // 对于不需要依赖上一周期的,采取批量生成的方式
+            appContext.getNonRelyOnPrevCycleJobScheduler().addScheduleJobForOneHour(jobPo);
         }
     }
 

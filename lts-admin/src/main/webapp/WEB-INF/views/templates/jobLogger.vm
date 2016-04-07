@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId" value="$!taskId"
+                                <input type="text" class="form-control" name="realTaskId" value="$!realTaskId"
                                        placeholder="请输入你提交的任务ID(TaskId)">
                             </div>
 
@@ -94,13 +94,14 @@
             <th>日志记录时间</th>
             <th data-hide="all">日志创建时间</th>
             <th>执行节点组</th>
+            <th>类型</th>
             <th data-hide="all">执行节点标识</th>
             <th data-hide="phone,tablet">提交节点组</th>
             <th>日志类型</th>
             <th>执行结果</th>
             <th data-hide="all">日志级别</th>
-            <th data-hide="all">当前重试次数</th>
-            <th data-hide="all">最大重试次数</th>
+            <th data-hide="all">依赖上一周期</th>
+            <th data-hide="all">重试次数</th>
             <th data-hide="all">优先级</th>
             <th data-hide="all">执行时间</th>
             <th>Cron表达式</th>
@@ -112,17 +113,18 @@
         <tbody>
         {{each rows as row index}}
         <tr>
-            <td>{{row.taskId}}</td>
+            <td>{{row.realTaskId}}</td>
             <td>{{row.logTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerIdentity}}</td>
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.logType | format:'logTypeLabel'}}</td>
             <td>{{row.success | format:'successLabel'}}</td>
             <td>{{row.level}}</td>
-            <td>{{row.retryTimes}}</td>
-            <td>{{row.maxRetryTimes}}</td>
+            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
+            <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.triggerTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
             <td>{{row.cronExpression}}</td>
@@ -166,6 +168,7 @@
             SENT: '派发任务',
             FINISHED: '完成任务',
             FIXED_DEAD: '修复死任务',
+            UPDATE: '更新任务',
             BIZ: '业务日志',
             RESEND: '重新反馈任务',
             DEL: '删除',
@@ -186,7 +189,7 @@
         });
 
         $(document).on("click", "#searchBtn", function () {
-            var taskId = $("input[name='taskId']").val();
+            var realTaskId = $("input[name='realTaskId']").val();
 //            if (!taskId) {
 //                sweetAlert("请输入任务ID", "请输入你提交的任务ID(TaskId)", "error");
 //                return;
@@ -212,11 +215,11 @@
             }
 
             var params = {
-                taskId: taskId,
+                realTaskId: realTaskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
                 startLogTime: startLogTime, endLogTime: endLogTime
             };
-            if (!taskId) {
+            if (!realTaskId) {
                 // 如果没有按ID查询，那么要对时间跨度长的做提醒(超过1小时的)
                 if ((DateUtil.parse(endLogTime).getTime() - DateUtil.parse(startLogTime).getTime()) > 60 * 60 * 1000) {
                     swal({
@@ -242,14 +245,15 @@
 
         });
 
-        var taskId = $("input[name='taskId']").val();
-        if (taskId) {
+        var realTaskId = $("input[name='realTaskId']").val();
+        if (realTaskId) {
             // 如果是按ID查询，要把时间设置长一点
             var startLongTime = DateUtil.formatYMDHMD(DateUtil.getDate(new Date(), -10));
             $("input[name='startLogTime']").val(startLongTime);
             $("#searchBtn").trigger("click");
         } else {
-            ltsTable.renderEmpty();
+            $("#searchBtn").trigger("click");
+//            ltsTable.renderEmpty();
         }
     });
 </script>

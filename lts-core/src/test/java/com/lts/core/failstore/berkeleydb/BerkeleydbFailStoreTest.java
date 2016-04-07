@@ -30,10 +30,13 @@ public class BerkeleydbFailStoreTest {
         config.setNodeGroup("test");
         config.setNodeType(NodeType.JOB_CLIENT);
         config.setIdentity("testIdentity");
-        failStore = new BerkeleydbFailStoreFactory().getFailStore(config, config.getFailStorePath());
+        failStore = new BerkeleydbFailStoreFactory().getFailStore(config, getFailStorePath(config));
         failStore.open();
     }
 
+    public String getFailStorePath(Config config) {
+        return config.getDataPath() + "/.lts" + "/" + config.getNodeType() + "/" + config.getNodeGroup() + "/failstore/";
+    }
     @Test
     public void put() throws FailStoreException {
         Job job = new Job();

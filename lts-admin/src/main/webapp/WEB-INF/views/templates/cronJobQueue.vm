@@ -98,6 +98,7 @@
                     <form method="post" id="editForm" class="form-horizontal" onsubmit="return false">
                         <input type="hidden" class="form-control" name="jobId"/>
                         <input type="hidden" class="form-control" name="taskId"/>
+                        <input type="hidden" class="form-control" name="realTaskId"/>
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label w_120">Cron表达式</label>
@@ -105,6 +106,16 @@
                             <div class="col-sm-3">
                                 <input type="text" class="form-control w_250" name="cronExpression"
                                        placeholder="请输入CronExpression">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">依赖上一周期</label>
+
+                            <div class="col-sm-3 w_250">
+                                <select name="relyOnPrevCycle" class="form-control">
+                                    <option value="true" selected>是</option>
+                                    <option value="false">否</option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -191,9 +202,10 @@
             <th data-hide="all">提交节点组</th>
             <th>执行节点组</th>
             <th>Cron表达式</th>
+            <th>依赖上一周期</th>
             <th data-hide="all">优先级</th>
             <th data-hide="all">最大重试次数</th>
-            <th>反馈客户端</th>
+            <th data-hide="phone,tablet">反馈客户端</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
             <th data-hide="all">修改时间</th>
@@ -207,6 +219,7 @@
             <td>{{row.submitNodeGroup}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
+            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.maxRetryTimes}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>

@@ -6,6 +6,7 @@ import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
 import com.lts.core.exception.JobTrackerNotFoundException;
 import com.lts.core.exception.RequestTimeoutException;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.protocol.JobProtos;
@@ -45,7 +46,8 @@ public class JobPushProcessor extends AbstractProcessor {
     protected JobPushProcessor(TaskTrackerAppContext appContext) {
         super(appContext);
         this.remotingClient = appContext.getRemotingClient();
-        retryScheduler = new RetryScheduler<JobRunResult>(appContext, 3) {
+        retryScheduler = new RetryScheduler<JobRunResult>(JobPushProcessor.class.getSimpleName(), appContext,
+                FailStorePathBuilder.getJobFeedbackPath(appContext), 3) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -56,7 +58,6 @@ public class JobPushProcessor extends AbstractProcessor {
                 return retrySendJobResults(results);
             }
         };
-        retryScheduler.setName("JobPush");
         retryScheduler.start();
 
         // 线程安全的
@@ -125,11 +126,15 @@ public class JobPushProcessor extends AbstractProcessor {
                             if (commandResponse != null && commandResponse.getCode() == RemotingProtos.ResponseCode.SUCCESS.code()) {
                                 JobPushRequest jobPushRequest = commandResponse.getBody();
                                 if (jobPushRequest != null) {
-                                    LOGGER.info("Get new job :{}", jobPushRequest.getJobMeta());
+                                    if (LOGGER.isDebugEnabled()) {
+                                        LOGGER.debug("Get new job :{}", jobPushRequest.getJobMeta());
+                                    }
                                     returnResponse.setJobMeta(jobPushRequest.getJobMeta());
                                 }
                             } else {
-                                LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
+                                }
                                 try {
                                     retryScheduler.inSchedule(
                                             jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),

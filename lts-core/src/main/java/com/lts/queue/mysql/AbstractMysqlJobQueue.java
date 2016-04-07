@@ -1,6 +1,9 @@
 package com.lts.queue.mysql;
 
+import com.lts.admin.request.JobQueueReq;
+import com.lts.admin.response.PaginationRsp;
 import com.lts.core.cluster.Config;
+import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.CharacterUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.json.JSON;
@@ -11,8 +14,6 @@ import com.lts.store.jdbc.JdbcAbstractAccess;
 import com.lts.store.jdbc.builder.*;
 import com.lts.store.jdbc.dbutils.JdbcTypeUtils;
 import com.lts.store.jdbc.exception.JdbcException;
-import com.lts.admin.request.JobQueueReq;
-import com.lts.admin.response.PaginationRsp;
 
 import java.util.List;
 
@@ -29,10 +30,13 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
         return new InsertSql(getSqlTemplate())
                 .insert(tableName)
                 .columns("job_id",
+                        "job_type",
                         "priority",
                         "retry_times",
                         "max_retry_times",
+                        "rely_on_prev_cycle",
                         "task_id",
+                        "real_task_id",
                         "gmt_created",
                         "gmt_modified",
                         "submit_node_group",
@@ -48,10 +52,13 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                         "repeated_count",
                         "repeat_interval")
                 .values(jobPo.getJobId(),
+                        jobPo.getJobType() == null ? null : jobPo.getJobType().name(),
                         jobPo.getPriority(),
                         jobPo.getRetryTimes(),
                         jobPo.getMaxRetryTimes(),
+                        jobPo.getRelyOnPrevCycle(),
                         jobPo.getTaskId(),
+                        jobPo.getRealTaskId(),
                         jobPo.getGmtCreated(),
                         jobPo.getGmtModified(),
                         jobPo.getSubmitNodeGroup(),
@@ -103,11 +110,27 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
 
     protected abstract String getTableName(JobQueueReq request);
 
-    public boolean selectiveUpdate(JobQueueReq request) {
+    public boolean selectiveUpdateByJobId(JobQueueReq request) {
+        Assert.hasLength(request.getJobId(), "Only allow update by jobId");
 
-        if (StringUtils.isEmpty(request.getJobId())) {
-            throw new JdbcException("Only allow update by jobId");
-        }
+        UpdateSql sql = buildUpdateSqlPrefix(request);
+
+        return sql.where("job_id=?", request.getJobId())
+                .doUpdate() == 1;
+    }
+
+    @Override
+    public boolean selectiveUpdateByTaskId(JobQueueReq request) {
+        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup");
+        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup");
+
+        UpdateSql sql = buildUpdateSqlPrefix(request);
+        return sql.where("real_task_id = ?", request.getRealTaskId())
+                .and("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .doUpdate() == 1;
+    }
+
+    private UpdateSql buildUpdateSqlPrefix(JobQueueReq request) {
         return new UpdateSql(getSqlTemplate())
                 .update()
                 .table(getTableName(request))
@@ -117,19 +140,20 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .setOnNotNull("trigger_time", JdbcTypeUtils.toTimestamp(request.getTriggerTime()))
                 .setOnNotNull("priority", request.getPriority())
                 .setOnNotNull("max_retry_times", request.getMaxRetryTimes())
+                .setOnNotNull("rely_on_prev_cycle", request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle())
                 .setOnNotNull("submit_node_group", request.getSubmitNodeGroup())
                 .setOnNotNull("task_tracker_node_group", request.getTaskTrackerNodeGroup())
                 .setOnNotNull("repeat_count", request.getRepeatCount())
-                .setOnNotNull("repeat_interval", request.getRepeatInterval())
-                .where("job_id=?", request.getJobId())
-                .doUpdate() == 1;
+                .setOnNotNull("repeat_interval", request.getRepeatInterval());
     }
 
     private WhereSql buildWhereSql(JobQueueReq request) {
         return new WhereSql()
                 .andOnNotEmpty("job_id = ?", request.getJobId())
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
+                .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .andOnNotEmpty("job_type = ?", request.getJobType())
                 .andOnNotEmpty("submit_node_group = ?", request.getSubmitNodeGroup())
                 .andOnNotNull("need_feedback = ?", request.getNeedFeedback())
                 .andBetween("gmt_created", JdbcTypeUtils.toTimestamp(request.getStartGmtCreated()), JdbcTypeUtils.toTimestamp(request.getEndGmtCreated()))

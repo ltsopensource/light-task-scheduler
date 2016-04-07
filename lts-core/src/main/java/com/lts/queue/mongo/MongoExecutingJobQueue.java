@@ -31,6 +31,8 @@ public class MongoExecutingJobQueue extends AbstractMongoJobQueue implements Exe
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
+            template.ensureIndex("idx_jobType", "jobType");
             template.ensureIndex("idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex("idx_gmtCreated", "gmtCreated");
         }
