@@ -19,7 +19,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 3/26/16.
  */
-public class MongoRepeatJobQueue extends AbstractMongoJobQueue implements RepeatJobQueue {
+public class MongoRepeatJobQueue extends MongoSchedulerJobQueue implements RepeatJobQueue {
 
     public MongoRepeatJobQueue(Config config) {
         super(config);
@@ -33,6 +33,8 @@ public class MongoRepeatJobQueue extends AbstractMongoJobQueue implements Repeat
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
+            template.ensureIndex("idx_relyOnPrevCycle_lgtt", "relyOnPrevCycle, lastGenerateTriggerTime");
         }
     }
 
@@ -95,4 +97,5 @@ public class MongoRepeatJobQueue extends AbstractMongoJobQueue implements Repeat
             }
         }
     }
+
 }

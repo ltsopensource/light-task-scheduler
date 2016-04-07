@@ -1,11 +1,9 @@
 package com.lts.spring.tasktracker;
 
 import com.lts.core.commons.utils.StringUtils;
-import com.lts.core.domain.Job;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.tasktracker.Result;
-import com.lts.tasktracker.runner.JobRunner;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -19,7 +17,7 @@ import java.util.regex.Pattern;
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
  */
-public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor{
+public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
 
@@ -86,27 +84,7 @@ public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPo
                         LOGGER.error(clazz.getName() + ":" + method.getName() + " returnType must be " + Result.class.getName());
                         continue;
                     }
-
-                    final Class<?>[] pTypes = method.getParameterTypes();
-
-                    JobRunnerHolder.add(shardValue, new JobRunner() {
-                        @Override
-                        public Result run(Job job) throws Throwable {
-                            if (pTypes == null || pTypes.length == 0) {
-                                return (Result) method.invoke(bean);
-                            }
-                            Object[] pTypeValues = new Object[pTypes.length];
-
-                            for (int i = 0; i < pTypes.length; i++) {
-                                if (pTypes[i] == Job.class) {
-                                    pTypeValues[i] = job;
-                                } else {
-                                    pTypeValues[i] = null;
-                                }
-                            }
-                            return (Result) method.invoke(bean, pTypeValues);
-                        }
-                    });
+                    JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(bean, method, method.getParameterTypes()));
                 }
             }
         }

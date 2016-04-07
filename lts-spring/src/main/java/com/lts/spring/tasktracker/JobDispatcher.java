@@ -3,6 +3,7 @@ package com.lts.spring.tasktracker;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
+import com.lts.tasktracker.runner.JobContext;
 import com.lts.tasktracker.runner.JobRunner;
 
 /**
@@ -13,7 +14,9 @@ public class JobDispatcher implements JobRunner {
     private String shardField = "taskId";
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
+
+        Job job = jobContext.getJob();
 
         String value;
         if (shardField.equals("taskId")) {
@@ -33,7 +36,7 @@ public class JobDispatcher implements JobRunner {
                 throw new JobDispatchException("Can not find JobRunner by Shard Value : [" + value + "]");
             }
         }
-        return jobRunner.run(job);
+        return jobRunner.run(jobContext);
     }
 
     public void setShardField(String shardField) {

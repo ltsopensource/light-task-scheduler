@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public interface ExecutableJobQueue extends JobQueue{
+public interface ExecutableJobQueue extends JobQueue {
 
     /**
      * 创建一个队列
@@ -30,6 +30,8 @@ public interface ExecutableJobQueue extends JobQueue{
      * 出队列
      */
     boolean remove(String taskTrackerNodeGroup, String jobId);
+
+    boolean removeBatch(String realTaskId, String taskTrackerNodeGroup);
 
     /**
      * reset , runnable

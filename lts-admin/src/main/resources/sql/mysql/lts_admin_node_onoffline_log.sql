@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `lts_admin_node_onoffline_log` (
             `group` varchar(64) DEFAULT NULL,
             `create_time` bigint(20) DEFAULT NULL,
             `threads` int(11) DEFAULT NULL,
-            `identity` varchar(32) DEFAULT NULL,
+            `identity` varchar(64) DEFAULT NULL,
             `http_cmd_port` int(11) DEFAULT NULL,
             PRIMARY KEY (`id`),
             KEY `idx_log_time`(`log_time`),

@@ -11,13 +11,13 @@ public interface SpiExtensionKey {
 
     String EVENT_CENTER = "event.center";
 
+    String JDBC_DATASOURCE_PROVIDER = "jdbc.datasource.provider";
+
     String REMOTING = "lts.remoting";
 
     String REMOTING_SERIALIZABLE_DFT = "lts.remoting.serializable.default";
 
     String ZK_CLIENT_KEY = "zk.client";
-
-    String JOB_ID_GENERATOR = "id.generator";
 
     String JOB_LOGGER = "job.logger";
 

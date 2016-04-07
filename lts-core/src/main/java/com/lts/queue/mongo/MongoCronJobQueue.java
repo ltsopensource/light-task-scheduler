@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 5/28/15.
  */
-public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQueue {
+public class MongoCronJobQueue extends MongoSchedulerJobQueue implements CronJobQueue {
 
     public MongoCronJobQueue(Config config) {
         super(config);
@@ -31,6 +31,8 @@ public class MongoCronJobQueue extends AbstractMongoJobQueue implements CronJobQ
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_jobId", "jobId", true, true);
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId, taskTrackerNodeGroup", true, true);
+            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
+            template.ensureIndex("idx_relyOnPrevCycle_lgtt", "relyOnPrevCycle, lastGenerateTriggerTime");
         }
     }
 

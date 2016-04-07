@@ -3,6 +3,7 @@ package com.lts.queue.mysql;
 import com.lts.admin.request.JobQueueReq;
 import com.lts.core.cluster.Config;
 import com.lts.core.support.JobQueueUtils;
+import com.lts.core.support.SystemClock;
 import com.lts.queue.RepeatJobQueue;
 import com.lts.queue.domain.JobPo;
 import com.lts.queue.mysql.support.RshHolder;
@@ -13,7 +14,7 @@ import com.lts.store.jdbc.builder.UpdateSql;
 /**
  * @author Robert HG (254963746@qq.com) on 3/26/16.
  */
-public class MysqlRepeatJobQueue extends AbstractMysqlJobQueue implements RepeatJobQueue {
+public class MysqlRepeatJobQueue extends MysqlSchedulerJobQueue implements RepeatJobQueue {
 
     public MysqlRepeatJobQueue(Config config) {
         super(config);
@@ -83,7 +84,7 @@ public class MysqlRepeatJobQueue extends AbstractMysqlJobQueue implements Repeat
         }
     }
 
-    private String getTableName() {
+    protected String getTableName() {
         return JobQueueUtils.REPEAT_JOB_QUEUE;
     }
 

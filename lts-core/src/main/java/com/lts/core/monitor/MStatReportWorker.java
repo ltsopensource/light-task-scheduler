@@ -98,7 +98,9 @@ public class MStatReportWorker implements Runnable {
 
         List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
         if (CollectionUtils.isEmpty(monitorNodes)) {
-            LOGGER.info("Please start monitor");
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Please Start LTS-Monitor");
+            }
             return;
         }
 
@@ -120,7 +122,7 @@ public class MStatReportWorker implements Runnable {
                             break;
                         }
                     } catch (Exception e) {
-                        LOGGER.warn("Report monitor data Error : " + e.getMessage());
+                        LOGGER.warn("Report monitor data Error : " + e.getMessage(), e);
                         break;
                     }
                 }

@@ -56,9 +56,9 @@ public class CommonView {
     }
 
     @RequestMapping("job-logger")
-    public String jobLoggerUI(Model model, String taskId, String taskTrackerNodeGroup,
+    public String jobLoggerUI(Model model, String realTaskId, String taskTrackerNodeGroup,
                               Date startLogTime, Date endLogTime) {
-        model.addAttribute("taskId", taskId);
+        model.addAttribute("realTaskId", realTaskId);
         model.addAttribute("taskTrackerNodeGroup", taskTrackerNodeGroup);
         if (startLogTime == null) {
             startLogTime = DateUtils.addMinute(new Date(), -10);

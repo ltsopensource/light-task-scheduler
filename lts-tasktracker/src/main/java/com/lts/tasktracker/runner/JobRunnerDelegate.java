@@ -2,9 +2,11 @@ package com.lts.tasktracker.runner;
 
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Action;
+import com.lts.core.domain.Job;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
+import com.lts.core.support.JobUtils;
 import com.lts.core.support.SystemClock;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.domain.Response;
@@ -73,14 +75,14 @@ public class JobRunnerDelegate implements Runnable {
             while (jobMeta != null) {
                 long startTime = SystemClock.now();
                 // 设置当前context中的jobId
-                logger.setId(jobMeta.getJobId(), jobMeta.getJob().getTaskId());
+                logger.setJobMeta(jobMeta);
                 Response response = new Response();
                 response.setJobMeta(jobMeta);
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
                             .in(jobMeta.getJobId(), this);
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
-                    Result result = this.curJobRunner.run(jobMeta.getJob());
+                    Result result = this.curJobRunner.run(buildJobContext(jobMeta));
 
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -95,7 +97,9 @@ public class JobRunnerDelegate implements Runnable {
 
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute completed : {}, time:{} ms.", jobMeta.getJob(), time);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Job execute completed : {}, time:{} ms.", jobMeta.getJob(), time);
+                    }
                 } catch (Throwable t) {
                     StringWriter sw = new StringWriter();
                     t.printStackTrace(new PrintWriter(sw));
@@ -103,10 +107,12 @@ public class JobRunnerDelegate implements Runnable {
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    LOGGER.info("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
+                    }
                 } finally {
                     checkInterrupted();
-                    logger.removeId();
+                    logger.removeJobMeta();
                     appContext.getRunnerPool().getRunningJobManager()
                             .out(jobMeta.getJobId());
                 }
@@ -124,6 +130,25 @@ public class JobRunnerDelegate implements Runnable {
 
             blockedOn(null);
         }
+    }
+
+    private JobContext buildJobContext(JobMeta jobMeta) {
+        JobContext jobContext = new JobContext();
+        // 采用deepopy的方式 防止用户修改任务数据
+        Job job = JobUtils.copy(jobMeta.getJob());
+        job.setTaskId(jobMeta.getRealTaskId());     // 这个对于用户需要转换为用户提交的taskId
+        jobContext.setJob(job);
+
+        JobExtInfo jobExtInfo = new JobExtInfo();
+        jobExtInfo.setRepeatedCount(jobMeta.getRepeatedCount());
+        jobExtInfo.setRetryTimes(jobMeta.getRetryTimes());
+        jobExtInfo.setRetry(Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.IS_RETRY_JOB)));
+        jobExtInfo.setJobType(jobMeta.getJobType());
+
+        jobContext.setJobExtInfo(jobExtInfo);
+
+        jobContext.setBizLogger(LtsLoggerFactory.getBizLogger());
+        return jobContext;
     }
 
     private void interrupt() {

@@ -5,8 +5,9 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.constant.Level;
 import com.lts.core.domain.BizLog;
-import com.lts.core.domain.Pair;
+import com.lts.core.domain.JobMeta;
 import com.lts.core.exception.JobTrackerNotFoundException;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.protocol.JobProtos;
 import com.lts.core.protocol.command.BizLogSendRequest;
 import com.lts.core.protocol.command.CommandBodyWrapper;
@@ -34,7 +35,6 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
     private Level level;
     private RemotingClientDelegate remotingClient;
     private TaskTrackerAppContext appContext;
-    private final ThreadLocal<Pair<String, String>> jobTL;
     private RetryScheduler<BizLog> retryScheduler;
 
     public BizLoggerImpl(Level level, final RemotingClientDelegate remotingClient, TaskTrackerAppContext appContext) {
@@ -44,9 +44,7 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         }
         this.appContext = appContext;
         this.remotingClient = remotingClient;
-        this.jobTL = new ThreadLocal<Pair<String, String>>();
-        String storePath = getStorePath();
-        this.retryScheduler = new RetryScheduler<BizLog>(appContext, storePath) {
+        this.retryScheduler = new RetryScheduler<BizLog>(BizLogger.class.getSimpleName(), appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
             @Override
             protected boolean isRemotingEnable() {
                 return remotingClient.isServerEnable();
@@ -57,7 +55,6 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
                 return sendBizLog(list);
             }
         };
-        retryScheduler.setName(BizLogger.class.getSimpleName());
         this.retryScheduler.start();
 
         NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
@@ -66,21 +63,6 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
                 retryScheduler.stop();
             }
         });
-    }
-
-    private String getStorePath() {
-        return appContext.getConfig().getDataPath()
-                + "/.lts" + "/" +
-                appContext.getConfig().getNodeType() + "/" +
-                appContext.getConfig().getNodeGroup() + "/bizlog/";
-    }
-
-    public void setId(String jobId, String taskId) {
-        jobTL.set(new Pair<String, String>(jobId, taskId));
-    }
-
-    public void removeId() {
-        jobTL.remove();
     }
 
     @Override
@@ -112,8 +94,11 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         bizLog.setTaskTrackerIdentity(requestBody.getIdentity());
         bizLog.setTaskTrackerNodeGroup(requestBody.getNodeGroup());
         bizLog.setLogTime(SystemClock.now());
-        bizLog.setJobId(jobTL.get().getKey());
-        bizLog.setTaskId(jobTL.get().getValue());
+        JobMeta jobMeta = getJobMeta();
+        bizLog.setJobId(jobMeta.getJobId());
+        bizLog.setTaskId(jobMeta.getJob().getTaskId());
+        bizLog.setRealTaskId(jobMeta.getRealTaskId());
+        bizLog.setJobType(jobMeta.getJobType());
         bizLog.setMsg(msg);
         bizLog.setLevel(level);
 

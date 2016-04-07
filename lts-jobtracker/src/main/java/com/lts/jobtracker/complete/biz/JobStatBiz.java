@@ -19,11 +19,12 @@ import java.util.List;
 
 /**
  * 任务数据统计 Chain
+ *
  * @author Robert HG (254963746@qq.com) on 11/11/15.
  */
 public class JobStatBiz implements JobCompletedBiz {
 
-    private final Logger LOGGER = LoggerFactory.getLogger(JobStatBiz.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(JobStatBiz.class);
 
     private JobTrackerAppContext appContext;
     private JobTrackerMStatReporter stat;
@@ -45,7 +46,9 @@ public class JobStatBiz implements JobCompletedBiz {
                     "JobResults can not be empty!");
         }
 
-        LOGGER.info("Job execute completed : {}", results);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Job execute completed : {}", results);
+        }
 
         LogType logType = request.isReSend() ? LogType.RESEND : LogType.FINISHED;
 

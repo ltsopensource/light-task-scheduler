@@ -32,6 +32,7 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         if (CollectionUtils.sizeOf(indexInfo) <= 1) {
             template.ensureIndex("idx_logTime", "logTime");
             template.ensureIndex("idx_taskId_taskTrackerNodeGroup", "taskId,taskTrackerNodeGroup");
+            template.ensureIndex("idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
         }
     }
 

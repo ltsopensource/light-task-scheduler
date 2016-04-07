@@ -7,6 +7,7 @@ import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
+import com.lts.core.domain.JobType;
 import com.lts.queue.domain.JobFeedbackPo;
 import com.lts.queue.domain.JobPo;
 
@@ -25,6 +26,8 @@ public class JobDomainConverter {
         JobPo jobPo = new JobPo();
         jobPo.setPriority(job.getPriority());
         jobPo.setTaskId(job.getTaskId());
+        jobPo.setRealTaskId(jobPo.getTaskId());
+        jobPo.setRealTaskId(jobPo.getTaskId());
         jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         jobPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
@@ -47,10 +50,22 @@ public class JobDomainConverter {
             }
         }
 
+        // 设置JobType
+        if (job.isCron()) {
+            jobPo.setJobType(JobType.CRON);
+        } else if (job.isRepeatable()) {
+            jobPo.setJobType(JobType.REPEAT);
+        } else if (job.getTriggerTime() == null) {
+            jobPo.setJobType(JobType.REAL_TIME);
+        } else {
+            jobPo.setJobType(JobType.TRIGGER_TIME);
+        }
+
         jobPo.setExtParams(job.getExtParams());
         jobPo.setNeedFeedback(job.isNeedFeedback());
         jobPo.setCronExpression(job.getCronExpression());
         jobPo.setMaxRetryTimes(job.getMaxRetryTimes());
+        jobPo.setRelyOnPrevCycle(job.isRelyOnPrevCycle());
         jobPo.setRepeatCount(job.getRepeatCount());
         if (!jobPo.isCron()) {
             if (job.getTriggerTime() == null) {
@@ -62,7 +77,7 @@ public class JobDomainConverter {
         if (job.getRepeatCount() != 0) {
             jobPo.setCronExpression(null);
             jobPo.setRepeatInterval(job.getRepeatInterval());
-            jobPo.setInternalExtParam(Constants.QUARTZ_FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
+            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
         }
         return jobPo;
     }
@@ -80,15 +95,18 @@ public class JobDomainConverter {
         job.setNeedFeedback(jobPo.isNeedFeedback());
         job.setCronExpression(jobPo.getCronExpression());
         job.setTriggerTime(jobPo.getTriggerTime());
-        job.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
         job.setMaxRetryTimes(jobPo.getMaxRetryTimes() == null ? 0 : jobPo.getMaxRetryTimes());
+        job.setRelyOnPrevCycle(jobPo.getRelyOnPrevCycle() == null ? true : jobPo.getRelyOnPrevCycle());
         job.setRepeatCount(jobPo.getRepeatCount());
-        job.setRepeatedCount(jobPo.getRepeatedCount());
         job.setRepeatInterval(jobPo.getRepeatInterval());
         JobMeta jobMeta = new JobMeta();
         jobMeta.setJobId(jobPo.getJobId());
         jobMeta.setJob(job);
+        jobMeta.setRealTaskId(jobPo.getRealTaskId());
         jobMeta.setInternalExtParams(jobPo.getInternalExtParams());
+        jobMeta.setRetryTimes(jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes());
+        jobMeta.setRepeatedCount(jobPo.getRepeatedCount());
+        jobMeta.setJobType(jobPo.getJobType());
         return jobMeta;
     }
 
@@ -101,16 +119,19 @@ public class JobDomainConverter {
         jobLogPo.setInternalExtParams(jobMeta.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(job.getSubmitNodeGroup());
         jobLogPo.setTaskId(job.getTaskId());
+        jobLogPo.setJobType(jobMeta.getJobType());
+        jobLogPo.setRealTaskId(jobMeta.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(job.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(job.isNeedFeedback());
-        jobLogPo.setRetryTimes(job.getRetryTimes());
+        jobLogPo.setRetryTimes(jobMeta.getRetryTimes());
         jobLogPo.setMaxRetryTimes(job.getMaxRetryTimes());
+        jobLogPo.setDepPreCycle(jobMeta.getJob().isRelyOnPrevCycle());
         jobLogPo.setJobId(jobMeta.getJobId());
         jobLogPo.setCronExpression(job.getCronExpression());
         jobLogPo.setTriggerTime(job.getTriggerTime());
 
         jobLogPo.setRepeatCount(job.getRepeatCount());
-        jobLogPo.setRepeatedCount(job.getRepeatedCount());
+        jobLogPo.setRepeatedCount(jobMeta.getRepeatedCount());
         jobLogPo.setRepeatInterval(job.getRepeatInterval());
         return jobLogPo;
     }
@@ -119,10 +140,12 @@ public class JobDomainConverter {
         JobLogPo jobLogPo = new JobLogPo();
         jobLogPo.setGmtCreated(SystemClock.now());
         jobLogPo.setPriority(jobPo.getPriority());
+        jobLogPo.setJobType(jobPo.getJobType());
         jobLogPo.setExtParams(jobPo.getExtParams());
         jobLogPo.setInternalExtParams(jobPo.getInternalExtParams());
         jobLogPo.setSubmitNodeGroup(jobPo.getSubmitNodeGroup());
         jobLogPo.setTaskId(jobPo.getTaskId());
+        jobLogPo.setRealTaskId(jobPo.getRealTaskId());
         jobLogPo.setTaskTrackerNodeGroup(jobPo.getTaskTrackerNodeGroup());
         jobLogPo.setNeedFeedback(jobPo.isNeedFeedback());
         jobLogPo.setJobId(jobPo.getJobId());
@@ -131,6 +154,7 @@ public class JobDomainConverter {
         jobLogPo.setTaskTrackerIdentity(jobPo.getTaskTrackerIdentity());
         jobLogPo.setRetryTimes(jobPo.getRetryTimes());
         jobLogPo.setMaxRetryTimes(jobPo.getMaxRetryTimes());
+        jobLogPo.setDepPreCycle(jobPo.getRelyOnPrevCycle());
 
         jobLogPo.setRepeatCount(jobPo.getRepeatCount());
         jobLogPo.setRepeatedCount(jobPo.getRepeatedCount());

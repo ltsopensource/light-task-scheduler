@@ -26,9 +26,10 @@ public class JobClientTest extends BaseJobClientTest {
         console();
 //        testProtector();
 //        cancelJob();
+//        submitWidthNonRelyOnPrevCycle();
     }
 
-	public static void submitWidthReplaceOnExist() throws IOException {
+    public static void submitWidthReplaceOnExist() throws IOException {
         // 推荐使用RetryJobClient
         JobClient jobClient = new RetryJobClient();
         jobClient.setNodeGroup("test_jobClient");
@@ -51,7 +52,32 @@ public class JobClientTest extends BaseJobClientTest {
         System.out.println(response);
     }
 
-    public static void cancelJob(){
+    public static void submitWidthNonRelyOnPrevCycle() throws IOException {
+        // 推荐使用RetryJobClient
+        JobClient jobClient = new RetryJobClient();
+        jobClient.setNodeGroup("test_jobClient");
+        jobClient.setClusterName("test_cluster");
+        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
+        jobClient.setJobFinishedHandler(new JobCompletedHandlerImpl());
+        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
+        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+        jobClient.start();
+
+        Job job = new Job();
+        job.setTaskId("t_test_344444");
+        job.setParam("shopId", "1122222221");
+        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
+        job.setNeedFeedback(false);
+        job.setCronExpression("0/30 * * * * ?");
+//        job.setRepeatInterval(30 * 1000L);
+//        job.setRepeatCount(25);
+        job.setRelyOnPrevCycle(false);
+//        job.setTriggerTime(DateUtils.addDay(new Date(), 1));
+        Response response = jobClient.submitJob(job);
+        System.out.println(response);
+    }
+
+    public static void cancelJob() {
         JobClient jobClient = new RetryJobClient();
         jobClient.setNodeGroup("test_jobClient");
         jobClient.setClusterName("test_cluster");

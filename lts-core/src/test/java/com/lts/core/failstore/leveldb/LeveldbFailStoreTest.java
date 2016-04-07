@@ -29,8 +29,12 @@ public class LeveldbFailStoreTest {
         config.setDataPath(Constants.USER_HOME);
         config.setNodeGroup("test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        failStore = new LeveldbFailStoreFactory().getFailStore(config, config.getFailStorePath());
+        failStore = new LeveldbFailStoreFactory().getFailStore(config, getFailStorePath(config));
         failStore.open();
+    }
+
+    public String getFailStorePath(Config config) {
+        return config.getDataPath() + "/.lts" + "/" + config.getNodeType() + "/" + config.getNodeGroup() + "/failstore/";
     }
 
     @Test

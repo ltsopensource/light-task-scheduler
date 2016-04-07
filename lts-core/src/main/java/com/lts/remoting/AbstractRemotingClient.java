@@ -256,7 +256,7 @@ public abstract class AbstractRemotingClient extends AbstractRemoting implements
 
                     if (null == prevCW) {
                         LOGGER.info(
-                                "eventCloseChannel: the channel[{}] has been removed from the channel table before", addrRemote);
+                                "eventCloseChannel: the channel has been removed from the channel table before");
                         removeItemFromTable = false;
                     }
 

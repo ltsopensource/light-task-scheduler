@@ -21,7 +21,7 @@
                             <label class="col-sm-2 control-label" style="width:10%">任务ID</label>
 
                             <div class="col-sm-3">
-                                <input type="text" class="form-control" name="taskId"
+                                <input type="text" class="form-control" name="realTaskId"
                                        placeholder="请输入任务ID(TaskId)">
                             </div>
 
@@ -90,10 +90,14 @@
         <tr>
             <th data-toggle="true">任务ID</th>
             <th data-hide="all">提交节点组</th>
+            <th>类型</th>
             <th>执行节点组</th>
             <th>Cron表达式</th>
+            <th data-hide="phone,tablet">重复时间间隔</th>
+            <th data-hide="all">重复次数</th>
             <th data-hide="all">优先级</th>
             <th>反馈客户端</th>
+            <th data-hide="all">依赖上一周期</th>
             <th>重试次数</th>
             <th data-hide="all">用户参数</th>
             <th data-hide="phone,tablet">创建时间</th>
@@ -104,11 +108,15 @@
         <tbody>
         {{each rows as row index}}
         <tr>
-            <td>{{row.taskId}}</td>
+            <td>{{row.realTaskId}}</td>
             <td>{{row.submitNodeGroup}}</td>
+            <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
             <td>{{row.taskTrackerNodeGroup}}</td>
             <td>{{row.cronExpression}}</td>
+            <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
+            <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>
             <td>{{row.priority}}</td>
+            <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
             <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
             <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.extParams | format:'stringifyJSON'}}</td>
@@ -138,7 +146,7 @@
     $(document).ready(function () {
 
         LTS.colFormatter.optFormat = function (v, row) {
-            var logUrl = "job-logger.htm?taskId=" + row.taskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
+            var logUrl = "job-logger.htm?realTaskId=" + row.realTaskId + "&taskTrackerNodeGroup=" + row.taskTrackerNodeGroup;
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;'+
                     '<a href="javascript:;" class="job-terminate-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 强制终止</span></a>';;
         }

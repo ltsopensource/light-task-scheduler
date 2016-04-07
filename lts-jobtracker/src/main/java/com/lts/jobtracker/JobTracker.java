@@ -12,7 +12,11 @@ import com.lts.jobtracker.monitor.JobTrackerMStatReporter;
 import com.lts.jobtracker.processor.RemotingDispatcher;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobReceiver;
+import com.lts.jobtracker.support.NonRelyOnPrevCycleJobScheduler;
 import com.lts.jobtracker.support.OldDataHandler;
+import com.lts.jobtracker.support.checker.ExecutableDeadJobChecker;
+import com.lts.jobtracker.support.checker.ExecutingDeadJobChecker;
+import com.lts.jobtracker.support.checker.FeedbackJobSendChecker;
 import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.listener.JobNodeChangeListener;
@@ -58,6 +62,10 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         appContext.setPreLoader(factory.getPreLoader(appContext));
         appContext.setJobReceiver(new JobReceiver(appContext));
         appContext.setJobSender(new JobSender(appContext));
+        appContext.setNonRelyOnPrevCycleJobScheduler(new NonRelyOnPrevCycleJobScheduler(appContext));
+        appContext.setExecutableDeadJobChecker(new ExecutableDeadJobChecker(appContext));
+        appContext.setExecutingDeadJobChecker(new ExecutingDeadJobChecker(appContext));
+        appContext.setFeedbackJobSendChecker(new FeedbackJobSendChecker(appContext));
 
         appContext.getHttpCmdServer().registerCommands(
                 new LoadJobHttpCmd(appContext),     // 手动加载任务

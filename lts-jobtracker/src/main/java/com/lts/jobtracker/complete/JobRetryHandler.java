@@ -1,6 +1,7 @@
 package com.lts.jobtracker.complete;
 
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.constant.Constants;
 import com.lts.core.domain.JobMeta;
 import com.lts.core.domain.JobRunResult;
 import com.lts.core.json.JSON;
@@ -60,7 +61,7 @@ public class JobRetryHandler {
                         nextRetryTriggerTime = nextTriggerTime.getTime();
                         jobPo = cronJobPo;
                     } else {
-                        jobPo.setInternalExtParam("isRetry", "true");
+                        jobPo.setInternalExtParam(Constants.IS_RETRY_JOB, Boolean.TRUE.toString());
                     }
                 }
             } else if (jobPo.isRepeatable()) {
@@ -74,12 +75,12 @@ public class JobRetryHandler {
                             nextRetryTriggerTime = nexTriggerTime;
                             jobPo = repeatJobPo;
                         } else {
-                            jobPo.setInternalExtParam("isRetry", "true");
+                            jobPo.setInternalExtParam(Constants.IS_RETRY_JOB, Boolean.TRUE.toString());
                         }
                     }
                 }
             } else {
-                jobPo.setInternalExtParam("isRetry", "true");
+                jobPo.setInternalExtParam(Constants.IS_RETRY_JOB, Boolean.TRUE.toString());
             }
 
             // 加入到队列, 重试

@@ -3,10 +3,10 @@ package com.lts.queue.mongo;
 import com.lts.admin.request.JobQueueReq;
 import com.lts.admin.response.PaginationRsp;
 import com.lts.core.cluster.Config;
+import com.lts.core.commons.utils.Assert;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.queue.JobQueue;
 import com.lts.queue.domain.JobPo;
-import com.lts.store.jdbc.exception.JdbcException;
 import com.lts.store.mongo.MongoRepository;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
@@ -29,7 +29,9 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         addCondition(query, "jobId", request.getJobId());
         addCondition(query, "taskId", request.getTaskId());
+        addCondition(query, "realTaskId", request.getRealTaskId());
         addCondition(query, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
+        addCondition(query, "jobType", request.getJobType());
         addCondition(query, "submitNodeGroup", request.getSubmitNodeGroup());
         addCondition(query, "needFeedback", request.getNeedFeedback());
         if (request.getStartGmtCreated() != null) {
@@ -60,13 +62,18 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
     }
 
     @Override
-    public boolean selectiveUpdate(JobQueueReq request) {
-        if (StringUtils.isEmpty(request.getJobId())) {
-            throw new JdbcException("Only allow by jobId");
-        }
+    public boolean selectiveUpdateByJobId(JobQueueReq request) {
+        Assert.hasLength(request.getJobId(), "Only allow update by jobId");
+
         Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
         query.field("jobId").equal(request.getJobId());
 
+        UpdateOperations<JobPo> operations = buildUpdateOperations(request);
+        UpdateResults ur = template.update(query, operations);
+        return ur.getUpdatedCount() == 1;
+    }
+
+    private UpdateOperations<JobPo> buildUpdateOperations(JobQueueReq request) {
         UpdateOperations<JobPo> operations = template.createUpdateOperations(JobPo.class);
         addUpdateField(operations, "cronExpression", request.getCronExpression());
         addUpdateField(operations, "needFeedback", request.getNeedFeedback());
@@ -74,11 +81,24 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "triggerTime", request.getTriggerTime() == null ? null : request.getTriggerTime().getTime());
         addUpdateField(operations, "priority", request.getPriority());
         addUpdateField(operations, "maxRetryTimes", request.getMaxRetryTimes());
+        addUpdateField(operations, "relyOnPrevCycle", request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle());
         addUpdateField(operations, "submitNodeGroup", request.getSubmitNodeGroup());
         addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
         addUpdateField(operations, "repeatCount", request.getRepeatCount());
         addUpdateField(operations, "repeatInterval", request.getRepeatInterval());
+        return operations;
+    }
 
+    @Override
+    public boolean selectiveUpdateByTaskId(JobQueueReq request) {
+        Assert.hasLength(request.getRealTaskId(), "Only allow update by realTaskId and taskTrackerNodeGroup");
+        Assert.hasLength(request.getTaskTrackerNodeGroup(), "Only allow update by realTaskId and taskTrackerNodeGroup");
+
+        Query<JobPo> query = template.createQuery(getTargetTable(request.getTaskTrackerNodeGroup()), JobPo.class);
+        query.field("realTaskId").equal(request.getRealTaskId());
+        query.field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
+
+        UpdateOperations<JobPo> operations = buildUpdateOperations(request);
         UpdateResults ur = template.update(query, operations);
         return ur.getUpdatedCount() == 1;
     }
@@ -108,7 +128,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
             }
         } else if (
                 obj instanceof Integer ||
-                obj instanceof Boolean ||
+                        obj instanceof Boolean ||
                         obj instanceof Long ||
                         obj instanceof Float ||
                         obj instanceof Date ||

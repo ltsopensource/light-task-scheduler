@@ -8,7 +8,7 @@ import com.lts.store.jdbc.exception.DupEntryException;
  *
  * @author Robert HG (254963746@qq.com) on 5/27/15.
  */
-public interface CronJobQueue extends JobQueue{
+public interface CronJobQueue extends SchedulerJobQueue {
 
     /**
      * 添加任务

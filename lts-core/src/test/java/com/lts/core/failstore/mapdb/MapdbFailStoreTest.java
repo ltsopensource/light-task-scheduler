@@ -3,6 +3,7 @@ package com.lts.core.failstore.mapdb;
 import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.CollectionUtils;
+import com.lts.core.failstore.FailStorePathBuilder;
 import com.lts.core.json.JSON;
 import com.lts.core.constant.Constants;
 import com.lts.core.domain.Job;
@@ -29,8 +30,13 @@ public class MapdbFailStoreTest {
         config.setDataPath(Constants.USER_HOME);
         config.setNodeGroup("test");
         config.setNodeType(NodeType.JOB_CLIENT);
-        failStore = new MapdbFailStoreFactory().getFailStore(config, config.getFailStorePath());
+        failStore = new MapdbFailStoreFactory().getFailStore(config,
+                getFailStorePath(config));
         failStore.open();
+    }
+
+    public String getFailStorePath(Config config) {
+        return config.getDataPath() + "/.lts" + "/" + config.getNodeType() + "/" + config.getNodeGroup() + "/failstore/";
     }
 
     @Test

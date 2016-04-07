@@ -17,9 +17,6 @@ public class Md5Encrypt {
 
     /**
      * MD5编码
-     *
-     * @param text
-     * @return
      */
     public static String md5(String text) {
         MessageDigest msgDigest = null;

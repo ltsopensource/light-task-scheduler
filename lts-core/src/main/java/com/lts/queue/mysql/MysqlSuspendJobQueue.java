@@ -16,7 +16,7 @@ public class MysqlSuspendJobQueue extends AbstractMysqlJobQueue implements Suspe
 
     public MysqlSuspendJobQueue(Config config) {
         super(config);
-        createTable(readSqlFile("sql/mysql/lts_cron_suspend_job_queue.sql", getTableName()));
+        createTable(readSqlFile("sql/mysql/lts_suspend_job_queue.sql", getTableName()));
     }
 
     @Override

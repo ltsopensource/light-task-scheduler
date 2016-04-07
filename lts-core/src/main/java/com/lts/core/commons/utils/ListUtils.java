@@ -10,11 +10,6 @@ public class ListUtils {
 
     /**
      * 过滤
-     *
-     * @param list
-     * @param filter
-     * @param <E>
-     * @return
      */
     public static <E> List<E> filter(final List<E> list, Filter<E> filter) {
         List<E> newList = new ArrayList<E>();
@@ -32,9 +27,6 @@ public class ListUtils {
 
         /**
          * 如果满足要求就返回true
-         *
-         * @param e
-         * @return
          */
         public boolean filter(E e);
 

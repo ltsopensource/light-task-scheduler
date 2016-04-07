@@ -4,11 +4,13 @@ import com.lts.biz.logger.JobLogger;
 import com.lts.core.AppContext;
 import com.lts.core.remoting.RemotingServerDelegate;
 import com.lts.jobtracker.channel.ChannelManager;
-import com.lts.jobtracker.id.IdGenerator;
 import com.lts.jobtracker.sender.JobSender;
 import com.lts.jobtracker.support.JobReceiver;
+import com.lts.jobtracker.support.NonRelyOnPrevCycleJobScheduler;
 import com.lts.jobtracker.support.OldDataHandler;
+import com.lts.jobtracker.support.checker.ExecutableDeadJobChecker;
 import com.lts.jobtracker.support.checker.ExecutingDeadJobChecker;
+import com.lts.jobtracker.support.checker.FeedbackJobSendChecker;
 import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.queue.*;
@@ -29,6 +31,9 @@ public class JobTrackerAppContext extends AppContext {
     private TaskTrackerManager taskTrackerManager;
     // dead job checker
     private ExecutingDeadJobChecker executingDeadJobChecker;
+    private FeedbackJobSendChecker feedbackJobSendChecker;
+    private ExecutableDeadJobChecker executableDeadJobChecker;
+
     // old data handler, dirty data
     private OldDataHandler oldDataHandler;
     // biz logger
@@ -45,13 +50,13 @@ public class JobTrackerAppContext extends AppContext {
     private CronJobQueue cronJobQueue;
     // feedback queue
     private JobFeedbackQueue jobFeedbackQueue;
-    // job id generator
-    private IdGenerator idGenerator;
 	private SuspendJobQueue suspendJobQueue;
     private RepeatJobQueue repeatJobQueue;
     private PreLoader preLoader;
     private JobReceiver jobReceiver;
     private JobSender jobSender;
+
+    private NonRelyOnPrevCycleJobScheduler nonRelyOnPrevCycleJobScheduler;
 
     public JobSender getJobSender() {
         return jobSender;
@@ -149,14 +154,6 @@ public class JobTrackerAppContext extends AppContext {
         this.cronJobQueue = cronJobQueue;
     }
 
-    public IdGenerator getIdGenerator() {
-        return idGenerator;
-    }
-
-    public void setIdGenerator(IdGenerator idGenerator) {
-        this.idGenerator = idGenerator;
-    }
-
     public ExecutableJobQueue getExecutableJobQueue() {
         return executableJobQueue;
     }
@@ -195,5 +192,29 @@ public class JobTrackerAppContext extends AppContext {
 
     public void setRepeatJobQueue(RepeatJobQueue repeatJobQueue) {
         this.repeatJobQueue = repeatJobQueue;
+    }
+
+    public NonRelyOnPrevCycleJobScheduler getNonRelyOnPrevCycleJobScheduler() {
+        return nonRelyOnPrevCycleJobScheduler;
+    }
+
+    public void setNonRelyOnPrevCycleJobScheduler(NonRelyOnPrevCycleJobScheduler nonRelyOnPrevCycleJobScheduler) {
+        this.nonRelyOnPrevCycleJobScheduler = nonRelyOnPrevCycleJobScheduler;
+    }
+
+    public FeedbackJobSendChecker getFeedbackJobSendChecker() {
+        return feedbackJobSendChecker;
+    }
+
+    public void setFeedbackJobSendChecker(FeedbackJobSendChecker feedbackJobSendChecker) {
+        this.feedbackJobSendChecker = feedbackJobSendChecker;
+    }
+
+    public ExecutableDeadJobChecker getExecutableDeadJobChecker() {
+        return executableDeadJobChecker;
+    }
+
+    public void setExecutableDeadJobChecker(ExecutableDeadJobChecker executableDeadJobChecker) {
+        this.executableDeadJobChecker = executableDeadJobChecker;
     }
 }

@@ -1,7 +1,6 @@
 package com.lts.core.support;
 
 import com.lts.core.exception.CronException;
-import com.lts.core.support.CronExpression;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -18,6 +17,18 @@ public class CronExpressionUtils {
         try {
             CronExpression cron = new CronExpression(cronExpression);
             return cron.getTimeAfter(new Date());
+        } catch (ParseException e) {
+            throw new CronException(e);
+        }
+    }
+
+    public static Date getNextTriggerTime(String cronExpression, Date timeAfter) {
+        try {
+            CronExpression cron = new CronExpression(cronExpression);
+            if (timeAfter == null) {
+                timeAfter = new Date();
+            }
+            return cron.getTimeAfter(timeAfter);
         } catch (ParseException e) {
             throw new CronException(e);
         }

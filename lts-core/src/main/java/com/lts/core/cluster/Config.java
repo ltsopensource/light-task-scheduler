@@ -116,10 +116,6 @@ public class Config implements Serializable {
         this.ip = ip;
     }
 
-    public String getFailStorePath() {
-        return dataPath + "/.lts" + "/" + nodeType + "/" + nodeGroup + "/failstore/";
-    }
-
     public String getDataPath() {
         return dataPath;
     }

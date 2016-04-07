@@ -109,7 +109,7 @@ public class JobQueueApi extends AbstractMVC {
         } catch (IllegalArgumentException e) {
             return Builder.build(false, e.getMessage());
         }
-        boolean success = appContext.getExecutableJobQueue().selectiveUpdate(request);
+        boolean success = appContext.getExecutableJobQueue().selectiveUpdateByJobId(request);
         RestfulResponse response = new RestfulResponse();
         if (success) {
             response.setSuccess(true);
@@ -201,7 +201,7 @@ public class JobQueueApi extends AbstractMVC {
         // 表单check
 
         try {
-            Assert.hasLength(request.getTaskId(), "taskId不能为空!");
+            Assert.hasLength(request.getTaskId(), I18nManager.getMessage("taskId.not.null"));
             Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
             if (request.getNeedFeedback()) {
                 Assert.hasLength(request.getSubmitNodeGroup(), "submitNodeGroup不能为空!");
@@ -255,16 +255,19 @@ public class JobQueueApi extends AbstractMVC {
 
         job.setPriority(request.getPriority());
         job.setMaxRetryTimes(request.getMaxRetryTimes() == null ? 0 : request.getMaxRetryTimes());
+        job.setRelyOnPrevCycle(request.getRelyOnPrevCycle() == null ? true : request.getRelyOnPrevCycle());
 
         if ("REAL_TIME_JOB".equals(jobType)) {
             job.setCronExpression(null);
             job.setTriggerTime(null);
             job.setRepeatInterval(null);
             job.setRepeatCount(0);
+            job.setRelyOnPrevCycle(true);
         } else if ("TRIGGER_TIME_JOB".equals(jobType)) {
             job.setCronExpression(null);
             job.setRepeatInterval(null);
             job.setRepeatCount(0);
+            job.setRelyOnPrevCycle(true);
         } else if ("CRON_JOB".equals(jobType)) {
             job.setRepeatInterval(null);
             job.setRepeatCount(0);

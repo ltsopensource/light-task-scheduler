@@ -38,7 +38,7 @@ public class JobPullMachine {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobPullMachine.class.getSimpleName());
 
     // 定时检查TaskTracker是否有空闲的线程，如果有，那么向JobTracker发起任务pull请求
-    private final ScheduledExecutorService SCHEDULED_CHECKER = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-JobPullMachine-Executor", true));
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-JobPullMachine-Executor", true));
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private TaskTrackerAppContext appContext;
@@ -89,7 +89,7 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = SCHEDULED_CHECKER.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
+                    scheduledFuture = executorService.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
                 }
                 LOGGER.info("Start Job pull machine success!");
             }
@@ -102,7 +102,7 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(true, false)) {
 //                scheduledFuture.cancel(true);
-//                SCHEDULED_CHECKER.shutdown();
+//                executorService.shutdown();
                 LOGGER.info("Stop Job pull machine success!");
             }
         } catch (Throwable t) {

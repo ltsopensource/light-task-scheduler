@@ -18,6 +18,7 @@ public final class ClassLoaderUtil {
     private ClassLoaderUtil() {
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T newInstance(ClassLoader classLoader, final String className) throws Exception {
         classLoader = classLoader == null ? ClassLoaderUtil.class.getClassLoader() : classLoader;
         Constructor<T> constructor = CONSTRUCTOR_CACHE.get(classLoader, className);
@@ -87,6 +88,7 @@ public final class ClassLoaderUtil {
             return constructor;
         }
 
+        @SuppressWarnings("unchecked")
         public <T> Constructor<T> get(ClassLoader classLoader, String className) {
             Assert.notNull(className, "className");
             ConcurrentMap<String, WeakReference<Constructor>> innerCache = cache.get(classLoader);

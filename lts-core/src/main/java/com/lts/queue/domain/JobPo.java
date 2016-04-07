@@ -1,5 +1,6 @@
 package com.lts.queue.domain;
 
+import com.lts.core.domain.JobType;
 import com.lts.core.json.JSON;
 
 import java.util.HashMap;
@@ -16,13 +17,19 @@ public class JobPo {
      */
     private String jobId;
     /**
+     * 任务类型
+     */
+    private JobType jobType;
+    /**
      * 优先级 (数值越大 优先级越低)
      */
     private Integer priority;
-    /**
-     * 客户端传过来的ID
-     */
+
     private String taskId;
+    /**
+     * 真实的taskId
+     */
+    private String realTaskId;
     // 创建时间
     private Long gmtCreated;
     // 修改时间
@@ -46,7 +53,7 @@ public class JobPo {
     /**
      * 是否正在执行
      */
-    private boolean isRunning = false;
+    private Boolean isRunning = false;
     /**
      * 执行的taskTracker
      * identity
@@ -84,6 +91,21 @@ public class JobPo {
      * 重复interval
      */
     private Long repeatInterval;
+
+    /**
+     * 是否依赖上一个执行周期(对于周期性任务才起作用)
+     */
+    private Boolean relyOnPrevCycle = true;
+    // 最后生成的triggerTime
+    private Long lastGenerateTriggerTime;
+
+    public JobType getJobType() {
+        return jobType;
+    }
+
+    public void setJobType(JobType jobType) {
+        this.jobType = jobType;
+    }
 
     public Integer getRetryTimes() {
         return retryTimes;
@@ -157,7 +179,7 @@ public class JobPo {
         this.extParams = extParams;
     }
 
-    public boolean isRunning() {
+    public Boolean isRunning() {
         return isRunning;
     }
 
@@ -169,7 +191,7 @@ public class JobPo {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
     }
 
-    public void setIsRunning(boolean isRunning) {
+    public void setIsRunning(Boolean isRunning) {
         this.isRunning = isRunning;
     }
 
@@ -203,6 +225,14 @@ public class JobPo {
 
     public boolean isRepeatable() {
         return (this.repeatInterval != null && this.repeatInterval > 0) && (this.repeatCount >= -1 && this.repeatCount != 0);
+    }
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
     }
 
     public Integer getMaxRetryTimes() {
@@ -260,6 +290,26 @@ public class JobPo {
     }
 
     public void setRunning(boolean running) {
+        isRunning = running;
+    }
+
+    public Boolean getRelyOnPrevCycle() {
+        return relyOnPrevCycle;
+    }
+
+    public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+        this.relyOnPrevCycle = relyOnPrevCycle;
+    }
+
+    public Long getLastGenerateTriggerTime() {
+        return lastGenerateTriggerTime;
+    }
+
+    public void setLastGenerateTriggerTime(Long lastGenerateTriggerTime) {
+        this.lastGenerateTriggerTime = lastGenerateTriggerTime;
+    }
+
+    public void setRunning(Boolean running) {
         isRunning = running;
     }
 

@@ -2,6 +2,7 @@ package com.lts.example.support;
 
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
+import com.lts.tasktracker.runner.JobContext;
 import com.lts.tasktracker.runner.JobRunner;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,15 +23,16 @@ public class JobRunnerDispatcher implements JobRunner {
     }
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
+        Job job = jobContext.getJob();
         String type = job.getParam("type");
-        return JOB_RUNNER_MAP.get(type).run(job);
+        return JOB_RUNNER_MAP.get(type).run(jobContext);
     }
 }
 
 class JobRunnerA implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         //  TODO A类型Job的逻辑
         return null;
     }
@@ -38,7 +40,7 @@ class JobRunnerA implements JobRunner {
 
 class JobRunnerB implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         // TODO B类型Job的逻辑
         return null;
     }

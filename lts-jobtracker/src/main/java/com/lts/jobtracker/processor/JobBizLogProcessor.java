@@ -38,6 +38,8 @@ public class JobBizLogProcessor extends AbstractRemotingProcessor {
                 jobLogPo.setTaskTrackerIdentity(bizLog.getTaskTrackerIdentity());
                 jobLogPo.setJobId(bizLog.getJobId());
                 jobLogPo.setTaskId(bizLog.getTaskId());
+                jobLogPo.setRealTaskId(bizLog.getRealTaskId());
+                jobLogPo.setJobType(bizLog.getJobType());
                 jobLogPo.setMsg(bizLog.getMsg());
                 jobLogPo.setSuccess(true);
                 jobLogPo.setLevel(bizLog.getLevel());

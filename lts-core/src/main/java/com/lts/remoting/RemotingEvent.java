@@ -29,6 +29,6 @@ public class RemotingEvent {
 
     @Override
     public String toString() {
-        return "NettyEvent [type=" + type + ", remoteAddr=" + remoteAddr + ", channel=" + channel + "]";
+        return "RemotingEvent [type=" + type + ", remoteAddr=" + remoteAddr + ", channel=" + channel + "]";
     }
 }

@@ -9,6 +9,7 @@ import java.util.Date;
  */
 public class JobLoggerRequest extends PaginationReq {
 
+    private String realTaskId;
     private String taskId;
 
     private String taskTrackerNodeGroup;
@@ -16,6 +17,14 @@ public class JobLoggerRequest extends PaginationReq {
     private Date startLogTime;
 
     private Date endLogTime;
+
+    public String getRealTaskId() {
+        return realTaskId;
+    }
+
+    public void setRealTaskId(String realTaskId) {
+        this.realTaskId = realTaskId;
+    }
 
     public String getTaskId() {
         return taskId;

@@ -7,7 +7,7 @@
     <groupId>com.lts</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.6.6</version>
+    <version>1.6.7-SNAPSHOT</version>
     <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
@@ -41,7 +41,6 @@
         <mysql.version>5.1.26</mysql.version>
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
-        <reflectasm.version>1.11.0</reflectasm.version>
         <h2.version>1.4.189</h2.version>
         <springframework.version>4.1.6.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
@@ -169,11 +168,6 @@
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>
                 <version>${rocksdbjni.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>reflectasm</artifactId>
-                <version>${reflectasm.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.h2database</groupId>
