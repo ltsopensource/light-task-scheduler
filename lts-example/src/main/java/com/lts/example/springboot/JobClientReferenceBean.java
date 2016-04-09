@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by hugui.hg on 4/9/16.
+ * @author Robert HG (254963746@qq.com) on 4/9/16.
  */
 @Component
 public class JobClientReferenceBean implements InitializingBean{
