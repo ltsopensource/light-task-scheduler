@@ -1,6 +1,7 @@
 package com.lts.spring.boot.properties;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Robert HG (254963746@qq.com) on 4/9/16.
@@ -19,6 +20,10 @@ public class AbstractProperties {
      * zookeeper地址
      */
     private String registryAddress;
+    /**
+     * 执行绑定的本地ip
+     */
+    private String bindIp;
     /**
      * 额外参数配置
      */
@@ -54,5 +59,13 @@ public class AbstractProperties {
 
     public void setIdentity(String identity) {
         this.identity = identity;
+    }
+
+    public String getBindIp() {
+        return bindIp;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
     }
 }

@@ -25,7 +25,7 @@ import java.util.Map;
 @EnableConfigurationProperties(TaskTrackerProperties.class)
 public class TaskTrackerAutoConfiguration extends AbstractAutoConfiguration {
 
-    @Autowired
+    @Autowired(required = false)
     private TaskTrackerProperties properties;
     private TaskTracker taskTracker;
 
@@ -44,6 +44,9 @@ public class TaskTrackerAutoConfiguration extends AbstractAutoConfiguration {
         }
         if (StringUtils.isNotEmpty(properties.getDataPath())) {
             taskTracker.setDataPath(properties.getDataPath());
+        }
+        if (StringUtils.isNotEmpty(properties.getBindIp())) {
+            taskTracker.setBindIp(properties.getBindIp());
         }
         if (CollectionUtils.isNotEmpty(properties.getConfigs())) {
             for (Map.Entry<String, String> entry : properties.getConfigs().entrySet()) {
