@@ -11,12 +11,23 @@
       "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
     },
     {
+      "name": "lts.monitor",
+      "type": "com.lts.spring.boot.properties.MonitorProperties",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
       "name": "lts.tasktracker",
       "type": "com.lts.spring.boot.properties.TaskTrackerProperties",
       "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
     }
   ],
   "properties": [
+    {
+      "name": "lts.jobclient.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
     {
       "name": "lts.jobclient.cluster-name",
       "type": "java.lang.String",
@@ -57,6 +68,12 @@
       "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
     },
     {
+      "name": "lts.jobtracker.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
       "name": "lts.jobtracker.cluster-name",
       "type": "java.lang.String",
       "description": "集群名称",
@@ -85,6 +102,42 @@
       "type": "java.lang.String",
       "description": "zookeeper地址",
       "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.monitor.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.lts.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.tasktracker.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
     },
     {
       "name": "lts.tasktracker.cluster-name",

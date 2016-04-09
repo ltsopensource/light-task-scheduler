@@ -26,7 +26,7 @@ import java.util.Map;
 @EnableConfigurationProperties(JobClientProperties.class)
 public class JobClientAutoConfiguration extends AbstractAutoConfiguration {
 
-    @Autowired
+    @Autowired(required = false)
     private JobClientProperties properties;
     private JobClient jobClient;
 
@@ -54,6 +54,9 @@ public class JobClientAutoConfiguration extends AbstractAutoConfiguration {
         }
         if (StringUtils.isNotEmpty(properties.getDataPath())) {
             jobClient.setDataPath(properties.getDataPath());
+        }
+        if (StringUtils.isNotEmpty(properties.getBindIp())) {
+            jobClient.setBindIp(properties.getBindIp());
         }
         if (CollectionUtils.isNotEmpty(properties.getConfigs())) {
             for (Map.Entry<String, String> entry : properties.getConfigs().entrySet()) {

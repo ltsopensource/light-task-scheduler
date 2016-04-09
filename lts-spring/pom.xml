@@ -35,6 +35,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-monitor</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${springframework.version}</version>

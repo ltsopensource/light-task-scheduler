@@ -7,6 +7,8 @@ import java.util.Map;
  */
 public class MonitorCfg {
 
+    private String identity;
+
     private String registryAddress;
 
     private String bindIp;
@@ -14,6 +16,14 @@ public class MonitorCfg {
     private String clusterName;
 
     private Map<String, String> configs;
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
 
     public String getBindIp() {
         return bindIp;
