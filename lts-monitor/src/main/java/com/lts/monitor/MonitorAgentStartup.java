@@ -32,7 +32,9 @@ public class MonitorAgentStartup {
             if (StringUtils.isNotEmpty(cfg.getBindIp())) {
                 agent.setBindIp(cfg.getBindIp());
             }
-
+            if (StringUtils.isNotEmpty(cfg.getIdentity())) {
+                agent.setIdentity(cfg.getIdentity());
+            }
             for (Map.Entry<String, String> config : cfg.getConfigs().entrySet()) {
                 agent.addConfig(config.getKey(), config.getValue());
             }

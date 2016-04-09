@@ -9,6 +9,8 @@ import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.factory.JobNodeConfigFactory;
 import com.lts.core.factory.NodeFactory;
 import com.lts.core.json.JSONFactory;
+import com.lts.core.logger.Logger;
+import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.AbstractRegistry;
 import com.lts.core.registry.Registry;
 import com.lts.core.registry.RegistryFactory;
@@ -27,6 +29,7 @@ import com.lts.monitor.cmd.MDataSrv;
  */
 public class MonitorAgent {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MonitorAgent.class);
     private HttpCmdServer httpCmdServer;
     private MonitorAppContext appContext;
     private Config config;
@@ -43,31 +46,38 @@ public class MonitorAgent {
 
     public void start() {
 
-        // 初始化
-        intConfig();
+        try {
+            // 初始化
+            intConfig();
 
-        // 默认端口
-        int port = config.getParameter("lts.http.cmd.port", 8730);
-        this.httpCmdServer = HttpCmdServer.Factory.getHttpCmdServer(config.getIp(), port);
+            // 默认端口
+            int port = config.getParameter("lts.http.cmd.port", 8730);
+            this.httpCmdServer = HttpCmdServer.Factory.getHttpCmdServer(config.getIp(), port);
 
-        this.httpCmdServer.registerCommands(
-                new MDataAddHttpCmd(this.appContext),
-                new StatusCheckHttpCmd(config),
-                new JVMInfoGetHttpCmd(config));
-        // 启动
-        this.httpCmdServer.start();
+            this.httpCmdServer.registerCommands(
+                    new MDataAddHttpCmd(this.appContext),
+                    new StatusCheckHttpCmd(config),
+                    new JVMInfoGetHttpCmd(config));
+            // 启动
+            this.httpCmdServer.start();
 
-        // 设置真正启动的端口
-        this.appContext.setHttpCmdPort(httpCmdServer.getPort());
+            // 设置真正启动的端口
+            this.appContext.setHttpCmdPort(httpCmdServer.getPort());
 
-        initNode();
+            initNode();
 
-        // 暴露在 zk 上
-        initRegistry();
-        registry.register(node);
+            // 暴露在 zk 上
+            initRegistry();
+            registry.register(node);
 
-        JVMMonitor.start();
-        AliveKeeping.start();
+            JVMMonitor.start();
+            AliveKeeping.start();
+
+            LOGGER.error("========== Start Monitor Success");
+
+        } catch (Throwable t) {
+            LOGGER.error("========== Start Monitor Error:", t);
+        }
     }
 
     public void initRegistry() {
@@ -110,13 +120,20 @@ public class MonitorAgent {
     }
 
     public void stop() {
-        // 先取消暴露
-        this.registry.unregister(node);
-        // 停止服务
-        this.httpCmdServer.stop();
+        try {
+            // 先取消暴露
+            this.registry.unregister(node);
+            // 停止服务
+            this.httpCmdServer.stop();
 
-        JVMMonitor.stop();
-        AliveKeeping.stop();
+            JVMMonitor.stop();
+            AliveKeeping.stop();
+
+            LOGGER.error("========== Stop Monitor Success");
+
+        } catch (Throwable t) {
+            LOGGER.error("========== Stop Monitor Error:", t);
+        }
     }
 
     /**

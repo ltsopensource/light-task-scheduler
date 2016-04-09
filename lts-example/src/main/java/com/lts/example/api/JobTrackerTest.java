@@ -40,7 +40,7 @@ public class JobTrackerTest {
         jobTracker.addConfig("mongo.database", "lts");
 
         // 这个是对于 返回给客户端 任务的 老数据删除策略
-        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
+//        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient(默认), curator
         jobTracker.addConfig("zk.client", "zkclient");
         // 启动节点

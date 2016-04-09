@@ -22,7 +22,7 @@ import java.util.Map;
 @EnableConfigurationProperties(JobTrackerProperties.class)
 public class JobTrackerAutoConfiguration extends AbstractAutoConfiguration {
 
-    @Autowired
+    @Autowired(required = false)
     private JobTrackerProperties properties;
     private JobTracker jobTracker;
 
@@ -38,6 +38,9 @@ public class JobTrackerAutoConfiguration extends AbstractAutoConfiguration {
         }
         if (StringUtils.isNotEmpty(properties.getIdentity())) {
             jobTracker.setIdentity(properties.getIdentity());
+        }
+        if(StringUtils.isNotEmpty(properties.getBindIp())){
+            jobTracker.setBindIp(properties.getBindIp());
         }
         if (CollectionUtils.isNotEmpty(properties.getConfigs())) {
             for (Map.Entry<String, String> entry : properties.getConfigs().entrySet()) {

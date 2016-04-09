@@ -45,8 +45,13 @@ public class MonitorCfgLoader {
             cfg.setClusterName(clusterName);
 
             String bindIp = conf.getProperty("bindIp");
-            if (StringUtils.isNotEmpty(clusterName)) {
+            if (StringUtils.isNotEmpty(bindIp)) {
                 cfg.setBindIp(bindIp);
+            }
+
+            String identity = conf.getProperty("identity");
+            if (StringUtils.isNotEmpty(identity)) {
+                cfg.setBindIp(identity);
             }
 
             Map<String, String> configs = new HashMap<String, String>();
