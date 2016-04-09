@@ -81,7 +81,7 @@ public class BaseJobClientTest {
         job.setParam("shopId", "111");
         // 执行节点的group名称
         job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-        // 是否接收执行反馈消息 jobClient.setJobFinishedHandler(new JobFinishedHandlerImpl()); 中接受
+        // 是否接收执行反馈消息 jobClient.setJobCompletedHandler(new JobFinishedHandlerImpl()); 中接受
         job.setNeedFeedback(true);
         // 这个是 cron expression 和 quartz 一样，可选
          job.setCronExpression(cronExpression);

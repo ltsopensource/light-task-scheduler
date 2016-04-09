@@ -78,13 +78,13 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
                 AliveKeeping.start();
 
-                LOGGER.info("Start success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
+                LOGGER.info("========== Start success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
             }
         } catch (Throwable e) {
             if (e.getMessage().contains("Address already in use")) {
-                LOGGER.error("Start failed at listen port {}, nodeType={}, identity={}", config.getListenPort(), config.getNodeType(), config.getIdentity(), e);
+                LOGGER.error("========== Start failed at listen port {}, nodeType={}, identity={}", config.getListenPort(), config.getNodeType(), config.getIdentity(), e);
             } else {
-                LOGGER.error("Start failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
+                LOGGER.error("========== Start failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
             }
         }
     }
@@ -122,10 +122,10 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
                 AliveKeeping.stop();
 
-                LOGGER.info("Stop success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
+                LOGGER.info("========== Stop success, nodeType={}, identity={}", config.getNodeType(), config.getIdentity());
             }
         } catch (Throwable e) {
-            LOGGER.error("Stop failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
+            LOGGER.error("========== Stop failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
         }
     }
 

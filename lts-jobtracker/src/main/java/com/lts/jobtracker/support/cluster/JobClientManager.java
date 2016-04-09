@@ -32,7 +32,7 @@ public class JobClientManager {
 
     public JobClientManager(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig());
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "jobclient.select.loadbalance");
     }
 
     /**

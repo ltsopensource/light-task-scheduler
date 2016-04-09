@@ -94,13 +94,6 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         return new RemotingDispatcher(appContext);
     }
 
-    /**
-     * 设置反馈数据给JobClient的负载均衡算法
-     */
-    public void setLoadBalance(String loadBalance) {
-        config.setParameter("loadbalance", loadBalance);
-    }
-
     public void setOldDataHandler(OldDataHandler oldDataHandler) {
         appContext.setOldDataHandler(oldDataHandler);
     }

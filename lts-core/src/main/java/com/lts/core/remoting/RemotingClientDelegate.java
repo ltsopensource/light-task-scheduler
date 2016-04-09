@@ -45,7 +45,7 @@ public class RemotingClientDelegate {
                 throw new JobTrackerNotFoundException("no available jobTracker!");
             }
             // 连JobTracker的负载均衡算法
-            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig());
+            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "jobtracker.select.loadbalance");
             return loadBalance.select(jobTrackers, appContext.getConfig().getIdentity());
         } catch (JobTrackerNotFoundException e) {
             this.serverEnable = false;
