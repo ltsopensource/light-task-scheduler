@@ -1,0 +1,130 @@
+{
+  "groups": [
+    {
+      "name": "lts.jobclient",
+      "type": "com.lts.spring.boot.properties.JobClientProperties",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobtracker",
+      "type": "com.lts.spring.boot.properties.JobTrackerProperties",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker",
+      "type": "com.lts.spring.boot.properties.TaskTrackerProperties",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "lts.jobclient.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.data-path",
+      "type": "java.lang.String",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.node-group",
+      "type": "java.lang.String",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.use-retry-client",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobtracker.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.listen-port",
+      "type": "java.lang.Integer",
+      "description": "监听端口",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.lts.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.data-path",
+      "type": "java.lang.String",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.node-group",
+      "type": "java.lang.String",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.work-threads",
+      "type": "java.lang.Integer",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    }
+  ],
+  "hints": []
+}

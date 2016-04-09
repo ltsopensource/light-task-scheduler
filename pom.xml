@@ -42,7 +42,7 @@
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
         <h2.version>1.4.189</h2.version>
-        <springframework.version>4.1.6.RELEASE</springframework.version>
+        <springframework.version>4.2.5.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
         <hessian.version>4.0.38</hessian.version>
         <mapdb.version>2.0-beta10</mapdb.version>
@@ -50,6 +50,7 @@
         <jackson.version>2.6.3</jackson.version>
         <aspectj.version>1.7.2</aspectj.version>
         <javax.mail.version>1.5.4</javax.mail.version>
+        <spring.boot.version>1.3.3.RELEASE</spring.boot.version>
     </properties>
 
     <dependencyManagement>
@@ -230,6 +231,16 @@
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
                 <version>${javax.mail.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring.boot.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

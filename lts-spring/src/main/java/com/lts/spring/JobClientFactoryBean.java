@@ -93,7 +93,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         jobClient.setRegistryAddress(registryAddress);
 
         if (jobCompletedHandler != null) {
-            jobClient.setJobFinishedHandler(jobCompletedHandler);
+            jobClient.setJobCompletedHandler(jobCompletedHandler);
         }
 
         // 设置config

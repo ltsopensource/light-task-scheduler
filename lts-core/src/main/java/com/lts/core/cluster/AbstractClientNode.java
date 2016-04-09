@@ -56,16 +56,6 @@ public abstract class AbstractClientNode<T extends Node, Context extends AppCont
         return remotingClient.isServerEnable();
     }
 
-    /**
-     * 设置连接JobTracker的负载均衡算法
-     *
-     * @param loadBalance 算法 random, consistenthash
-     */
-    public void setLoadBalance(String loadBalance) {
-        config.setParameter("loadbalance", loadBalance);
-    }
-
-
     @Override
     protected void beforeRemotingStart() {
         //

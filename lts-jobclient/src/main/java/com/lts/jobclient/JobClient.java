@@ -269,7 +269,7 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
     /**
      * 设置任务完成接收器
      */
-    public void setJobFinishedHandler(JobCompletedHandler jobCompletedHandler) {
+    public void setJobCompletedHandler(JobCompletedHandler jobCompletedHandler) {
         appContext.setJobCompletedHandler(jobCompletedHandler);
     }
 
