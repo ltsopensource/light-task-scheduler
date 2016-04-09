@@ -4,8 +4,8 @@ import com.lts.core.cluster.Config;
 import com.lts.core.cluster.NodeType;
 import com.lts.core.commons.utils.DateUtils;
 import com.lts.core.constant.Constants;
-import sun.management.ManagementFactory;
 
+import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.Date;
 
