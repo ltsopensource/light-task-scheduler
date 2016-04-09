@@ -1,4 +1,6 @@
-package com.lts.spring.boot;
+package com.lts.spring.boot.annotation;
+
+import org.springframework.stereotype.Component;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,9 +8,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * @author Robert HG (254963746@qq.com) on 4/6/16.
+ * @author Robert HG (254963746@qq.com) on 4/9/16.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EnableTaskTracker {
+@Component
+public @interface JobRunner4TaskTracker {
 }

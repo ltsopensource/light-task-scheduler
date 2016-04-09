@@ -52,7 +52,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                         }
 
                         JobPriorityBlockingQueue queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
-                        if (!force && queue.size() / loadSize < factor) {
+                        if (force || queue.size() / loadSize < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, loadSize - queue.size());
                             // 加入到内存中

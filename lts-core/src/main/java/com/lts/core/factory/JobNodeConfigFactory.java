@@ -16,7 +16,7 @@ public class JobNodeConfigFactory {
 
     public static Config getDefaultConfig() {
         Config config = new Config();
-        config.setWorkThreads(Constants.AVAILABLE_PROCESSOR);
+        config.setWorkThreads(64);
         config.setNodeGroup("lts");
         config.setRegistryAddress("zookeeper://127.0.0.1:2181");
         config.setInvokeTimeoutMillis(1000 * 60);

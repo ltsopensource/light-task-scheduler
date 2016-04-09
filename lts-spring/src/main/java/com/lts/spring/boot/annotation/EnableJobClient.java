@@ -1,4 +1,4 @@
-package com.lts.spring.boot;
+package com.lts.spring.boot.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface EnableJobTracker {
+public @interface EnableJobClient {
 }

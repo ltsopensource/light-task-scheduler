@@ -1,7 +1,7 @@
 package com.lts.core.domain;
 
 /**
- * Created by hugui.hg on 4/7/16.
+ * @author Robert HG (254963746@qq.com) on 4/7/16.
  */
 public enum JobType {
 

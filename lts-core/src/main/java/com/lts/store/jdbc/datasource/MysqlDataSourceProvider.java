@@ -29,6 +29,13 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
         String username = config.getParameter(USERNAME_KEY);
         String password = config.getParameter(PASSWORD_KEY);
 
+        if(StringUtils.isEmpty(url)){
+            throw new IllegalArgumentException(URL_KEY + " should not be empty");
+        }
+        if(StringUtils.isEmpty(USERNAME_KEY)){
+            throw new IllegalArgumentException(USERNAME_KEY + " should not be empty");
+        }
+
         String cachedKey = StringUtils.concat(url, username, password);
 
         DataSource dataSource = DATA_SOURCE_MAP.get(cachedKey);

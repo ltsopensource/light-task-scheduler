@@ -12,5 +12,5 @@ public interface JobCompletedHandler {
     /**
      * 处理返回结果
      */
-    public void onComplete(List<JobResult> jobResults);
+    void onComplete(List<JobResult> jobResults);
 }
