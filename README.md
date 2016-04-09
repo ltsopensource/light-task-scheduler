@@ -389,6 +389,22 @@ public class TestJobRunnerTester extends JobRunnerTester {
     <property name="nodeGroup" value="quartz_test_group"/>
 </bean>
 ```
+##Spring Boot 支持
+
+```java
+@SpringBootApplication
+@EnableJobTracker       // 启动JobTracker
+@EnableJobClient        // 启动JobClient
+@EnableTaskTracker      // 启动TaskTracker
+@EnableMonitor          // 启动Monitor
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.lts.examples.springboot`包下的例子
 
 
 ##多网卡选择问题
