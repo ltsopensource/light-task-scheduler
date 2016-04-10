@@ -4,6 +4,7 @@ import com.lts.admin.access.BackendAccessFactory;
 import com.lts.admin.access.memory.NodeMemCacheAccess;
 import com.lts.admin.cluster.BackendAppContext;
 import com.lts.admin.cluster.BackendNode;
+import com.lts.admin.cluster.BackendRegistrySrv;
 import com.lts.admin.web.support.NoRelyJobGenerator;
 import com.lts.biz.logger.SmartJobLogger;
 import com.lts.core.cluster.Config;
@@ -74,6 +75,7 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
         appContext.setNode(node);
         appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
         appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
+        appContext.setBackendRegistrySrv(new BackendRegistrySrv(appContext));
 
         initAccess(config);
 
@@ -88,6 +90,8 @@ public class BackendAppContextFactoryBean implements FactoryBean<BackendAppConte
             }
         }
         initJobQueue(jobTConfig);
+
+        appContext.getBackendRegistrySrv().start();
     }
 
     private void initJobQueue(Config config) {

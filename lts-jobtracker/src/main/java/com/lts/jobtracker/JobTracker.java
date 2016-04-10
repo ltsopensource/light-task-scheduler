@@ -21,6 +21,7 @@ import com.lts.jobtracker.support.cluster.JobClientManager;
 import com.lts.jobtracker.support.cluster.TaskTrackerManager;
 import com.lts.jobtracker.support.listener.JobNodeChangeListener;
 import com.lts.jobtracker.support.listener.JobTrackerMasterChangeListener;
+import com.lts.jobtracker.support.policy.OldDataDeletePolicy;
 import com.lts.queue.JobQueueFactory;
 import com.lts.remoting.RemotingProcessor;
 
@@ -70,6 +71,10 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
         appContext.getHttpCmdServer().registerCommands(
                 new LoadJobHttpCmd(appContext),     // 手动加载任务
                 new AddJobHttpCmd(appContext));     // 添加任务
+
+        if(appContext.getOldDataHandler() == null){
+            appContext.setOldDataHandler(new OldDataDeletePolicy());
+        }
     }
 
     @Override

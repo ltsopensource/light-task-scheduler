@@ -42,7 +42,7 @@ public class JobTrackerTest {
         // 这个是对于 返回给客户端 任务的 老数据删除策略
 //        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient(默认), curator
-        jobTracker.addConfig("zk.client", "zkclient");
+//        jobTracker.addConfig("zk.client", "zkclient");
         // 启动节点
         jobTracker.start();
 
@@ -77,13 +77,13 @@ public class JobTrackerTest {
         jobTracker.addConfig("jdbc.password", "root");
 //        jobTracker.setBindIp("127.0.0.1");
         // 可选值 mina netty
-        jobTracker.addConfig("lts.remoting", "netty");
+//        jobTracker.addConfig("lts.remoting", "netty");
         // 可选值 fastjson hessian2 java
 //         jobTracker.addConfig("lts.remoting.serializable.default", "fastjson");
         // 延迟批量刷盘业务日志开关
 //        jobTracker.addConfig("lazy.job.logger", "true");
 
-        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
+//        jobTracker.setOldDataHandler(new OldDataDeletePolicy());
         // 设置 zk 客户端用哪个， 可选 zkclient, curator 默认是 zkclient
 //        jobTracker.addConfig("zk.client", "curator");
 
