@@ -7,8 +7,6 @@ import com.lts.core.commons.utils.CollectionUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.core.registry.*;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,13 +15,16 @@ import java.util.List;
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
-public class BackendRegistrySrv implements InitializingBean {
+public class BackendRegistrySrv {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BackendRegistrySrv.class);
-    @Autowired
     private BackendAppContext appContext;
     private Registry registry;
     private NotifyListener notifyListener;
+
+    public BackendRegistrySrv(BackendAppContext appContext) {
+        this.appContext = appContext;
+    }
 
     private void subscribe() {
 
@@ -74,8 +75,7 @@ public class BackendRegistrySrv implements InitializingBean {
         appContext.getBackendNodeOnOfflineLogAccess().insert(logs);
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void start() throws Exception {
 
         registry = RegistryFactory.getRegistry(appContext);
 
