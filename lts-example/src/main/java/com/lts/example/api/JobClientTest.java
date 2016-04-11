@@ -111,8 +111,8 @@ public class JobClientTest extends BaseJobClientTest {
         // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
         jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         // 可选址  leveldb(默认), rocksdb, berkeleydb, mapdb
-        jobClient.addConfig("job.fail.store", "mapdb");
-        jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
+//        jobClient.addConfig("job.fail.store", "mapdb");
+//        jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
 //        jobClient.setIdentity("test_jobclient_0000001");
 //        jobClient.addConfig(SpiKey.LTS_JSON, "fastjson");
 //        jobClient.addConfig("lts.remoting", "netty");
@@ -135,7 +135,7 @@ public class JobClientTest extends BaseJobClientTest {
         // 任务重试保存地址，默认用户目录下
 //        jobClient.setDataPath(Constants.USER_HOME);
         jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+//        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
 //                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
 //        jobClient.addConfig("job.fail.store", "berkeleydb");
 //        jobClient.addConfig("job.fail.store", "rocksdb");
