@@ -1,7 +1,6 @@
-package com.lts.example.support.quartz;
+package com.lts.example.spring.quartz;
 
 import com.lts.core.commons.utils.DateUtils;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author Robert HG (254963746@qq.com) on 4/9/16.
  */
 @Component
-public class JobClientReferenceBean implements InitializingBean{
+public class JobClientReferenceBean implements InitializingBean {
 
     @Autowired
     private JobClient jobClient;

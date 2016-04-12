@@ -1,4 +1,4 @@
-package com.lts.example.support.quartz;
+package com.lts.example.spring.quartz;
 
 import com.lts.core.support.AliveKeeping;
 import org.springframework.context.ApplicationContext;
