@@ -12,7 +12,9 @@
 
     <!-- 方式1 -->
     <!-- 注解方式 -->
-    <context:component-scan base-package="com.lts"/>
+    <context:component-scan base-package="com.lts.example">
+        <context:exclude-filter type="regex" expression="com.lts.example.springboot.*"/>
+    </context:component-scan>
 
     <bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
         <!-- 使用JobRunnerItem注解一定要使用 JobDispatcher -->
