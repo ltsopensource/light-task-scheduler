@@ -19,11 +19,11 @@
         </property>
         <property name="configs">
             <props>
-                <prop key="job.logger">mongo</prop>
-                <prop key="job.queue">mongo</prop>
-                <prop key="mongo.addresses">127.0.0.1:27017</prop>
-                <prop key="mongo.database">lts</prop>
-                <prop key="zk.client">zkclient</prop>
+                <prop key="job.logger">mysql</prop>
+                <prop key="job.queue">mysql</prop>
+                <prop key="jdbc.url">jdbc:mysql://127.0.0.1:3306/lts</prop>
+                <prop key="jdbc.username">root</prop>
+                <prop key="jdbc.password">root</prop>
             </props>
         </property>
     </bean>

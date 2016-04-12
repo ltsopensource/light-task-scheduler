@@ -60,10 +60,11 @@ public class LTSSpringConfig implements ApplicationContextAware {
                 new MasterChangeListenerImpl()
         });
         Properties configs = new Properties();
-        configs.setProperty("job.logger", "mongo");
-        configs.setProperty("job.queue", "mongo");
-        configs.setProperty("mongo.addresses", "127.0.0.1:27017");
-        configs.setProperty("mongo.database", "lts");
+        configs.setProperty("job.logger", "mysql");
+        configs.setProperty("job.queue", "mysql");
+        configs.setProperty("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
+        configs.setProperty("jdbc.username", "root");
+        configs.setProperty("jdbc.password", "root");
         factoryBean.setConfigs(configs);
 
         factoryBean.afterPropertiesSet();
