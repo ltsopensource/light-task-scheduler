@@ -24,6 +24,8 @@ import com.lts.monitor.access.MonitorAccessFactory;
 import com.lts.monitor.cmd.MDataAddHttpCmd;
 import com.lts.monitor.cmd.MDataSrv;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * @author Robert HG (254963746@qq.com) on 3/10/16.
  */
@@ -35,6 +37,7 @@ public class MonitorAgent {
     private Config config;
     private Registry registry;
     private MonitorNode node;
+    private AtomicBoolean start = new AtomicBoolean(false);
 
     public MonitorAgent() {
         this.appContext = new MonitorAppContext();
@@ -45,6 +48,10 @@ public class MonitorAgent {
     }
 
     public void start() {
+
+        if (!start.compareAndSet(false, true)) {
+            return;
+        }
 
         try {
             // 初始化
@@ -120,11 +127,19 @@ public class MonitorAgent {
     }
 
     public void stop() {
+        if (!start.compareAndSet(true, false)) {
+            return;
+        }
+
         try {
-            // 先取消暴露
-            this.registry.unregister(node);
-            // 停止服务
-            this.httpCmdServer.stop();
+            if (registry != null) {
+                // 先取消暴露
+                this.registry.unregister(node);
+            }
+            if (httpCmdServer != null) {
+                // 停止服务
+                this.httpCmdServer.stop();
+            }
 
             JVMMonitor.stop();
             AliveKeeping.stop();
