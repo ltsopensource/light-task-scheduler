@@ -16,6 +16,6 @@ import java.lang.annotation.Target;
 @Component
 public @interface MasterNodeListener {
 
-    NodeType[] nodeTypes()  ;
+    NodeType[] nodeTypes() default {};
 
 }
