@@ -46,11 +46,6 @@ public class MethodInvokingJobRunner implements InitializingBean {
             throw new IllegalArgumentException("targetMethod can not be found in " + targetObject.getClass().getName());
         }
 
-        Class<?> returnType = method.getReturnType();
-        if (returnType != Result.class) {
-            throw new IllegalArgumentException(clazz.getName() + ":" + method.getName() + " returnType must be " + Result.class.getName());
-        }
-
         JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(targetObject, method, method.getParameterTypes()));
 
     }

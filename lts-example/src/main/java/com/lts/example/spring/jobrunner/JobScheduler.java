@@ -5,8 +5,8 @@ import com.lts.core.domain.Job;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
 import com.lts.example.support.SpringBean;
-import com.lts.spring.tasktracker.LTS;
 import com.lts.spring.tasktracker.JobRunnerItem;
+import com.lts.spring.tasktracker.LTS;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.logger.BizLogger;
 import com.lts.tasktracker.runner.LtsLoggerFactory;
@@ -43,7 +43,7 @@ public class JobScheduler {
     }
 
     @JobRunnerItem(shardValue = "222")
-    public Result runJob2() throws Throwable {
+    public void runJob2() throws Throwable {
         try {
             springBean.hello();
 
@@ -53,9 +53,7 @@ public class JobScheduler {
             bizLogger.info("测试，业务日志啊啊啊啊啊");
         } catch (Exception e) {
             LOGGER.info("Run job failed!", e);
-            return new Result(Action.EXECUTE_LATER, e.getMessage());
         }
-        return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
     }
 
 }

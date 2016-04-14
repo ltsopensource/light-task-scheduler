@@ -3,7 +3,6 @@ package com.lts.spring.tasktracker;
 import com.lts.core.commons.utils.StringUtils;
 import com.lts.core.logger.Logger;
 import com.lts.core.logger.LoggerFactory;
-import com.lts.tasktracker.Result;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -68,26 +67,7 @@ public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPo
             return bean;
         }
 
-        Method[] methods = clazz.getMethods();
-        if (methods != null && methods.length > 0) {
-
-            for (final Method method : methods) {
-                if (method.isAnnotationPresent(JobRunnerItem.class)) {
-                    JobRunnerItem jobRunnerItem = method.getAnnotation(JobRunnerItem.class);
-                    String shardValue = jobRunnerItem.shardValue();
-                    if (StringUtils.isEmpty(shardValue)) {
-                        LOGGER.error(clazz.getName() + ":" + method.getName() + " " + JobRunnerItem.class.getName() + " shardValue can not be null");
-                        continue;
-                    }
-                    Class<?> returnType = method.getReturnType();
-                    if (returnType != Result.class) {
-                        LOGGER.error(clazz.getName() + ":" + method.getName() + " returnType must be " + Result.class.getName());
-                        continue;
-                    }
-                    JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(bean, method, method.getParameterTypes()));
-                }
-            }
-        }
+        JobRunnerHolder.addLTSBean(bean);
 
         return bean;
     }
