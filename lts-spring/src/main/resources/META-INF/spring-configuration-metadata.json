@@ -19,6 +19,12 @@
       "name": "lts.tasktracker",
       "type": "com.lts.spring.boot.properties.TaskTrackerProperties",
       "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner",
+      "type": "com.lts.spring.boot.properties.TaskTrackerProperties$DispatchRunner",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties",
+      "sourceMethod": "getDispatchRunner()"
     }
   ],
   "properties": [
@@ -65,7 +71,8 @@
     {
       "name": "lts.jobclient.use-retry-client",
       "type": "java.lang.Boolean",
-      "sourceType": "com.lts.spring.boot.properties.JobClientProperties"
+      "sourceType": "com.lts.spring.boot.properties.JobClientProperties",
+      "defaultValue": true
     },
     {
       "name": "lts.jobtracker.bind-ip",
@@ -154,7 +161,21 @@
     {
       "name": "lts.tasktracker.data-path",
       "type": "java.lang.String",
+      "description": "FailStore数据存储路径",
       "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否使用shardRunner",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties$DispatchRunner",
+      "defaultValue": false
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner.shard-value",
+      "type": "java.lang.String",
+      "description": "shard的字段,默认taskId",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties$DispatchRunner"
     },
     {
       "name": "lts.tasktracker.identity",
@@ -165,6 +186,7 @@
     {
       "name": "lts.tasktracker.node-group",
       "type": "java.lang.String",
+      "description": "节点Group",
       "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
     },
     {
@@ -176,7 +198,9 @@
     {
       "name": "lts.tasktracker.work-threads",
       "type": "java.lang.Integer",
-      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties"
+      "description": "工作线程,默认64",
+      "sourceType": "com.lts.spring.boot.properties.TaskTrackerProperties",
+      "defaultValue": 0
     }
   ],
   "hints": []

@@ -8,9 +8,28 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "lts.tasktracker")
 public class TaskTrackerProperties extends AbstractProperties {
 
+    /**
+     * 节点Group
+     */
     private String nodeGroup;
+    /**
+     * FailStore数据存储路径
+     */
     private String dataPath;
+    /**
+     * 工作线程,默认64
+     */
     private int workThreads;
+
+    private DispatchRunner dispatchRunner;
+
+    public DispatchRunner getDispatchRunner() {
+        return dispatchRunner;
+    }
+
+    public void setDispatchRunner(DispatchRunner dispatchRunner) {
+        this.dispatchRunner = dispatchRunner;
+    }
 
     public String getNodeGroup() {
         return nodeGroup;
@@ -34,5 +53,33 @@ public class TaskTrackerProperties extends AbstractProperties {
 
     public void setWorkThreads(int workThreads) {
         this.workThreads = workThreads;
+    }
+
+    public static class DispatchRunner {
+        /**
+         * 是否使用shardRunner
+         */
+        private boolean enable = false;
+        /**
+         * shard的字段,默认taskId
+         */
+        private String shardValue;
+
+        public boolean isEnable() {
+            return enable;
+        }
+
+        public void setEnable(boolean enable) {
+            this.enable = enable;
+        }
+
+        public String getShardValue() {
+            return shardValue;
+        }
+
+        public void setShardValue(String shardValue) {
+            this.shardValue = shardValue;
+        }
+
     }
 }
