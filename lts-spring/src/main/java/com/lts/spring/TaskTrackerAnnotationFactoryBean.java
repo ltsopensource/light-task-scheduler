@@ -12,6 +12,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -154,15 +155,15 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
     private void registerRunnerBeanDefinition() {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory)
                 ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-        jobRunnerBeanName = "LTS_".concat(jobRunnerClass.getName());
+        jobRunnerBeanName = "LTS_".concat(jobRunnerClass.getSimpleName());
         if (!beanFactory.containsBean(jobRunnerBeanName)) {
             BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(jobRunnerClass);
             if (jobRunnerClass == JobDispatcher.class) {
-                builder.setScope("singleton");
+                builder.setScope(BeanDefinition.SCOPE_SINGLETON);
                 builder.setLazyInit(false);
                 builder.getBeanDefinition().getPropertyValues().addPropertyValue("shardField", shardField);
             } else {
-                builder.setScope("prototype");
+                builder.setScope(BeanDefinition.SCOPE_PROTOTYPE);
             }
             beanFactory.registerBeanDefinition(jobRunnerBeanName, builder.getBeanDefinition());
         }

@@ -1,5 +1,6 @@
 package com.lts.spring.tasktracker;
 
+import com.lts.core.domain.Action;
 import com.lts.core.domain.Job;
 import com.lts.tasktracker.Result;
 import com.lts.tasktracker.runner.JobContext;
@@ -10,7 +11,7 @@ import java.lang.reflect.Method;
 /**
  * @author Robert HG (254963746@qq.com) on 4/2/16.
  */
-class JobRunnerBuilder {
+public class JobRunnerBuilder {
 
     public static JobRunner build(final Object targetObject, final Method targetMethod, final Class<?>[] pTypes) {
 
@@ -30,6 +31,10 @@ class JobRunnerBuilder {
                     } else {
                         pTypeValues[i] = null;
                     }
+                }
+                Class<?> returnType = targetMethod.getReturnType();
+                if (returnType != Result.class) {
+                    return new Result(Action.EXECUTE_SUCCESS);
                 }
                 return (Result) targetMethod.invoke(targetObject, pTypeValues);
             }

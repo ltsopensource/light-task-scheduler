@@ -1,9 +1,12 @@
 package com.lts.example.support;
 
+import org.springframework.stereotype.Component;
+
 /**
  * 测试bean 注入
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
+@Component
 public class SpringBean {
 
     public void hello(){

@@ -45,13 +45,13 @@ public class JobPullMachine {
     private Runnable worker;
     private int jobPullFrequency;
     // 是否启用机器资源检查
-    private boolean machineResCheckEnable = true;
+    private boolean machineResCheckEnable = false;
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
         this.appContext = appContext;
         this.jobPullFrequency = appContext.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
 
-        this.machineResCheckEnable = appContext.getConfig().getParameter(Constants.LB_MACHINE_RES_CHECK_ENABLE, true);
+        this.machineResCheckEnable = appContext.getConfig().getParameter(Constants.LB_MACHINE_RES_CHECK_ENABLE, false);
 
         appContext.getEventCenter().subscribe(
                 new EventSubscriber(JobPullMachine.class.getSimpleName().concat(appContext.getConfig().getIdentity()),
