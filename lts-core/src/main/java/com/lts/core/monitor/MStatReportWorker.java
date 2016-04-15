@@ -96,6 +96,13 @@ public class MStatReportWorker implements Runnable {
         // Send monitor data
         mDataQueue.add(mData);
 
+        // check size
+        int size = mDataQueue.size();
+        if (size > MAX_RETRY_RETAIN) {
+            // delete the oldest
+            mDataQueue = mDataQueue.subList(size - MAX_RETRY_RETAIN, size);
+        }
+
         List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
         if (CollectionUtils.isEmpty(monitorNodes)) {
             if (LOGGER.isDebugEnabled()) {
@@ -105,7 +112,7 @@ public class MStatReportWorker implements Runnable {
         }
 
         int toIndex = 0;
-        int size = mDataQueue.size();
+        size = mDataQueue.size();
         try {
             for (int i = 0; i <= size / BATCH_REPORT_SIZE; i++) {
                 List<MData> mDatas = BatchUtils.getBatchList(i, BATCH_REPORT_SIZE, mDataQueue);
@@ -136,12 +143,6 @@ public class MStatReportWorker implements Runnable {
             } else {
                 mDataQueue = mDataQueue.subList(toIndex + 1, size);
             }
-        }
-        // check size
-        size = mDataQueue.size();
-        if (size > MAX_RETRY_RETAIN) {
-            // delete the oldest
-            mDataQueue = mDataQueue.subList(size - MAX_RETRY_RETAIN, size);
         }
     }
 
