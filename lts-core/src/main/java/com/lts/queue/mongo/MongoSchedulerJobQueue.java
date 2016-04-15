@@ -37,7 +37,7 @@ public abstract class MongoSchedulerJobQueue extends AbstractMongoJobQueue imple
     @Override
     public List<JobPo> getNeedGenerateJobPos(Long checkTime, int topSize) {
         Query<JobPo> query = template.createQuery(JobPo.class);
-        query.field("relyOnPrevCycle").equal(true);
+        query.field("relyOnPrevCycle").equal(false);
         query.field("lastGenerateTriggerTime").equal(checkTime);
         query.offset(0).limit(topSize);
         return query.asList();
