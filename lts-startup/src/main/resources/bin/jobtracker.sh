@@ -32,7 +32,7 @@ CONF_HOME="$(cd "$(dirname "${CONF_HOME}")"; pwd)"
 CONF_HOME="$CONF_HOME/conf/$NODE_NAME"
 
 _LTS_DAEMON_OUT="$JOB_TRACKER_HOME/../logs/jobtracker-$NODE_NAME.out"
-LTS_MAIN="com.lts.startup.jobtracker.JobTrackerStartup"
+LTS_MAIN="com.github.ltsopensource.startup.jobtracker.JobTrackerStartup"
 
 LTS_PID_FILE="$JOB_TRACKER_HOME/../pid/jobtracker-$NODE_NAME.pid"
 

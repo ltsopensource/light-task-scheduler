@@ -1,3 +1,0 @@
-random=com.lts.core.loadbalance.RandomLoadBalance
-consistenthash=com.lts.core.loadbalance.ConsistentHashLoadBalance
-mastersalve=com.lts.core.loadbalance.MasterSalveLoadBalance

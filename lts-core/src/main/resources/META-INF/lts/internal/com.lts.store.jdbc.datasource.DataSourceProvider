@@ -1,2 +1,0 @@
-mysql=com.lts.store.jdbc.datasource.MysqlDataSourceProvider
-h2=com.lts.store.jdbc.datasource.H2DataSourceProvider

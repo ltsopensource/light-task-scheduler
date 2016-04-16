@@ -9,7 +9,7 @@ set CLASSPATH=%BASE_HOME%\lib\*;%CLASSPATH%
 
 set CONF_HOME=%BASE_HOME%\conf\%NODE_NAME%
 
-set LTS_MAIN=com.lts.monitor.MonitorAgentStartup
+set LTS_MAIN=com.github.ltsopensource.monitor.MonitorAgentStartup
 
 echo LtsMonitor [%NODE_NAME%] started
 java -cp "%CLASSPATH%" %JVMFLAGS% %LTS_MAIN% "%CONF_HOME%" %*

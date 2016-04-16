@@ -14,7 +14,7 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
         >
 
-    <context:component-scan base-package="com.lts.admin.web"/>
+    <context:component-scan base-package="com.github.ltsopensource.admin.web"/>
     <aop:aspectj-autoproxy proxy-target-class="true"/>
     <context:annotation-config/>
     <mvc:annotation-driven/>
@@ -51,6 +51,6 @@
                   value="org.springframework.web.servlet.view.velocity.VelocityLayoutView" />
     </bean>
 
-    <bean class="com.lts.admin.web.support.ExceptionHandlerResolver"/>
+    <bean class="com.github.ltsopensource.admin.web.support.ExceptionHandlerResolver"/>
 
 </beans>
