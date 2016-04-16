@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lts-parent</artifactId>
         <groupId>com.github.ltsopensource</groupId>
-        <version>1.6.7-SNAPSHOT</version>
+        <version>1.6.7</version>
     </parent>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -76,11 +76,15 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.core.extension.ExtensionFactory</resource>
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.biz.logger.JobLoggerFactory</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/com.github.ltsopensource.core.failstore.FailStoreFactory</resource>
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.core.failstore.FailStoreFactory</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.core.json.JSONAdapter</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -96,12 +100,19 @@
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.JobQueueFactory</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/lts/internal/com.github.ltsopensource.remoting.RemotingTransporter</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.remoting.serialize.RemotingSerializable
-                                    </resource>
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.remoting.serialize.RemotingSerializable</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.store.jdbc.datasource.DataSourceProvider</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
@@ -109,39 +120,11 @@
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.jobtracker.id.IdGenerator</resource>
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.monitor.access.MonitorAccessFactory</resource>
                                 </transformer>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.biz.logger.JobLogger</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.CronJobQueueFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.ExecutableJobQueueFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.ExecutingJobQueueFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.JobFeedbackQueueFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.NodeGroupStoreFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.PreLoaderFactory</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/lts/internal/com.github.ltsopensource.queue.SuspendJobQueueFactory</resource>
+                                    <resource>META-INF/lts/internal/com.github.ltsopensource.admin.access.BackendAccessFactory</resource>
                                 </transformer>
                             </transformers>
                         </configuration>
