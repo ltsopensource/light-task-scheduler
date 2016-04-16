@@ -10,37 +10,22 @@ cd $LTS_Bin_Dir
 
 mvn clean install -U -DskipTests
 
-Dist_Bin_Dir="lts-$VERSION-bin"
-mkdir -p $LTS_Bin_Dir/dist/$Dist_Bin_Dir
+Dist_Bin_Dir="$LTS_Bin_Dir/dist/lts-$VERSION-bin"
+mkdir -p $Dist_Bin_Dir
 
-# JobTracker 的打包
-JobTracker_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-jobtracker"
-cd $JobTracker_Startup_Dir
-mvn assembly:assembly -DskipTests
+Dist_Bin_Dir="$(cd "$(dirname "${Dist_Bin_Dir}/.")"; pwd)"
 
-# LTS-Admin 打包
-LTS_Admin_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-admin"
-cd $LTS_Admin_Startup_Dir
-mvn assembly:assembly -DskipTests
+mkdir -p $Dist_Bin_Dir
 
-# TaskTracker 打包
-TaskTracker_Startup_Dir="$LTS_Bin_Dir/lts-startup/lts-startup-tasktracker"
-cd $TaskTracker_Startup_Dir
-mvn assembly:assembly -DskipTests
+# 打包
+Startup_Dir="$LTS_Bin_Dir/lts-startup/"
+cd $Startup_Dir
+mvn clean assembly:assembly -DskipTests -Pdefault
 
-# LTS-Monitor 打包
-LTS_Monitor_Startup_Dir="$LTS_Bin_Dir/lts-monitor"
-cd $LTS_Monitor_Startup_Dir
-mvn assembly:assembly -DskipTests
+cp -rf $Startup_Dir/target/lts-bin/lts/*  $Dist_Bin_Dir
 
-
-cp -rf $JobTracker_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
-cp -rf $LTS_Admin_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
-cp -rf $TaskTracker_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
-cp -rf $LTS_Monitor_Startup_Dir/target/lts-bin/lts/*  $LTS_Bin_Dir/dist/$Dist_Bin_Dir
-cp -rf $LTS_Bin_Dir/lts-admin/target/lts-admin-$VERSION.war $LTS_Bin_Dir/dist/$Dist_Bin_Dir/lts-admin/lts-admin.war
-
-# cd $LTS_Bin_Dir/dist
-# zip -r $Dist_Bin_Dir.zip $Dist_Bin_Dir/*
-# rm -rf $Dist_Bin_Dir
+mkdir -p $Dist_Bin_Dir/war/jetty/lib
+mvn clean assembly:assembly -DskipTests -Plts-admin
+cp -rf $Startup_Dir/target/lts-bin/lts/lib  $Dist_Bin_Dir/war/jetty
+cp -rf $LTS_Bin_Dir/lts-admin/target/lts-admin-$VERSION.war $Dist_Bin_Dir/war/lts-admin.war
 

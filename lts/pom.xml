@@ -33,16 +33,11 @@
             <artifactId>lts-spring</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.lts</groupId>-->
-        <!--<artifactId>lts-startup-jobtracker</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>com.lts</groupId>-->
-        <!--<artifactId>lts-startup-tasktracker</artifactId>-->
-        <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.lts</groupId>
+            <artifactId>lts-monitor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
