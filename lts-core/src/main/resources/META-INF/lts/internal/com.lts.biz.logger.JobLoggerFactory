@@ -1,3 +1,0 @@
-mysql=com.lts.biz.logger.mysql.MysqlJobLoggerFactory
-mongo=com.lts.biz.logger.mongo.MongoJobLoggerFactory
-console=com.lts.biz.logger.console.ConsoleJobLoggerFactory

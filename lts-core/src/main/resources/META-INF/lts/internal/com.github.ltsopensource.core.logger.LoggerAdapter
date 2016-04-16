@@ -1,0 +1,4 @@
+slf4j=com.github.ltsopensource.core.logger.slf4j.Slf4jLoggerAdapter
+jcl=com.github.ltsopensource.core.logger.jcl.JclLoggerAdapter
+log4j=com.github.ltsopensource.core.logger.log4j.Log4jLoggerAdapter
+jdk=com.github.ltsopensource.core.logger.jdk.JdkLoggerAdapter

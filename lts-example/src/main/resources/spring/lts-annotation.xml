@@ -8,8 +8,8 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
 >
 
-    <context:component-scan base-package="com.lts.example">
-        <context:exclude-filter type="regex" expression="com.lts.example.springboot.*"/>
+    <context:component-scan base-package="com.github.ltsopensource.example">
+        <context:exclude-filter type="regex" expression="com.github.ltsopensource.example.springboot.*"/>
     </context:component-scan>
 
     <context:annotation-config/>

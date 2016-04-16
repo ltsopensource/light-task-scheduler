@@ -1,3 +1,0 @@
-netty=com.lts.remoting.netty.NettyRemotingTransporter
-mina=com.lts.remoting.mina.MinaRemotingTransporter
-lts=com.lts.remoting.lts.LtsRemotingTransporter

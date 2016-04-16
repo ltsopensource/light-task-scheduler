@@ -33,7 +33,7 @@ CONF_HOME="$CONF_HOME/conf/$NODE_NAME"
 # echo $CONF_HOME
 
 _LTS_DAEMON_OUT="$LTS_MONITOR_HOME/../logs/lts-monitor-$NODE_NAME.out"
-LTS_MAIN="com.lts.monitor.MonitorAgentStartup"
+LTS_MAIN="com.github.ltsopensource.monitor.MonitorAgentStartup"
 
 LTS_PID_FILE="$LTS_MONITOR_HOME/../pid/lts-monitor-$NODE_NAME.pid"
 

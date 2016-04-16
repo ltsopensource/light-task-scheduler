@@ -1,0 +1,5 @@
+leveldb=com.github.ltsopensource.core.failstore.leveldb.LeveldbFailStoreFactory
+berkeleydb=com.github.ltsopensource.core.failstore.berkeleydb.BerkeleydbFailStoreFactory
+rocksdb=com.github.ltsopensource.core.failstore.rocksdb.RocksdbFailStoreFactory
+mapdb=com.github.ltsopensource.core.failstore.mapdb.MapdbFailStoreFactory
+ltsdb=com.github.ltsopensource.core.failstore.ltsdb.LtsdbFailStoreFactory

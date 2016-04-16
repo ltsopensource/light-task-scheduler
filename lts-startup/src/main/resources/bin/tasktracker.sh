@@ -29,7 +29,7 @@ CONF_HOME="$TASK_TRACKER_HOME/conf/"
 # echo $CONF_HOME
 
 _LTS_DAEMON_OUT="$TASK_TRACKER_HOME/logs/tasktracker.out"
-LTS_MAIN="com.lts.startup.tasktracker.TaskTrackerStartup"
+LTS_MAIN="com.github.ltsopensource.startup.tasktracker.TaskTrackerStartup"
 
 LTS_PID_FILE="$TASK_TRACKER_HOME/pid/tasktracker.pid"
 
