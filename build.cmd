@@ -13,7 +13,7 @@ md "%BASE_HOME%\dist\%DIST_BIN_DIR%"
 
 set LTS_Bin_Dir=%BASE_HOME%dist\%DIST_BIN_DIR%
 
-set Startup_Dir=%BASE_HOME%\lts-startup\lts-startup
+set Startup_Dir=%BASE_HOME%\lts-startup
 cd %Startup_Dir%
 start mvn clean assembly:assembly -DskipTests -Pdefault
 echo "LTS: mvn clean assembly:assembly -DskipTests -Pdefault"
