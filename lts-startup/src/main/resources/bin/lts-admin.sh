@@ -30,7 +30,7 @@ CONF_HOME=$(cd "$(dirname "$CONF_HOME")"; pwd)
 # echo $CONF_HOME
 
 _LTS_DAEMON_OUT="$LTS_ADMIN_HOME/../logs/lts-admin.out"
-LTS_MAIN="com.lts.startup.admin.JettyContainer"
+LTS_MAIN="com.github.ltsopensource.startup.admin.JettyContainer"
 
 LTS_PID_FILE="$LTS_ADMIN_HOME/../pid/lts-admin.pid"
 

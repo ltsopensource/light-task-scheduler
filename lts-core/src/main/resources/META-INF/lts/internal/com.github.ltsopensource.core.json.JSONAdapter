@@ -1,0 +1,3 @@
+fastjson=com.github.ltsopensource.core.json.fastjson.FastJSONAdapter
+jackson=com.github.ltsopensource.core.json.jackson.JacksonJSONAdapter
+ltsjson=com.github.ltsopensource.core.json.ltsjson.LtsJSONAdapter

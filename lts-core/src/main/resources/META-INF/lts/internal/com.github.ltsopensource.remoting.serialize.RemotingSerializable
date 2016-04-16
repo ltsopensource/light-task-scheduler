@@ -1,0 +1,4 @@
+adaptive=com.github.ltsopensource.remoting.serialize.AdaptiveSerializable
+fastjson=com.github.ltsopensource.remoting.serialize.FastJsonSerializable
+hessian2=com.github.ltsopensource.remoting.serialize.Hessian2Serializable
+java=com.github.ltsopensource.remoting.serialize.JavaSerializable

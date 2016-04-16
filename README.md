@@ -157,17 +157,17 @@ Response response = jobClient.submitJob(job);
     
 ###Spring XML方式启动
 ```java
-<bean id="jobClient" class="com.lts.spring.JobClientFactoryBean">
+<bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
     <property name="nodeGroup" value="test_jobClient"/>
     <property name="masterChangeListeners">
         <list>
-            <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
         </list>
     </property>
-    <property name="jobCompletedHandler">
-        <bean class="com.lts.example.support.JobFinishedHandlerImpl"/>
+    <property name="jobFinishedHandler">
+        <bean class="com.github.ltsopensource.example.support.JobFinishedHandlerImpl"/>
     </property>
     <property name="configs">
         <props>
@@ -231,8 +231,8 @@ taskTracker.start();
 ```
 ###Spring XML方式启动
 ```java
-<bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
-    <property name="jobRunnerClass" value="com.lts.example.support.MyJobRunner"/>
+<bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+    <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
     <property name="bizLoggerLevel" value="INFO"/>
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
@@ -240,7 +240,7 @@ taskTracker.start();
     <property name="workThreads" value="20"/>
     <property name="masterChangeListeners">
         <list>
-            <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
         </list>
     </property>
     <property name="configs">
@@ -352,7 +352,7 @@ class JobRunnerB implements JobRunner {
 }
 ```
 ##TaskTracker的JobRunner测试
-一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.lts.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如`lts-example`中的例子：
+一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如`lts-example`中的例子：
 
 ```java
 public class TestJobRunnerTester extends JobRunnerTester {
@@ -383,7 +383,7 @@ public class TestJobRunnerTester extends JobRunnerTester {
 对于Quartz的Cron任务只需要在Spring配置中增加一下代码就可以接入LTS平台
 
 ```xml
-<bean class="com.lts.spring.quartz.QuartzLTSProxyBean">
+<bean class="com.github.ltsopensource.spring.quartz.QuartzLTSProxyBean">
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
     <property name="nodeGroup" value="quartz_test_group"/>
@@ -404,7 +404,8 @@ public class Application {
 }
 ```
 
-剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.lts.examples.springboot`包下的例子
+剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
+
 
 
 ##多网卡选择问题

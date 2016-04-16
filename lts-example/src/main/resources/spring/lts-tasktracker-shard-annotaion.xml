@@ -8,17 +8,17 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
 >
 
-    <bean id="springBean" class="com.lts.example.support.SpringBean"/>
+    <bean id="springBean" class="com.github.ltsopensource.example.support.SpringBean"/>
 
     <!-- 方式1 -->
     <!-- 注解方式 -->
-    <context:component-scan base-package="com.lts.example">
-        <context:exclude-filter type="regex" expression="com.lts.example.springboot.*"/>
+    <context:component-scan base-package="com.github.ltsopensource.example">
+        <context:exclude-filter type="regex" expression="com.github.ltsopensource.example.springboot.*"/>
     </context:component-scan>
 
-    <bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+    <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
         <!-- 使用JobRunnerItem注解一定要使用 JobDispatcher -->
-        <property name="jobRunnerClass" value="com.lts.spring.tasktracker.JobDispatcher"/>
+        <property name="jobRunnerClass" value="com.github.ltsopensource.spring.tasktracker.JobDispatcher"/>
         <!-- 如果指定为taskId, 取job.getTaskId() , 否则从 job.getParam("shardField") -->
         <property name="shardField" value="taskId"/>
         <property name="bizLoggerLevel" value="INFO"/>
@@ -28,7 +28,7 @@
         <property name="workThreads" value="20"/>
         <property name="masterChangeListeners">
             <list>
-                <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+                <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
         <property name="configs">
@@ -37,9 +37,9 @@
             </props>
         </property>
     </bean>
-    <bean class="com.lts.spring.tasktracker.Scanner">
+    <bean class="com.github.ltsopensource.spring.tasktracker.Scanner">
         <!-- 要扫描的JobRunnerItem注解的包 -->
-        <property name="basePackage" value="com.lts.example"/>
+        <property name="basePackage" value="com.github.ltsopensource.example"/>
     </bean>
 
 </beans>

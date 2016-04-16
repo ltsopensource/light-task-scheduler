@@ -148,17 +148,17 @@ Response response = jobClient.submitJob(job);
     
 ###Spring XML方式启动
 ```java
-<bean id="jobClient" class="com.lts.spring.JobClientFactoryBean">
+<bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
     <property name="nodeGroup" value="test_jobClient"/>
     <property name="masterChangeListeners">
         <list>
-            <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
         </list>
     </property>
     <property name="jobFinishedHandler">
-        <bean class="com.lts.example.support.JobFinishedHandlerImpl"/>
+        <bean class="com.github.ltsopensource.example.support.JobFinishedHandlerImpl"/>
     </property>
     <property name="configs">
         <props>
@@ -221,8 +221,8 @@ taskTracker.start();
 ```
 ###Spring XML方式启动
 ```java
-<bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
-    <property name="jobRunnerClass" value="com.lts.example.support.MyJobRunner"/>
+<bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+    <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
     <property name="bizLoggerLevel" value="INFO"/>
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
@@ -230,7 +230,7 @@ taskTracker.start();
     <property name="workThreads" value="20"/>
     <property name="masterChangeListeners">
         <list>
-            <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
         </list>
     </property>
     <property name="configs">
@@ -340,7 +340,7 @@ class JobRunnerB implements JobRunner {
 ###LTS-Logger扩展
 1. 引入`lts-core-{version}.jar`
 2. 实现`JobLogger`和`JobLoggerFactory`接口
-3. 在 resources `META-INF/lts/com.lts.biz.logger.JobLoggerFactory`文件,文件内容为`xxx=com.lts.biz.logger.xxx.XxxJobLoggerFactory`
+3. 在 resources `META-INF/lts/com.github.ltsopensource.biz.logger.JobLoggerFactory`文件,文件内容为`xxx=com.github.ltsopensource.biz.logger.xxx.XxxJobLoggerFactory`
 4. 使用自己的logger扩展，修改jobtracker参数配置 configs.job.logger=xxx。（如果你自己引入JobTracker jar包的方式的话，使用 `jobtracker.addConfig("job.logger", "xxx"))`
 
 ###LTS-Queue扩展

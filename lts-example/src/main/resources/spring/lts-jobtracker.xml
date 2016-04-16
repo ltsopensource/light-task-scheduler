@@ -8,13 +8,13 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
         >
 
-    <bean id="jobTracker" class="com.lts.spring.JobTrackerFactoryBean" init-method="start">
+    <bean id="jobTracker" class="com.github.ltsopensource.spring.JobTrackerFactoryBean" init-method="start">
         <property name="clusterName" value="test_cluster"/>
         <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
         <property name="listenPort" value="30005"/>
         <property name="masterChangeListeners">
             <list>
-                <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+                <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
         <property name="configs">

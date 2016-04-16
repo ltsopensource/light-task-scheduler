@@ -9,8 +9,8 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
 >
 
-    <context:component-scan base-package="com.lts.admin">
-        <context:exclude-filter type="regex" expression="com.lts.admin.web.*"/>
+    <context:component-scan base-package="com.github.ltsopensource.admin">
+        <context:exclude-filter type="regex" expression="com.github.ltsopensource.admin.web.*"/>
     </context:component-scan>
 
     <aop:aspectj-autoproxy proxy-target-class="true"/>
@@ -27,11 +27,11 @@
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
-    <bean class="com.lts.admin.support.I18nManager">
+    <bean class="com.github.ltsopensource.admin.support.I18nManager">
         <constructor-arg name="messageSource" ref="messageSource"/>
     </bean>
 
-    <bean id="appContext" class="com.lts.admin.support.BackendAppContextFactoryBean"/>
+    <bean id="appContext" class="com.github.ltsopensource.admin.support.BackendAppContextFactoryBean"/>
 
-    <bean class="com.lts.admin.support.LtsAdminDataCleaner"/>
+    <bean class="com.github.ltsopensource.admin.support.LtsAdminDataCleaner"/>
 </beans>

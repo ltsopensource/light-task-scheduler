@@ -8,16 +8,16 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd"
         >
 
-    <bean id="springBean" class="com.lts.example.support.SpringBean"/>
+    <bean id="springBean" class="com.github.ltsopensource.example.support.SpringBean"/>
 
     <!-- 方式1 -->
     <!-- 注解方式 -->
-    <context:component-scan base-package="com.lts.example">
-        <context:exclude-filter type="regex" expression="com.lts.example.springboot.*"/>
+    <context:component-scan base-package="com.github.ltsopensource.example">
+        <context:exclude-filter type="regex" expression="com.github.ltsopensource.example.springboot.*"/>
     </context:component-scan>
 
-    <bean id="taskTracker" class="com.lts.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
-        <property name="jobRunnerClass" value="com.lts.example.support.SpringAnnotationJobRunner"/>
+    <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+        <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.SpringAnnotationJobRunner"/>
         <property name="bizLoggerLevel" value="INFO"/>
         <property name="clusterName" value="test_cluster"/>
         <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
@@ -25,7 +25,7 @@
         <property name="workThreads" value="20"/>
         <property name="masterChangeListeners">
             <list>
-                <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+                <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
         <property name="configs">
@@ -38,7 +38,7 @@
     <!-- 方式2 -->
     <!-- xml 配置方式 -->
     <!--
-    <bean id="taskTracker" class="com.lts.spring.TaskTrackerXmlFactoryBean" init-method="start">
+    <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerXmlFactoryBean" init-method="start">
         <property name="bizLoggerLevel" value="INFO"/>
         <property name="clusterName" value="test_cluster"/>
         <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
@@ -46,7 +46,7 @@
         <property name="workThreads" value="20"/>
         <property name="masterChangeListeners">
             <list>
-                <bean class="com.lts.example.support.MasterChangeListenerImpl"/>
+                <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
             </list>
         </property>
         <property name="configs">
@@ -56,7 +56,7 @@
         </property>
         <lookup-method name="createJobRunner" bean="jobRunner"/>
     </bean>
-    <bean id="jobRunner" class="com.lts.example.support.SpringXmlJobRunner" scope="prototype">
+    <bean id="jobRunner" class="com.github.ltsopensource.example.support.SpringXmlJobRunner" scope="prototype">
         <property name="springBean" ref="springBean"/>
     </bean>
     -->

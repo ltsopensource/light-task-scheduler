@@ -6,7 +6,7 @@ md "%BASE_HOME%\logs"
 
 set CLASSPATH=%BASE_HOME%\war\jetty\lib\*;%CLASSPATH%
 
-set LTS_MAIN=com.lts.startup.admin.JettyContainer
+set LTS_MAIN=com.github.ltsopensource.startup.admin.JettyContainer
 
 echo LTS-Admin started
 
