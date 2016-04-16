@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
 >
 
-    <context:component-scan base-package="com.lts">
+    <context:component-scan base-package="com.lts.admin">
         <context:exclude-filter type="regex" expression="com.lts.admin.web.*"/>
     </context:component-scan>
 

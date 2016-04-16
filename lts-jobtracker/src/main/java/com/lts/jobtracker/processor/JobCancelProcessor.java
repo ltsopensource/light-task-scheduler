@@ -35,6 +35,9 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
         String taskTrackerNodeGroup = jobCancelRequest.getTaskTrackerNodeGroup();
         JobPo jobPo = appContext.getCronJobQueue().getJob(taskTrackerNodeGroup, taskId);
         if (jobPo == null) {
+            jobPo = appContext.getRepeatJobQueue().getJob(taskTrackerNodeGroup, taskId);
+        }
+        if (jobPo == null) {
             jobPo = appContext.getExecutableJobQueue().getJob(taskTrackerNodeGroup, taskId);
         }
 

@@ -35,7 +35,10 @@ public class JdkCompiler {
 //        options.add("-target");
 //        options.add("1.6");
         StandardJavaFileManager manager = compiler.getStandardFileManager(diagnosticCollector, null, null);
-        final ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        if (loader.getClass().getName().equals("org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedWebappClassLoader")) {
+            loader = loader.getParent();
+        }
         if (loader instanceof URLClassLoader
                 && (!loader.getClass().getName().equals("sun.misc.Launcher$AppClassLoader"))) {
             try {
@@ -49,9 +52,10 @@ public class JdkCompiler {
                 throw new IllegalStateException(e.getMessage(), e);
             }
         }
+        final ClassLoader finalLoader = loader;
         classLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoaderImpl>() {
             public ClassLoaderImpl run() {
-                return new ClassLoaderImpl(loader);
+                return new ClassLoaderImpl(finalLoader);
             }
         });
         javaFileManager = new JavaFileManagerImpl(manager, classLoader);
