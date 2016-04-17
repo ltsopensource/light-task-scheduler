@@ -5,7 +5,7 @@ import com.github.ltsopensource.core.commons.utils.BeanUtils;
 import com.github.ltsopensource.core.commons.utils.ClassHelper;
 import com.github.ltsopensource.core.commons.utils.ReflectionUtils;
 import com.github.ltsopensource.core.compiler.Compiler;
-import com.github.ltsopensource.core.compiler.JavassistCompiler;
+import com.github.ltsopensource.core.compiler.JdkCompiler;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -26,7 +26,7 @@ public final class BeanCopierFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanCopierFactory.class);
 
-    private static Compiler COMPILER = new JavassistCompiler();
+    private static Compiler COMPILER = new JdkCompiler();
     private static final AtomicInteger SEQ = new AtomicInteger(0);
     private static final ConcurrentMap<Integer, Map<String, PropConverter<?, ?>>> SEQ_PROP_CVT_MAP = new ConcurrentHashMap<Integer, Map<String, PropConverter<?, ?>>>();
 

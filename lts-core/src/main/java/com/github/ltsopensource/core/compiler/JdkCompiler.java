@@ -4,6 +4,7 @@ import com.github.ltsopensource.core.commons.utils.ClassHelper;
 
 import javax.tools.*;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,7 +18,7 @@ public class JdkCompiler extends AbstractCompiler {
     public static final String CLASS_EXTENSION = ".class";
     public static final String JAVA_EXTENSION = ".java";
 
-    private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    private JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
     private final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
 
@@ -28,7 +29,15 @@ public class JdkCompiler extends AbstractCompiler {
     private volatile List<String> options;
 
     public JdkCompiler() {
-
+        if (compiler == null) {
+            try {
+                Class<?> javacTool = Class.forName("com.sun.tools.javac.api.JavacTool");
+                Method create = javacTool.getMethod("create");
+                compiler = (JavaCompiler) create.invoke(null);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
+        }
         options = new ArrayList<String>();
 //        options.add("-target");
 //        options.add("1.6");
