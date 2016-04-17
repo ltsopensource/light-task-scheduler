@@ -69,7 +69,7 @@ public interface Constants {
     String PROCESSOR_THREAD = "job.processor.thread";
     int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;
 
-    int LATCH_TIMEOUT_MILLIS = 10 * 60 * 1000;      // 10分钟
+    int LATCH_TIMEOUT_MILLIS =  60 * 1000;      // 60s
 
     // 任务最多重试次数
     String JOB_MAX_RETRY_TIMES = "job.max.retry.times";
