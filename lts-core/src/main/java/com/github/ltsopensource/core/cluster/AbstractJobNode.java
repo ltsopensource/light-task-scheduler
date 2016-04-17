@@ -8,6 +8,8 @@ import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.GenericsUtils;
 import com.github.ltsopensource.core.commons.utils.NetUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.compiler.AbstractCompiler;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.EcTopic;
 import com.github.ltsopensource.core.factory.JobNodeConfigFactory;
 import com.github.ltsopensource.core.factory.NodeFactory;
@@ -140,6 +142,12 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
     }
 
     protected void initConfig() {
+
+        String compiler = config.getParameter(Constants.COMPILER);
+        if (StringUtils.isNotEmpty(compiler)) {
+            AbstractCompiler.setCompiler(compiler);
+        }
+
         appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
 
         appContext.setCommandBodyWrapper(new CommandBodyWrapper(config));

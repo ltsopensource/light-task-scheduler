@@ -10,7 +10,7 @@ set LTS_MAIN=com.github.ltsopensource.startup.admin.JettyContainer
 
 echo LTS-Admin started
 
-java -cp "%CLASSPATH%" %JVMFLAGS% %LTS_MAIN% "%BASE_HOME%" %*
+java -cp "%CLASSPATH%" %JVMFLAGS% %LTS_MAIN% %BASE_HOME% %*
 
 pause>null
 

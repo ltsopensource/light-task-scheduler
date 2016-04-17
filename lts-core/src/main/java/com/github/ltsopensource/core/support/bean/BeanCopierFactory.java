@@ -4,8 +4,8 @@ import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.BeanUtils;
 import com.github.ltsopensource.core.commons.utils.ClassHelper;
 import com.github.ltsopensource.core.commons.utils.ReflectionUtils;
+import com.github.ltsopensource.core.compiler.AbstractCompiler;
 import com.github.ltsopensource.core.compiler.Compiler;
-import com.github.ltsopensource.core.compiler.JdkCompiler;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -13,7 +13,6 @@ import com.github.ltsopensource.core.logger.LoggerFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -21,21 +20,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 4/2/16.
+ *         为了兼容javaassist 去掉泛型
  */
 public final class BeanCopierFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanCopierFactory.class);
 
-    private static Compiler COMPILER = new JdkCompiler();
+    private static Compiler COMPILER = AbstractCompiler.getCompiler();
     private static final AtomicInteger SEQ = new AtomicInteger(0);
     private static final ConcurrentMap<Integer, Map<String, PropConverter<?, ?>>> SEQ_PROP_CVT_MAP = new ConcurrentHashMap<Integer, Map<String, PropConverter<?, ?>>>();
-
-    public static void setCompiler(Compiler compiler) {
-        if (compiler == null) {
-            throw new IllegalArgumentException("compiler should not be null");
-        }
-        BeanCopierFactory.COMPILER = compiler;
-    }
 
     public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass) {
@@ -68,7 +61,13 @@ public final class BeanCopierFactory {
 
         try {
             Class<?> beanCopierClazz = COMPILER.compile(getClassCode(sequence, sourceClass, targetClass, deepCopy, propCvtMap));
-            return (BeanCopier<Source, Target>) beanCopierClazz.newInstance();
+            final BeanCopierAdapter beanCopier = (BeanCopierAdapter) beanCopierClazz.newInstance();
+            return new BeanCopier<Source, Target>() {
+                @Override
+                public void copyProps(Source source, Target target) {
+                    beanCopier.copyProps(source, target);
+                }
+            };
         } catch (Exception e) {
             throw new LtsRuntimeException("Generate BeanCopier error, sourceClass=" + sourceClass.getName() + ", targetClass=" + targetClass.getName(), e);
         }
@@ -82,13 +81,14 @@ public final class BeanCopierFactory {
         JavaSourceBean javaSourceBean = new JavaSourceBean();
         javaSourceBean.setPackageName(BeanCopierFactory.class.getPackage().getName());
 
-        javaSourceBean.addImport(BeanCopier.class.getName());
+        javaSourceBean.addImport(BeanCopierAdapter.class.getName());
         javaSourceBean.addImport(sourceClass.getName());
         javaSourceBean.addImport(targetClass.getName());
+        javaSourceBean.addImport(PropConverter.class.getName());
 
         String beanCopierClassName = sourceClass.getSimpleName() + "2" + targetClass.getSimpleName() + BeanCopier.class.getSimpleName() + sequence;
         String classDefinitionCode = "public class " + beanCopierClassName +
-                " implements " + BeanCopier.class.getSimpleName() + "<" + sourceClass.getSimpleName() + "," + targetClass.getSimpleName() + ">";
+                " extends " + BeanCopierAdapter.class.getSimpleName();
 
         javaSourceBean.setClassDefinition(classDefinitionCode);
 
@@ -106,7 +106,9 @@ public final class BeanCopierFactory {
     private static String getMethodImplCode(Integer sequence, Class<?> sourceClass, Class<?> targetClass, boolean deepCopy, final Map<String, PropConverter<?, ?>> propCvtMap) throws Exception {
 
         StringBuilder methodCode = new StringBuilder();
-        methodCode.append("public void copyProps(").append(sourceClass.getSimpleName()).append(" source, ").append(targetClass.getSimpleName()).append(" target){\n");
+        methodCode.append("public void copyProps(").append(Object.class.getName()).append(" sourceObj, ").append(Object.class.getName()).append(" targetObj){\n");
+        methodCode.append(sourceClass.getSimpleName()).append(" source = ").append("(").append(sourceClass.getSimpleName()).append(")sourceObj;\n");
+        methodCode.append(targetClass.getSimpleName()).append(" target = ").append("(").append(targetClass.getSimpleName()).append(")targetObj;\n");
 
         // 这里查找了包括父类的属性
         Field[] targetFields = ReflectionUtils.findFields(targetClass);
@@ -116,7 +118,6 @@ public final class BeanCopierFactory {
                 // 是否含有set方法
                 String methodNameSuffix = capitalize(field.getName());
                 Class<?> targetFieldClass = field.getType();
-                Type targetFieldType = field.getGenericType();
 
                 Method setMethod = ReflectionUtils.findMethod(targetClass, "set" + methodNameSuffix, targetFieldClass);
                 if (setMethod != null) {
@@ -125,12 +126,12 @@ public final class BeanCopierFactory {
                     if (propCvtMap != null && propCvtMap.containsKey(field.getName())) {
 
                         String converterName = field.getName() + "Converter";
-                        String converterType = PropConverter.class.getName() + "<" + sourceClass.getSimpleName() + ", " + targetFieldType.toString() + "> ";
+                        String converterType = PropConverter.class.getSimpleName();
 
-                        methodCode.append(converterType).append(converterName).append(" = (").append(converterType).append(")")
+                        methodCode.append(converterType).append(" ").append(converterName).append(" = (").append(converterType).append(")")
                                 .append(BeanCopierFactory.class.getName()).append(".getConverter(").append(sequence).append(",").append("\"").append(field.getName()).append("\");\n");
                         methodCode.append("target.").append(setMethod.getName()).append("(")
-                                .append("(").append(targetFieldType.toString()).append(")").append(converterName).append(".convert(").append("source").append(")")
+                                .append("(").append(targetFieldClass.getName()).append(")").append(converterName).append(".convert(").append("source").append(")")
                                 .append(");\n");
                         continue;
                     }
@@ -154,7 +155,7 @@ public final class BeanCopierFactory {
                             } else {
                                 // 深度复制,对于非基本类型的采用流的方式拷贝
                                 methodCode.append("target.").append(setMethod.getName()).append("(")
-                                        .append("(").append(targetFieldType.toString()).append(")")
+                                        .append("(").append(targetFieldClass.getName()).append(")")
                                         .append(BeanUtils.class.getName()).append(".deepClone(")
                                         .append("source.").append(getMethod.getName()).append("()")
                                         .append(")")
@@ -184,7 +185,7 @@ public final class BeanCopierFactory {
     /**
      * 会被动态类使用
      */
-    public static PropConverter<?, ?> getConverter(Integer sequence, String propName) {
+    public static PropConverter<?, ?> getConverter(int sequence, String propName) {
         Map<String, PropConverter<?, ?>> map = SEQ_PROP_CVT_MAP.get(sequence);
         return map.get(propName);
     }
