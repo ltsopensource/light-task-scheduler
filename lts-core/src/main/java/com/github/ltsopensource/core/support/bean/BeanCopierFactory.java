@@ -4,6 +4,8 @@ import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.BeanUtils;
 import com.github.ltsopensource.core.commons.utils.ClassHelper;
 import com.github.ltsopensource.core.commons.utils.ReflectionUtils;
+import com.github.ltsopensource.core.compiler.Compiler;
+import com.github.ltsopensource.core.compiler.JavassistCompiler;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -24,9 +26,16 @@ public final class BeanCopierFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanCopierFactory.class);
 
-    private static final JdkCompiler JDK_COMPILER = new JdkCompiler();
+    private static Compiler COMPILER = new JavassistCompiler();
     private static final AtomicInteger SEQ = new AtomicInteger(0);
     private static final ConcurrentMap<Integer, Map<String, PropConverter<?, ?>>> SEQ_PROP_CVT_MAP = new ConcurrentHashMap<Integer, Map<String, PropConverter<?, ?>>>();
+
+    public static void setCompiler(Compiler compiler) {
+        if (compiler == null) {
+            throw new IllegalArgumentException("compiler should not be null");
+        }
+        BeanCopierFactory.COMPILER = compiler;
+    }
 
     public static <Source, Target> BeanCopier<Source, Target> createCopier(
             Class<?> sourceClass, Class<?> targetClass) {
@@ -58,7 +67,7 @@ public final class BeanCopierFactory {
         }
 
         try {
-            Class<?> beanCopierClazz = JDK_COMPILER.compile(getClassCode(sequence, sourceClass, targetClass, deepCopy, propCvtMap));
+            Class<?> beanCopierClazz = COMPILER.compile(getClassCode(sequence, sourceClass, targetClass, deepCopy, propCvtMap));
             return (BeanCopier<Source, Target>) beanCopierClazz.newInstance();
         } catch (Exception e) {
             throw new LtsRuntimeException("Generate BeanCopier error, sourceClass=" + sourceClass.getName() + ", targetClass=" + targetClass.getName(), e);

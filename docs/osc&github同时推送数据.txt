@@ -20,3 +20,10 @@ git fetch github --tags
 # 查询远程标签
 git ls-remote --tags osc
 git ls-remote --tags github
+
+
+
+##
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean install -U -DskipTests
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -DskipTests
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -P release -Dgpg.passphrase=密码 -DskipTests
