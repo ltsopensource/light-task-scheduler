@@ -1,6 +1,8 @@
 package com.github.ltsopensource.core.support.bean;
 
+import com.github.ltsopensource.core.compiler.AbstractCompiler;
 import com.github.ltsopensource.core.domain.Job;
+import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.queue.domain.JobPo;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +24,17 @@ public class BeanCopierFactoryTest {
         jobPo.setTaskId("dfasfs");
         jobPo.setPriority(5);
         jobPo.setInternalExtParam("xxx", "fadsfsa");
+    }
+
+    @Test
+    public void testJdkCopy(){
+        AbstractCompiler.setCompiler("jdk");
+        JobUtils.copy(jobPo);
+    }
+    @Test
+    public void testJavassistCopy(){
+        AbstractCompiler.setCompiler("javassist");
+        JobUtils.copy(jobPo);
     }
 
     @Test

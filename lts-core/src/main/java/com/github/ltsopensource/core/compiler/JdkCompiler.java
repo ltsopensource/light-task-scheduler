@@ -1,10 +1,10 @@
 package com.github.ltsopensource.core.compiler;
 
 import com.github.ltsopensource.core.commons.utils.ClassHelper;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 
 import javax.tools.*;
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -18,7 +18,7 @@ public class JdkCompiler extends AbstractCompiler {
     public static final String CLASS_EXTENSION = ".class";
     public static final String JAVA_EXTENSION = ".java";
 
-    private JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+    private final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 
     private final DiagnosticCollector<JavaFileObject> diagnosticCollector = new DiagnosticCollector<JavaFileObject>();
 
@@ -30,13 +30,9 @@ public class JdkCompiler extends AbstractCompiler {
 
     public JdkCompiler() {
         if (compiler == null) {
-            try {
-                Class<?> javacTool = Class.forName("com.sun.tools.javac.api.JavacTool");
-                Method create = javacTool.getMethod("create");
-                compiler = (JavaCompiler) create.invoke(null);
-            } catch (Exception e) {
-                throw new AssertionError(e);
-            }
+            throw new IllegalStateException(
+                    "Cannot find the system Java compiler. "
+                            + "Check that your class path includes tools.jar");
         }
         options = new ArrayList<String>();
 //        options.add("-target");

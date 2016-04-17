@@ -3,6 +3,8 @@ package com.github.ltsopensource.admin.support;
 import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.commons.utils.PlatformUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.compiler.AbstractCompiler;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.json.JSONFactory;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.spi.SpiExtensionKey;
@@ -25,6 +27,11 @@ public class SystemInitListener implements ServletContextListener {
             System.out.println("lts.admin.config.path : " + confPath);
         }
         AppConfigurer.load(confPath);
+
+        String compiler = AppConfigurer.getProperty("configs." + Constants.COMPILER);
+        if (StringUtils.isNotEmpty(compiler)) {
+            AbstractCompiler.setCompiler(compiler);
+        }
 
         String jsonAdapter = AppConfigurer.getProperty("configs." + SpiExtensionKey.LTS_JSON);
         if (StringUtils.isNotEmpty(jsonAdapter)) {

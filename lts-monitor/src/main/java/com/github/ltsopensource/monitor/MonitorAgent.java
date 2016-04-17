@@ -6,6 +6,8 @@ import com.github.ltsopensource.core.cmd.JVMInfoGetHttpCmd;
 import com.github.ltsopensource.core.cmd.StatusCheckHttpCmd;
 import com.github.ltsopensource.core.commons.utils.NetUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.compiler.AbstractCompiler;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.factory.JobNodeConfigFactory;
 import com.github.ltsopensource.core.factory.NodeFactory;
 import com.github.ltsopensource.core.json.JSONFactory;
@@ -80,7 +82,7 @@ public class MonitorAgent {
             JVMMonitor.start();
             AliveKeeping.start();
 
-            LOGGER.error("========== Start Monitor Success");
+            LOGGER.info("========== Start Monitor Success");
 
         } catch (Throwable t) {
             LOGGER.error("========== Start Monitor Error:", t);
@@ -101,6 +103,12 @@ public class MonitorAgent {
     }
 
     private void intConfig() {
+
+        String compiler = config.getParameter(Constants.COMPILER);
+        if (StringUtils.isNotEmpty(compiler)) {
+            AbstractCompiler.setCompiler(compiler);
+        }
+
         // 初始化一些 db access
         MonitorAccessFactory factory = ServiceLoader.load(MonitorAccessFactory.class, config);
         this.appContext.setJobTrackerMAccess(factory.getJobTrackerMAccess(config));

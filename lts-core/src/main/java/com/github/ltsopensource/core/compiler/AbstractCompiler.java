@@ -8,8 +8,32 @@ import java.util.regex.Pattern;
 
 /**
  * @author william.liangf
+ * @author Robert HG (254963746@qq.com) on 9/12/15.
  */
 public abstract class AbstractCompiler implements Compiler {
+
+    private static Compiler COMPILER = new JavassistCompiler();
+
+    public static void setCompiler(Compiler compiler) {
+        if (compiler == null) {
+            throw new IllegalArgumentException("compiler should not be null");
+        }
+        AbstractCompiler.COMPILER = compiler;
+    }
+
+    public static Compiler getCompiler() {
+        return AbstractCompiler.COMPILER;
+    }
+
+    public static void setCompiler(String compiler) {
+        if ("javassist".equals(compiler)) {
+            setCompiler(new JavassistCompiler());
+        } else if ("jdk".equals(compiler)) {
+            setCompiler(new JdkCompiler());
+        } else {
+            throw new IllegalArgumentException("compiler[" + compiler +"] error ");
+        }
+    }
 
     private static final Pattern PACKAGE_PATTERN = Pattern.compile("package\\s+([$_a-zA-Z][$_a-zA-Z0-9\\.]*);");
 
@@ -36,55 +60,19 @@ public abstract class AbstractCompiler implements Compiler {
             return Class.forName(className, true, ClassHelper.getCallerClassLoader(getClass()));
         } catch (ClassNotFoundException e) {
             if (!code.endsWith("}")) {
-                throw new IllegalStateException("The java code not endsWith \"}\", code: \n" + code + "\n");
+                throw new IllegalStateException("The java code not endsWith \"}\", code: " + code + "");
             }
             try {
                 return doCompile(className, code);
             } catch (RuntimeException t) {
                 throw t;
             } catch (Throwable t) {
-                throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: " + className + ", code: \n" + code + "\n, stack: " + StringUtils.toString(t));
+                throw new IllegalStateException("Failed to compile class, cause: " + t.getMessage() + ", class: " + className + ", code: " + code + ", stack: " + StringUtils.toString(t));
             }
         }
     }
 
     protected abstract Class<?> doCompile(String name, String source) throws Throwable;
 
-    public static void main(String[] args) {
-        String code = "package com.github.ltsopensource.core.support.bean;\n" +
-                "import com.github.ltsopensource.core.support.bean.BeanCopier;\n" +
-                "import com.github.ltsopensource.queue.domain.JobPo;\n" +
-                "public class JobPo2JobPoBeanCopier1 implements BeanCopier<JobPo,JobPo> {\n" +
-                "public void copyProps(JobPo source, JobPo target){\n" +
-                "target.setJobId(source.getJobId());\n" +
-                "target.setJobType(source.getJobType());\n" +
-                "target.setPriority(source.getPriority());\n" +
-                "target.setTaskId(source.getTaskId());\n" +
-                "target.setRealTaskId(source.getRealTaskId());\n" +
-                "target.setGmtCreated(source.getGmtCreated());\n" +
-                "target.setGmtModified(source.getGmtModified());\n" +
-                "target.setSubmitNodeGroup(source.getSubmitNodeGroup());\n" +
-                "target.setTaskTrackerNodeGroup(source.getTaskTrackerNodeGroup());\n" +
-                "com.github.ltsopensource.core.support.bean.PropConverter<JobPo, java.util.Map<java.lang.String, java.lang.String>> extParamsConverter = (com.github.ltsopensource.core.support.bean.PropConverter<JobPo, java.util.Map<java.lang.String, java.lang.String>> )com.github.ltsopensource.core.support.bean.BeanCopierFactory.getConverter(1,\"extParams\");\n" +
-                "target.setExtParams((java.util.Map<java.lang.String, java.lang.String>)extParamsConverter.convert(source));\n" +
-                "com.github.ltsopensource.core.support.bean.PropConverter<JobPo, java.util.Map<java.lang.String, java.lang.String>> internalExtParamsConverter = (com.github.ltsopensource.core.support.bean.PropConverter<JobPo, java.util.Map<java.lang.String, java.lang.String>> )com.github.ltsopensource.core.support.bean.BeanCopierFactory.getConverter(1,\"internalExtParams\");\n" +
-                "target.setInternalExtParams((java.util.Map<java.lang.String, java.lang.String>)internalExtParamsConverter.convert(source));\n" +
-                "target.setTaskTrackerIdentity(source.getTaskTrackerIdentity());\n" +
-                "target.setNeedFeedback(source.isNeedFeedback());\n" +
-                "target.setCronExpression(source.getCronExpression());\n" +
-                "target.setTriggerTime(source.getTriggerTime());\n" +
-                "target.setRetryTimes(source.getRetryTimes());\n" +
-                "target.setMaxRetryTimes(source.getMaxRetryTimes());\n" +
-                "target.setRepeatCount(source.getRepeatCount());\n" +
-                "target.setRepeatedCount(source.getRepeatedCount());\n" +
-                "target.setRepeatInterval(source.getRepeatInterval());\n" +
-                "target.setRelyOnPrevCycle(source.getRelyOnPrevCycle());\n" +
-                "target.setLastGenerateTriggerTime(source.getLastGenerateTriggerTime());\n" +
-                "}}";
-
-        Compiler compiler = new JavassistCompiler();
-        compiler.compile(code);
-
-    }
 }
 
