@@ -1,8 +1,10 @@
 package com.github.ltsopensource.json;
 
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.PrimitiveTypeUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.json.bean.MethodInfo;
+import com.github.ltsopensource.json.deserializer.PrimitiveTypeDeserializer;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -642,6 +644,11 @@ public class JSONObject {
     }
 
     public static <T> T parseObject(String json, Type type) {
+        // 如果是原始类型
+        if (PrimitiveTypeUtils.isPrimitiveType(type)) {
+            return new PrimitiveTypeDeserializer().deserialize(json, type);
+        }
+
         Object object = null;
         if (StringUtils.isEmpty(json)) {
             throw new JSONException("illegal json: json is empty");

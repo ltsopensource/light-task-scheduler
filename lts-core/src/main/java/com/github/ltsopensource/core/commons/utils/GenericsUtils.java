@@ -29,7 +29,7 @@ public class GenericsUtils {
         //返回表示此类型实际类型参数的Type对象的数组,数组里放的都是对应类型的Class, 如BuyerServiceBean extends DaoSupport<Buyer,Contact>就返回Buyer和Contact类型   
         Type[] params = ((ParameterizedType) genType).getActualTypeArguments();                   
         if (index >= params.length || index < 0) { 
-        	 throw new RuntimeException("你输入的索引"+ (index<0 ? "不能小于0" : "超出了参数的总数"));
+        	 throw new IllegalArgumentException("index "+ (index<0 ? " must > 0 " : " over total arguments"));
         }      
         if (!(params[index] instanceof Class)) {
             return Object.class;   
@@ -57,9 +57,9 @@ public class GenericsUtils {
     	if(returnType instanceof ParameterizedType){
     	    ParameterizedType type = (ParameterizedType) returnType;
     	    Type[] typeArguments = type.getActualTypeArguments();
-            if (index >= typeArguments.length || index < 0) { 
-            	 throw new RuntimeException("你输入的索引"+ (index<0 ? "不能小于0" : "超出了参数的总数"));
-            } 
+            if (index >= typeArguments.length || index < 0) {
+				throw new IllegalArgumentException("index "+ (index<0 ? " must > 0 " : " over total arguments"));
+			}
     	    return (Class)typeArguments[index];
     	}
     	return Object.class;
@@ -85,8 +85,8 @@ public class GenericsUtils {
     	List<Class> results = new ArrayList<Class>();
     	Type[] genericParameterTypes = method.getGenericParameterTypes();
     	if (index >= genericParameterTypes.length ||index < 0) {
-             throw new RuntimeException("你输入的索引"+ (index<0 ? "不能小于0" : "超出了参数的总数"));
-        } 
+			throw new IllegalArgumentException("index "+ (index<0 ? " must > 0 " : " over total arguments"));
+		}
     	Type genericParameterType = genericParameterTypes[index];
     	if(genericParameterType instanceof ParameterizedType){
     	     ParameterizedType aType = (ParameterizedType) genericParameterType;
@@ -121,9 +121,9 @@ public class GenericsUtils {
     	if(genericFieldType instanceof ParameterizedType){
     	    ParameterizedType aType = (ParameterizedType) genericFieldType;
     	    Type[] fieldArgTypes = aType.getActualTypeArguments();
-    	    if (index >= fieldArgTypes.length || index < 0) { 
-    	    	throw new RuntimeException("你输入的索引"+ (index<0 ? "不能小于0" : "超出了参数的总数"));
-            } 
+    	    if (index >= fieldArgTypes.length || index < 0) {
+				throw new IllegalArgumentException("index "+ (index<0 ? " must > 0 " : " over total arguments"));
+			}
     	    return (Class)fieldArgTypes[index];
     	}
     	return Object.class;

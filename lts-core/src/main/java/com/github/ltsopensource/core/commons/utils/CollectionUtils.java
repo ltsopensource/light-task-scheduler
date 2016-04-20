@@ -31,6 +31,15 @@ public class CollectionUtils {
         return map;
     }
 
+    public static <T> Set<T> createHashSet(T... arr) {
+        int size = arr == null ? 0 : arr.length;
+        Set<T> set = new HashSet<T>(size);
+        if (arr != null && arr.length > 0) {
+            Collections.addAll(set, arr);
+        }
+        return set;
+    }
+
     public static boolean isNotEmpty(Map<?, ?> map) {
         return map != null && map.size() > 0;
     }
@@ -47,8 +56,8 @@ public class CollectionUtils {
         return !isNotEmpty(collection);
     }
 
-    public static <K, V> V getValue(Map<K, V> map , K key){
-        if(map == null){
+    public static <K, V> V getValue(Map<K, V> map, K key) {
+        if (map == null) {
             return null;
         }
         return map.get(key);
