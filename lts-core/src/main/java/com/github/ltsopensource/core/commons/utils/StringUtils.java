@@ -163,4 +163,43 @@ public final class StringUtils {
         }
         return values;
     }
+
+    /**
+     * Capitalize a {@code String}, changing the first letter to
+     * upper case as per {@link Character#toUpperCase(char)}.
+     * No other letters are changed.
+     * @param str the {@code String} to capitalize, may be {@code null}
+     * @return the capitalized {@code String}, or {@code null} if the supplied
+     * string is {@code null}
+     */
+    public static String capitalize(String str) {
+        return changeFirstCharacterCase(str, true);
+    }
+
+    /**
+     * Uncapitalize a {@code String}, changing the first letter to
+     * lower case as per {@link Character#toLowerCase(char)}.
+     * No other letters are changed.
+     * @param str the {@code String} to uncapitalize, may be {@code null}
+     * @return the uncapitalized {@code String}, or {@code null} if the supplied
+     * string is {@code null}
+     */
+    public static String uncapitalize(String str) {
+        return changeFirstCharacterCase(str, false);
+    }
+
+    private static String changeFirstCharacterCase(String str, boolean capitalize) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+        StringBuilder sb = new StringBuilder(str.length());
+        if (capitalize) {
+            sb.append(Character.toUpperCase(str.charAt(0)));
+        }
+        else {
+            sb.append(Character.toLowerCase(str.charAt(0)));
+        }
+        sb.append(str.substring(1));
+        return sb.toString();
+    }
 }
