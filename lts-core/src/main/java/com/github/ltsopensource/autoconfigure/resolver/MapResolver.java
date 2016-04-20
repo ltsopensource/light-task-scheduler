@@ -42,6 +42,9 @@ public class MapResolver extends AbstractResolver {
             @Override
             public boolean call(String name, String key, String value) {
                 String mapKey = key.substring(name.length() + 1);
+                if (mapKey.startsWith("[") && mapKey.endsWith("]")) {
+                    mapKey = mapKey.substring(1, mapKey.length() - 1);
+                }
                 if (PrimitiveTypeUtils.isPrimitiveClass(vClass)) {
                     map.put(mapKey, PrimitiveTypeUtils.convert(value, vClass));
                 } else {
