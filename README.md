@@ -103,7 +103,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 lts-{version}-bin的文件结构
 
 ```java
-`-- lts-1.6.8-SNAPSHOT-bin
+-- lts-${version}-bin
     |-- bin
     |   |-- jobtracker.cmd
     |   |-- jobtracker.sh
@@ -111,24 +111,24 @@ lts-{version}-bin的文件结构
     |   |-- lts-admin.sh
     |   |-- lts-monitor.cmd
     |   |-- lts-monitor.sh
-    |   `-- tasktracker.sh
+    |   |-- tasktracker.sh
     |-- conf
     |   |-- log4j.properties
     |   |-- lts-admin.cfg
     |   |-- lts-monitor.cfg
     |   |-- readme.txt
     |   |-- tasktracker.cfg
-    |   `-- zoo
+    |   |-- zoo
     |       |-- jobtracker.cfg
     |       |-- log4j.properties
-    |       `-- lts-monitor.cfg
+    |       |-- lts-monitor.cfg
     |-- lib
     |   |-- *.jar
-    `-- war
+    |-- war
         |-- jetty
-        |   `-- lib
+        |   |-- lib
         |       |-- *.jar
-        `-- lts-admin.war
+        |-- lts-admin.war
 
 ```	    
         
