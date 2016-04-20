@@ -3,7 +3,8 @@ package com.github.ltsopensource.autoconfigure.annotation;
 import java.lang.annotation.*;
 
 /**
- * Created by hugui.hg on 4/18/16.
+ * 和SpringBoot的类似
+ * @author Robert HG (254963746@qq.com) on 4/18/16.
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

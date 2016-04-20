@@ -6,7 +6,7 @@ import com.github.ltsopensource.core.json.JSONFactory;
 import java.io.IOException;
 
 /**
- * Created by hugui.hg on 4/18/16.
+ * @author Robert HG (254963746@qq.com) on 4/18/16.
  */
 public class Test {
 

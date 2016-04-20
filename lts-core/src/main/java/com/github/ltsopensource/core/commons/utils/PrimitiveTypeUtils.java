@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by hugui.hg on 4/20/16.
+ * @author Robert HG (254963746@qq.com) on 4/20/16.
  */
 public class PrimitiveTypeUtils {
 

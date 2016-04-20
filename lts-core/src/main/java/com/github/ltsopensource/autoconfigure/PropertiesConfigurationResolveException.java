@@ -1,7 +1,7 @@
 package com.github.ltsopensource.autoconfigure;
 
 /**
- * Created by hugui.hg on 4/20/16.
+ * @author Robert HG (254963746@qq.com) on 4/20/16.
  */
 public class PropertiesConfigurationResolveException extends RuntimeException {
 
