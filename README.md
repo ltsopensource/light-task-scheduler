@@ -103,37 +103,37 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 lts-{version}-bin的文件结构
 
 ```java
-├── bin
-│   ├── jobtracker.cmd
-│   ├── jobtracker.sh
-│   ├── lts-admin.cmd
-│   └── lts-admin.sh
-├── jobtracker
-│   ├── conf
-│   │   └── zoo
-│   │       ├── jobtracker.cfg
-│   │       └── log4j.properties
-│   └── lib
-│       └── *.jar
-├── lts-admin
-│   ├── conf
-│   │   ├── log4j.properties
-│   │   └── lts-admin.cfg
-│   ├── lib
-│   │   └── *.jar
-│   └── lts-admin.war
-└── tasktracker
-    ├── bin
-    │   └── tasktracker.sh
-    ├── conf
-    │   ├── log4j.properties
-    │   └── tasktracker.cfg
-    └── lib
-        └── *.jar
+`-- lts-1.6.8-SNAPSHOT-bin
+    |-- bin
+    |   |-- jobtracker.cmd
+    |   |-- jobtracker.sh
+    |   |-- lts-admin.cmd
+    |   |-- lts-admin.sh
+    |   |-- lts-monitor.cmd
+    |   |-- lts-monitor.sh
+    |   `-- tasktracker.sh
+    |-- conf
+    |   |-- log4j.properties
+    |   |-- lts-admin.cfg
+    |   |-- lts-monitor.cfg
+    |   |-- readme.txt
+    |   |-- tasktracker.cfg
+    |   `-- zoo
+    |       |-- jobtracker.cfg
+    |       |-- log4j.properties
+    |       `-- lts-monitor.cfg
+    |-- lib
+    |   |-- *.jar
+    `-- war
+        |-- jetty
+        |   `-- lib
+        |       |-- *.jar
+        `-- lts-admin.war
+
 ```	    
         
 3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
-4. LTS-Admin启动.修改`lts-admin/conf`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
 
 ##JobClient（部署）使用
 需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
