@@ -1,12 +1,11 @@
 package com.github.ltsopensource.json;
 
+import com.github.ltsopensource.core.commons.utils.PrimitiveTypeUtils;
 import com.github.ltsopensource.json.deserializer.*;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,30 +17,6 @@ public class JSONParser {
 
     protected static final ConcurrentMap<Type, Deserializer>
             deserializerMap = new ConcurrentHashMap<Type, Deserializer>();
-
-    private final static Set<Class<?>> primitiveClasses = new HashSet<Class<?>>();
-
-    static {
-        primitiveClasses.add(boolean.class);
-        primitiveClasses.add(byte.class);
-        primitiveClasses.add(short.class);
-        primitiveClasses.add(int.class);
-        primitiveClasses.add(long.class);
-        primitiveClasses.add(float.class);
-        primitiveClasses.add(double.class);
-
-        primitiveClasses.add(Boolean.class);
-        primitiveClasses.add(Byte.class);
-        primitiveClasses.add(Short.class);
-        primitiveClasses.add(Integer.class);
-        primitiveClasses.add(Long.class);
-        primitiveClasses.add(Float.class);
-        primitiveClasses.add(Double.class);
-
-        primitiveClasses.add(BigInteger.class);
-        primitiveClasses.add(BigDecimal.class);
-        primitiveClasses.add(String.class);
-    }
 
     public static <T> T parse(Object object, Type type) {
 
@@ -81,7 +56,7 @@ public class JSONParser {
 
         Deserializer deserializer;
 
-        if (isPrimitiveClasses(clazz)) {
+        if (PrimitiveTypeUtils.isPrimitiveClass(clazz)) {
             deserializer = new PrimitiveTypeDeserializer();
         } else if (clazz.isEnum()) {
             deserializer = new EnumDeserializer(clazz);
@@ -101,10 +76,6 @@ public class JSONParser {
         deserializerMap.put(type, deserializer);
 
         return deserializer;
-    }
-
-    public static boolean isPrimitiveClasses(Class<?> clazz) {
-        return primitiveClasses.contains(clazz);
     }
 
 }
