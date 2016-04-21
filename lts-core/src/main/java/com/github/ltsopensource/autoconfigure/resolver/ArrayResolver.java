@@ -1,6 +1,7 @@
 package com.github.ltsopensource.autoconfigure.resolver;
 
 import com.github.ltsopensource.autoconfigure.AutoConfigContext;
+import com.github.ltsopensource.autoconfigure.PropertiesConfigurationResolveException;
 import com.github.ltsopensource.core.commons.utils.PrimitiveTypeUtils;
 import com.github.ltsopensource.core.json.JSON;
 
@@ -43,7 +44,13 @@ public class ArrayResolver extends AbstractResolver {
             for (Map.Entry<String, String> entry : kvMap.entrySet()) {
                 String value = entry.getValue();
 
-                if (PrimitiveTypeUtils.isPrimitiveClass(componentClass)) {
+                if (componentClass == Class.class) {
+                    try {
+                        Array.set(array, index++, Class.forName(value));
+                    } catch (ClassNotFoundException e) {
+                        throw new PropertiesConfigurationResolveException(e);
+                    }
+                } else if (PrimitiveTypeUtils.isPrimitiveClass(componentClass)) {
                     Array.set(array, index++, PrimitiveTypeUtils.convert(value, componentClass));
                 } else {
                     Array.set(array, index++, JSON.parse(value, componentClass));

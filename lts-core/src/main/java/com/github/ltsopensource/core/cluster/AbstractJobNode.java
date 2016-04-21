@@ -148,13 +148,6 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
             AbstractCompiler.setCompiler(compiler);
         }
 
-        appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
-
-        appContext.setCommandBodyWrapper(new CommandBodyWrapper(config));
-        appContext.setMasterElector(new MasterElector(appContext));
-        appContext.getMasterElector().addMasterChangeListener(masterChangeListeners);
-        appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
-
         if (StringUtils.isEmpty(config.getIp())) {
             config.setIp(NetUtils.getLocalHost());
         }
@@ -162,6 +155,13 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
         NodeFactory.build(node, config);
 
         LOGGER.info("Current Node config :{}", config);
+
+        appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
+
+        appContext.setCommandBodyWrapper(new CommandBodyWrapper(config));
+        appContext.setMasterElector(new MasterElector(appContext));
+        appContext.getMasterElector().addMasterChangeListener(masterChangeListeners);
+        appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
 
         // 订阅的node管理
         SubscribedNodeManager subscribedNodeManager = new SubscribedNodeManager(appContext);

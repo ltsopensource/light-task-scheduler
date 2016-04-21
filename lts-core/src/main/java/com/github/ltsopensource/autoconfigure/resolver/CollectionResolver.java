@@ -32,7 +32,13 @@ public class CollectionResolver extends AbstractResolver {
 
             @Override
             public boolean call(String name, String key, String value) {
-                if (PrimitiveTypeUtils.isPrimitiveClass(itemType)) {
+                if (itemType == Class.class) {
+                    try {
+                        collection.add(Class.forName(value));
+                    } catch (ClassNotFoundException e) {
+                        throw new PropertiesConfigurationResolveException(e);
+                    }
+                } else if (PrimitiveTypeUtils.isPrimitiveClass(itemType)) {
                     collection.add(PrimitiveTypeUtils.convert(value, itemType));
                 } else {
                     collection.add(JSON.parse(value, itemType));

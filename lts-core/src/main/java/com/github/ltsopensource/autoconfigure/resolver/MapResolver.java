@@ -45,7 +45,14 @@ public class MapResolver extends AbstractResolver {
                 if (mapKey.startsWith("[") && mapKey.endsWith("]")) {
                     mapKey = mapKey.substring(1, mapKey.length() - 1);
                 }
-                if (PrimitiveTypeUtils.isPrimitiveClass(vClass)) {
+                if (vClass == Class.class) {
+                    try {
+                        Class clazz = Class.forName(value);
+                        map.put(mapKey, clazz);
+                    } catch (ClassNotFoundException e) {
+                        throw new PropertiesConfigurationResolveException(e);
+                    }
+                } else if (PrimitiveTypeUtils.isPrimitiveClass(vClass)) {
                     map.put(mapKey, PrimitiveTypeUtils.convert(value, vClass));
                 } else {
                     map.put(mapKey, JSON.parse(value, vClass));

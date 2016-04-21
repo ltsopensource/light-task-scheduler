@@ -76,6 +76,16 @@ public class PropertiesConfigurationFactory {
         }
         ConfigurationProperties annotation = clazz.getAnnotation(ConfigurationProperties.class);
         String[] locations = annotation.locations();
+        return createPropertiesConfiguration(clazz, locations);
+    }
+
+    public static <T> T createPropertiesConfiguration(Class<T> clazz, String[] locations) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("clazz should not be null");
+        }
+        if (!clazz.isAnnotationPresent(ConfigurationProperties.class)) {
+            throw new IllegalArgumentException(clazz.getName() + " must annotation with @" + ConfigurationProperties.class.getName());
+        }
         if (locations == null || locations.length == 0) {
             throw new IllegalArgumentException(clazz.getName() + " must specified the properties locations");
         }

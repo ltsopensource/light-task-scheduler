@@ -11,7 +11,11 @@ public class ResolverUtils {
 
     public static Resolver getResolver(Class<?> clazz) {
 
-        if (PrimitiveTypeUtils.isPrimitiveClass(clazz)) {
+        if (clazz == Class.class) {
+
+            return ClassResolver.INSTANCE;
+
+        } else if (PrimitiveTypeUtils.isPrimitiveClass(clazz)) {
 
             return PrimitiveTypeResolver.INSTANCE;
 

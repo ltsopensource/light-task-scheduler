@@ -1,11 +1,14 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.core.commons.utils.Assert;
+import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.spring.tasktracker.JobDispatcher;
 import com.github.ltsopensource.tasktracker.TaskTracker;
+import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
+import com.github.ltsopensource.tasktracker.TaskTrackerProperties;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import org.springframework.beans.BeansException;
@@ -76,10 +79,16 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
      * 只有当使用 JobDispatcher 的时候才有效果
      */
     private String shardField;
+
+    private String identity;
+
+    private String bindIp;
     /**
      * 额外参数配置
      */
     private Properties configs = new Properties();
+
+    private String[] locations;
 
     @Override
     public TaskTracker getObject() throws Exception {
@@ -96,35 +105,28 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
         return true;
     }
 
-
-    public void checkProperties() {
-        Assert.hasText(clusterName, "clusterName must have value.");
-        Assert.hasText(nodeGroup, "nodeGroup must have value.");
-        Assert.hasText(registryAddress, "registryAddress must have value.");
-        Assert.isTrue(workThreads > 0, "workThreads must > 0.");
-        Assert.notNull(jobRunnerClass, "jobRunnerClass must have value");
-        Assert.isAssignable(JobRunner.class, jobRunnerClass,
-                StringUtils.format("jobRunnerClass should be implements {}.", JobRunner.class.getName()));
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        checkProperties();
-
-        taskTracker = new TaskTracker();
-
-        taskTracker.setClusterName(clusterName);
-        taskTracker.setDataPath(dataPath);
-        taskTracker.setWorkThreads(workThreads);
-        taskTracker.setNodeGroup(nodeGroup);
-        taskTracker.setRegistryAddress(registryAddress);
-        taskTracker.setJobRunnerClass(jobRunnerClass);
-
-        if (bizLoggerLevel != null) {
-            taskTracker.setBizLoggerLevel(bizLoggerLevel);
+        TaskTrackerProperties properties = null;
+        if (locations == null || locations.length == 0) {
+            properties = new TaskTrackerProperties();
+            properties.setClusterName(clusterName);
+            properties.setDataPath(dataPath);
+            properties.setNodeGroup(nodeGroup);
+            properties.setRegistryAddress(registryAddress);
+            properties.setBindIp(bindIp);
+            properties.setIdentity(identity);
+            properties.setWorkThreads(workThreads);
+            properties.setConfigs(CollectionUtils.toMap(configs));
+            properties.setBizLoggerLevel(bizLoggerLevel);
+        } else {
+            properties = PropertiesConfigurationFactory
+                    .createPropertiesConfiguration(TaskTrackerProperties.class, locations);
         }
+
+        taskTracker = TaskTrackerBuilder.buildByProperties(properties);
 
         registerRunnerBeanDefinition();
 
@@ -145,7 +147,6 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
                 taskTracker.addMasterChangeListener(masterChangeListener);
             }
         }
-
     }
 
     /**
@@ -213,7 +214,7 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
         this.jobRunnerClass = jobRunnerClass;
     }
 
-    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
         this.masterChangeListeners = masterChangeListeners;
     }
 
@@ -231,4 +232,15 @@ public class TaskTrackerAnnotationFactoryBean implements FactoryBean<TaskTracker
         this.shardField = shardField;
     }
 
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
+
+    public void setLocations(String... locations) {
+        this.locations = locations;
+    }
 }

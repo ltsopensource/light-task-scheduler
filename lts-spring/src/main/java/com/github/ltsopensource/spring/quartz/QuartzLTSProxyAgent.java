@@ -8,8 +8,11 @@ import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.jobclient.JobClient;
+import com.github.ltsopensource.jobclient.JobClientBuilder;
+import com.github.ltsopensource.jobclient.JobClientProperties;
 import com.github.ltsopensource.jobclient.domain.Response;
 import com.github.ltsopensource.tasktracker.TaskTracker;
+import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import org.quartz.impl.triggers.CronTriggerImpl;
@@ -70,11 +73,8 @@ class QuartzLTSProxyAgent {
     }
 
     private void startTaskTracker() {
-        TaskTracker taskTracker = new TaskTracker();
-        taskTracker.setRegistryAddress(quartzLTSConfig.getRegistryAddress());
-        taskTracker.setClusterName(quartzLTSConfig.getClusterName());
-        taskTracker.setNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
-        taskTracker.setDataPath(quartzLTSConfig.getDataPath());
+
+        TaskTracker taskTracker = TaskTrackerBuilder.buildByProperties(quartzLTSConfig.getTaskTrackerProperties());
         taskTracker.setWorkThreads(quartzJobContexts.size());
         taskTracker.setJobRunnerClass(QuartzJobRunnerDispatcher.class);
 
@@ -90,11 +90,9 @@ class QuartzLTSProxyAgent {
     }
 
     private JobClient startJobClient() {
-        JobClient jobClient = new JobClient();
-        jobClient.setRegistryAddress(quartzLTSConfig.getRegistryAddress());
-        jobClient.setClusterName(quartzLTSConfig.getClusterName());
-        jobClient.setNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
-        jobClient.setDataPath(quartzLTSConfig.getDataPath());
+        JobClientProperties jobClientProperties = quartzLTSConfig.getJobClientProperties();
+        jobClientProperties.setUseRetryClient(false);
+        JobClient jobClient = JobClientBuilder.buildByProperties(jobClientProperties);
         jobClient.start();
         return jobClient;
     }
@@ -127,11 +125,10 @@ class QuartzLTSProxyAgent {
         job.setTaskId(name);
         job.setPriority(priority);
         job.setCronExpression(cronExpression);
-        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
-        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
-        job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
+        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientProperties().getNodeGroup());
+        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerProperties().getNodeGroup());
         job.setParam("description", description);
-        job.setNeedFeedback(false);
+        setJobProp(job);
 
         return job;
     }
@@ -156,13 +153,31 @@ class QuartzLTSProxyAgent {
             job.setRepeatInterval(repeatInterval);
         }
         job.setPriority(priority);
-        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientNodeGroup());
-        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerNodeGroup());
-        job.setReplaceOnExist(quartzLTSConfig.isReplaceOnExist());
+        job.setSubmitNodeGroup(quartzLTSConfig.getJobClientProperties().getNodeGroup());
+        job.setTaskTrackerNodeGroup(quartzLTSConfig.getTaskTrackerProperties().getNodeGroup());
         job.setParam("description", description);
-        job.setNeedFeedback(false);
+        setJobProp(job);
 
         return job;
+    }
+
+    private void setJobProp(Job job) {
+        QuartzLTSConfig.JobProperties jobProperties = quartzLTSConfig.getJobProperties();
+        if (jobProperties == null) {
+            return;
+        }
+        if (jobProperties.getMaxRetryTimes() != null) {
+            job.setMaxRetryTimes(jobProperties.getMaxRetryTimes());
+        }
+        if (jobProperties.getNeedFeedback() != null) {
+            job.setNeedFeedback(jobProperties.getNeedFeedback());
+        }
+        if (jobProperties.getRelyOnPrevCycle() != null) {
+            job.setRelyOnPrevCycle(jobProperties.getRelyOnPrevCycle());
+        }
+        if (jobProperties.getReplaceOnExist() != null) {
+            job.setReplaceOnExist(jobProperties.getReplaceOnExist());
+        }
     }
 
     private void submitJobs0(JobClient jobClient, List<Job> jobs) {
