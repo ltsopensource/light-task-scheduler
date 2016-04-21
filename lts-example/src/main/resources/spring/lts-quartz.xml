@@ -25,7 +25,7 @@
     </bean>
 
     <bean name="quartzTestJob2" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
-        <property name="jobClass" value="com.github.ltsopensource.example.spring.quartz.QuartzTestJob" />
+        <property name="jobClass" value="com.github.ltsopensource.example.spring.quartz.QuartzTestJob"/>
         <property name="jobDataAsMap">
             <map>
                 <entry key="key1" value="v1"/>
@@ -71,9 +71,7 @@
     </bean>
 
     <bean class="com.github.ltsopensource.spring.quartz.QuartzLTSProxyBean">
-        <property name="clusterName" value="test_cluster"/>
-        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-        <property name="nodeGroup" value="quartz_test_group"/>
+        <property name="locations" value="application.properties"/>
     </bean>
 
 </beans>

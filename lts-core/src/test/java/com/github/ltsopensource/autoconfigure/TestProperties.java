@@ -1,6 +1,8 @@
 package com.github.ltsopensource.autoconfigure;
 
 import com.github.ltsopensource.autoconfigure.annotation.ConfigurationProperties;
+import com.github.ltsopensource.core.cluster.AbstractJobNode;
+import com.github.ltsopensource.core.cluster.Node;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class TestProperties {
     private List<String> list;
     private Integer[] integers;
     private EnumValue enumValue;
+    private Class<? extends AbstractJobNode> nodeClass;
 
     public EnumValue getEnumValue() {
         return enumValue;
@@ -82,6 +85,14 @@ public class TestProperties {
 
     public void setList(List<String> list) {
         this.list = list;
+    }
+
+    public Class<? extends AbstractJobNode> getNodeClass() {
+        return nodeClass;
+    }
+
+    public void setNodeClass(Class<? extends AbstractJobNode> nodeClass) {
+        this.nodeClass = nodeClass;
     }
 
     public static class Config {

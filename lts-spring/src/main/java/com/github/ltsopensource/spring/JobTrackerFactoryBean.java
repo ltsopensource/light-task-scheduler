@@ -1,10 +1,12 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.core.commons.utils.Assert;
+import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobtracker.JobTracker;
+import com.github.ltsopensource.jobtracker.JobTrackerBuilder;
+import com.github.ltsopensource.jobtracker.JobTrackerProperties;
 import com.github.ltsopensource.jobtracker.support.OldDataHandler;
-import com.github.ltsopensource.jobtracker.support.policy.OldDataDeletePolicy;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,6 +16,7 @@ import java.util.Properties;
 
 /**
  * JobTracker Spring Bean 工厂类
+ *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
@@ -41,10 +44,16 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
      * 监听端口
      */
     private Integer listenPort;
+
+    private String identity;
+
+    private String bindIp;
     /**
      * 老数据处理接口
      */
     private OldDataHandler oldDataHandler;
+
+    private String[] locations;
 
     @Override
     public JobTracker getObject() throws Exception {
@@ -61,33 +70,26 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
         return true;
     }
 
-    public void checkProperties() {
-        Assert.hasText(clusterName, "clusterName must have value.");
-        Assert.hasText(registryAddress, "registryAddress must have value.");
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        checkProperties();
-
-        jobTracker = new JobTracker();
-
-        jobTracker.setClusterName(clusterName);
-        jobTracker.setRegistryAddress(registryAddress);
-
-        if (listenPort != null) {
-            jobTracker.setListenPort(listenPort);
-        }
-        if (oldDataHandler == null) {
-            jobTracker.setOldDataHandler(new OldDataDeletePolicy());
+        JobTrackerProperties properties = null;
+        if (locations == null || locations.length == 0) {
+            properties = new JobTrackerProperties();
+            properties.setListenPort(listenPort);
+            properties.setClusterName(clusterName);
+            properties.setRegistryAddress(registryAddress);
+            properties.setBindIp(bindIp);
+            properties.setIdentity(identity);
+            properties.setConfigs(CollectionUtils.toMap(configs));
         } else {
-            jobTracker.setOldDataHandler(oldDataHandler);
+            properties = PropertiesConfigurationFactory.createPropertiesConfiguration(JobTrackerProperties.class, locations);
         }
 
-        // 设置config
-        for (Map.Entry<Object, Object> entry : configs.entrySet()) {
-            jobTracker.addConfig(entry.getKey().toString(), entry.getValue().toString());
+        jobTracker = JobTrackerBuilder.buildByProperties(properties);
+
+        if (oldDataHandler != null) {
+            jobTracker.setOldDataHandler(oldDataHandler);
         }
 
         if (masterChangeListeners != null) {
@@ -120,7 +122,7 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
         this.registryAddress = registryAddress;
     }
 
-    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
         this.masterChangeListeners = masterChangeListeners;
     }
 
@@ -134,5 +136,17 @@ public class JobTrackerFactoryBean implements FactoryBean<JobTracker>,
 
     public void setListenPort(Integer listenPort) {
         this.listenPort = listenPort;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
+
+    public void setLocations(String... locations) {
+        this.locations = locations;
     }
 }

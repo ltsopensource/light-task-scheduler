@@ -3,9 +3,8 @@ package com.github.ltsopensource.spring.boot;
 import com.github.ltsopensource.core.cluster.AbstractJobNode;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.jobclient.JobClient;
-import com.github.ltsopensource.jobclient.RetryJobClient;
+import com.github.ltsopensource.jobclient.JobClientBuilder;
 import com.github.ltsopensource.jobclient.support.JobCompletedHandler;
 import com.github.ltsopensource.spring.boot.annotation.EnableJobClient;
 import com.github.ltsopensource.spring.boot.annotation.JobCompletedHandler4JobClient;
@@ -37,32 +36,7 @@ public class JobClientAutoConfiguration extends AbstractAutoConfiguration {
 
     @Override
     protected void initJobNode() {
-        if (properties.isUseRetryClient()) {
-            jobClient = new RetryJobClient();
-        } else {
-            jobClient = new JobClient();
-        }
-        jobClient.setRegistryAddress(properties.getRegistryAddress());
-        if (StringUtils.isNotEmpty(properties.getClusterName())) {
-            jobClient.setClusterName(properties.getClusterName());
-        }
-        if (StringUtils.isNotEmpty(properties.getIdentity())) {
-            jobClient.setIdentity(properties.getIdentity());
-        }
-        if (StringUtils.isNotEmpty(properties.getNodeGroup())) {
-            jobClient.setNodeGroup(properties.getNodeGroup());
-        }
-        if (StringUtils.isNotEmpty(properties.getDataPath())) {
-            jobClient.setDataPath(properties.getDataPath());
-        }
-        if (StringUtils.isNotEmpty(properties.getBindIp())) {
-            jobClient.setBindIp(properties.getBindIp());
-        }
-        if (CollectionUtils.isNotEmpty(properties.getConfigs())) {
-            for (Map.Entry<String, String> entry : properties.getConfigs().entrySet()) {
-                jobClient.addConfig(entry.getKey(), entry.getValue());
-            }
-        }
+        jobClient = JobClientBuilder.buildByProperties(properties);
 
         Map<String, Object> handlers = applicationContext.getBeansWithAnnotation(JobCompletedHandler4JobClient.class);
         if (CollectionUtils.isNotEmpty(handlers)) {

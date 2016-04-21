@@ -1,19 +1,15 @@
 package com.github.ltsopensource.example.api;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.domain.Job;
-import com.github.ltsopensource.core.exception.JobSubmitException;
 import com.github.ltsopensource.example.support.BaseJobClientTest;
 import com.github.ltsopensource.example.support.JobCompletedHandlerImpl;
 import com.github.ltsopensource.example.support.MasterChangeListenerImpl;
 import com.github.ltsopensource.jobclient.JobClient;
+import com.github.ltsopensource.jobclient.JobClientBuilder;
 import com.github.ltsopensource.jobclient.RetryJobClient;
 import com.github.ltsopensource.jobclient.domain.Response;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Robert HG (254963746@qq.com) on 8/13/14.
@@ -30,14 +26,11 @@ public class JobClientTest extends BaseJobClientTest {
     }
 
     public static void submitWidthReplaceOnExist() throws IOException {
-        // 推荐使用RetryJobClient
-        JobClient jobClient = new RetryJobClient();
-        jobClient.setNodeGroup("test_jobClient");
-        jobClient.setClusterName("test_cluster");
-        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
-        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
+        JobClient jobClient = new JobClientBuilder()
+                .setPropertiesConfigure(new String[]{"application.properties"})
+                .setJobCompletedHandler(new JobCompletedHandlerImpl())
+//                .addMasterChangeListener(new MasterChangeListenerImpl())
+                .build();
         jobClient.start();
 
         Job job = new Job();
@@ -59,8 +52,6 @@ public class JobClientTest extends BaseJobClientTest {
         jobClient.setClusterName("test_cluster");
         jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
         jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
-        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
         jobClient.start();
 
         Job job = new Job();
@@ -78,19 +69,11 @@ public class JobClientTest extends BaseJobClientTest {
     }
 
     public static void cancelJob() {
-        JobClient jobClient = new RetryJobClient();
-        jobClient.setNodeGroup("test_jobClient");
-        jobClient.setClusterName("test_cluster");
-        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-//         jobClient.setRegistryAddress("redis://127.0.0.1:6379");
-        // 任务重试保存地址，默认用户目录下
-        // jobClient.setDataPath(Constants.USER_HOME);
-        // 任务完成反馈接口
-        jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
-        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-        // 可选址  leveldb(默认), rocksdb, berkeleydb
-        // taskTracker.addConfig("job.fail.store", "leveldb");
+        JobClient jobClient = new JobClientBuilder()
+                .setPropertiesConfigure(new String[]{"application.properties"})
+                .setJobCompletedHandler(new JobCompletedHandlerImpl())
+//                .addMasterChangeListener(new MasterChangeListenerImpl())
+                .build();
         jobClient.start();
 
         jobClient.cancelJob("t_4", "test_trade_TaskTracker");
@@ -98,86 +81,17 @@ public class JobClientTest extends BaseJobClientTest {
 
 
     public static void console() throws IOException {
-        // 推荐使用RetryJobClient
-        JobClient jobClient = new RetryJobClient();
-        jobClient.setNodeGroup("test_jobClient");
-        jobClient.setClusterName("test_cluster");
-        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-//         jobClient.setRegistryAddress("redis://127.0.0.1:6379");
-        // 任务重试保存地址，默认用户目录下
-        // jobClient.setDataPath(Constants.USER_HOME);
-        // 任务完成反馈接口
-        jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-        // master 节点变化监听器，当有集群中只需要一个节点执行某个事情的时候，可以监听这个事件
-        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-        // 可选址  leveldb(默认), rocksdb, berkeleydb, mapdb
-//        jobClient.addConfig("job.fail.store", "mapdb");
-//        jobClient.addConfig("lts.remoting.serializable.default", "hessian2");
-//        jobClient.setIdentity("test_jobclient_0000001");
-//        jobClient.addConfig(SpiKey.LTS_JSON, "fastjson");
-//        jobClient.addConfig("lts.remoting", "netty");
-//        jobClient.addConfig("zk.client", "curator");
+
+        JobClient jobClient = new JobClientBuilder()
+                .setPropertiesConfigure(new String[]{"application.properties"})
+                .setJobCompletedHandler(new JobCompletedHandlerImpl())
+                .addMasterChangeListener(new MasterChangeListenerImpl())
+                .build();
         jobClient.start();
 
         JobClientTest jobClientTest = new JobClientTest();
         jobClientTest.jobClient = jobClient;
         jobClientTest.startConsole();
-    }
-
-    public static void testProtector() {
-
-        final JobClient jobClient = new RetryJobClient();
-//      final JobClient jobClient = new JobClient();
-        jobClient.setNodeGroup("test_jobClient");
-        jobClient.setClusterName("test_cluster");
-        jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
-//        jobClient.setRegistryAddress("redis://127.0.0.1:6379");
-        // 任务重试保存地址，默认用户目录下
-//        jobClient.setDataPath(Constants.USER_HOME);
-        jobClient.setJobCompletedHandler(new JobCompletedHandlerImpl());
-//        jobClient.addMasterChangeListener(new MasterChangeListenerImpl());
-//                jobClient.addConfig("job.fail.store", "leveldb");     // 默认
-//        jobClient.addConfig("job.fail.store", "berkeleydb");
-//        jobClient.addConfig("job.fail.store", "rocksdb");
-        jobClient.start();
-
-        fastSubmit(jobClient);
-    }
-
-    private static void fastSubmit(final JobClient jobClient) {
-        final AtomicLong num = new AtomicLong();
-        System.out.println(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-
-        for (int i = 0; i < 10; i++) {
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        Job job = new Job();
-                        job.setTaskId(StringUtils.generateUUID());
-                        job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-                        job.setParam("shopId", "111");
-                        job.setNeedFeedback(false);
-                        try {
-                            Response response = jobClient.submitJob(job);
-                            System.out.print(" " + num.incrementAndGet());
-                            if (num.incrementAndGet() % 50 == 0) {
-                                System.out.println("");
-                            }
-//                            System.out.println(JSONObject.toJSONString(response));
-                        } catch (JobSubmitException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            Thread.sleep(500L);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }).start();
-        }
     }
 
 }

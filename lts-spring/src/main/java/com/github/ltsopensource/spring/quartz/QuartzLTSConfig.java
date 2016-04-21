@@ -1,90 +1,97 @@
 package com.github.ltsopensource.spring.quartz;
 
+import com.github.ltsopensource.autoconfigure.annotation.ConfigurationProperties;
+import com.github.ltsopensource.core.commons.utils.Assert;
+import com.github.ltsopensource.core.exception.ConfigPropertiesIllegalException;
+import com.github.ltsopensource.jobclient.JobClientProperties;
+import com.github.ltsopensource.tasktracker.TaskTrackerProperties;
+
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
 class QuartzLTSConfig {
 
-    /**
-     * 集群名称
-     */
-    private String clusterName;
-    /**
-     * 节点组名称
-     */
-    private String nodeGroup;
-    /**
-     * zookeeper地址
-     */
-    private String registryAddress;
-    /**
-     * 提交失败任务存储路径 , 默认用户目录
-     */
-    private String dataPath;
-    /**
-     * 这个根据用户配置的Cron任务来
-     */
-    private int workThreads;
+    private JobProperties jobProperties;
 
-    /**
-     * 如果为true, 每次启动时, 则以本地为准, 覆盖lts上的
-     * 如果为false,每次启动是, 则以lts为准, 如果lts上已经存在, 则不添加
-     */
-    private boolean replaceOnExist = true;
+    private JobClientProperties jobClientProperties;
 
-    public String getClusterName() {
-        return clusterName;
+    private TaskTrackerProperties taskTrackerProperties;
+
+    public JobClientProperties getJobClientProperties() {
+        return jobClientProperties;
     }
 
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
+    public void setJobClientProperties(JobClientProperties jobClientProperties) {
+        this.jobClientProperties = jobClientProperties;
     }
 
-    public String getNodeGroup() {
-        return nodeGroup;
+    public TaskTrackerProperties getTaskTrackerProperties() {
+        return taskTrackerProperties;
     }
 
-    public void setNodeGroup(String nodeGroup) {
-        this.nodeGroup = nodeGroup;
+    public void setTaskTrackerProperties(TaskTrackerProperties taskTrackerProperties) {
+        this.taskTrackerProperties = taskTrackerProperties;
     }
 
-    public String getJobClientNodeGroup() {
-        return "JC_" + this.nodeGroup;
+    public JobProperties getJobProperties() {
+        return jobProperties;
     }
 
-    public String getTaskTrackerNodeGroup() {
-        return "TT_" + this.nodeGroup;
+    public void setJobProperties(JobProperties jobProperties) {
+        this.jobProperties = jobProperties;
     }
 
-    public String getRegistryAddress() {
-        return registryAddress;
-    }
+    @ConfigurationProperties(prefix = "lts.jobProp")
+    public static class JobProperties {
 
-    public void setRegistryAddress(String registryAddress) {
-        this.registryAddress = registryAddress;
-    }
+        // 是否要反馈给客户端
+        private Boolean needFeedback;
+        // 该任务最大的重试次数
+        private Integer maxRetryTimes;
+        /**
+         * 如果为true, 每次启动时, 则以本地为准, 覆盖lts上的
+         * 如果为false,每次启动是, 则以lts为准, 如果lts上已经存在, 则不添加
+         */
+        private Boolean replaceOnExist;
+        /**
+         * 是否依赖上一个执行周期(对于周期性任务才起作用)
+         */
+        private Boolean relyOnPrevCycle;
 
-    public String getDataPath() {
-        return dataPath;
-    }
+        public Boolean getNeedFeedback() {
+            return needFeedback;
+        }
 
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
-    }
+        public void setNeedFeedback(Boolean needFeedback) {
+            this.needFeedback = needFeedback;
+        }
 
-    public int getWorkThreads() {
-        return workThreads;
-    }
+        public Integer getMaxRetryTimes() {
+            return maxRetryTimes;
+        }
 
-    public void setWorkThreads(int workThreads) {
-        this.workThreads = workThreads;
-    }
+        public void setMaxRetryTimes(Integer maxRetryTimes) {
+            this.maxRetryTimes = maxRetryTimes;
+        }
 
-    public boolean isReplaceOnExist() {
-        return replaceOnExist;
-    }
+        public Boolean getReplaceOnExist() {
+            return replaceOnExist;
+        }
 
-    public void setReplaceOnExist(boolean replaceOnExist) {
-        this.replaceOnExist = replaceOnExist;
+        public void setReplaceOnExist(Boolean replaceOnExist) {
+            this.replaceOnExist = replaceOnExist;
+        }
+
+        public Boolean getRelyOnPrevCycle() {
+            return relyOnPrevCycle;
+        }
+
+        public void setRelyOnPrevCycle(Boolean relyOnPrevCycle) {
+            this.relyOnPrevCycle = relyOnPrevCycle;
+        }
+
+        public void checkProperties() throws ConfigPropertiesIllegalException {
+            Assert.isTrue(getMaxRetryTimes() >= 0, "maxRetryTimes must >= 0.");
+        }
     }
 }

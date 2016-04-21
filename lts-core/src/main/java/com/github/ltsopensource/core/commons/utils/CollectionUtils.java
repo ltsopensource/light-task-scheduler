@@ -40,6 +40,18 @@ public class CollectionUtils {
         return set;
     }
 
+    public static Map<String, String> toMap(Properties properties) {
+        if (properties == null) {
+            return new HashMap<String, String>(0);
+        }
+        Map<String, String> map = new HashMap<String, String>(properties.size());
+
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            map.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+        return map;
+    }
+
     public static boolean isNotEmpty(Map<?, ?> map) {
         return map != null && map.size() > 0;
     }

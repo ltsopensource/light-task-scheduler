@@ -1,26 +1,28 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.core.commons.utils.Assert;
+import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobclient.JobClient;
-import com.github.ltsopensource.jobclient.RetryJobClient;
+import com.github.ltsopensource.jobclient.JobClientBuilder;
+import com.github.ltsopensource.jobclient.JobClientProperties;
 import com.github.ltsopensource.jobclient.support.JobCompletedHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**
  * JobClient Spring Bean 工厂类
+ *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 @SuppressWarnings("rawtypes")
 public class JobClientFactoryBean implements FactoryBean<JobClient>,
         InitializingBean, DisposableBean {
 
-	private JobClient jobClient;
+    private JobClient jobClient;
     private boolean started;
     /**
      * 集群名称
@@ -38,6 +40,10 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
      * 提交失败任务存储路径 , 默认用户木邻居
      */
     private String dataPath;
+
+    private String identity;
+
+    private String bindIp;
     /**
      * master节点变化监听器
      */
@@ -46,14 +52,15 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
      * 额外参数配置
      */
     private Properties configs = new Properties();
-    /**
-     * NORMAL, RETRY
-     */
-    private String type;
+
+    private boolean useRetryClient = true;
+
     /**
      * 任务完成处理接口
      */
     private JobCompletedHandler jobCompletedHandler;
+
+    private String[] locations;
 
     @Override
     public JobClient getObject() throws Exception {
@@ -70,35 +77,29 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         return true;
     }
 
-
-    public void checkProperties() {
-        Assert.hasText(clusterName, "clusterName must have value.");
-        Assert.hasText(nodeGroup, "nodeGroup must have value.");
-        Assert.hasText(registryAddress, "registryAddress must have value.");
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        checkProperties();
-        if ("NORMAL".equals(type)) {
-            jobClient = new JobClient();
+        JobClientProperties properties = null;
+        if (locations == null || locations.length == 0) {
+            properties = new JobClientProperties();
+            properties.setUseRetryClient(useRetryClient);
+            properties.setClusterName(clusterName);
+            properties.setDataPath(dataPath);
+            properties.setNodeGroup(nodeGroup);
+            properties.setRegistryAddress(registryAddress);
+            properties.setBindIp(bindIp);
+            properties.setIdentity(identity);
+            properties.setConfigs(CollectionUtils.toMap(configs));
+
         } else {
-            jobClient = new RetryJobClient();
+            properties = PropertiesConfigurationFactory.createPropertiesConfiguration(JobClientProperties.class, locations);
         }
 
-        jobClient.setClusterName(clusterName);
-        jobClient.setDataPath(dataPath);
-        jobClient.setNodeGroup(nodeGroup);
-        jobClient.setRegistryAddress(registryAddress);
+        jobClient = JobClientBuilder.buildByProperties(properties);
 
         if (jobCompletedHandler != null) {
             jobClient.setJobCompletedHandler(jobCompletedHandler);
-        }
-
-        // 设置config
-        for (Map.Entry<Object, Object> entry : configs.entrySet()) {
-            jobClient.addConfig(entry.getKey().toString(), entry.getValue().toString());
         }
 
         if (masterChangeListeners != null) {
@@ -139,7 +140,7 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         this.dataPath = dataPath;
     }
 
-    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
         this.masterChangeListeners = masterChangeListeners;
     }
 
@@ -151,7 +152,19 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
         this.jobCompletedHandler = jobCompletedHandler;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setUseRetryClient(boolean useRetryClient) {
+        this.useRetryClient = useRetryClient;
+    }
+
+    public void setLocations(String... locations) {
+        this.locations = locations;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
     }
 }

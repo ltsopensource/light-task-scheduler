@@ -1,12 +1,14 @@
-package com.github.ltsopensource.spring.boot.properties;
+package com.github.ltsopensource.core.cluster;
+
+import com.github.ltsopensource.core.exception.ConfigPropertiesIllegalException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author Robert HG (254963746@qq.com) on 4/9/16.
+ * @author Robert HG (254963746@qq.com) on 4/21/16.
  */
-public class AbstractProperties {
+public abstract class AbstractConfigProperties {
 
     /**
      * 节点标识(可选)
@@ -28,6 +30,8 @@ public class AbstractProperties {
      * 额外参数配置
      */
     private Map<String, String> configs = new HashMap<String, String>();
+
+    public abstract void checkProperties() throws ConfigPropertiesIllegalException;
 
     public String getClusterName() {
         return clusterName;
@@ -68,4 +72,5 @@ public class AbstractProperties {
     public void setBindIp(String bindIp) {
         this.bindIp = bindIp;
     }
+
 }

@@ -28,6 +28,8 @@ public class MonitorAutoConfiguration implements InitializingBean, DisposableBea
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        properties.checkProperties();
+
         agent = new MonitorAgent();
 
         agent.setRegistryAddress(properties.getRegistryAddress());
