@@ -11,6 +11,7 @@ import com.github.ltsopensource.spring.tasktracker.JobDispatcher;
 import com.github.ltsopensource.spring.tasktracker.JobRunnerHolder;
 import com.github.ltsopensource.spring.tasktracker.LTS;
 import com.github.ltsopensource.tasktracker.TaskTracker;
+import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,31 +39,8 @@ public class TaskTrackerAutoConfiguration extends AbstractAutoConfiguration {
 
     @Override
     protected void initJobNode() {
-        taskTracker = new TaskTracker();
-        taskTracker.setRegistryAddress(properties.getRegistryAddress());
-        if (StringUtils.isNotEmpty(properties.getClusterName())) {
-            taskTracker.setClusterName(properties.getClusterName());
-        }
-        if (StringUtils.isNotEmpty(properties.getIdentity())) {
-            taskTracker.setIdentity(properties.getIdentity());
-        }
-        if (StringUtils.isNotEmpty(properties.getNodeGroup())) {
-            taskTracker.setNodeGroup(properties.getNodeGroup());
-        }
-        if (StringUtils.isNotEmpty(properties.getDataPath())) {
-            taskTracker.setDataPath(properties.getDataPath());
-        }
-        if (StringUtils.isNotEmpty(properties.getBindIp())) {
-            taskTracker.setBindIp(properties.getBindIp());
-        }
-        if (CollectionUtils.isNotEmpty(properties.getConfigs())) {
-            for (Map.Entry<String, String> entry : properties.getConfigs().entrySet()) {
-                taskTracker.addConfig(entry.getKey(), entry.getValue());
-            }
-        }
-        if (properties.getWorkThreads() != 0) {
-            taskTracker.setWorkThreads(properties.getWorkThreads());
-        }
+
+        taskTracker = TaskTrackerBuilder.buildByProperties(properties);
 
         if (!isEnableDispatchRunner()) {
 

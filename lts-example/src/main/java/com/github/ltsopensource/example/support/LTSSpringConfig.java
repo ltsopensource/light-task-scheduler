@@ -1,6 +1,5 @@
 package com.github.ltsopensource.example.support;
 
-import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobclient.JobClient;
 import com.github.ltsopensource.jobtracker.JobTracker;
 import com.github.ltsopensource.spring.JobClientFactoryBean;
@@ -12,8 +11,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Properties;
 
 /**
  * 下面是给的参考示例，
@@ -35,38 +32,17 @@ public class LTSSpringConfig implements ApplicationContextAware {
     @Bean(name = "jobClient")
     public JobClient getJobClient() throws Exception {
         JobClientFactoryBean factoryBean = new JobClientFactoryBean();
-        factoryBean.setClusterName("test_cluster");
-        factoryBean.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        factoryBean.setNodeGroup("test_jobClient");
-        factoryBean.setMasterChangeListeners(new MasterChangeListener[]{
-                new MasterChangeListenerImpl()
-        });
-        Properties configs = new Properties();
-        configs.setProperty("job.fail.store", "leveldb");
-        factoryBean.setConfigs(configs);
-
+        factoryBean.setMasterChangeListeners(new MasterChangeListenerImpl());
+        factoryBean.setLocations("application.properties");
         factoryBean.afterPropertiesSet();
 //        factoryBean.start();
-
         return factoryBean.getObject();
     }
 
     @Bean(name = "jobTracker")
     public JobTracker getJobTracker() throws Exception {
         JobTrackerFactoryBean factoryBean = new JobTrackerFactoryBean();
-        factoryBean.setClusterName("test_cluster");
-        factoryBean.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        factoryBean.setMasterChangeListeners(new MasterChangeListener[]{
-                new MasterChangeListenerImpl()
-        });
-        Properties configs = new Properties();
-        configs.setProperty("job.logger", "mysql");
-        configs.setProperty("job.queue", "mysql");
-        configs.setProperty("jdbc.url", "jdbc:mysql://127.0.0.1:3306/lts");
-        configs.setProperty("jdbc.username", "root");
-        configs.setProperty("jdbc.password", "root");
-        factoryBean.setConfigs(configs);
-
+        factoryBean.setLocations("application.properties");
         factoryBean.afterPropertiesSet();
 //        factoryBean.start();
         return factoryBean.getObject();
@@ -76,19 +52,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
     public TaskTracker getTaskTracker() throws Exception {
         TaskTrackerAnnotationFactoryBean factoryBean = new TaskTrackerAnnotationFactoryBean();
         factoryBean.setApplicationContext(applicationContext);
-        factoryBean.setClusterName("test_cluster");
         factoryBean.setJobRunnerClass(SpringAnnotationJobRunner.class);
-        factoryBean.setNodeGroup("test_trade_TaskTracker");
-        factoryBean.setBizLoggerLevel("INFO");
-        factoryBean.setRegistryAddress("zookeeper://127.0.0.1:2181");
-        factoryBean.setMasterChangeListeners(new MasterChangeListener[]{
-                new MasterChangeListenerImpl()
-        });
-        factoryBean.setWorkThreads(20);
-        Properties configs = new Properties();
-        configs.setProperty("job.fail.store", "leveldb");
-        factoryBean.setConfigs(configs);
-
+        factoryBean.setLocations("application.properties");
         factoryBean.afterPropertiesSet();
 //        factoryBean.start();
 

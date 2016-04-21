@@ -1,22 +1,25 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.core.commons.utils.Assert;
+import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.tasktracker.TaskTracker;
+import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
+import com.github.ltsopensource.tasktracker.TaskTrackerProperties;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**
  * TaskTracker Spring Bean 工厂类
  * 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过xml的方式注入
+ *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTracker>,
@@ -40,6 +43,11 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
      * 提交失败任务存储路径 , 默认用户木邻居
      */
     private String dataPath;
+
+    private String identity;
+
+    private String bindIp;
+
     /**
      * 工作线程个数
      */
@@ -57,6 +65,8 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
      */
     private Properties configs = new Properties();
 
+    private String[] locations;
+
     @Override
     public TaskTracker getObject() throws Exception {
         return taskTracker;
@@ -72,35 +82,27 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
         return true;
     }
 
-
-    public void checkProperties() {
-        Assert.hasText(clusterName, "clusterName must have value.");
-        Assert.hasText(nodeGroup, "nodeGroup must have value.");
-        Assert.hasText(registryAddress, "registryAddress must have value.");
-        Assert.isTrue(workThreads > 0, "workThreads must > 0.");
-    }
-
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        checkProperties();
+        TaskTrackerProperties properties = null;
+        if (locations == null || locations.length == 0) {
+            properties = new TaskTrackerProperties();
+            properties.setClusterName(clusterName);
+            properties.setDataPath(dataPath);
+            properties.setNodeGroup(nodeGroup);
+            properties.setRegistryAddress(registryAddress);
+            properties.setBindIp(bindIp);
+            properties.setIdentity(identity);
+            properties.setBizLoggerLevel(bizLoggerLevel);
+            properties.setWorkThreads(workThreads);
 
-        taskTracker = new TaskTracker();
-
-        taskTracker.setClusterName(clusterName);
-        taskTracker.setDataPath(dataPath);
-        taskTracker.setWorkThreads(workThreads);
-        taskTracker.setNodeGroup(nodeGroup);
-        taskTracker.setRegistryAddress(registryAddress);
-
-        if (bizLoggerLevel != null) {
-            taskTracker.setBizLoggerLevel(bizLoggerLevel);
+            properties.setConfigs(CollectionUtils.toMap(configs));
+        } else {
+            properties = PropertiesConfigurationFactory.createPropertiesConfiguration(TaskTrackerProperties.class, locations);
         }
 
-        // 设置config
-        for (Map.Entry<Object, Object> entry : configs.entrySet()) {
-            taskTracker.addConfig(entry.getKey().toString(), entry.getValue().toString());
-        }
+        taskTracker = TaskTrackerBuilder.buildByProperties(properties);
 
         taskTracker.setRunnerFactory(new RunnerFactory() {
             @Override
@@ -154,7 +156,7 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
         this.workThreads = workThreads;
     }
 
-    public void setMasterChangeListeners(MasterChangeListener[] masterChangeListeners) {
+    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
         this.masterChangeListeners = masterChangeListeners;
     }
 
@@ -166,5 +168,17 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
 
     public void setConfigs(Properties configs) {
         this.configs = configs;
+    }
+
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public void setLocations(String... locations) {
+        this.locations = locations;
     }
 }

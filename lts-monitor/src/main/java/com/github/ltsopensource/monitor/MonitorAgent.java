@@ -108,6 +108,16 @@ public class MonitorAgent {
         if (StringUtils.isNotEmpty(compiler)) {
             AbstractCompiler.setCompiler(compiler);
         }
+        // 设置json
+        String ltsJson = config.getParameter(SpiExtensionKey.LTS_JSON);
+        if (StringUtils.isNotEmpty(ltsJson)) {
+            JSONFactory.setJSONAdapter(ltsJson);
+        }
+
+        if (StringUtils.isEmpty(config.getIp())) {
+            config.setIp(NetUtils.getLocalHost());
+        }
+        JobNodeConfigFactory.buildIdentity(config);
 
         // 初始化一些 db access
         MonitorAccessFactory factory = ServiceLoader.load(MonitorAccessFactory.class, config);
@@ -122,16 +132,6 @@ public class MonitorAgent {
 
         this.appContext.setEventCenter(ServiceLoader.load(EventCenter.class, config));
         this.appContext.setRegistryStatMonitor(new RegistryStatMonitor(appContext));
-
-        // 设置json
-        String ltsJson = config.getParameter(SpiExtensionKey.LTS_JSON);
-        if (StringUtils.isNotEmpty(ltsJson)) {
-            JSONFactory.setJSONAdapter(ltsJson);
-        }
-        if (StringUtils.isEmpty(config.getIp())) {
-            config.setIp(NetUtils.getLocalHost());
-        }
-        JobNodeConfigFactory.buildIdentity(config);
     }
 
     public void stop() {
