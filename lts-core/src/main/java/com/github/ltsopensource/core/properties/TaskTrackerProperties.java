@@ -1,4 +1,4 @@
-package com.github.ltsopensource.tasktracker;
+package com.github.ltsopensource.core.properties;
 
 
 import com.github.ltsopensource.autoconfigure.annotation.ConfigurationProperties;
@@ -6,7 +6,6 @@ import com.github.ltsopensource.core.cluster.AbstractConfigProperties;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.exception.ConfigPropertiesIllegalException;
-import com.github.ltsopensource.tasktracker.runner.JobRunner;
 
 /**
  * @author Robert HG (254963746@qq.com) on 4/9/16.
@@ -31,7 +30,7 @@ public class TaskTrackerProperties extends AbstractConfigProperties {
 
     private DispatchRunner dispatchRunner;
 
-    private Class<? extends JobRunner> jobRunnerClass;
+    private Class<?> jobRunnerClass;
 
     public String getNodeGroup() {
         return nodeGroup;
@@ -57,11 +56,11 @@ public class TaskTrackerProperties extends AbstractConfigProperties {
         this.workThreads = workThreads;
     }
 
-    public Class<? extends JobRunner> getJobRunnerClass() {
+    public Class<?> getJobRunnerClass() {
         return jobRunnerClass;
     }
 
-    public void setJobRunnerClass(Class<? extends JobRunner> jobRunnerClass) {
+    public void setJobRunnerClass(Class<?> jobRunnerClass) {
         this.jobRunnerClass = jobRunnerClass;
     }
 
@@ -114,6 +113,5 @@ public class TaskTrackerProperties extends AbstractConfigProperties {
         public void setShardValue(String shardValue) {
             this.shardValue = shardValue;
         }
-
     }
 }

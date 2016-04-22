@@ -7,7 +7,7 @@ import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.tasktracker.TaskTracker;
 import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
-import com.github.ltsopensource.tasktracker.TaskTrackerProperties;
+import com.github.ltsopensource.core.properties.TaskTrackerProperties;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
 import org.springframework.beans.factory.DisposableBean;

@@ -1,4 +1,4 @@
-package com.github.ltsopensource.jobclient;
+package com.github.ltsopensource.core.properties;
 
 
 import com.github.ltsopensource.autoconfigure.annotation.ConfigurationProperties;
