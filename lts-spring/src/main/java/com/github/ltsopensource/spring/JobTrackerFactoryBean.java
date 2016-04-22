@@ -5,13 +5,12 @@ import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobtracker.JobTracker;
 import com.github.ltsopensource.jobtracker.JobTrackerBuilder;
-import com.github.ltsopensource.jobtracker.JobTrackerProperties;
+import com.github.ltsopensource.core.properties.JobTrackerProperties;
 import com.github.ltsopensource.jobtracker.support.OldDataHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.Map;
 import java.util.Properties;
 
 /**

@@ -9,7 +9,7 @@ import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.jobclient.JobClient;
 import com.github.ltsopensource.jobclient.JobClientBuilder;
-import com.github.ltsopensource.jobclient.JobClientProperties;
+import com.github.ltsopensource.core.properties.JobClientProperties;
 import com.github.ltsopensource.jobclient.domain.Response;
 import com.github.ltsopensource.tasktracker.TaskTracker;
 import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
