@@ -39,8 +39,8 @@ public abstract class RetryScheduler<T> {
     private Class<?> type = GenericsUtils.getSuperClassGenericType(this.getClass());
 
     // 定时检查是否有 师表的反馈任务信息(给客户端的)
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-retry", true));
-    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-master-retry", true));
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
+    private ScheduledExecutorService MASTER_RETRY_EXECUTOR_SERVICE;
     private ScheduledFuture<?> masterScheduledFuture;
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean selfCheckStart = new AtomicBoolean(false);
@@ -93,6 +93,7 @@ public abstract class RetryScheduler<T> {
     public void start() {
         try {
             if (selfCheckStart.compareAndSet(false, true)) {
+                this.RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-retry", true));
                 // 这个时间后面再去优化
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay
                         (new CheckSelfRunner(), 10, 30, TimeUnit.SECONDS);
@@ -106,6 +107,7 @@ public abstract class RetryScheduler<T> {
     private void startMasterCheck() {
         try {
             if (masterCheckStart.compareAndSet(false, true)) {
+                this.MASTER_RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-RetryScheduler-master-retry", true));
                 // 这个时间后面再去优化
                 masterScheduledFuture = MASTER_RETRY_EXECUTOR_SERVICE.
                         scheduleWithFixedDelay(new CheckDeadFailStoreRunner(), 30, 60, TimeUnit.SECONDS);
@@ -121,7 +123,9 @@ public abstract class RetryScheduler<T> {
             if (masterCheckStart.compareAndSet(true, false)) {
                 if (masterScheduledFuture != null) {
                     masterScheduledFuture.cancel(true);
+                    masterScheduledFuture = null;
                     MASTER_RETRY_EXECUTOR_SERVICE.shutdown();
+                    MASTER_RETRY_EXECUTOR_SERVICE = null;
                 }
                 LOGGER.info("Stop {} master RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
@@ -135,8 +139,10 @@ public abstract class RetryScheduler<T> {
             if (selfCheckStart.compareAndSet(true, false)) {
                 if (scheduledFuture != null) {
                     scheduledFuture.cancel(true);
+                    scheduledFuture = null;
                     failStore.close();
                     RETRY_EXECUTOR_SERVICE.shutdown();
+                    RETRY_EXECUTOR_SERVICE = null;
                 }
                 LOGGER.info("Stop {} RetryScheduler success, identity=[{}]", name, appContext.getConfig().getIdentity());
             }
@@ -155,6 +161,8 @@ public abstract class RetryScheduler<T> {
         }
     }
 
+    private AtomicBoolean checkSelfRunnerStart = new AtomicBoolean(false);
+
     /**
      * 定时检查 提交失败任务的Runnable
      */
@@ -162,6 +170,11 @@ public abstract class RetryScheduler<T> {
 
         @Override
         public void run() {
+
+            if (!checkSelfRunnerStart.compareAndSet(false, true)) {
+                return;
+            }
+
             try {
                 // 1. 检测 远程连接 是否可用
                 if (!isRemotingEnable()) {
@@ -200,9 +213,13 @@ public abstract class RetryScheduler<T> {
 
             } catch (Throwable e) {
                 LOGGER.error("Run {} RetryScheduler error , identity=[{}]", name, appContext.getConfig().getIdentity(), e);
+            } finally {
+                checkSelfRunnerStart.set(false);
             }
         }
     }
+
+    private AtomicBoolean checkDeadFailStoreRunnerStart = new AtomicBoolean(false);
 
     /**
      * 定时检查 已经down掉的机器的FailStore目录
@@ -211,6 +228,9 @@ public abstract class RetryScheduler<T> {
 
         @Override
         public void run() {
+            if (!checkDeadFailStoreRunnerStart.compareAndSet(false, true)) {
+                return;
+            }
             try {
                 // 1. 检测 远程连接 是否可用
                 if (!isRemotingEnable()) {
@@ -255,6 +275,8 @@ public abstract class RetryScheduler<T> {
                 }
             } catch (Throwable e) {
                 LOGGER.error("Run {} master RetryScheduler error, identity=[{}] ", name, appContext.getConfig().getIdentity(), e);
+            } finally {
+                checkDeadFailStoreRunnerStart.set(false);
             }
         }
     }
