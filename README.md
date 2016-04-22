@@ -352,26 +352,35 @@ class JobRunnerB implements JobRunner {
 }
 ```
 ##TaskTracker的JobRunner测试
-一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如`lts-example`中的例子：
+一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如[lts-examples](https://github.com/ltsopensource/lts-examples)中的例子：
 
 ```java
 public class TestJobRunnerTester extends JobRunnerTester {
-	
+
     public static void main(String[] args) throws Throwable {
-        //  1. Mock Job 数据
+        //  Mock Job 数据
         Job job = new Job();
         job.setTaskId("2313213");
-        // 2. 运行测试
+
+        JobContext jobContext = new JobContext();
+        jobContext.setJob(job);
+
+        JobExtInfo jobExtInfo = new JobExtInfo();
+        jobExtInfo.setRetry(false);
+
+        jobContext.setJobExtInfo(jobExtInfo);
+
+        // 运行测试
         TestJobRunnerTester tester = new TestJobRunnerTester();
-        Result result = tester.run(job);
-        System.out.println(JSONUtils.toJSONString(result));
+        Result result = tester.run(jobContext);
+        System.out.println(JSON.toJSONString(result));
     }
-	
+
     @Override
     protected void initContext() {
-        // TODO 初始化Spring容器等
+        // TODO 初始化Spring容器
     }
-	
+
     @Override
     protected JobRunner newJobRunner() {
         return new TestJobRunner();
@@ -407,12 +416,8 @@ public class Application {
 剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
 
 
-
 ##多网卡选择问题
 当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
-
-##打包成独立jar
-请在`lts-parent/lts` 下install即可，会在 `lts-parent/lts/target` 下生成`lts-{version}.jar`
 
 ##关于节点标识问题
 如果在节点启动的时候设置节点标识,LTS会默认设置一个UUID为节点标识,可读性会比较差,但是能保证每个节点的唯一性,如果用户能自己保证节点标识的唯一性,可以通过 `setIdentity` 来设置,譬如如果每个节点都是部署在一台机器(一个虚拟机)上,那么可以将identity设置为主机名称
