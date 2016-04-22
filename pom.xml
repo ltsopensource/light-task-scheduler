@@ -20,7 +20,6 @@
         <module>lts-jobtracker</module>
         <module>lts-tasktracker</module>
         <module>lts-jobclient</module>
-        <module>lts-example</module>
         <module>lts-admin</module>
         <module>lts-spring</module>
         <module>lts-startup</module>
