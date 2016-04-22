@@ -3,8 +3,8 @@ package com.github.ltsopensource.spring.quartz;
 import com.github.ltsopensource.autoconfigure.annotation.ConfigurationProperties;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.exception.ConfigPropertiesIllegalException;
-import com.github.ltsopensource.jobclient.JobClientProperties;
-import com.github.ltsopensource.tasktracker.TaskTrackerProperties;
+import com.github.ltsopensource.core.properties.JobClientProperties;
+import com.github.ltsopensource.core.properties.TaskTrackerProperties;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.

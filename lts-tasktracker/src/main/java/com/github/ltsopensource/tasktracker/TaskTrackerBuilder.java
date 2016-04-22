@@ -4,6 +4,8 @@ import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
 import com.github.ltsopensource.core.cluster.AbstractNodeBuilder;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.properties.TaskTrackerProperties;
+import com.github.ltsopensource.tasktracker.runner.JobRunner;
 
 import java.util.Map;
 
@@ -19,6 +21,7 @@ public class TaskTrackerBuilder extends AbstractNodeBuilder<TaskTracker, TaskTra
         return buildByProperties(properties);
     }
 
+    @SuppressWarnings("unchecked")
     public static TaskTracker buildByProperties(TaskTrackerProperties properties) {
         TaskTracker taskTracker = new TaskTracker();
         taskTracker.setRegistryAddress(properties.getRegistryAddress());
@@ -49,7 +52,7 @@ public class TaskTrackerBuilder extends AbstractNodeBuilder<TaskTracker, TaskTra
             taskTracker.setWorkThreads(properties.getWorkThreads());
         }
         if (properties.getJobRunnerClass() != null) {
-            taskTracker.setJobRunnerClass(properties.getJobRunnerClass());
+            taskTracker.setJobRunnerClass((Class<? extends JobRunner>) properties.getJobRunnerClass());
         }
 
         return taskTracker;

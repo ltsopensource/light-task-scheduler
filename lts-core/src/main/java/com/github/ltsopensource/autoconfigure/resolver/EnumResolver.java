@@ -11,6 +11,7 @@ public class EnumResolver extends AbstractResolver {
 
     public static final EnumResolver INSTANCE = new EnumResolver();
 
+    @SuppressWarnings("unchecked")
     @Override
     public void resolve(final AutoConfigContext context, final PropertyDescriptor descriptor, final Class<?> propertyType) {
 

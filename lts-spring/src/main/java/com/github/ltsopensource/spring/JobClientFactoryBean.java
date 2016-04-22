@@ -5,7 +5,7 @@ import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobclient.JobClient;
 import com.github.ltsopensource.jobclient.JobClientBuilder;
-import com.github.ltsopensource.jobclient.JobClientProperties;
+import com.github.ltsopensource.core.properties.JobClientProperties;
 import com.github.ltsopensource.jobclient.support.JobCompletedHandler;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
