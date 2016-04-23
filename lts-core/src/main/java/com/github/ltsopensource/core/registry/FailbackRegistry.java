@@ -5,6 +5,7 @@ import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.commons.concurrent.ConcurrentHashSet;
 import com.github.ltsopensource.core.commons.utils.Callable;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
 
@@ -33,7 +34,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     public FailbackRegistry(AppContext appContext) {
         super(appContext);
 
-        int retryPeriod = appContext.getConfig().getParameter(Constants.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
+        int retryPeriod = appContext.getConfig().getParameter(ExtConfig.REGISTRY_RETRY_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RETRY_PERIOD);
 
         this.retryFuture = retryExecutor.scheduleWithFixedDelay(new Runnable() {
             public void run() {

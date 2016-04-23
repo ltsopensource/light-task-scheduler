@@ -2,6 +2,7 @@ package com.github.ltsopensource.jobtracker.processor;
 
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.concurrent.limiter.RateLimiter;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.protocol.JobProtos;
 import com.github.ltsopensource.core.protocol.command.AbstractRemotingCommandBody;
 import com.github.ltsopensource.jobtracker.channel.ChannelWrapper;
@@ -37,10 +38,10 @@ public class RemotingDispatcher extends AbstractRemotingProcessor {
         processors.put(RequestCode.BIZ_LOG_SEND, new JobBizLogProcessor(appContext));
         processors.put(RequestCode.CANCEL_JOB, new JobCancelProcessor(appContext));
 
-        this.reqLimitEnable = appContext.getConfig().getParameter("remoting.req.limit.enable", false);
-        Integer maxQPS = appContext.getConfig().getParameter("remoting.req.limit.maxQPS", 5000);
+        this.reqLimitEnable = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_REMOTING_REQ_LIMIT_ENABLE, false);
+        Integer maxQPS = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_REMOTING_REQ_LIMIT_MAX_QPS, 5000);
         this.rateLimiter = RateLimiter.create(maxQPS);
-        this.reqLimitAcquireTimeout = appContext.getConfig().getParameter("remoting.req.limit.acquire.timeout", 50);
+        this.reqLimitAcquireTimeout = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_REMOTING_REQ_LIMIT_ACQUIRE_TIMEOUT, 50);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.concurrent.ConcurrentHashSet;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.loadbalance.LoadBalance;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -32,7 +33,7 @@ public class JobClientManager {
 
     public JobClientManager(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "jobclient.select.loadbalance");
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), ExtConfig.JOB_CLIENT_SELECT_LOADBALANCE);
     }
 
     /**

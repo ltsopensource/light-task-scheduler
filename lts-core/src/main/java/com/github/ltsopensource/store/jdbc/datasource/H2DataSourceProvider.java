@@ -2,6 +2,7 @@ package com.github.ltsopensource.store.jdbc.datasource;
 
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import org.h2.jdbcx.JdbcDataSource;
 
 import javax.sql.DataSource;
@@ -19,9 +20,9 @@ public class H2DataSourceProvider implements DataSourceProvider {
 
     public DataSource getDataSource(Config config) {
 
-        String url = config.getParameter(URL_KEY);
-        String username = config.getParameter(USERNAME_KEY);
-        String password = config.getParameter(PASSWORD_KEY);
+        String url = config.getParameter(ExtConfig.JDBC_URL);
+        String username = config.getParameter(ExtConfig.JDBC_USERNAME);
+        String password = config.getParameter(ExtConfig.JDBC_PASSWORD);
 
         String cachedKey = StringUtils.concat(url, username, password);
 
@@ -47,9 +48,9 @@ public class H2DataSourceProvider implements DataSourceProvider {
 
     private DataSource createDataSource(Config config) throws ClassNotFoundException {
 
-        String url = config.getParameter(URL_KEY);
-        String username = config.getParameter(USERNAME_KEY);
-        String password = config.getParameter(PASSWORD_KEY);
+        String url = config.getParameter(ExtConfig.JDBC_URL);
+        String username = config.getParameter(ExtConfig.JDBC_USERNAME);
+        String password = config.getParameter(ExtConfig.JDBC_PASSWORD);
 
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setUrl(url);
@@ -58,9 +59,5 @@ public class H2DataSourceProvider implements DataSourceProvider {
 
         return dataSource;
     }
-
-    private static final String URL_KEY = "jdbc.url";
-    private static final String USERNAME_KEY = "jdbc.username";
-    private static final String PASSWORD_KEY = "jdbc.password";
 
 }

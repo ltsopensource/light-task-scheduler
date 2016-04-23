@@ -3,6 +3,7 @@ package com.github.ltsopensource.jobtracker.support;
 import com.github.ltsopensource.core.commons.utils.Callable;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
@@ -36,7 +37,7 @@ public class NonRelyOnPrevCycleJobScheduler {
 
     public NonRelyOnPrevCycleJobScheduler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.scheduleIntervalMinute = this.appContext.getConfig().getParameter("jobtracker.nonRelyOnPrevCycleJob.schedule.interval.minute", 10);
+        this.scheduleIntervalMinute = this.appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_NON_RELYON_PREV_CYCLE_JOB_SCHEDULER_INTERVAL_MINUTE, 10);
 
         NodeShutdownHook.registerHook(appContext, this.getClass().getSimpleName(), new Callable() {
             @Override

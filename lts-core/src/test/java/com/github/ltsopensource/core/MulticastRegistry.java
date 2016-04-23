@@ -83,7 +83,7 @@
 //            throw new IllegalStateException(e.getMessage(), e);
 //        }
 //
-//        this.cleanPeriod = application.getConfig().getParameter(Constants.SESSION_TIMEOUT_KEY, Constants.DEFAULT_SESSION_TIMEOUT);
+//        this.cleanPeriod = application.getConfig().getParameter(Constants.REDIS_SESSION_TIMEOUT, Constants.DEFAULT_SESSION_TIMEOUT);
 //
 //        boolean admin = true;
 //        if (admin) {

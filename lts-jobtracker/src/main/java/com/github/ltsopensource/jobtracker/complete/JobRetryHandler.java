@@ -2,6 +2,7 @@ package com.github.ltsopensource.jobtracker.complete;
 
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.json.JSON;
@@ -29,7 +30,7 @@ public class JobRetryHandler {
 
     public JobRetryHandler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.retryInterval = appContext.getConfig().getParameter("jobtracker.job.retry.interval.millis", 30 * 1000);
+        this.retryInterval = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_JOB_RETRY_INTERVAL_MILLIS, 30 * 1000);
     }
 
     public void onComplete(List<JobRunResult> results) {
