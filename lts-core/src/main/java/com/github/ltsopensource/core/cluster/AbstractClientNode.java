@@ -2,6 +2,7 @@ package com.github.ltsopensource.core.cluster;
 
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.remoting.HeartBeatMonitor;
 import com.github.ltsopensource.core.remoting.RemotingClientDelegate;
@@ -28,7 +29,7 @@ public abstract class AbstractClientNode<T extends Node, Context extends AppCont
 
         RemotingProcessor defaultProcessor = getDefaultProcessor();
         if (defaultProcessor != null) {
-            int processorSize = config.getParameter(Constants.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
+            int processorSize = config.getParameter(ExtConfig.PROCESSOR_THREAD, Constants.DEFAULT_PROCESSOR_THREAD);
             remotingClient.registerDefaultProcessor(defaultProcessor,
                     Executors.newFixedThreadPool(processorSize,
                             new NamedThreadFactory(AbstractClientNode.class.getSimpleName(), true)));

@@ -1,6 +1,7 @@
 package com.github.ltsopensource.admin.web.support;
 
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.queue.support.NonRelyJobUtils;
 
@@ -16,7 +17,7 @@ public class NoRelyJobGenerator {
 
     public NoRelyJobGenerator(BackendAppContext appContext) {
         this.appContext = appContext;
-        this.scheduleIntervalMinute = this.appContext.getConfig().getParameter("jobtracker.nonRelyOnPrevCycleJob.schedule.interval.minute", 10);
+        this.scheduleIntervalMinute = this.appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_NON_RELYON_PREV_CYCLE_JOB_SCHEDULER_INTERVAL_MINUTE, 10);
 
     }
 

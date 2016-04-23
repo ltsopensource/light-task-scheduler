@@ -4,6 +4,7 @@ import com.github.ltsopensource.alarm.AbstractAlarmNotifier;
 import com.github.ltsopensource.alarm.AlarmNotifyException;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
+import com.github.ltsopensource.core.constant.ExtConfig;
 
 /**
  * @author Robert HG (254963746@qq.com)  on 2/17/16.
@@ -18,12 +19,12 @@ public class EmailAlarmNotifier extends AbstractAlarmNotifier<EmailAlarmMessage>
 
     private MailManager getMailManager(AppContext appContext) {
         Config config = appContext.getConfig();
-        String host = config.getParameter("mail.smtp.host");
-        String port = config.getParameter("mail.smtp.port");
-        String userName = config.getParameter("mail.username");
-        String password = config.getParameter("mail.password");
-        String adminAddress = config.getParameter("mail.adminAddress");
-        boolean sslEnabled = config.getParameter("mail.sslEnabled", true);
+        String host = config.getParameter(ExtConfig.MAIL_SMTP_HOST);
+        String port = config.getParameter(ExtConfig.MAIL_SMTP_PORT);
+        String userName = config.getParameter(ExtConfig.MAIL_USERNAME);
+        String password = config.getParameter(ExtConfig.MAIL_PASSWORD);
+        String adminAddress = config.getParameter(ExtConfig.MAIL_ADMIN_ADDR);
+        boolean sslEnabled = config.getParameter(ExtConfig.MAIL_SSL_ENABLED, true);
         return new SMTPMailManagerImpl(host, port, userName, password, adminAddress, sslEnabled);
     }
 

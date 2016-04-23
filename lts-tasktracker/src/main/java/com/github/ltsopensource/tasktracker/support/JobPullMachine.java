@@ -2,6 +2,7 @@ package com.github.ltsopensource.tasktracker.support;
 
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.EcTopic;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.JobTrackerNotFoundException;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
@@ -49,9 +50,9 @@ public class JobPullMachine {
 
     public JobPullMachine(final TaskTrackerAppContext appContext) {
         this.appContext = appContext;
-        this.jobPullFrequency = appContext.getConfig().getParameter(Constants.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
+        this.jobPullFrequency = appContext.getConfig().getParameter(ExtConfig.JOB_PULL_FREQUENCY, Constants.DEFAULT_JOB_PULL_FREQUENCY);
 
-        this.machineResCheckEnable = appContext.getConfig().getParameter(Constants.LB_MACHINE_RES_CHECK_ENABLE, false);
+        this.machineResCheckEnable = appContext.getConfig().getParameter(ExtConfig.LB_MACHINE_RES_CHECK_ENABLE, false);
 
         appContext.getEventCenter().subscribe(
                 new EventSubscriber(JobPullMachine.class.getSimpleName().concat(appContext.getConfig().getIdentity()),
@@ -89,7 +90,7 @@ public class JobPullMachine {
         try {
             if (start.compareAndSet(false, true)) {
                 if (scheduledFuture == null) {
-                    scheduledFuture = executorService.scheduleWithFixedDelay(worker, 1, jobPullFrequency, TimeUnit.SECONDS);
+                    scheduledFuture = executorService.scheduleWithFixedDelay(worker, jobPullFrequency * 1000, jobPullFrequency * 1000, TimeUnit.MILLISECONDS);
                 }
                 LOGGER.info("Start Job pull machine success!");
             }
@@ -157,7 +158,7 @@ public class JobPullMachine {
 
         try {
             // 1. Cpu usage
-            Double maxCpuTimeRate = appContext.getConfig().getParameter(Constants.LB_CPU_USED_RATE_MAX, 90d);
+            Double maxCpuTimeRate = appContext.getConfig().getParameter(ExtConfig.LB_CPU_USED_RATE_MAX, 90d);
             Object processCpuTimeRate = JVMMonitor.getAttribute(JVMConstants.JMX_JVM_THREAD_NAME, "ProcessCpuTimeRate");
             if (processCpuTimeRate != null) {
                 Double cpuRate = Double.valueOf(processCpuTimeRate.toString()) / (Constants.AVAILABLE_PROCESSOR * 1.0);
@@ -169,7 +170,7 @@ public class JobPullMachine {
             }
 
             // 2. Memory usage
-            Double maxMemoryUsedRate = appContext.getConfig().getParameter(Constants.LB_MEMORY_USED_RATE_MAX, 90d);
+            Double maxMemoryUsedRate = appContext.getConfig().getParameter(ExtConfig.LB_MEMORY_USED_RATE_MAX, 90d);
             Runtime runtime = Runtime.getRuntime();
             long maxMemory = runtime.maxMemory();
             long usedMemory = runtime.totalMemory() - runtime.freeMemory();

@@ -3,6 +3,7 @@ package com.github.ltsopensource.jobtracker.complete.biz;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.Action;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.domain.JobRunResult;
@@ -36,7 +37,7 @@ public class JobProcBiz implements JobCompletedBiz {
         this.retryHandler = new JobRetryHandler(appContext);
         this.jobFinishHandler = new JobFinishHandler(appContext);
 
-        this.globalMaxRetryTimes = appContext.getConfig().getParameter(Constants.JOB_MAX_RETRY_TIMES,
+        this.globalMaxRetryTimes = appContext.getConfig().getParameter(ExtConfig.JOB_MAX_RETRY_TIMES,
                 Constants.DEFAULT_JOB_MAX_RETRY_TIMES);
 
         this.clientNotifier = new ClientNotifier(appContext, new ClientNotifyHandler<JobRunResult>() {

@@ -2,6 +2,7 @@ package com.github.ltsopensource.store.mongo;
 
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.mongodb.MongoClient;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
@@ -20,10 +21,10 @@ public class DataStoreProvider {
 
     public static Datastore getDataStore(Config config) {
 
-        String[] addresses = config.getParameter(ADDRESSES_KEY, new String[]{DEFAULT_ADDRESSES});
-        String database = config.getParameter(DATABASE_KEY, DEFAULT_DATABASE);
-        String username = config.getParameter(USERNAME);
-        String pwd = config.getParameter(PASSWORD);
+        String[] addresses = config.getParameter(ExtConfig.MONGO_ADDRESSES, new String[]{"127.0.0.1:27017"});
+        String database = config.getParameter(ExtConfig.MONGO_DATABASE, "lts");
+        String username = config.getParameter(ExtConfig.MONGO_USERNAME);
+        String pwd = config.getParameter(ExtConfig.MONGO_PASSWORD);
 
         String cachedKey = StringUtils.concat(StringUtils.concat(addresses), database, username, pwd);
 
@@ -49,13 +50,5 @@ public class DataStoreProvider {
         }
         return datastore;
     }
-
-    private static final String ADDRESSES_KEY = "mongo.addresses";
-    private static final String DEFAULT_ADDRESSES = "127.0.0.1:27017";
-    private static final String DATABASE_KEY = "mongo.database";
-    private static final String DEFAULT_DATABASE = "lts";
-    private static final String USERNAME = "mongo.username";
-    private static final String PASSWORD = "mongo.password";
-
 
 }

@@ -5,6 +5,7 @@ import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.exception.RemotingSendException;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
@@ -64,7 +65,7 @@ public class ExecutingDeadJobChecker {
     public void start() {
         try {
             if (start.compareAndSet(false, true)) {
-                int fixCheckPeriodSeconds = appContext.getConfig().getParameter("jobtracker.executing.job.fix.check.interval.seconds", 30);
+                int fixCheckPeriodSeconds = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_EXECUTING_JOB_FIX_CHECK_INTERVAL_SECONDS, 30);
                 if (fixCheckPeriodSeconds < 5) {
                     fixCheckPeriodSeconds = 5;
                 } else if (fixCheckPeriodSeconds > 5 * 60) {
@@ -95,7 +96,7 @@ public class ExecutingDeadJobChecker {
     private void checkAndFix() throws RemotingSendException {
 
         // 30s没有收到反馈信息，需要去检查这个任务是否还在执行
-        int maxDeadCheckTime = appContext.getConfig().getParameter("jobtracker.executing.job.fix.deadline.seconds", 20);
+        int maxDeadCheckTime = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_EXECUTING_JOB_FIX_DEADLINE_SECONDS, 20);
         if (maxDeadCheckTime < 10) {
             maxDeadCheckTime = 10;
         } else if (maxDeadCheckTime > 5 * 60) {

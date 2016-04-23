@@ -2,6 +2,7 @@ package com.github.ltsopensource.jobclient.support;
 
 import com.github.ltsopensource.core.commons.concurrent.limiter.RateLimiter;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.exception.JobSubmitException;
 import com.github.ltsopensource.jobclient.domain.JobClientAppContext;
@@ -25,16 +26,16 @@ public class JobSubmitProtector {
 
     public JobSubmitProtector(JobClientAppContext appContext) {
 
-        this.maxQPS = appContext.getConfig().getParameter(Constants.JOB_SUBMIT_MAX_QPS,
+        this.maxQPS = appContext.getConfig().getParameter(ExtConfig.JOB_SUBMIT_MAX_QPS,
                 Constants.DEFAULT_JOB_SUBMIT_MAX_QPS);
         if (this.maxQPS < 10) {
             this.maxQPS = Constants.DEFAULT_JOB_SUBMIT_MAX_QPS;
         }
 
         this.errorMsg = "the maxQPS is " + maxQPS +
-                " , submit too fast , use " + Constants.JOB_SUBMIT_MAX_QPS +
+                " , submit too fast , use " + ExtConfig.JOB_SUBMIT_MAX_QPS +
                 " can change the concurrent size .";
-        this.acquireTimeout = appContext.getConfig().getParameter("job.submit.lock.acquire.timeout", 100);
+        this.acquireTimeout = appContext.getConfig().getParameter(ExtConfig.JOB_SUBMIT_LOCK_ACQUIRE_TIMEOUT, 100);
 
         this.rateLimiter = RateLimiter.create(this.maxQPS);
     }

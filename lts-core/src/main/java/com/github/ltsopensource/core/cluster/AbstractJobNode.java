@@ -9,8 +9,8 @@ import com.github.ltsopensource.core.commons.utils.GenericsUtils;
 import com.github.ltsopensource.core.commons.utils.NetUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.compiler.AbstractCompiler;
-import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.EcTopic;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.JobNodeConfigFactory;
 import com.github.ltsopensource.core.factory.NodeFactory;
 import com.github.ltsopensource.core.json.JSONFactory;
@@ -23,7 +23,7 @@ import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.protocol.command.CommandBodyWrapper;
 import com.github.ltsopensource.core.registry.*;
 import com.github.ltsopensource.core.spi.ServiceLoader;
-import com.github.ltsopensource.core.spi.SpiExtensionKey;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.support.AliveKeeping;
 import com.github.ltsopensource.ec.EventCenter;
 import com.github.ltsopensource.ec.EventInfo;
@@ -93,7 +93,7 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
     private void initHttpCmdServer() {
         // 命令中心
-        int port = appContext.getConfig().getParameter("lts.http.cmd.port", 8719);
+        int port = appContext.getConfig().getParameter(ExtConfig.HTTP_CMD_PORT, 8719);
         appContext.setHttpCmdServer(HttpCmdServer.Factory.getHttpCmdServer(config.getIp(), port));
 
         // 先启动，中间看端口是否被占用
@@ -143,7 +143,7 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
     protected void initConfig() {
 
-        String compiler = config.getParameter(Constants.COMPILER);
+        String compiler = config.getParameter(ExtConfig.COMPILER);
         if (StringUtils.isNotEmpty(compiler)) {
             AbstractCompiler.setCompiler(compiler);
         }
@@ -177,19 +177,19 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
 
     private void setSpiConfig() {
         // 设置默认序列化方式
-        String defaultSerializable = config.getParameter(SpiExtensionKey.REMOTING_SERIALIZABLE_DFT);
+        String defaultSerializable = config.getParameter(ExtConfig.REMOTING_SERIALIZABLE_DFT);
         if (StringUtils.isNotEmpty(defaultSerializable)) {
             AdaptiveSerializable.setDefaultSerializable(defaultSerializable);
         }
 
         // 设置json
-        String ltsJson = config.getParameter(SpiExtensionKey.LTS_JSON);
+        String ltsJson = config.getParameter(ExtConfig.LTS_JSON);
         if (StringUtils.isNotEmpty(ltsJson)) {
             JSONFactory.setJSONAdapter(ltsJson);
         }
 
         // 设置logger
-        String logger = config.getParameter(SpiExtensionKey.LTS_LOGGER);
+        String logger = config.getParameter(ExtConfig.LTS_LOGGER);
         if (StringUtils.isNotEmpty(logger)) {
             LoggerFactory.setLoggerAdapter(logger);
         }

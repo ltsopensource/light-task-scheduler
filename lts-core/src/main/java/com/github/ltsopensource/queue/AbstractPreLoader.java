@@ -4,6 +4,7 @@ import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.commons.concurrent.ConcurrentHashSet;
 import com.github.ltsopensource.core.commons.utils.*;
 import com.github.ltsopensource.core.commons.utils.Callable;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
 import com.github.ltsopensource.core.support.SystemClock;
@@ -35,8 +36,8 @@ public abstract class AbstractPreLoader implements PreLoader {
     public AbstractPreLoader(final AppContext appContext) {
         if (start.compareAndSet(false, true)) {
 
-            loadSize = appContext.getConfig().getParameter("job.preloader.size", 300);
-            factor = appContext.getConfig().getParameter("job.preloader.factor", 0.2);
+            loadSize = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_PRELOADER_SIZE, 300);
+            factor = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_PRELOADER_FACTOR, 0.2);
 
             scheduledFuture = LOAD_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                 @Override

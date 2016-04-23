@@ -1,14 +1,14 @@
 package com.github.ltsopensource.ec;
 
 import com.github.ltsopensource.core.spi.SPI;
-import com.github.ltsopensource.core.spi.SpiExtensionKey;
+import com.github.ltsopensource.core.constant.ExtConfig;
 
 /**
  * 事件中心接口
  *
  * @author Robert HG (254963746@qq.com) on 5/11/15.
  */
-@SPI(key = SpiExtensionKey.EVENT_CENTER, dftValue = "injvm")
+@SPI(key = ExtConfig.EVENT_CENTER, dftValue = "injvm")
 public interface EventCenter {
 
     /**

@@ -11,6 +11,7 @@ import com.github.ltsopensource.core.cmd.HttpCmdNames;
 import com.github.ltsopensource.core.cmd.HttpCmdParamNames;
 import com.github.ltsopensource.core.commons.utils.BatchUtils;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.monitor.MData;
 import com.github.ltsopensource.core.domain.monitor.MNode;
 import com.github.ltsopensource.core.json.JSON;
@@ -46,8 +47,8 @@ public class MStatReportWorker implements Runnable {
     public MStatReportWorker(AppContext appContext, AbstractMStatReporter reporter) {
         this.appContext = appContext;
         this.reporter = reporter;
-        interval = appContext.getConfig().getParameter("lts.monitor.report.interval", 1);
-        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "monitor.select.loadbalance");
+        interval = appContext.getConfig().getParameter(ExtConfig.LTS_MONITOR_REPORT_INTERVAL, 1);
+        this.loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), ExtConfig.MONITOR_SELECT_LOADBALANCE);
     }
 
     @Override

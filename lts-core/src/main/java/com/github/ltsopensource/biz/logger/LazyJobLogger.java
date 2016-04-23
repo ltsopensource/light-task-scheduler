@@ -7,6 +7,7 @@ import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
@@ -42,10 +43,10 @@ public class LazyJobLogger implements JobLogger {
         this.delegate = delegate;
 
         Config config = appContext.getConfig();
-        maxMemoryLogSize = config.getParameter(Constants.LAZY_JOB_LOGGER_MEM_SIZE, 1000);
-        int flushPeriod = config.getParameter(Constants.LAZY_JOB_LOGGER_CHECK_PERIOD, 3);
-        batchFlushSize = config.getParameter(Constants.LAZY_JOB_LOGGER_BATCH_FLUSH_SIZE, 100);
-        overflowSize = config.getParameter(Constants.LAZY_JOB_LOGGER_OVERFLOW_SIZE, 10000);
+        maxMemoryLogSize = config.getParameter(ExtConfig.LAZY_JOB_LOGGER_MEM_SIZE, 1000);
+        int flushPeriod = config.getParameter(ExtConfig.LAZY_JOB_LOGGER_CHECK_PERIOD, 3);
+        batchFlushSize = config.getParameter(ExtConfig.LAZY_JOB_LOGGER_BATCH_FLUSH_SIZE, 100);
+        overflowSize = config.getParameter(ExtConfig.LAZY_JOB_LOGGER_OVERFLOW_SIZE, 10000);
 
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
                 new NamedThreadFactory("LazyJobLogger", true));

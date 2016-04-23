@@ -3,6 +3,7 @@ package com.github.ltsopensource.store.jdbc.datasource;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * druid相关的配置使用 druid. 开头即可
+ *
  * @author Robert HG (254963746@qq.com) on 10/24/14.
  */
 public class MysqlDataSourceProvider implements DataSourceProvider {
@@ -25,15 +27,15 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
 
     public DataSource getDataSource(Config config) {
 
-        String url = config.getParameter(URL_KEY);
-        String username = config.getParameter(USERNAME_KEY);
-        String password = config.getParameter(PASSWORD_KEY);
+        String url = config.getParameter(ExtConfig.JDBC_URL);
+        String username = config.getParameter(ExtConfig.JDBC_USERNAME);
+        String password = config.getParameter(ExtConfig.JDBC_PASSWORD);
 
-        if(StringUtils.isEmpty(url)){
-            throw new IllegalArgumentException(URL_KEY + " should not be empty");
+        if (StringUtils.isEmpty(url)) {
+            throw new IllegalArgumentException(ExtConfig.JDBC_URL + " should not be empty");
         }
-        if(StringUtils.isEmpty(USERNAME_KEY)){
-            throw new IllegalArgumentException(USERNAME_KEY + " should not be empty");
+        if (StringUtils.isEmpty(ExtConfig.JDBC_USERNAME)) {
+            throw new IllegalArgumentException(ExtConfig.JDBC_USERNAME + " should not be empty");
         }
 
         String cachedKey = StringUtils.concat(url, username, password);
@@ -76,9 +78,9 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
             }
         }
 
-        String url = config.getParameter(URL_KEY);
-        String username = config.getParameter(USERNAME_KEY);
-        String password = config.getParameter(PASSWORD_KEY);
+        String url = config.getParameter(ExtConfig.JDBC_URL);
+        String username = config.getParameter(ExtConfig.JDBC_USERNAME);
+        String password = config.getParameter(ExtConfig.JDBC_PASSWORD);
 
         dataSource.setUrl(url);
         dataSource.setUsername(username);
@@ -112,9 +114,4 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
         FIELDS.put("exceptionSorter", String.class);
         FIELDS.put("filters", String.class);
     }
-
-    private static final String URL_KEY = "jdbc.url";
-    private static final String USERNAME_KEY = "jdbc.username";
-    private static final String PASSWORD_KEY = "jdbc.password";
-
 }
