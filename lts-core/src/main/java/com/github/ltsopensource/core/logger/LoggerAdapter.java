@@ -2,14 +2,14 @@ package com.github.ltsopensource.core.logger;
 
 
 import com.github.ltsopensource.core.spi.SPI;
-import com.github.ltsopensource.core.spi.SpiExtensionKey;
+import com.github.ltsopensource.core.constant.ExtConfig;
 
 import java.io.File;
 
 /**
  * 日志输出器供给器
  */
-@SPI(key = SpiExtensionKey.LTS_LOGGER, dftValue = "slf4j")
+@SPI(key = ExtConfig.LTS_LOGGER, dftValue = "slf4j")
 public interface LoggerAdapter {
 
     /**

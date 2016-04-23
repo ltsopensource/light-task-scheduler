@@ -1,7 +1,7 @@
 package com.github.ltsopensource.tasktracker;
 
 import com.github.ltsopensource.core.cluster.AbstractClientNode;
-import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.remoting.RemotingProcessor;
 import com.github.ltsopensource.tasktracker.cmd.JobTerminateCmd;
@@ -40,7 +40,7 @@ public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTracker
 
     @Override
     protected void afterStart() {
-        if (config.getParameter(Constants.TASK_TRACKER_STOP_WORKING_ENABLE, false)) {
+        if (config.getParameter(ExtConfig.TASK_TRACKER_STOP_WORKING_ENABLE, false)) {
             appContext.getStopWorkingMonitor().start();
         }
     }

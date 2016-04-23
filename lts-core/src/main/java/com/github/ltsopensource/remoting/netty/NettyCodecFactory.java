@@ -2,6 +2,7 @@ package com.github.ltsopensource.remoting.netty;
 
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.remoting.Channel;
@@ -58,7 +59,7 @@ public class NettyCodecFactory {
 //        private static final int FRAME_MAX_LENGTH = Constants.DEFAULT_BUFFER_SIZE;
 
         public NettyDecoder() {
-            super(appContext.getConfig().getParameter("netty.frame.length.max", Constants.DEFAULT_BUFFER_SIZE), 0, 4, 0, 4);
+            super(appContext.getConfig().getParameter(ExtConfig.NETTY_FRAME_LENGTH_MAX, Constants.DEFAULT_BUFFER_SIZE), 0, 4, 0, 4);
         }
 
         @Override

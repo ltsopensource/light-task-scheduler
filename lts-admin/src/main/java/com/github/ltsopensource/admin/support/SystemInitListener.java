@@ -4,10 +4,9 @@ import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.commons.utils.PlatformUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.compiler.AbstractCompiler;
-import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.json.JSONFactory;
 import com.github.ltsopensource.core.logger.LoggerFactory;
-import com.github.ltsopensource.core.spi.SpiExtensionKey;
 import com.github.ltsopensource.monitor.MonitorAgentStartup;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -28,17 +27,17 @@ public class SystemInitListener implements ServletContextListener {
         }
         AppConfigurer.load(confPath);
 
-        String compiler = AppConfigurer.getProperty("configs." + Constants.COMPILER);
+        String compiler = AppConfigurer.getProperty("configs." + ExtConfig.COMPILER);
         if (StringUtils.isNotEmpty(compiler)) {
             AbstractCompiler.setCompiler(compiler);
         }
 
-        String jsonAdapter = AppConfigurer.getProperty("configs." + SpiExtensionKey.LTS_JSON);
+        String jsonAdapter = AppConfigurer.getProperty("configs." + ExtConfig.LTS_JSON);
         if (StringUtils.isNotEmpty(jsonAdapter)) {
             JSONFactory.setJSONAdapter(jsonAdapter);
         }
 
-        String loggerAdapter = AppConfigurer.getProperty("configs." + SpiExtensionKey.LTS_LOGGER);
+        String loggerAdapter = AppConfigurer.getProperty("configs." + ExtConfig.LTS_LOGGER);
         if (StringUtils.isNotEmpty(loggerAdapter)) {
             LoggerFactory.setLoggerAdapter(loggerAdapter);
         }

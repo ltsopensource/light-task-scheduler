@@ -6,6 +6,7 @@ import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.NodeRegistryException;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
@@ -58,7 +59,7 @@ public class RedisRegistry extends FailbackRegistry {
         }
         replicate = "replicate".equals(cluster);
 
-        this.reconnectPeriod = config.getParameter(Constants.REGISTRY_RECONNECT_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RECONNECT_PERIOD);
+        this.reconnectPeriod = config.getParameter(ExtConfig.REGISTRY_RECONNECT_PERIOD_KEY, Constants.DEFAULT_REGISTRY_RECONNECT_PERIOD);
 
         String[] addrs = address.split(",");
         for (String addr : addrs) {
@@ -69,7 +70,7 @@ public class RedisRegistry extends FailbackRegistry {
                     Constants.DEFAULT_TIMEOUT));
         }
 
-        this.expirePeriod = config.getParameter(Constants.SESSION_TIMEOUT_KEY, Constants.DEFAULT_SESSION_TIMEOUT);
+        this.expirePeriod = config.getParameter(ExtConfig.REDIS_SESSION_TIMEOUT, Constants.DEFAULT_SESSION_TIMEOUT);
 
         this.expireFuture = expireExecutor.scheduleWithFixedDelay(new Runnable() {
             public void run() {

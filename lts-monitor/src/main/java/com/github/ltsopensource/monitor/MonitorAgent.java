@@ -18,7 +18,7 @@ import com.github.ltsopensource.core.registry.Registry;
 import com.github.ltsopensource.core.registry.RegistryFactory;
 import com.github.ltsopensource.core.registry.RegistryStatMonitor;
 import com.github.ltsopensource.core.spi.ServiceLoader;
-import com.github.ltsopensource.core.spi.SpiExtensionKey;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.support.AliveKeeping;
 import com.github.ltsopensource.ec.EventCenter;
 import com.github.ltsopensource.jvmmonitor.JVMMonitor;
@@ -60,7 +60,7 @@ public class MonitorAgent {
             intConfig();
 
             // 默认端口
-            int port = config.getParameter("lts.http.cmd.port", 8730);
+            int port = config.getParameter(ExtConfig.HTTP_CMD_PORT, 8730);
             this.httpCmdServer = HttpCmdServer.Factory.getHttpCmdServer(config.getIp(), port);
 
             this.httpCmdServer.registerCommands(
@@ -104,12 +104,12 @@ public class MonitorAgent {
 
     private void intConfig() {
 
-        String compiler = config.getParameter(Constants.COMPILER);
+        String compiler = config.getParameter(ExtConfig.COMPILER);
         if (StringUtils.isNotEmpty(compiler)) {
             AbstractCompiler.setCompiler(compiler);
         }
         // 设置json
-        String ltsJson = config.getParameter(SpiExtensionKey.LTS_JSON);
+        String ltsJson = config.getParameter(ExtConfig.LTS_JSON);
         if (StringUtils.isNotEmpty(ltsJson)) {
             JSONFactory.setJSONAdapter(ltsJson);
         }

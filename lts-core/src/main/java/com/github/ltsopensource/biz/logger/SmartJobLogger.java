@@ -5,7 +5,7 @@ import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.JobLoggerRequest;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
-import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.spi.ServiceLoader;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class SmartJobLogger implements JobLogger {
         Config config = appContext.getConfig();
         JobLoggerFactory jobLoggerFactory = ServiceLoader.load(JobLoggerFactory.class, config);
         JobLogger jobLogger = jobLoggerFactory.getJobLogger(config);
-        if (config.getParameter(Constants.LAZY_JOB_LOGGER, false)) {
+        if (config.getParameter(ExtConfig.LAZY_JOB_LOGGER, false)) {
             this.delegate = new LazyJobLogger(appContext, jobLogger);
         } else {
             this.delegate = jobLogger;

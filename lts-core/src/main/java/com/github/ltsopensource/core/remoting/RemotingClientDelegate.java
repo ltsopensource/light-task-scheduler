@@ -3,6 +3,7 @@ package com.github.ltsopensource.core.remoting;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.constant.EcTopic;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.JobTrackerNotFoundException;
 import com.github.ltsopensource.core.loadbalance.LoadBalance;
 import com.github.ltsopensource.core.logger.Logger;
@@ -45,7 +46,7 @@ public class RemotingClientDelegate {
                 throw new JobTrackerNotFoundException("no available jobTracker!");
             }
             // 连JobTracker的负载均衡算法
-            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), "jobtracker.select.loadbalance");
+            LoadBalance loadBalance = ServiceLoader.load(LoadBalance.class, appContext.getConfig(), ExtConfig.JOB_TRACKER_SELECT_LOADBALANCE);
             return loadBalance.select(jobTrackers, appContext.getConfig().getIdentity());
         } catch (JobTrackerNotFoundException e) {
             this.serverEnable = false;
