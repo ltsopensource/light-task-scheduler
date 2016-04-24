@@ -5,7 +5,7 @@
     <parent>
         <artifactId>lts-parent</artifactId>
         <groupId>com.github.ltsopensource</groupId>
-        <version>1.6.8-SNAPSHOT</version>
+        <version>1.6.8-beta1</version>
     </parent>
     <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -52,6 +52,27 @@
                 </executions>
             </plugin>
             <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <show>public</show>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+                    <links>
+                        <link>http://docs.oracle.com/javase/6/docs/api</link>
+                    </links>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>1.4</version>
@@ -71,6 +92,7 @@
                                     <include>com.github.ltsopensource:lts-tasktracker</include>
                                     <include>com.github.ltsopensource:lts-jobtracker</include>
                                     <include>com.github.ltsopensource:lts-spring</include>
+                                    <include>com.github.ltsopensource:lts-monitor</include>
                                 </includes>
                             </artifactSet>
                             <transformers>

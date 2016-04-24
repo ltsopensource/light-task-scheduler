@@ -1,5 +1,4 @@
 *.iml
 .idea
 .DS_Store
-dist
 target

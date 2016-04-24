@@ -27,3 +27,4 @@ git ls-remote --tags github
 ~/Data/Software/apache-maven-3.2.5/bin/mvn clean install -U -DskipTests
 ~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -DskipTests
 ~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -P release -Dgpg.passphrase=密码 -DskipTests
+
