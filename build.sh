@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.6.8-SNAPSHOT"
+VERSION="1.6.8-beta1"
 
 LTS_BIN="${BASH_SOURCE-$0}"
 LTS_BIN="$(dirname "${LTS_BIN}")"
@@ -29,3 +29,6 @@ mvn clean assembly:assembly -DskipTests -Plts-admin
 cp -rf $Startup_Dir/target/lts-bin/lts/lib  $Dist_Bin_Dir/war/jetty
 cp -rf $LTS_Bin_Dir/lts-admin/target/lts-admin-$VERSION.war $Dist_Bin_Dir/war/lts-admin.war
 
+ cd $LTS_Bin_Dir/dist
+ zip -r lts-$VERSION-bin.zip lts-$VERSION-bin/*
+ rm -rf lts-$VERSION-bin
