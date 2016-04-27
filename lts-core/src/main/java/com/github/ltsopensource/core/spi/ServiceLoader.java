@@ -34,12 +34,18 @@ public class ServiceLoader {
         ServiceProvider serviceProvider = getServiceProvider(clazz);
         String dynamicServiceName = config.getParameter(serviceProvider.dynamicConfigKey);
         String identity = config.getIdentity();
+        if(StringUtils.isNotEmpty(identity)){
+            throw new IllegalArgumentException("config.identity should not be null");
+        }
         return load(clazz, dynamicServiceName, identity);
     }
 
     public static <T> T load(Class<T> clazz, Config config, String configKey) {
         String dynamicServiceName = config.getParameter(configKey);
         String identity = config.getIdentity();
+        if(StringUtils.isNotEmpty(identity)){
+            throw new IllegalArgumentException("config.identity should not be null");
+        }
         return load(clazz, dynamicServiceName, identity);
     }
 

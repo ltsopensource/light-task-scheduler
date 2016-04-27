@@ -141,7 +141,7 @@ public interface ExtConfig {
      */
     String JOB_SUBMIT_MAX_QPS = "job.submit.maxQPS";
     /**
-     * JobClient端: 提交任务获取 loack的 timeout (毫秒)
+     * JobClient端: 提交任务获取 lock的 timeout (毫秒)
      */
     String JOB_SUBMIT_LOCK_ACQUIRE_TIMEOUT = "job.submit.lock.acquire.timeout";
     /**
