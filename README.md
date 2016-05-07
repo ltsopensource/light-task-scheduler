@@ -210,13 +210,12 @@ public class LTSSpringConfig {
 ###定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
-    private final static BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         try {
             // TODO 业务逻辑
             // 会发送到 LTS (JobTracker上)
-            bizLogger.info("测试，业务日志啊啊啊啊啊");
+            jobContext.getBizLogger().info("测试，业务日志啊啊啊啊啊");
 
         } catch (Exception e) {
             return new Result(Action.EXECUTE_FAILED, e.getMessage());
@@ -312,7 +311,8 @@ public class JobRunnerDispatcher implements JobRunner {
     }
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
+        Job job = jobContext.getJob();
         String type = job.getParam("type");
         return JOB_RUNNER_MAP.get(type).run(job);
     }
@@ -320,7 +320,7 @@ public class JobRunnerDispatcher implements JobRunner {
 
 class JobRunnerA implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         //  TODO A类型Job的逻辑
         return null;
     }
@@ -328,7 +328,7 @@ class JobRunnerA implements JobRunner {
 
 class JobRunnerB implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         // TODO B类型Job的逻辑
         return null;
     }
