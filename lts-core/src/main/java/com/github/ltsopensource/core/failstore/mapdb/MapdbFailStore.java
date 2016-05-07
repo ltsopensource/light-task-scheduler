@@ -52,6 +52,7 @@ public class MapdbFailStore extends AbstractFailStore {
     public void open() throws FailStoreException {
         try {
             map = db.treeMap("lts");
+            db.commit();
         } catch (Exception e) {
             throw new FailStoreException(e);
         }
