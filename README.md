@@ -210,13 +210,12 @@ public class LTSSpringConfig {
 ###定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
-    private final static BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         try {
             // TODO 业务逻辑
             // 会发送到 LTS (JobTracker上)
-            bizLogger.info("测试，业务日志啊啊啊啊啊");
+            jobContext.getBizLogger().info("测试，业务日志啊啊啊啊啊");
 
         } catch (Exception e) {
             return new Result(Action.EXECUTE_FAILED, e.getMessage());
@@ -289,30 +288,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
 }
 ```
 ##参数说明
-
-| 参数  | 是否必须  | 默认值 | 使用范围 | 设置方式|参数说明 |
-|:------------- |:------------- |:---------------:|:---------------:| -------------:| -------------:|
-|registryAddress|必须|无|JobClient,JobTracker,TaskTracker|setRegistryAddress("xxxx")|注册中心，可以选用zk或者redis，参考值: zookeeper://127.0.0.1:2181 或 redis://127.0.0.1:6379|
-|clusterName|必须|无|JobClient,JobTracker,TaskTracker|setClusterName("xxxx")|集群名称，clusterName相同的所有节点才会组成整个LTS架构|
-|listenPort|必须|35001|JobTracker|setListenPort(xxx)|JobTracker的远程监听端口|
-|job.logger|必须|console|JobTracker|addConfig("job.logger","xxx")|LTS业务日志记录器，可选值console,mysql,mongo,或者自己实现SPI扩展|
-|job.queue|必须|mongo|JobTracker|addConfig("job.queue", "xx")|LTS任务队列,可选值mongo,mysql,或者自己实现SPI扩展|
-|jdbc.url|可选|无|JobTracker|addConfig("jdbc.url", "xxx")|mysql连接URL，当job.queue为mysql的时候起作用|
-|jdbc.username|可选|无|JobTracker|addConfig("jdbc.username", "xxx")|mysql连接密码,当job.queue为mysql的时候起作用|
-|jdbc.password|可选|无|JobTracker|addConfig("jdbc.password", "xxx")|mysql连接密码,当job.queue为mysql的时候起作用|
-|mongo.addresses|可选|无|JobTracker|addConfig("mongo.addresses", "xxx")|mongo连接URL,当job.queue为mongo的时候起作用|
-|mongo.database|可选|无|JobTracker|addConfig("mongo.database", "xxx")|mongo数据库名,当job.queue为mongo的时候起作用|
-|zk.client|可选|zkclient|JobClient,JobTracker,TaskTracker|addConfig("zk.client", "xxx")|zookeeper客户端,可选值zkclient, curator|
-|job.pull.frequency|可选|3|TaskTracker|addConfig("job.pull.frequency", "xx")|TaskTracker去向JobTracker Pull任务的频率，针对不同的场景可以做相应的调整，单位秒|
-|job.max.retry.times|可选|10|JobTracker|addConfig("job.max.retry.times", "xx")|任务的最大重试次数|
-|stop.working|可选|false|TaskTracker|addConfig("stop.working", "true")|主要用于当TaskTracker与JobTracker出现网络隔离的时候，超过一定时间隔离之后，TaskTracker自动停止当前正在运行的任务|
-|job.fail.store|可选|leveldb|JobClient,TaskTracker|addConfig("job.fail.store", "leveldb")|可选值:leveldb(默认), rocksdb, berkeleydb, mapdb FailStore实现, leveldb有问题的同学,可以试试mapdb|
-|lazy.job.logger|可选|false|JobTracker|addConfig("lazy.job.logger", "true")|可选值:ture,false, 是否延迟批量刷盘日志, 如果启用，采用队列的方式批量将日志刷盘(在应用关闭的时候，可能会造成日志丢失)|
-|dataPath|可选|user.home|JobClient,TaskTracker,JobTracker|setDataPath("xxxx")|FailStore文件存储路径及其它数据存储路径|
-|lts.monitor.interval|可选|1|JobClient,TaskTracker,JobTracker|addConfig("lts.monitor.interval", "2")|分钟，整数，建议1-5分钟|
-|lts.remoting|可选|netty|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting", "netty")|底层通讯框架，可选值netty和mina，可以混用，譬如JobTracker是netty， JobClient采用mina|
-|lts.remoting.serializable.default|可选|fastjson|JobClient,TaskTracker,JobTracker|addConfig("lts.remoting.serializable.default", "fastjson")|底层通讯默认序列化方式，可选值 fastjson, hessian2 ，java，底层会自动识别你请求的序列化方式，然后返回数据也是采用与请求的序列化方式返回，假设JobTracker设置的是fastjson，而JobClient是hessian2，那么JobClient提交任务的时候，序列化方式是hessian2，当JobTracker收到请求的时候采用hessian2解码，然后也会将响应数据采用hessian2编码返回给JobClient|
-
+[参数说明](https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
 
 ##使用建议
 一般在一个JVM中只需要一个JobClient实例即可，不要为每种任务都新建一个JobClient实例，这样会大大的浪费资源，因为一个JobClient可以提交多种任务。相同的一个JVM一般也尽量保持只有一个TaskTracker实例即可，多了就可能造成资源浪费。当遇到一个TaskTracker要运行多种任务的时候，请参考下面的 "一个TaskTracker执行多种任务"。
@@ -335,7 +311,8 @@ public class JobRunnerDispatcher implements JobRunner {
     }
 
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
+        Job job = jobContext.getJob();
         String type = job.getParam("type");
         return JOB_RUNNER_MAP.get(type).run(job);
     }
@@ -343,7 +320,7 @@ public class JobRunnerDispatcher implements JobRunner {
 
 class JobRunnerA implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         //  TODO A类型Job的逻辑
         return null;
     }
@@ -351,7 +328,7 @@ class JobRunnerA implements JobRunner {
 
 class JobRunnerB implements JobRunner {
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         // TODO B类型Job的逻辑
         return null;
     }
@@ -431,11 +408,7 @@ public class Application {
 ##SPI扩展说明
 支持JobLogger,JobQueue等等的SPI扩展
 
-##和其它解决方案比较
-###和MQ比较
-见docs/LTS业务场景说明.pdf
-###和Quartz比较
-见docs/LTS业务场景说明.pdf
+##[和其它解决方案比较](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
 
 
 
