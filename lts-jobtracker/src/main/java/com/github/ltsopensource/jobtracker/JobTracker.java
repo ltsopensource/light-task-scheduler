@@ -31,14 +31,6 @@ import com.github.ltsopensource.remoting.RemotingProcessor;
 public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerAppContext> {
 
     public JobTracker() {
-        // 监控中心
-        appContext.setMStatReporter(new JobTrackerMStatReporter(appContext));
-        // channel 管理者
-        appContext.setChannelManager(new ChannelManager());
-        // JobClient 管理者
-        appContext.setJobClientManager(new JobClientManager(appContext));
-        // TaskTracker 管理者
-        appContext.setTaskTrackerManager(new TaskTrackerManager(appContext));
         // 添加节点变化监听器
         addNodeChangeListener(new JobNodeChangeListener(appContext));
         // 添加master节点变化监听器
@@ -47,6 +39,15 @@ public class JobTracker extends AbstractServerNode<JobTrackerNode, JobTrackerApp
 
     @Override
     protected void beforeStart() {
+        // 监控中心
+        appContext.setMStatReporter(new JobTrackerMStatReporter(appContext));
+        // channel 管理者
+        appContext.setChannelManager(new ChannelManager());
+        // JobClient 管理者
+        appContext.setJobClientManager(new JobClientManager(appContext));
+        // TaskTracker 管理者
+        appContext.setTaskTrackerManager(new TaskTrackerManager(appContext));
+
         // injectRemotingServer
         appContext.setRemotingServer(remotingServer);
         appContext.setJobLogger(new SmartJobLogger(appContext));
