@@ -21,12 +21,10 @@ import com.github.ltsopensource.tasktracker.support.JobPullMachine;
  */
 public class TaskTracker extends AbstractClientNode<TaskTrackerNode, TaskTrackerAppContext> {
 
-    public TaskTracker() {
-        appContext.setMStatReporter(new TaskTrackerMStatReporter(appContext));
-    }
-
     @Override
     protected void beforeStart() {
+        appContext.setMStatReporter(new TaskTrackerMStatReporter(appContext));
+
         appContext.setRemotingClient(remotingClient);
         // 设置 线程池
         appContext.setRunnerPool(new RunnerPool(appContext));
