@@ -23,7 +23,6 @@ import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.protocol.command.CommandBodyWrapper;
 import com.github.ltsopensource.core.registry.*;
 import com.github.ltsopensource.core.spi.ServiceLoader;
-import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.support.AliveKeeping;
 import com.github.ltsopensource.ec.EventCenter;
 import com.github.ltsopensource.ec.EventInfo;
@@ -151,7 +150,9 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
         if (StringUtils.isEmpty(config.getIp())) {
             config.setIp(NetUtils.getLocalHost());
         }
-        JobNodeConfigFactory.buildIdentity(config);
+        if (StringUtils.isEmpty(config.getIdentity())) {
+            JobNodeConfigFactory.buildIdentity(config);
+        }
         NodeFactory.build(node, config);
 
         LOGGER.info("Current Node config :{}", config);
