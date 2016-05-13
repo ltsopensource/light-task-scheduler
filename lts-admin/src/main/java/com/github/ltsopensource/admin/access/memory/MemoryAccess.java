@@ -2,6 +2,7 @@ package com.github.ltsopensource.admin.access.memory;
 
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.file.FileUtils;
+import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.store.jdbc.SqlTemplate;
@@ -22,6 +23,7 @@ public abstract class MemoryAccess {
 
     public MemoryAccess() {
         Config config = new Config();
+        config.setIdentity(StringUtils.generateUUID());
         config.setParameter("jdbc.datasource.provider", "h2");
         // see http://www.h2database.com/html/features.html#in_memory_databases
         config.setParameter("jdbc.url", "jdbc:h2:mem:lts_admin;DB_CLOSE_DELAY=-1");
