@@ -11,7 +11,10 @@ import com.github.ltsopensource.remoting.protocol.RemotingCommand;
 import java.net.SocketAddress;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -20,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Remoting客户端实现
  */
 public abstract class AbstractRemotingClient extends AbstractRemoting implements RemotingClient {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractRemotingClient.class);
 
     private static final long LockTimeoutMillis = 3000;
 

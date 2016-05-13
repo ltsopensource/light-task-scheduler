@@ -22,7 +22,7 @@ import java.nio.ByteBuffer;
  */
 public class NettyCodecFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyCodecFactory.class);
 
     private Codec codec;
     private AppContext appContext;

@@ -57,7 +57,6 @@ public class JobDomainConverter {
         } else if (job.isRepeatable()) {
             jobPo.setCronExpression(null);
             jobPo.setRepeatInterval(job.getRepeatInterval());
-            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
             jobPo.setJobType(JobType.REPEAT);
         } else if (job.getTriggerTime() == null) {
             jobPo.setJobType(JobType.REAL_TIME);
@@ -76,6 +75,9 @@ public class JobDomainConverter {
             } else {
                 jobPo.setTriggerTime(job.getTriggerTime());
             }
+        }
+        if (job.isRepeatable()) {
+            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
         }
         return jobPo;
     }

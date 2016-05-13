@@ -25,7 +25,7 @@ import java.net.SocketAddress;
  * @author Robert HG (254963746@qq.com) on 11/3/15.
  */
 public class NettyRemotingClient extends AbstractRemotingClient {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyRemotingClient.class);
 
     private final Bootstrap bootstrap = new Bootstrap();
     private final EventLoopGroup eventLoopGroup;

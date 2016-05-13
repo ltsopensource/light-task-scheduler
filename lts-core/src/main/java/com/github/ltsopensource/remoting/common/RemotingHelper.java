@@ -15,9 +15,7 @@ import java.net.SocketAddress;
  */
 public class RemotingHelper {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
-
-    public static final String RemotingLogName = "LtsRemoting";
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.class);
 
     /**
      * IP:PORT
