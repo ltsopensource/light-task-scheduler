@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
  */
 public class MinaCodecFactory implements ProtocolCodecFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MinaCodecFactory.class);
 
     private Codec codec;
 

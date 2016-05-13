@@ -4,7 +4,6 @@ import com.github.ltsopensource.core.domain.Pair;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
-import com.github.ltsopensource.remoting.common.RemotingHelper;
 import com.github.ltsopensource.remoting.exception.RemotingException;
 import com.github.ltsopensource.remoting.exception.RemotingSendRequestException;
 import com.github.ltsopensource.remoting.exception.RemotingTimeoutException;
@@ -21,7 +20,7 @@ import java.util.concurrent.Executors;
  * Remoting服务端实现
  */
 public abstract class AbstractRemotingServer extends AbstractRemoting implements RemotingServer {
-    protected static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractRemotingServer.class);
 
     protected final RemotingServerConfig remotingServerConfig;
     // 处理Callback应答器

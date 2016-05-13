@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
  */
 public class LtsCodecFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LtsCodecFactory.class);
 
     private Codec codec;
 

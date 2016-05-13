@@ -17,7 +17,7 @@ import org.apache.mina.core.session.IoSession;
  */
 public class MinaHandler extends IoHandlerAdapter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MinaHandler.class);
 
     private AbstractRemoting remoting;
     private String sideType;      // SERVER , CLIENT

@@ -18,7 +18,7 @@ import static com.github.ltsopensource.nio.idle.IdleState.BOTH_IDLE;
  */
 public class LtsEventHandler implements com.github.ltsopensource.nio.handler.NioHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LtsEventHandler.class);
 
     private AbstractRemoting remoting;
     private String sideType;      // SERVER , CLIENT

@@ -27,7 +27,7 @@ import java.util.concurrent.*;
  * Server与Client公用抽象类
  */
 public abstract class AbstractRemoting {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemotingHelper.RemotingLogName);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRemoting.class);
 
     // 信号量，Oneway情况会使用，防止本地缓存请求过多
     protected final Semaphore semaphoreOneway;
