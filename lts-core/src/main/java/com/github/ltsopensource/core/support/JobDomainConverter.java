@@ -53,7 +53,11 @@ public class JobDomainConverter {
         // 设置JobType
         if (job.isCron()) {
             jobPo.setJobType(JobType.CRON);
+            jobPo.setCronExpression(job.getCronExpression());
         } else if (job.isRepeatable()) {
+            jobPo.setCronExpression(null);
+            jobPo.setRepeatInterval(job.getRepeatInterval());
+            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
             jobPo.setJobType(JobType.REPEAT);
         } else if (job.getTriggerTime() == null) {
             jobPo.setJobType(JobType.REAL_TIME);
@@ -63,7 +67,6 @@ public class JobDomainConverter {
 
         jobPo.setExtParams(job.getExtParams());
         jobPo.setNeedFeedback(job.isNeedFeedback());
-        jobPo.setCronExpression(job.getCronExpression());
         jobPo.setMaxRetryTimes(job.getMaxRetryTimes());
         jobPo.setRelyOnPrevCycle(job.isRelyOnPrevCycle());
         jobPo.setRepeatCount(job.getRepeatCount());
@@ -73,11 +76,6 @@ public class JobDomainConverter {
             } else {
                 jobPo.setTriggerTime(job.getTriggerTime());
             }
-        }
-        if (job.getRepeatCount() != 0) {
-            jobPo.setCronExpression(null);
-            jobPo.setRepeatInterval(job.getRepeatInterval());
-            jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
         }
         return jobPo;
     }
