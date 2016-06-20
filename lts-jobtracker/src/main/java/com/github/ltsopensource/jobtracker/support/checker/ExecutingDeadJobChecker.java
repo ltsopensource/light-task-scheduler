@@ -4,6 +4,7 @@ import com.github.ltsopensource.biz.logger.domain.JobLogPo;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.QuietUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.constant.Level;
@@ -162,11 +163,10 @@ public class ExecutingDeadJobChecker {
                         JobAskResponse responseBody = response.getBody();
                         List<String> deadJobIds = responseBody.getJobIds();
                         if (CollectionUtils.isNotEmpty(deadJobIds)) {
-                            try {
-                                // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
-                                Thread.sleep(1000L);
-                            } catch (InterruptedException ignored) {
-                            }
+
+                            // 睡了1秒再修复, 防止任务刚好执行完正在传输中. 1s可以让完成的正常完成
+                            QuietUtils.sleep(appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_FIX_EXECUTING_JOB_WAITING_MILLS, 1000L));
+
                             for (JobPo jobPo : jobPos) {
                                 if (deadJobIds.contains(jobPo.getJobId())) {
                                     fixDeadJob(jobPo);
@@ -190,6 +190,11 @@ public class ExecutingDeadJobChecker {
 
     private void fixDeadJob(JobPo jobPo) {
         try {
+
+            // 已经被移除了
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+                return;
+            }
 
             jobPo.setGmtModified(SystemClock.now());
             jobPo.setTaskTrackerIdentity(null);

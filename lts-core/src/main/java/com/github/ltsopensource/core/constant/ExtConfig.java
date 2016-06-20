@@ -200,6 +200,10 @@ public interface ExtConfig {
      * JobTracker端: 选择jobClient的负载均衡算法
      */
     String JOB_CLIENT_SELECT_LOADBALANCE = "jobclient.select.loadbalance";
+    /**
+     * JobTracker端: 修改ExecutingJobQueue死任务的时候, 等待等待完成任务的时间
+     */
+    String JOB_TRACKER_FIX_EXECUTING_JOB_WAITING_MILLS = "jobtracker.fix.executing.job.waiting.mills";
 
     String MAIL_SMTP_HOST = "mail.smtp.host";
     String MAIL_SMTP_PORT = "mail.smtp.port";
