@@ -192,7 +192,7 @@ public class ExecutingDeadJobChecker {
         try {
 
             // 已经被移除了
-            if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
+            if (appContext.getExecutingJobQueue().getJob(jobPo.getJobId()) == null) {
                 return;
             }
 
