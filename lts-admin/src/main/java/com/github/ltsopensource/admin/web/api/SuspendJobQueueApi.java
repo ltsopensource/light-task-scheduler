@@ -164,7 +164,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
             }
         } else if (jobPo.isRepeatable()) {
             // 先恢复,才能删除
-            if (jobPo.getRepeatedCount() < jobPo.getRepeatCount()) {
+            if (jobPo.getRepeatCount() == -1 || jobPo.getRepeatedCount() < jobPo.getRepeatCount()) {
                 jobPo.setGmtModified(SystemClock.now());
                 try {
                     // 1.add to cron job queue
