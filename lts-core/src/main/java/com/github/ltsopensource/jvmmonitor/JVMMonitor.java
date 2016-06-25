@@ -30,13 +30,12 @@ public class JVMMonitor {
     private static final AtomicBoolean start = new AtomicBoolean(false);
 
     private static AtomicLong refCount;
-    static Field refCountField;
 
     static {
         String className = JVMMonitor.class.getName() + "$JVMMonitorReferenceCount";
         try {
             Class clazz = CrossClassLoader.loadClass(className);
-            refCountField = clazz.getDeclaredField("REF_COUNT");
+            Field refCountField = clazz.getDeclaredField("REF_COUNT");
             refCountField.setAccessible(true);
             refCount = (AtomicLong) refCountField.get(null);
         } catch (Throwable t) {
