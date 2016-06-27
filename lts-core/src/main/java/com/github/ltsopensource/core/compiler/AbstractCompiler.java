@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  */
 public abstract class AbstractCompiler implements Compiler {
 
-    private static Compiler COMPILER = new JavassistCompiler();
+    private static Compiler COMPILER;
 
     public static void setCompiler(Compiler compiler) {
         if (compiler == null) {
@@ -22,6 +22,9 @@ public abstract class AbstractCompiler implements Compiler {
     }
 
     public static Compiler getCompiler() {
+        if (AbstractCompiler.COMPILER == null) {
+            AbstractCompiler.COMPILER = new JavassistCompiler();
+        }
         return AbstractCompiler.COMPILER;
     }
 
@@ -31,7 +34,7 @@ public abstract class AbstractCompiler implements Compiler {
         } else if ("jdk".equals(compiler)) {
             setCompiler(new JdkCompiler());
         } else {
-            throw new IllegalArgumentException("compiler[" + compiler +"] error ");
+            throw new IllegalArgumentException("compiler[" + compiler + "] error ");
         }
     }
 

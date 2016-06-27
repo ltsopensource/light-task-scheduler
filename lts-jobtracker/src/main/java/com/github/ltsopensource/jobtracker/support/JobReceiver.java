@@ -140,24 +140,21 @@ public class JobReceiver {
      **/
     private boolean replaceOnExist(Job job, JobPo jobPo) {
 
-        // 得到老的jobId
-        JobPo oldJobPo;
-        if (job.isCron()) {
-            oldJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
-        } else if (job.isRepeatable()) {
-            oldJobPo = appContext.getRepeatJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
-        } else {
-            oldJobPo = appContext.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
-        }
-        if (oldJobPo != null) {
-            String jobId = oldJobPo.getJobId();
-            // 1. 删除任务
-            appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
-            if (job.isCron()) {
-                appContext.getCronJobQueue().remove(jobId);
-            } else if (job.isRepeatable()) {
-                appContext.getRepeatJobQueue().remove(jobId);
+        // 得到老的job
+        JobPo existJobPo = appContext.getExecutableJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+        if (existJobPo == null) {
+            existJobPo = appContext.getCronJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
+            if (existJobPo == null) {
+                existJobPo = appContext.getRepeatJobQueue().getJob(job.getTaskTrackerNodeGroup(), job.getTaskId());
             }
+        }
+        if (existJobPo != null) {
+            String jobId = existJobPo.getJobId();
+            // 1. 3个都删除下
+            appContext.getExecutableJobQueue().remove(job.getTaskTrackerNodeGroup(), jobId);
+            appContext.getCronJobQueue().remove(jobId);
+            appContext.getRepeatJobQueue().remove(jobId);
+
             jobPo.setJobId(jobId);
         }
 
