@@ -68,6 +68,4 @@ public interface Constants {
     String ONCE = "__LTS_ONCE";
 
     String IS_RETRY_JOB = "__LTS_Is_Retry_Job";
-
-    String LOADBALANCE = "loadbalance";
 }

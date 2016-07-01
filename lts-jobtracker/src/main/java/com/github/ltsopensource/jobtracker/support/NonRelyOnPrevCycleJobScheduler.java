@@ -109,7 +109,7 @@ public class NonRelyOnPrevCycleJobScheduler {
             }
             for (JobPo jobPo : jobPos) {
                 Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                if (lastGenerateTriggerTime == null) {
+                if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                     lastGenerateTriggerTime = new Date().getTime();
                 }
                 addCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
@@ -127,7 +127,7 @@ public class NonRelyOnPrevCycleJobScheduler {
             }
             for (JobPo jobPo : jobPos) {
                 Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                if (lastGenerateTriggerTime == null) {
+                if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                     lastGenerateTriggerTime = new Date().getTime();
                 }
                 addRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));

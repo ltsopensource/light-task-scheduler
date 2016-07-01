@@ -31,6 +31,8 @@ public interface ExecutableJobQueue extends JobQueue {
      */
     boolean remove(String taskTrackerNodeGroup, String jobId);
 
+    long countJob(String realTaskId, String taskTrackerNodeGroup);
+
     boolean removeBatch(String realTaskId, String taskTrackerNodeGroup);
 
     /**

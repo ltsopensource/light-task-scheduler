@@ -8,7 +8,7 @@ import java.util.Vector;
 
 /**
  * 用来处理跨classLoader 共享class
- * Created by hugui.hg on 6/25/16.
+ * @author Robert HG (254963746@qq.com) on 6/25/16.
  */
 public class CrossClassLoader {
 

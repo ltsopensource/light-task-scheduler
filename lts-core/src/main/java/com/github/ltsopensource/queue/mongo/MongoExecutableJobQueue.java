@@ -99,6 +99,15 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
     }
 
     @Override
+    public long countJob(String realTaskId, String taskTrackerNodeGroup) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("realTaskId").equal(realTaskId);
+        query.field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.countAll();
+    }
+
+    @Override
     public boolean removeBatch(String realTaskId, String taskTrackerNodeGroup) {
         String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);

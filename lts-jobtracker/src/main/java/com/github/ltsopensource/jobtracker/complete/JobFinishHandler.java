@@ -47,11 +47,19 @@ public class JobFinishHandler {
             boolean isRetryForThisTime = Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.IS_RETRY_JOB));
             boolean isOnce = Boolean.TRUE.toString().equals(jobMeta.getInternalExtParam(Constants.ONCE));
 
-            if (!isOnce && jobMeta.getJob().isCron()) {
+            if (jobMeta.getJob().isCron()) {
                 // 是 Cron任务
-                finishCronJob(jobMeta.getJobId());
-            } else if (!isOnce && jobMeta.getJob().isRepeatable()) {
-                finishRepeatJob(jobMeta.getJobId(), isRetryForThisTime);
+                if (isOnce) {
+                    finishNoReplyPrevCronJob(jobMeta);
+                } else {
+                    finishCronJob(jobMeta.getJobId());
+                }
+            } else if (jobMeta.getJob().isRepeatable()) {
+                if (isOnce) {
+                    finishNoReplyPrevRepeatJob(jobMeta, isRetryForThisTime);
+                } else {
+                    finishRepeatJob(jobMeta.getJobId(), isRetryForThisTime);
+                }
             }
 
             // 从正在执行的队列中移除
@@ -69,6 +77,7 @@ public class JobFinishHandler {
         if (nextTriggerTime == null) {
             // 从CronJob队列中移除
             appContext.getCronJobQueue().remove(jobId);
+            jobRemoveLog(jobPo, "Cron");
             return;
         }
         // 表示下次还要执行
@@ -83,6 +92,44 @@ public class JobFinishHandler {
         }
     }
 
+    private void finishNoReplyPrevCronJob(JobMeta jobMeta) {
+        JobPo jobPo = appContext.getCronJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(), jobMeta.getRealTaskId());
+        if (jobPo == null) {
+            // 可能任务队列中改条记录被删除了
+            return;
+        }
+        Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
+        if (nextTriggerTime == null) {
+            // 检查可执行队列中是否还有
+            if (appContext.getExecutableJobQueue().countJob(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup()) == 0) {
+                // TODO 检查执行中队列是否还有
+                // 从CronJob队列中移除
+                appContext.getCronJobQueue().remove(jobPo.getJobId());
+                jobRemoveLog(jobPo, "Cron");
+            }
+        }
+    }
+
+    private void finishNoReplyPrevRepeatJob(JobMeta jobMeta, boolean isRetryForThisTime) {
+        JobPo jobPo = appContext.getRepeatJobQueue().getJob(jobMeta.getJob().getTaskTrackerNodeGroup(), jobMeta.getRealTaskId());
+        if (jobPo == null) {
+            // 可能任务队列中改条记录被删除了
+            return;
+        }
+        if (jobPo.getRepeatCount() != -1 && jobPo.getRepeatedCount() >= jobPo.getRepeatCount()) {
+            // 已经重试完成, 那么删除, 这里可以不用check可执行队列是否还有,因为这里依赖的是计数
+            appContext.getRepeatJobQueue().remove(jobPo.getJobId());
+            jobRemoveLog(jobPo, "Repeat");
+            return;
+        }
+
+        // 如果当前完成的job是重试的,那么不要增加repeatedCount
+        if (!isRetryForThisTime) {
+            // 更新repeatJob的重复次数
+            appContext.getRepeatJobQueue().incRepeatedCount(jobPo.getJobId());
+        }
+    }
+
     private void finishRepeatJob(String jobId, boolean isRetryForThisTime) {
         JobPo jobPo = appContext.getRepeatJobQueue().getJob(jobId);
         if (jobPo == null) {
@@ -92,7 +139,7 @@ public class JobFinishHandler {
         if (jobPo.getRepeatCount() != -1 && jobPo.getRepeatedCount() >= jobPo.getRepeatCount()) {
             // 已经重试完成, 那么删除
             appContext.getRepeatJobQueue().remove(jobId);
-            repeatJobRemoveLog(jobPo);
+            jobRemoveLog(jobPo, "Repeat");
             return;
         }
 
@@ -119,14 +166,13 @@ public class JobFinishHandler {
         }
     }
 
-    private void repeatJobRemoveLog(JobPo jobPo) {
+    private void jobRemoveLog(JobPo jobPo, String type) {
         JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
         jobLogPo.setSuccess(true);
         jobLogPo.setLogType(LogType.DEL);
         jobLogPo.setLogTime(SystemClock.now());
         jobLogPo.setLevel(Level.INFO);
-        jobLogPo.setMsg("Repeat Job Finished");
+        jobLogPo.setMsg(type + " Job Finished");
         appContext.getJobLogger().log(jobLogPo);
     }
-
 }
