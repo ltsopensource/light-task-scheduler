@@ -1,6 +1,7 @@
 package com.github.ltsopensource.jobtracker.complete.retry;
 
 import com.github.ltsopensource.core.constant.ExtConfig;
+import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.spi.SPI;
 
 /**
@@ -15,5 +16,5 @@ public interface JobRetryTimeGenerator {
      * @param retryTimes 已经重试的次数
      * @param retryInterval 重试间隔
      */
-    long getNextRetryTriggerTime(int retryTimes, int retryInterval);
+    long getNextRetryTriggerTime(Job job, int retryTimes, int retryInterval);
 }
