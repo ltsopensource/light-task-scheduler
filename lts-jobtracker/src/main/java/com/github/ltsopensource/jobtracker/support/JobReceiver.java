@@ -179,6 +179,12 @@ public class JobReceiver {
     private void addCronJob(JobPo jobPo) throws DupEntryException {
         Date nextTriggerTime = CronExpressionUtils.getNextTriggerTime(jobPo.getCronExpression());
         if (nextTriggerTime != null) {
+
+            if (appContext.getRepeatJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) != null) {
+                //  这种情况是 由repeat 任务变为了 Cron任务
+                throw new DupEntryException();
+            }
+
             // 1.add to cron job queue
             appContext.getCronJobQueue().add(jobPo);
 
@@ -205,6 +211,12 @@ public class JobReceiver {
      * 添加Repeat 任务
      */
     private void addRepeatJob(JobPo jobPo) throws DupEntryException {
+
+        if (appContext.getCronJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) != null) {
+            //  这种情况是 由cron 任务变为了 repeat 任务
+            throw new DupEntryException();
+        }
+
         // 1.add to repeat job queue
         appContext.getRepeatJobQueue().add(jobPo);
 
