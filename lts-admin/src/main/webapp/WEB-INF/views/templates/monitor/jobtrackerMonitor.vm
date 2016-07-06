@@ -95,6 +95,9 @@
     ]
 
     $(document).ready(function () {
+        //修改时差8小时问题
+        Highcharts.setOptions({global: {useUTC: false}});
+
         $("#searchBtn").on("click", function () {
             var params = {};
             params.identity = $("select[name='identity']").val();
