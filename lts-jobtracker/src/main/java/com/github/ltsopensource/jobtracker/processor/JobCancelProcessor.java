@@ -40,14 +40,20 @@ public class JobCancelProcessor extends AbstractRemotingProcessor {
         if (jobPo == null) {
             jobPo = appContext.getExecutableJobQueue().getJob(taskTrackerNodeGroup, taskId);
         }
+        if (jobPo == null) {
+            jobPo = appContext.getSuspendJobQueue().getJob(taskTrackerNodeGroup, taskId);
+        }
 
         if (jobPo != null) {
+            // 队列都remove下吧
             appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
             if (jobPo.isCron()) {
                 appContext.getCronJobQueue().remove(jobPo.getJobId());
             } else if (jobPo.isRepeatable()) {
                 appContext.getRepeatJobQueue().remove(jobPo.getJobId());
             }
+            appContext.getSuspendJobQueue().remove(jobPo.getJobId());
+
             // 记录日志
             JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
             jobLogPo.setSuccess(true);

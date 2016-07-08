@@ -67,4 +67,13 @@ public class MongoSuspendJobQueue extends AbstractMongoJobQueue implements Suspe
         return wr.getN() == 1;
     }
 
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("taskId").equal(taskId).
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.get();
+    }
+
 }

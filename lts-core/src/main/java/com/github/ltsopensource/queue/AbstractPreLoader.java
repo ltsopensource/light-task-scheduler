@@ -59,6 +59,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                             // 加入到内存中
                             if (CollectionUtils.isNotEmpty(loads)) {
                                 for (JobPo load : loads) {
+                                    // TODO 这里可以优化,对于force这种场景,可以移除执行优先级低的
                                     if (!queue.offer(load)) {
                                         // 没有成功说明已经满了
                                         break;
