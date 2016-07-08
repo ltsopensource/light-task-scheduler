@@ -54,7 +54,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_jobType", "jobType");
             template.ensureIndex(tableName, "idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
-            template.ensureIndex(tableName, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated");
+            template.ensureIndex(tableName, "idx_priority_triggerTime_gmtCreated", "priority,triggerTime,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
             LOGGER.info("create queue " + tableName);
         }

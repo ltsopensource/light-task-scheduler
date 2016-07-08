@@ -29,6 +29,6 @@ CREATE TABLE IF NOT EXISTS `{tableName}` (
   KEY `idx_taskTrackerIdentity` (`task_tracker_identity`),
   KEY `idx_job_type` (`job_type`),
   KEY `idx_realTaskId_taskTrackerNodeGroup` (`real_task_id`, `task_tracker_node_group`),
-  KEY `idx_triggerTime_priority_gmtCreated` (`trigger_time`,`priority`,`gmt_created`),
+  KEY `idx_priority_triggerTime_gmtCreated` (`priority`,`trigger_time`,`gmt_created`),
   KEY `idx_isRunning` (`is_running`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='等待执行任务';

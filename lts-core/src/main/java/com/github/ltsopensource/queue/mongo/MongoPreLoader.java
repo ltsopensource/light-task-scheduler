@@ -51,7 +51,7 @@ public class MongoPreLoader extends AbstractPreLoader {
         Query<JobPo> query = template.createQuery(tableName, JobPo.class);
         query.field("isRunning").equal(false)
                 .filter("triggerTime < ", SystemClock.now())
-                .order(" triggerTime, priority , gmtCreated").offset(0).limit(loadSize);
+                .order(" priority, triggerTime , gmtCreated").offset(0).limit(loadSize);
         return query.asList();
     }
 
