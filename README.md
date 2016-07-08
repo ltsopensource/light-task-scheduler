@@ -17,6 +17,12 @@ oschina地址:
 
 这两个地址都会同步更新。感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
+##1.6.9-SNAPSHOT(master)变更主要点
+####1. 取任务优先级,按任务设置的priority优先,再按triggerTime优先, 数据库的索引也会变
+####2. lts_executable_job_queue_ (前缀)表名改为 lts_wjq_ (前缀), 缩短表名
+####3. lts_feedback_job_queue_ (前缀)表名改为 lts_fjq_ (前缀), 缩短表名
+
+
 ## 框架概况
 LTS 有主要有以下四种节点：
 
