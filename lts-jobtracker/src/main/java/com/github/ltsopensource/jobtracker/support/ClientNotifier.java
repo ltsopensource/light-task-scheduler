@@ -4,6 +4,7 @@ import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.Holder;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.Action;
+import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.domain.JobResult;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.exception.RemotingSendException;
@@ -13,6 +14,7 @@ import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.protocol.JobProtos;
 import com.github.ltsopensource.core.protocol.command.JobFinishedRequest;
 import com.github.ltsopensource.core.remoting.RemotingServerDelegate;
+import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.jobtracker.domain.JobClientNode;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.remoting.AsyncCallback;
@@ -97,7 +99,10 @@ public class ClientNotifier {
         List<JobResult> jobResults = new ArrayList<JobResult>(results.size());
         for (JobRunResult result : results) {
             JobResult jobResult = new JobResult();
-            jobResult.setJob(result.getJobMeta().getJob());
+
+            Job job = JobUtils.copy(result.getJobMeta().getJob());
+            job.setTaskId(result.getJobMeta().getRealTaskId());
+            jobResult.setJob(job);
             jobResult.setSuccess(Action.EXECUTE_SUCCESS.equals(result.getAction()));
             jobResult.setMsg(result.getMsg());
             jobResult.setTime(result.getTime());
