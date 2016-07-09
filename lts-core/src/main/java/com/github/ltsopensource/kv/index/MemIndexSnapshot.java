@@ -54,6 +54,10 @@ public class MemIndexSnapshot<K, V> extends AbstractIndexSnapshot<K, V> {
 
             ConcurrentMap<K, IndexItem<K>> indexMap = null;
             if (fileHeader.getStoreTxLogRecordId() != 0) {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Start to read IndexSnapshot File ....");
+                }
+
                 UnsafeByteArrayOutputStream os = new UnsafeByteArrayOutputStream();
                 WritableByteChannel target = Channels.newChannel(os);
                 long readLength = fileChannel.size() - fileHeader.getLength();
@@ -65,6 +69,10 @@ public class MemIndexSnapshot<K, V> extends AbstractIndexSnapshot<K, V> {
                     indexMap = serializer.deserialize(is,
                             new TypeReference<ConcurrentSkipListMap<K, IndexItem<K>>>() {
                             }.getType());
+                }
+
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Finish read IndexSnapshot File");
                 }
             }
 
