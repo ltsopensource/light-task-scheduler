@@ -3,6 +3,8 @@ package com.github.ltsopensource.kv.data;
 import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.commons.io.UnsafeByteArrayInputStream;
 import com.github.ltsopensource.core.commons.io.UnsafeByteArrayOutputStream;
+import com.github.ltsopensource.core.json.TypeReference;
+import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.kv.CapacityNotEnoughException;
 import com.github.ltsopensource.kv.DB;
 import com.github.ltsopensource.kv.DBException;
@@ -10,8 +12,6 @@ import com.github.ltsopensource.kv.StoreConfig;
 import com.github.ltsopensource.kv.index.IndexItem;
 import com.github.ltsopensource.kv.serializer.StoreSerializer;
 import com.github.ltsopensource.kv.txlog.StoreTxLogPosition;
-import com.github.ltsopensource.core.json.TypeReference;
-import com.github.ltsopensource.core.logger.Logger;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -93,7 +93,7 @@ public class DataBlockEngine<K, V> {
         storeConfig.setLastTxLogPositionOnDataBlock(maxTxLog);
     }
 
-    protected List<DataBlock> getReadonlyBlocks(){
+    protected List<DataBlock> getReadonlyBlocks() {
         return readonlyBlocks;
     }
 
@@ -102,15 +102,20 @@ public class DataBlockEngine<K, V> {
      */
     public DataAppendResult append(StoreTxLogPosition storeTxLogPosition, K key, V value) {
 
+        UnsafeByteArrayOutputStream out = new UnsafeByteArrayOutputStream();
         try {
             DataEntry<K, V> dataEntry = new DataEntry<K, V>(key, value);
-            UnsafeByteArrayOutputStream out = new UnsafeByteArrayOutputStream();
             serializer.serialize(dataEntry, out);
 
             return append(storeTxLogPosition, out.toByteArray());
 
         } catch (Exception e) {
             throw new DBException("Persistent data error: " + e.getMessage(), e);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException ignored) {
+            }
         }
     }
 

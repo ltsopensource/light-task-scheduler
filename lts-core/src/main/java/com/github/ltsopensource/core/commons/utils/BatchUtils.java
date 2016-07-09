@@ -12,7 +12,7 @@ public class BatchUtils {
     /**
      * 批量处理切分的时候，返回第index个List
      */
-    public static <E> List<E> getBatchList(Integer index, int batchSize, Collection<E> collection) {
+    private static <E> List<E> getBatchList(Integer index, int batchSize, Collection<E> collection) {
         List<E> list = null;
         if (collection instanceof List) {
             list = (List<E>) collection;
@@ -27,6 +27,24 @@ public class BatchUtils {
         }
     }
 
+    public static <E> void batchExecute(int totalSize, int batchSize, Collection<E> collection, Executor<E> executor) {
+
+        for (int i = 0; i <= totalSize / batchSize; i++) {
+            List<E> list = BatchUtils.getBatchList(i, batchSize, collection);
+
+            if (CollectionUtils.isNotEmpty(list)) {
+                if (!executor.execute(list)) {
+                    break;
+                }
+            }
+        }
+    }
+
+    public interface Executor<E> {
+
+        // 返回是否需要继续
+        boolean execute(List<E> list);
+    }
 }
 
 

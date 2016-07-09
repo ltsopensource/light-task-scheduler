@@ -20,6 +20,7 @@ public class StoreConfig {
     private File indexPath;
     // 索引snapshot的间隔
     private int indexSnapshotInterval = 60 * 1000;     // 60s
+    private int indexSnapshotThreshold = 1000;         // 当超过一千个改变的时候snapshot
     // 定时刷盘时间
     private int flushDataInterval = 1000;   // 1s
     // 是否开启定时刷盘, 默认不开启
@@ -42,6 +43,8 @@ public class StoreConfig {
     private int maxIndexSnapshotSize = 3;
     // DataBlock 合并检查间隔
     private int dataBlockCompactCheckInterval = 60 * 1000;
+    // index每次批量写入的size是100条
+    private int indexSnapshotBatchSize = 100;
 
     public int getDbLogFlushInterval() {
         return dbLogFlushInterval;
@@ -169,5 +172,21 @@ public class StoreConfig {
 
     public void setDataBlockCompactCheckInterval(int dataBlockCompactCheckInterval) {
         this.dataBlockCompactCheckInterval = dataBlockCompactCheckInterval;
+    }
+
+    public int getIndexSnapshotThreshold() {
+        return indexSnapshotThreshold;
+    }
+
+    public void setIndexSnapshotThreshold(int indexSnapshotThreshold) {
+        this.indexSnapshotThreshold = indexSnapshotThreshold;
+    }
+
+    public int getIndexSnapshotBatchSize() {
+        return indexSnapshotBatchSize;
+    }
+
+    public void setIndexSnapshotBatchSize(int indexSnapshotBatchSize) {
+        this.indexSnapshotBatchSize = indexSnapshotBatchSize;
     }
 }

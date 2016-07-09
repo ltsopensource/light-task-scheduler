@@ -89,7 +89,9 @@ public class DataBlockFileHeader extends AbstractFileHeader {
 
     @Override
     public void read(FileChannel fileChannel) throws IOException {
-
+        if (fileChannel.size() == 0) {
+            return;
+        }
         fileChannel.position(0);
         fileChannel.read(byteBuffer());
 

@@ -1,5 +1,7 @@
 package com.github.ltsopensource.kv.replay;
 
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.kv.*;
 import com.github.ltsopensource.kv.cache.DataCache;
 import com.github.ltsopensource.kv.data.DataAppendResult;
@@ -10,7 +12,6 @@ import com.github.ltsopensource.kv.txlog.StoreTxLogCursorEntry;
 import com.github.ltsopensource.kv.txlog.StoreTxLogEngine;
 import com.github.ltsopensource.kv.txlog.StoreTxLogEntry;
 import com.github.ltsopensource.kv.txlog.StoreTxLogPosition;
-import com.github.ltsopensource.core.logger.Logger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 12/19/15.
@@ -37,6 +38,7 @@ public class TxLogReplay<K, V> {
         Cursor<StoreTxLogCursorEntry<K, V>> cursor = storeTxLogEngine.cursor(startPosition);
 
         int count = 0;
+        long startTime = SystemClock.now();
 
         while (cursor.hasNext()) {
             StoreTxLogCursorEntry<K, V> storeTxLogCursorEntry = cursor.next();
@@ -55,8 +57,8 @@ public class TxLogReplay<K, V> {
                 DataAppendResult dataAppendResult = dataBlockEngine.append(position, key, value);
                 // 2. 写Index
                 index.putIndexItem(position, key, DBImpl.convertToIndex(key, dataAppendResult));
-                // 3. 写缓存
-                dataCache.put(key, value);
+//                 3. 写缓存
+//                dataCache.put(key, value);
 
             } else if (op == Operation.REMOVE) {
                 // 1. 移除Index
@@ -65,8 +67,8 @@ public class TxLogReplay<K, V> {
                     // 2. 移除Data
                     dataBlockEngine.remove(position, indexItem);
                 }
-                // 2. 移除缓存
-                dataCache.remove(key);
+//                // 2. 移除缓存
+//                dataCache.remove(key);
             } else {
                 throw new DBException("error op=" + op);
             }
@@ -74,7 +76,7 @@ public class TxLogReplay<K, V> {
             count++;
         }
 
-        LOGGER.info("replay txLog complete, txLog size:" + count);
+        LOGGER.info("replay txLog complete, txLog size:" + count + ", cost mills:" + (SystemClock.now() - startTime));
 
     }
 

@@ -11,6 +11,7 @@ import com.github.ltsopensource.core.cmd.HttpCmdNames;
 import com.github.ltsopensource.core.cmd.HttpCmdParamNames;
 import com.github.ltsopensource.core.commons.utils.BatchUtils;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.Holder;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.monitor.MData;
 import com.github.ltsopensource.core.domain.monitor.MNode;
@@ -104,7 +105,7 @@ public class MStatReportWorker implements Runnable {
             mDataQueue = mDataQueue.subList(size - MAX_RETRY_RETAIN, size);
         }
 
-        List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
+        final List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
         if (CollectionUtils.isEmpty(monitorNodes)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Please Start LTS-Monitor");
@@ -112,37 +113,39 @@ public class MStatReportWorker implements Runnable {
             return;
         }
 
-        int toIndex = 0;
+        final Holder<Integer> toIndex = new Holder<Integer>(0);
         size = mDataQueue.size();
         try {
-            for (int i = 0; i <= size / BATCH_REPORT_SIZE; i++) {
-                List<MData> mDatas = BatchUtils.getBatchList(i, BATCH_REPORT_SIZE, mDataQueue);
-                if (CollectionUtils.isNotEmpty(mDatas)) {
+
+            BatchUtils.batchExecute(size, BATCH_REPORT_SIZE, mDataQueue, new BatchUtils.Executor<MData>() {
+                @Override
+                public boolean execute(List<MData> list) {
                     try {
                         HttpCmd cmd = new DefaultHttpCmd();
                         cmd.setCommand(HttpCmdNames.HTTP_CMD_ADD_M_DATA);
                         cmd.addParam(HttpCmdParamNames.M_NODE, JSON.toJSONString(buildMNode()));
-                        cmd.addParam(HttpCmdParamNames.M_DATA, JSON.toJSONString(mDatas));
+                        cmd.addParam(HttpCmdParamNames.M_DATA, JSON.toJSONString(list));
 
                         if (sendReq(monitorNodes, cmd)) {
-                            toIndex = toIndex + CollectionUtils.sizeOf(mDatas);
+                            toIndex.set(toIndex.get() + CollectionUtils.sizeOf(list));
                         } else {
-                            break;
+                            return false;
                         }
                     } catch (Exception e) {
                         LOGGER.warn("Report monitor data Error : " + e.getMessage(), e);
-                        break;
+                        return false;
                     }
+                    return true;
                 }
-            }
+            });
         } finally {
             // to delete
-            if (toIndex == 0) {
+            if (toIndex.get() == 0) {
                 // do nothing
-            } else if (size == toIndex) {
+            } else if (size == toIndex.get()) {
                 mDataQueue.clear();
             } else {
-                mDataQueue = mDataQueue.subList(toIndex + 1, size);
+                mDataQueue = mDataQueue.subList(toIndex.get() + 1, size);
             }
         }
     }
