@@ -2,6 +2,7 @@ package com.github.ltsopensource.admin.access.memory;
 
 import com.github.ltsopensource.admin.access.RshHandler;
 import com.github.ltsopensource.admin.request.NodePaginationReq;
+import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.CharacterUtils;
@@ -95,8 +96,8 @@ public class NodeMemCacheAccess extends MemoryAccess {
         }
     }
 
-    public Node getNodeByIdentity(String identity){
-       return new SelectSql(getSqlTemplate())
+    public Node getNodeByIdentity(String identity) {
+        return new SelectSql(getSqlTemplate())
                 .select()
                 .all()
                 .from()
@@ -105,33 +106,55 @@ public class NodeMemCacheAccess extends MemoryAccess {
                 .single(RshHandler.NODE_RSH);
     }
 
-    public List<Node> getNodeByNodeType(NodeType nodeType){
+    public List<Node> getNodeByNodeType(NodeType nodeType) {
         NodePaginationReq nodePaginationReq = new NodePaginationReq();
         nodePaginationReq.setNodeType(nodeType);
+        nodePaginationReq.setLimit(Integer.MAX_VALUE);
         return search(nodePaginationReq);
     }
 
     public List<Node> search(NodePaginationReq request) {
-
-        WhereSql whereSql = new WhereSql()
-                .andOnNotEmpty("identity = ?", request.getIdentity())
-                .andOnNotEmpty("node_group = ?", request.getNodeGroup())
-                .andOnNotNull("node_type = ?", request.getNodeType() == null ? null : request.getNodeType().name())
-                .andOnNotEmpty("ip = ?", request.getIp())
-                .andOnNotNull("available = ?", request.getAvailable())
-                .andBetween("create_time", JdbcTypeUtils.toTimestamp(request.getStartDate()), JdbcTypeUtils.toTimestamp(request.getEndDate()));
 
         SelectSql selectSql = new SelectSql(getSqlTemplate())
                 .select()
                 .all()
                 .from()
                 .table(getTableName())
-                .whereSql(whereSql);
+                .whereSql(buildWhereSql(request));
         if (StringUtils.isNotEmpty(request.getField())) {
             selectSql.orderBy()
                     .column(CharacterUtils.camelCase2Underscore(request.getField()), OrderByType.convert(request.getDirection()));
         }
         return selectSql.limit(request.getStart(), request.getLimit())
                 .list(RshHandler.NODE_LIST_RSH);
+    }
+
+    private WhereSql buildWhereSql(NodePaginationReq request) {
+        return new WhereSql()
+                .andOnNotEmpty("identity = ?", request.getIdentity())
+                .andOnNotEmpty("node_group = ?", request.getNodeGroup())
+                .andOnNotNull("node_type = ?", request.getNodeType() == null ? null : request.getNodeType().name())
+                .andOnNotEmpty("ip = ?", request.getIp())
+                .andOnNotNull("available = ?", request.getAvailable())
+                .andBetween("create_time", JdbcTypeUtils.toTimestamp(request.getStartDate()), JdbcTypeUtils.toTimestamp(request.getEndDate()));
+    }
+
+    public PaginationRsp<Node> pageSelect(NodePaginationReq request) {
+        PaginationRsp<Node> response = new PaginationRsp<Node>();
+
+        Long results = new SelectSql(getSqlTemplate())
+                .select()
+                .columns("count(1)")
+                .from()
+                .table(getTableName())
+                .whereSql(buildWhereSql(request))
+                .single();
+        response.setResults(results.intValue());
+
+        if (results > 0) {
+            List<Node> nodes = search(request);
+            response.setRows(nodes);
+        }
+        return response;
     }
 }

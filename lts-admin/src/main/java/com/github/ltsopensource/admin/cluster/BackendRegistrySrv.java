@@ -2,6 +2,7 @@ package com.github.ltsopensource.admin.cluster;
 
 import com.github.ltsopensource.admin.access.domain.NodeOnOfflineLog;
 import com.github.ltsopensource.admin.request.NodePaginationReq;
+import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.logger.Logger;
@@ -43,8 +44,8 @@ public class BackendRegistrySrv {
         subscribe();
     }
 
-    public List<Node> getOnlineNodes(NodePaginationReq request) {
-        return appContext.getNodeMemCacheAccess().search(request);
+    public PaginationRsp<Node> getOnlineNodes(NodePaginationReq request) {
+        return appContext.getNodeMemCacheAccess().pageSelect(request);
     }
 
     /**
