@@ -2,6 +2,7 @@ package com.github.ltsopensource.tasktracker.runner;
 
 import com.github.ltsopensource.core.constant.EcTopic;
 import com.github.ltsopensource.core.domain.JobMeta;
+import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.ec.EventInfo;
@@ -53,6 +54,7 @@ public class RunnerPool {
 
         return new ThreadPoolExecutor(workThreads, workThreads, 30, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),           // 直接提交给线程而不保持它们
+                new NamedThreadFactory("JobRunnerPool"),
                 new ThreadPoolExecutor.AbortPolicy());
     }
 

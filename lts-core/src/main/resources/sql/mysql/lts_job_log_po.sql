@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `lts_job_log_po` (
   `ext_params` text COMMENT '用户参数',
   `internal_ext_params` text COMMENT '内部扩展参数 JSON',
   `need_feedback` tinyint(4) COMMENT '是否需要反馈',
-  `cron_expression` varchar(32) COMMENT 'cron表达式',
+  `cron_expression` varchar(128) COMMENT 'cron表达式',
   `trigger_time` bigint(20) COMMENT '触发时间',
   `retry_times` int(11) COMMENT '重试次数',
   `max_retry_times` int(11) DEFAULT '0' COMMENT '最大重试次数',

@@ -24,6 +24,7 @@ import com.github.ltsopensource.core.protocol.command.CommandBodyWrapper;
 import com.github.ltsopensource.core.registry.*;
 import com.github.ltsopensource.core.spi.ServiceLoader;
 import com.github.ltsopensource.core.support.AliveKeeping;
+import com.github.ltsopensource.core.support.ConfigValidator;
 import com.github.ltsopensource.ec.EventCenter;
 import com.github.ltsopensource.ec.EventInfo;
 import com.github.ltsopensource.remoting.serialize.AdaptiveSerializable;
@@ -61,6 +62,9 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
     final public void start() {
         try {
             if (started.compareAndSet(false, true)) {
+
+                configValidate();
+
                 // 初始化配置
                 initConfig();
 
@@ -138,6 +142,12 @@ public abstract class AbstractJobNode<T extends Node, Context extends AppContext
         } catch (Throwable e) {
             LOGGER.error("Destroy failed, nodeType={}, identity={}", config.getNodeType(), config.getIdentity(), e);
         }
+    }
+
+    protected void configValidate() {
+        ConfigValidator.validateNodeGroup(config.getNodeGroup());
+        ConfigValidator.validateClusterName(config.getClusterName());
+        ConfigValidator.validateIdentity(config.getIdentity());
     }
 
     protected void initConfig() {
