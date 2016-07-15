@@ -70,4 +70,24 @@ public class PrimitiveTypeUtils {
         return (T) object;
     }
 
+    public static Class<?> getUnBoxType(Class<?> boxType) {
+        if (boxType == null) {
+            return null;
+        }
+        if (boxType == Byte.class) {
+            return byte.class;
+        } else if (boxType == Short.class) {
+            return short.class;
+        } else if (boxType == Integer.class) {
+            return int.class;
+        } else if (boxType == Long.class) {
+            return long.class;
+        } else if (boxType == Boolean.class) {
+            return boolean.class;
+        } else if (boxType == Float.class) {
+            return float.class;
+        } else {
+            return boxType;
+        }
+    }
 }
