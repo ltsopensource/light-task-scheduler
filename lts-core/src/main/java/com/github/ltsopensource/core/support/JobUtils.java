@@ -69,7 +69,7 @@ public class JobUtils {
     }
 
     public static String generateExeSeqId(JobPo jobPo){
-        return DateUtils.formatYMD_HMS(new Date(jobPo.getTriggerTime()));
+        return String.valueOf(jobPo.getTriggerTime());
     }
 
     public static Job copy(Job source) {
