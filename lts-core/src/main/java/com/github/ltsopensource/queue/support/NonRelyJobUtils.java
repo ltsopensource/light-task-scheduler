@@ -47,7 +47,7 @@ public class NonRelyJobUtils {
                     jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(nextTriggerTime, "MMdd-HHmmss"));
                     jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                     try {
-                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         executableJobQueue.add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.warn("Cron Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",
@@ -95,7 +95,7 @@ public class NonRelyJobUtils {
                 jobPo.setRepeatedCount(repeatedCount);
                 jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                 try {
-                    jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                    jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                     executableJobQueue.add(jobPo);
                 } catch (DupEntryException e) {
                     LOGGER.warn("Repeat Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",

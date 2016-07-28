@@ -1,6 +1,7 @@
 package com.github.ltsopensource.core.support;
 
 import com.github.ltsopensource.core.commons.utils.BeanUtils;
+import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.Job;
@@ -9,6 +10,7 @@ import com.github.ltsopensource.core.support.bean.BeanCopierFactory;
 import com.github.ltsopensource.core.support.bean.PropConverter;
 import com.github.ltsopensource.queue.domain.JobPo;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,8 +68,8 @@ public class JobUtils {
         return StringUtils.generateUUID();
     }
 
-    public static String generateExeSeqId(){
-        return String.valueOf(SystemClock.now());
+    public static String generateExeSeqId(JobPo jobPo){
+        return DateUtils.formatYMD_HMS(new Date(jobPo.getTriggerTime()));
     }
 
     public static Job copy(Job source) {

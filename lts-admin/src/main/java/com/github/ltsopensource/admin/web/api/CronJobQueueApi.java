@@ -92,7 +92,7 @@ public class CronJobQueueApi extends AbstractMVC {
                                 // 添加新的任务
                                 newJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 try {
-                                    newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                                    newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(newJobPo));
                                     appContext.getExecutableJobQueue().add(newJobPo);
                                 } catch (DupEntryException ignored) {
                                 }

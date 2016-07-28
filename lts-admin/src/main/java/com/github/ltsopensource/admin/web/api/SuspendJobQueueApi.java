@@ -151,7 +151,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     try {
                         // 2. add to executable queue
                         jobPo.setTriggerTime(nextTriggerTime.getTime());
-                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.error(e.getMessage(), e);
@@ -193,7 +193,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                         JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
                         long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
                         jobPo.setTriggerTime(nextTriggerTime);
-                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.error(e.getMessage(), e);

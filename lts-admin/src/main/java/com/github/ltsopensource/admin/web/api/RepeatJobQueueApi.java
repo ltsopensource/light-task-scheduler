@@ -91,7 +91,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                             // 添加新的任务
                             newJobPo.setTriggerTime(JobUtils.getRepeatNextTriggerTime(oldJobPo));
                             try {
-                                newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                                newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(newJobPo));
                                 appContext.getExecutableJobQueue().add(newJobPo);
                             } catch (DupEntryException ignored) {
                             }

@@ -106,6 +106,7 @@ public class ClientNotifier {
             jobResult.setSuccess(Action.EXECUTE_SUCCESS.equals(result.getAction()));
             jobResult.setMsg(result.getMsg());
             jobResult.setTime(result.getTime());
+            jobResult.setExeSeqId(result.getJobMeta().getInternalExtParam(Constants.EXE_SEQ_ID));
             jobResults.add(jobResult);
         }
 

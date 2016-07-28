@@ -20,6 +20,10 @@ public class JobResult implements Serializable{
     private String msg;
     // 任务完成时间
     private Long time;
+    /**
+     * 执行的时序 (每个执行周期都不一样，但是修复死任务，重试等不会改变)
+     */
+    private String exeSeqId;
 
     public Job getJob() {
         return job;
@@ -51,6 +55,14 @@ public class JobResult implements Serializable{
 
     public void setTime(Long time) {
         this.time = time;
+    }
+
+    public String getExeSeqId() {
+        return exeSeqId;
+    }
+
+    public void setExeSeqId(String exeSeqId) {
+        this.exeSeqId = exeSeqId;
     }
 
     @Override
