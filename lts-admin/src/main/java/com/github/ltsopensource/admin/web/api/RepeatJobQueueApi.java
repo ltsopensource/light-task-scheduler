@@ -10,6 +10,7 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.JobUtils;
@@ -90,6 +91,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                             // 添加新的任务
                             newJobPo.setTriggerTime(JobUtils.getRepeatNextTriggerTime(oldJobPo));
                             try {
+                                newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
                                 appContext.getExecutableJobQueue().add(newJobPo);
                             } catch (DupEntryException ignored) {
                             }

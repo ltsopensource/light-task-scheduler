@@ -57,7 +57,7 @@ public abstract class AbstractPreLoader implements PreLoader {
                         if (queue == null) {
                             continue;
                         }
-                        if (force || queue.size() / loadSize < factor) {
+                        if (force || (queue.size() / (loadSize * 1.0)) < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, loadSize - queue.size());
                             // 加入到内存中

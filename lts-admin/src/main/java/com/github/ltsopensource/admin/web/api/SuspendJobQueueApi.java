@@ -10,6 +10,7 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.CronExpression;
@@ -150,6 +151,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     try {
                         // 2. add to executable queue
                         jobPo.setTriggerTime(nextTriggerTime.getTime());
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.error(e.getMessage(), e);
@@ -191,6 +193,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                         JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
                         long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
                         jobPo.setTriggerTime(nextTriggerTime);
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.error(e.getMessage(), e);

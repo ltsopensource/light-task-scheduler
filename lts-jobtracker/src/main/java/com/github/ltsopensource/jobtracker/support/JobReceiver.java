@@ -5,6 +5,7 @@ import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.exception.JobReceiveException;
@@ -135,6 +136,7 @@ public class JobReceiver {
             }
         }
         if (needAdd2ExecutableJobQueue) {
+            jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
             appContext.getExecutableJobQueue().add(jobPo);
         }
     }
@@ -194,6 +196,7 @@ public class JobReceiver {
                     // 2. add to executable queue
                     jobPo.setTriggerTime(nextTriggerTime.getTime());
                     try {
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
                         appContext.getCronJobQueue().remove(jobPo.getJobId());
@@ -225,6 +228,7 @@ public class JobReceiver {
             if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
                 // 2. add to executable queue
                 try {
+                    jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
                     appContext.getExecutableJobQueue().add(jobPo);
                 } catch (DupEntryException e) {
                     appContext.getRepeatJobQueue().remove(jobPo.getJobId());

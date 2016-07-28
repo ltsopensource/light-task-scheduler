@@ -68,4 +68,7 @@ public interface Constants {
     String ONCE = "__LTS_ONCE";
 
     String IS_RETRY_JOB = "__LTS_Is_Retry_Job";
+
+    // 执行的序号
+    String EXE_SEQ_ID = "__LTS_Seq_Id";
 }

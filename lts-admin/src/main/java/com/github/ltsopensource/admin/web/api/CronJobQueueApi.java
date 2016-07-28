@@ -10,9 +10,11 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.CronExpression;
+import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
@@ -90,7 +92,8 @@ public class CronJobQueueApi extends AbstractMVC {
                                 // 添加新的任务
                                 newJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 try {
-                                    appContext.getExecutableJobQueue().add(oldJobPo);
+                                    newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
+                                    appContext.getExecutableJobQueue().add(newJobPo);
                                 } catch (DupEntryException ignored) {
                                 }
                             }
@@ -133,7 +136,6 @@ public class CronJobQueueApi extends AbstractMVC {
         if (success) {
             try {
                 appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
-//                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());

@@ -86,6 +86,7 @@ public class JobFinishHandler {
             jobPo.setIsRunning(false);
             jobPo.setTriggerTime(nextTriggerTime.getTime());
             jobPo.setGmtModified(SystemClock.now());
+            jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
             appContext.getExecutableJobQueue().add(jobPo);
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
@@ -160,6 +161,7 @@ public class JobFinishHandler {
             jobPo.setIsRunning(false);
             jobPo.setTriggerTime(nexTriggerTime);
             jobPo.setGmtModified(SystemClock.now());
+            jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId());
             appContext.getExecutableJobQueue().add(jobPo);
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));
