@@ -11,10 +11,6 @@
     <packaging>jar</packaging>
     <artifactId>lts-spring</artifactId>
 
-    <properties>
-        <quartz.version>2.2.2</quartz.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.ltsopensource</groupId>
