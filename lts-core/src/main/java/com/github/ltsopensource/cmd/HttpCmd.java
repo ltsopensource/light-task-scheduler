@@ -12,6 +12,7 @@ import java.util.Map;
  *
  * @author Robert HG (254963746@qq.com) on 10/26/15.
  */
+@SuppressWarnings("unchecked")
 public class HttpCmd<Resp extends HttpCmdResponse> extends HttpCmdRequest {
     /**
      * 子类不要覆盖这个

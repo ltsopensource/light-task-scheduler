@@ -63,7 +63,7 @@ LTS支持任务类型：
 
 ## LTS-Admin新版界面预览
 
-![LTS Admin](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS-Admin/LTS-Admin-cron-job-queue.png?dir=0&filepath=docs%2FLTS-Admin%2FLTS-Admin-cron-job-queue.png&oid=aecaf01bca5270a53b144891baaa3d7e56d47706&sha=9a38205065553f6e02fb27a01cb06eeb0e643486)
+![LTS Admin](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS-Admin/LTS-Admin-cron-job-queue.png?dir=0&filepath=docs%2FLTS-Admin%2FLTS-Admin-cron-job-queue.png&oid=aecaf01bca5270a53b144891baaa3d7e56d47706&sha=a4fd9f31df9e1fc6d389a16bdc8d1964bb854766)
 目前后台带有由[ztajy](https://github.com/ztajy)提供的一个简易的认证功能. 用户名密码在auth.cfg中,用户自行修改.
 
 ##特性
