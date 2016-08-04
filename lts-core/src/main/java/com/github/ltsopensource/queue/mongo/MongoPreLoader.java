@@ -27,6 +27,15 @@ public class MongoPreLoader extends AbstractPreLoader {
                 (AdvancedDatastore) DataStoreProvider.getDataStore(appContext.getConfig()));
     }
 
+    @Override
+    protected JobPo getJob(String taskTrackerNodeGroup, String jobId) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("jobId").equal(jobId).
+                field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.get();
+    }
+
     protected boolean lockJob(String taskTrackerNodeGroup, String jobId, String taskTrackerIdentity, Long triggerTime, Long gmtModified) {
         UpdateOperations<JobPo> operations =
                 template.createUpdateOperations(JobPo.class)

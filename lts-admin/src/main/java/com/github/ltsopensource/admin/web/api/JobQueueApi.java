@@ -79,6 +79,41 @@ public class JobQueueApi extends AbstractMVC {
         return rsp;
     }
 
+    @RequestMapping("/job-queue/executing-job-trigger")
+    public RestfulResponse triggerJobManually(JobQueueReq request) {
+
+        try {
+            Assert.hasLength(request.getJobId(), "jobId不能为空!");
+            Assert.hasLength(request.getTaskTrackerNodeGroup(), "taskTrackerNodeGroup不能为空!");
+        } catch (IllegalArgumentException e) {
+            return Builder.build(false, e.getMessage());
+        }
+
+        HttpCmd httpCmd = new DefaultHttpCmd();
+        httpCmd.setCommand(HttpCmdNames.HTTP_CMD_TRIGGER_JOB_MANUALLY);
+        httpCmd.addParam("jobId", request.getJobId());
+        httpCmd.addParam("nodeGroup", request.getTaskTrackerNodeGroup());
+
+        List<Node> jobTrackerNodeList = appContext.getNodeMemCacheAccess().getNodeByNodeType(NodeType.JOB_TRACKER);
+        if (CollectionUtils.isEmpty(jobTrackerNodeList)) {
+            return Builder.build(false, I18nManager.getMessage("job.tracker.not.found"));
+        }
+
+        HttpCmdResponse response = null;
+        for (Node node : jobTrackerNodeList) {
+            httpCmd.setNodeIdentity(node.getIdentity());
+            response = HttpCmdClient.doGet(node.getIp(), node.getHttpCmdPort(), httpCmd);
+            if (response.isSuccess()) {
+                return Builder.build(true);
+            }
+        }
+        if (response != null) {
+            return Builder.build(false, response.getMsg());
+        } else {
+            return Builder.build(false, "TriggerFailed failed");
+        }
+    }
+
     @RequestMapping("/job-queue/executing-job-get")
     public RestfulResponse executingJobGet(JobQueueReq request) {
         PaginationRsp<JobPo> paginationRsp = appContext.getExecutingJobQueue().pageSelect(request);

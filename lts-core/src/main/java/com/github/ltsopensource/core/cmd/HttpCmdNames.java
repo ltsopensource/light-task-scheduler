@@ -9,6 +9,8 @@ public interface HttpCmdNames {
 
     String HTTP_CMD_ADD_JOB = "job_add_cmd";
 
+    String HTTP_CMD_TRIGGER_JOB_MANUALLY = "trigger_job_manually_cmd";
+
     String HTTP_CMD_ADD_M_DATA = "monitor_data_add_cmd";
 
     String HTTP_CMD_STATUS_CHECK = "status_check_cmd";

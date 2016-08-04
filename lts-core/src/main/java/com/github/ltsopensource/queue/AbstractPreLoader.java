@@ -5,6 +5,7 @@ import com.github.ltsopensource.core.commons.concurrent.ConcurrentHashSet;
 import com.github.ltsopensource.core.commons.utils.Callable;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
@@ -116,6 +117,25 @@ public abstract class AbstractPreLoader implements PreLoader {
         LOAD_SIGNAL.add(FORCE_PREFIX + taskTrackerNodeGroup);
     }
 
+    @Override
+    public void loadOne2First(String taskTrackerNodeGroup, String jobId) {
+        JobPo jobPo = getJob(taskTrackerNodeGroup, jobId);
+        if (jobPo == null) {
+            return;
+        }
+        JobPriorityBlockingQueue queue = getQueue(taskTrackerNodeGroup);
+        jobPo.setInternalExtParam(Constants.OLD_PRIORITY, String.valueOf(jobPo.getPriority()));
+
+        jobPo.setPriority(Integer.MIN_VALUE);
+
+        if (!queue.offer(jobPo)) {
+            queue.poll();
+            queue.offer(jobPo);
+        }
+    }
+
+    protected abstract JobPo getJob(String taskTrackerNodeGroup, String jobId);
+
     /**
      * 锁定任务
      */
@@ -131,6 +151,32 @@ public abstract class AbstractPreLoader implements PreLoader {
     protected abstract List<JobPo> load(String loadTaskTrackerNodeGroup, int loadSize);
 
     private JobPo get(String taskTrackerNodeGroup) {
+
+        JobPriorityBlockingQueue queue = getQueue(taskTrackerNodeGroup);
+
+        if (queue.size() / loadSize < factor) {
+            // 触发加载的请求
+            if (!LOAD_SIGNAL.contains(taskTrackerNodeGroup)) {
+                LOAD_SIGNAL.add(taskTrackerNodeGroup);
+            }
+        }
+        JobPo jobPo = queue.poll();
+        if (jobPo != null && jobPo.getPriority() == Integer.MIN_VALUE) {
+            if (CollectionUtils.isNotEmpty(jobPo.getInternalExtParams())) {
+                if (jobPo.getInternalExtParams().containsKey(Constants.OLD_PRIORITY)) {
+                    try {
+                        int priority = Integer.parseInt(jobPo.getInternalExtParam(Constants.OLD_PRIORITY));
+                        jobPo.getInternalExtParams().remove(Constants.OLD_PRIORITY);
+                        jobPo.setPriority(priority);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+            }
+        }
+        return jobPo;
+    }
+
+    private JobPriorityBlockingQueue getQueue(String taskTrackerNodeGroup) {
         JobPriorityBlockingQueue queue = JOB_MAP.get(taskTrackerNodeGroup);
         if (queue == null) {
             queue = new JobPriorityBlockingQueue(loadSize);
@@ -139,14 +185,6 @@ public abstract class AbstractPreLoader implements PreLoader {
                 queue = oldQueue;
             }
         }
-
-        if (queue.size() / loadSize < factor) {
-            // 触发加载的请求
-            if (!LOAD_SIGNAL.contains(taskTrackerNodeGroup)) {
-                LOAD_SIGNAL.add(taskTrackerNodeGroup);
-            }
-        }
-        return queue.poll();
+        return queue;
     }
-
 }

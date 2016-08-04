@@ -102,7 +102,8 @@
                         class="sr-only">关闭</span></button>
                 <h2 class="modal-title">编辑任务信息</h2>
                 <h5 style="color:indianred;" id="cronEditNotice">提示：该任务为Cron任务，修改只对当前这次执行有效，如需永久生效，请到《Cron任务》菜单中修改</h5>
-                <h5 style="color:indianred;" id="repeatEditNotice">提示：该任务为Repeat任务，修改只对当前这次执行有效，如需永久生效，请到《Repeat任务》菜单中修改</h5>
+                <h5 style="color:indianred;" id="repeatEditNotice">
+                    提示：该任务为Repeat任务，修改只对当前这次执行有效，如需永久生效，请到《Repeat任务》菜单中修改</h5>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -252,10 +253,32 @@
 
         LTS.colFormatter.optFormat = function (v, row) {
             var logUrl = "job-logger.htm?realTaskId=" + row['realTaskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
-            return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
+            return '<a class="job-trigger-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '" href="javascript:;"><span class="label label-info"><i class="fa fa-file-code-o"></i> 触发</span></a>&nbsp;' +
+                    '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '" cronExpression="' + row['cronExpression'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
         }
+
+        $(document).on("click", ".job-trigger-btn", function () {
+            var that = $(this);
+            var jobId = that.attr("jobId");
+            var taskTrackerNodeGroup = that.attr("taskTrackerNodeGroup");
+
+            var params = {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup};
+            $.ajax({
+                url: 'api/job-queue/executing-job-trigger',
+                type: 'POST',
+                dataType: 'json',
+                data: params,
+                success: function (json) {
+                    if (json && json.success) {
+                        swal("触发成功!", "恭喜你", "success");
+                    } else {
+                        json ? swal(json['msg']) : {};
+                    }
+                }
+            });
+        });
 
         $(document).on("click", ".job-del-btn", function () {
             var that = $(this);
