@@ -272,7 +272,7 @@
                 data: params,
                 success: function (json) {
                     if (json && json.success) {
-                        swal("触发成功!", "恭喜你", "success");
+                        swal("触发成功!", "等待TaskTracker接收执行", "success");
                     } else {
                         json ? swal(json['msg']) : {};
                     }
