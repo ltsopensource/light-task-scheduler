@@ -53,6 +53,7 @@ public class MysqlExecutableJobQueue extends AbstractMysqlJobQueue implements Ex
     @Override
     public boolean add(JobPo jobPo) {
         try {
+            jobPo.setGmtModified(SystemClock.now());
             return super.add(getTableName(jobPo.getTaskTrackerNodeGroup()), jobPo);
         } catch (TableNotExistException e) {
             // 表不存在

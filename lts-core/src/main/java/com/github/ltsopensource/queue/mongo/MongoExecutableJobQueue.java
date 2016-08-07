@@ -79,7 +79,6 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             if (!EXIST_TABLE.contains(tableName)) {
                 createQueue(jobPo.getTaskTrackerNodeGroup());
             }
-            jobPo.setGmtCreated(SystemClock.now());
             jobPo.setGmtModified(jobPo.getGmtCreated());
             template.save(tableName, jobPo);
         } catch (DuplicateKeyException e) {

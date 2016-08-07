@@ -1,7 +1,6 @@
 package com.github.ltsopensource.core.support;
 
 import com.github.ltsopensource.core.commons.utils.BeanUtils;
-import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.Job;
@@ -10,7 +9,6 @@ import com.github.ltsopensource.core.support.bean.BeanCopierFactory;
 import com.github.ltsopensource.core.support.bean.PropConverter;
 import com.github.ltsopensource.queue.domain.JobPo;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

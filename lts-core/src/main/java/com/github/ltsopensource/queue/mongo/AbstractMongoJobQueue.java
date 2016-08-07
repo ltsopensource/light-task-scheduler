@@ -5,6 +5,7 @@ import com.github.ltsopensource.admin.response.PaginationRsp;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.JobQueue;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.store.mongo.MongoRepository;
@@ -86,6 +87,7 @@ public abstract class AbstractMongoJobQueue extends MongoRepository implements J
         addUpdateField(operations, "taskTrackerNodeGroup", request.getTaskTrackerNodeGroup());
         addUpdateField(operations, "repeatCount", request.getRepeatCount());
         addUpdateField(operations, "repeatInterval", request.getRepeatInterval());
+        addUpdateField(operations, "gmtModified", SystemClock.now());
         return operations;
     }
 

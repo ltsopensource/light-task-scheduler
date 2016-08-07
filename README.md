@@ -18,6 +18,8 @@ oschina地址:
 这两个地址都会同步更新。感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
 ##1.7.0-SNAPSHOT(master)变更主要点
+1. 增加手动触发任务按钮
+2. 优化PreLoader
 
 ## 框架概况
 LTS 有主要有以下四种节点：
@@ -94,7 +96,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 
 ##项目编译打包
 项目主要采用maven进行构建，目前提供shell脚本的打包。
-环境依赖：`Java(jdk1.7)` `Maven`
+环境依赖：`Java(jdk1.6+)` `Maven`
 
 用户使用一般分为两种：
 ###1、Maven构建

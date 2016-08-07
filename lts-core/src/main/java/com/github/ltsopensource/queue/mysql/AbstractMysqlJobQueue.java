@@ -6,6 +6,7 @@ import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.CharacterUtils;
 import com.github.ltsopensource.core.json.JSON;
+import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.JobQueue;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.queue.mysql.support.RshHolder;
@@ -142,7 +143,8 @@ public abstract class AbstractMysqlJobQueue extends JdbcAbstractAccess implement
                 .setOnNotNull("submit_node_group", request.getSubmitNodeGroup())
                 .setOnNotNull("task_tracker_node_group", request.getTaskTrackerNodeGroup())
                 .setOnNotNull("repeat_count", request.getRepeatCount())
-                .setOnNotNull("repeat_interval", request.getRepeatInterval());
+                .setOnNotNull("repeat_interval", request.getRepeatInterval())
+                .setOnNotNull("gmt_modified", SystemClock.now());
     }
 
     private WhereSql buildWhereSql(JobQueueReq request) {

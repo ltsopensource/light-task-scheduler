@@ -12,7 +12,7 @@ import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 /**
  * 用来手动触发任务
  * 内部做的事情就是将某个任务加载到内存中
- * Created by hugui.hg on 8/4/16.
+ * @author Robert HG (254963746@qq.com) on 8/4/16.
  */
 public class TriggerJobManuallyHttpCmd implements HttpCmdProc {
 
