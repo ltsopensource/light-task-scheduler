@@ -1,5 +1,6 @@
 package com.github.ltsopensource.core.support.bean;
 
+import com.github.ltsopensource.core.commons.utils.BeanUtils;
 import com.github.ltsopensource.core.compiler.AbstractCompiler;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.support.JobUtils;
@@ -27,12 +28,33 @@ public class BeanCopierFactoryTest {
     }
 
     @Test
-    public void testJdkCopy(){
+    public void testBeanCopier() {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000000; i++) {
+            JobUtils.copy(jobPo);
+        }
+        // 856
+        System.out.println("BeanCopier cost time " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void testClone() {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 1000000; i++) {
+            BeanUtils.deepClone(jobPo);
+        }
+        // 50908
+        System.out.println("Clone cost time " + (System.currentTimeMillis() - start));
+    }
+
+    @Test
+    public void testJdkCopy() {
         AbstractCompiler.setCompiler("jdk");
         JobUtils.copy(jobPo);
     }
+
     @Test
-    public void testJavassistCopy(){
+    public void testJavassistCopy() {
         AbstractCompiler.setCompiler("javassist");
         JobUtils.copy(jobPo);
     }
@@ -62,7 +84,7 @@ public class BeanCopierFactoryTest {
     }
 
     @Test
-    public void testDeepCopy(){
+    public void testDeepCopy() {
         BeanCopier<JobPo, JobPo> beanCopier = BeanCopierFactory.createCopier(JobPo.class, JobPo.class, true);
         JobPo jobPo2 = new JobPo();
         beanCopier.copyProps(jobPo, jobPo2);
