@@ -32,6 +32,7 @@ public class CodecFactory {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
+                out.flip();
                 return out;
             }
             return null;
