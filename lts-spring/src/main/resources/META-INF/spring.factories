@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.ltsopensource.spring.boot.JobTrackerAutoConfiguration,\
+com.github.ltsopensource.spring.boot.JobClientAutoConfiguration,\
+com.github.ltsopensource.spring.boot.TaskTrackerAutoConfiguration,\
+com.github.ltsopensource.spring.boot.MonitorAutoConfiguration

@@ -1,0 +1,325 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>节点管理</h2>
+        <ol class="breadcrumb">
+            <li><a>节点管理</a></li>
+            <li class="active"><b>节点管理</b></li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h3><span class="text-navy">节点管理</span></h3>
+                </div>
+                <div class="ibox-content">
+                    <form method="post" id="form" class="form-horizontal" onsubmit="return false">
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">节点标识</label>
+
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" name="identity"
+                                       placeholder="请输入节点标识">
+                            </div>
+                            <label class="col-sm-1 control-label">IP</label>
+
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" name="ip"
+                                       placeholder="请输入IP">
+                            </div>
+                            <label class="col-sm-1 control-label">节点组</label>
+
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" name="nodeGroup"
+                                       placeholder="请输入节点组">
+                            </div>
+                            <label class="col-sm-1 control-label">节点类型</label>
+
+                            <div class="col-sm-2">
+                                <select name="nodeType" class="form-control">
+                                    <option value="">所有</option>
+                                    <option value="JOB_CLIENT">JOB_CLIENT</option>
+                                    <option value="TASK_TRACKER">TASK_TRACKER</option>
+                                    <option value="JOB_TRACKER">JOB_TRACKER</option>
+                                    <option value="MONITOR">MONITOR</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label">状态</label>
+
+                            <div class="col-sm-2">
+                                <select name="available" class="form-control">
+                                    <option value="">所有</option>
+                                    <option value="true">正常</option>
+                                    <option value="false">禁用</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">创建时间</label>
+
+                            <div class="col-sm-2">
+                                <input class="form-control datepicker" type="text" style="width:160px"
+                                       id="startDate"
+                                       name="startDate"
+                                       date-format="yyyy-MM-dd HH:mm:ss"
+                                       placeholder="yyyy-MM-dd HH:mm:ss"/>
+                            </div>
+                            <label class="control-label" style="width: 20px;float: left;">到</label>
+
+                            <div class="col-sm-2">
+                                <input class="form-control datepicker" type="text" style="width:160px"
+                                       id="endDate"
+                                       name="endDate"
+                                       date-format="yyyy-MM-dd HH:mm:ss"
+                                       placeholder="yyyy-MM-dd HH:mm:ss"/>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-primary" type="button" id="searchBtn">
+                                    搜索
+                                </button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-warning" type="button" id="reSubscribeBtn" title="强制刷新:会从注册中心重新拉取节点信息">
+                                    强制刷新
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content" id="ltstableContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="ltstable" type="text/html">
+    <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
+        <thead>
+        <tr>
+            <th data-toggle="true">节点标识</th>
+            <th data-hide="all">集群名称</th>
+            <th>节点类型</th>
+            <th>节点组名</th>
+            <th data-hide="phone,tablet">节点创建时间</th>
+            <th>机器</th>
+            <th>工作线程数</th>
+            <th data-hide="phone,tablet">状态</th>
+            <th data-hide="all">CMD端口</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each rows as row index}}
+        <tr>
+            <td>{{row.identity}}</td>
+            <td>{{row.clusterName}}</td>
+            <td>{{row.nodeType}}</td>
+            <td>{{row.group | format:'formatGroup',row}}</td>
+            <td>{{row.createTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.ip | format:'ipLabel',row}}</td>
+            <td>{{row.threads | format:'threadLabel',row}}</td>
+            <td>{{row.available | format:'availableLabel'}}</td>
+            <td>{{row.httpCmdPort }}</td>
+            <td>{{row.opt | format:'optFormat',row}}</td>
+        </tr>
+        {{/each}}
+        {{if results == 0}}
+        <tr>
+            <td colspan="15">暂无数据</td>
+        </tr>
+        {{/if}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="9">
+                <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
+                <ul class="pagination-sm pull-right"></ul>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+
+<div class="modal inmodal" id="jvmInfo-modal" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content animated rubberBand">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                        class="sr-only">关闭</span></button>
+                <h2 class="modal-title">节点JVM信息</h2>
+            </div>
+            <div class="modal-body">
+                <div class="row" id="jvmInfo">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var KYE_LABEL_MAP = {
+        HostName: "主机名",
+        LocalIp: "主机IP",
+        PID: " 进程PID",
+        StartTime: "启动时间",
+        InputArguments: "启动参数",
+        Arch: "硬件平台",
+        AvailableProcessors: "可用CPU个数",
+        OSName: "操作系统",
+        OSVersion: "操作系统版本",
+        FileEncode: "文件编码",
+        JVM: "JVM名称",
+        JavaVersion: "JavaVersion",
+        JavaSpecificationVersion: "JavaSpecVersion",
+        JavaHome: "JavaHome",
+        JavaLibraryPath: "JavaLibraryPath",
+        LoadedClassCount: "当前装载的类总数",
+        TotalLoadedClassCount: "总共装载过的类总数",
+        UnloadedClassCount: "卸载的类总数",
+        TotalCompilationTime: "总共编译时间"
+    };
+
+    $(document).ready(function () {
+
+        LTS.colFormatter.ipLabel = function (v, row) {
+            if (row['nodeType'] == 'JOB_TRACKER') {
+                return row['hostName'] + "<br/>(" + row['ip'] + ":" + row['port'] + ")";
+            }
+            return row['hostName'] + "<br/>(" + row['ip'] + ")";
+        };
+
+        LTS.colFormatter.threadLabel = function (v, row) {
+            if (row['nodeType'] == 'TASK_TRACKER') {
+                return v;
+            }
+            return '无';
+        };
+        LTS.colFormatter.availableLabel = function (v) {
+            if (v) {
+                return "正常";
+            } else {
+                return "禁用";
+            }
+        };
+        LTS.colFormatter.optFormat = function (v, row) {
+            return '<a href="javascript:void(0);" class="jvm-info-icon" identity="'+ row.identity +'" target="_blank" title="JVM信息"><span class="label label-info"><i class="fa fa-info-circle"></i> JVM</span></a>';
+        };
+        var ltsTable = $("#ltstableContainer").ltsTable({
+            url: 'api/node/node-list-get',
+            templateId: 'ltstable'
+        });
+
+        $(document).on("click", "#searchBtn", function () {
+            var params = {};
+            $.each($('#form').parent().find(".form-control"), function () {
+                var name = $(this).attr("name");
+                var value = $(this).val();
+                params[name] = value;
+            });
+            ltsTable.post(params, 1);
+        });
+        $("#searchBtn").trigger("click");
+
+        $(document).on("click", "#reSubscribeBtn", function(){
+
+            $.ajax({
+                url: 'api/node/registry-re-subscribe.do',
+                type: 'POST',
+                dataType: 'JSON',
+                data: {},
+                success: function (json) {
+                    if (json && json['success']) {
+                        setTimeout(function(){
+                            location.href = location.href;
+                        }, 1000);
+                    } else {
+                        if (json && json['msg']) {
+                            swal(json['msg']);
+                        }
+                    }
+                }
+            });
+
+        });
+
+        $(document).on("click", ".jvm-info-icon", function(){
+            var identity = $(this).attr("identity");
+            console.log(identity);
+
+            $.ajax({
+                url: 'api/jvm/node-jvm-info-get.do',
+                type: 'GET',
+                dataType: 'JSON',
+                data: {identity: identity},
+                success: function (json) {
+                    if (json && json['success'] && json['results'] == 1) {
+                        var data = JSON.parse(json.rows[0]);
+                        $.each(data, function (key, value) {
+                            if (key == 'StartTime') {
+                                value = DateUtil.formatYMDHMD(value);
+                            }
+                        });
+                        showJVMInfo(identity, data);
+                    } else {
+                        if (json && json['msg']) {
+                            swal(json['msg']);
+                        }
+                        showJVMInfo('', {});
+                    }
+                }
+            });
+        });
+    });
+
+    function showJVMInfo(identity, data) {
+        var html = template("jvm-info-template", {
+            identity: identity,
+            data: data,
+            KYE_LABEL_MAP: KYE_LABEL_MAP
+        });
+        $("#jvmInfo").html(html);
+        $("#jvmInfo-modal").modal("show");
+    }
+</script>
+
+<script id="jvm-info-template" type="text/html">
+    <div class="ibox border-bottom">
+        <div class="ibox-title">
+            <h5>JVM信息 <span class="text-navy">{{identity}}</span></h5>
+        </div>
+        <div class="ibox-content" id="cloud-unit">
+            <table class="table table-stripped footable footable-loaded no-paging" style="word-break:break-all; word-wrap:break-all;">
+                <thead>
+                <tr>
+                    <th class="footable-sortable" style="cursor: default;width:140px;">属性名称</th>
+                    <th class="footable-sortable" style="cursor: default;">属性值</th>
+                </tr>
+                </thead>
+                <tbody>
+                <div class="hide">{{index=0}}</div>
+                {{each KYE_LABEL_MAP as value key}}
+                <tr class="{{index++ % 2 == 0 ? 'footable-odd' : 'footable-even'}}" style="display: table-row;">
+                    <td><span class="footable-toggle"></span>{{value}}</td>
+                    <td>{{data[key]}}</td>
+                </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</script>

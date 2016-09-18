@@ -1,0 +1,52 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <div class="env-element" id="current-env" env="daily">LTS管理后台</div>
+                </div>
+                <div class="logo-element">LTS</div>
+            </li>
+            <li>
+                <a href="${contextPath}/index.htm">
+                    <i class="fa fa-th"></i> <span class="nav-label">首页</span>
+                    <span class="label label-info pull-right">推荐</span></a>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-server"></i> <span class="nav-label">节点管理</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="${contextPath}/node-manager.htm">节点管理</a></li>
+                    <li><a href="${contextPath}/node-group-manager.htm">节点组管理</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-random"></i> <span class="nav-label">任务队列管理</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="${contextPath}/job-add.htm">任务添加</a></li>
+                    <li><a href="${contextPath}/cron-job-queue.htm">Cron任务</a></li>
+                    <li><a href="${contextPath}/repeat-job-queue.htm">Repeat任务</a></li>
+                    <li><a href="${contextPath}/suspend-job-queue.htm">暂停任务</a></li>
+                    <li><a href="${contextPath}/executing-job-queue.htm">执行中的任务</a></li>
+                    <li><a href="${contextPath}/executable-job-queue.htm">等待执行的任务</a></li>
+                    <li><a href="${contextPath}/load-job.htm">手动加载任务</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-file-text-o"></i> <span class="nav-label">日志</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="${contextPath}/job-logger.htm">任务日志</a></li>
+                    <li><a href="${contextPath}/node-onoffline-log.htm">节点上下线日志</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="fa fa-bar-chart"></i> <span class="nav-label">监控报警</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse">
+                    <li><a href="${contextPath}/monitor/jobtracker-monitor.htm">JobTracker数据监控</a></li>
+                    <li><a href="${contextPath}/monitor/tasktracker-monitor.htm">TaskTracker数据监控</a></li>
+                    <li><a href="${contextPath}/monitor/jobClient-monitor.htm">JobClient数据监控</a></li>
+##                    <li><a href="h2" target="_blank">H2-Console</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

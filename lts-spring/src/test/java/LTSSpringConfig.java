@@ -1,9 +1,10 @@
-import com.lts.jobclient.JobClient;
-import com.lts.jobtracker.JobTracker;
-import com.lts.spring.JobClientFactoryBean;
-import com.lts.spring.JobTrackerFactoryBean;
-import com.lts.spring.TaskTrackerAnnotationFactoryBean;
-import com.lts.tasktracker.TaskTracker;
+import com.github.ltsopensource.jobclient.JobClient;
+import com.github.ltsopensource.jobtracker.JobTracker;
+import com.github.ltsopensource.spring.JobClientFactoryBean;
+import com.github.ltsopensource.spring.JobTrackerFactoryBean;
+import com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean;
+import com.github.ltsopensource.tasktracker.TaskTracker;
+
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,7 +27,8 @@ public class LTSSpringConfig implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    @Bean(name = "jobClient")
+    @SuppressWarnings("rawtypes")
+	@Bean(name = "jobClient")
     public JobClient getJobClient() throws Exception {
         JobClientFactoryBean factoryBean = new JobClientFactoryBean();
         // TODO 设置一些配置 属性

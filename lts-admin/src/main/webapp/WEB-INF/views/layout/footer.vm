@@ -1,0 +1,66 @@
+<div class="footer">
+    <div>Copyright © 2014 - 2016 <strong>LTS</strong>. All Rights Reserved</div>
+</div>
+
+<!-- Custom and plugin javascript -->
+<script>
+    // 自动高亮多级菜单, 必须放在metisMenu之前执行
+    $(document).ready(function () {
+        var pgurl = window.location.href;
+        // 三级菜单高亮：ul#side-menu -> li -> ul.nav -> li -> a -> ul.nav -> li -> a
+        $("ul#side-menu>li>ul.nav>li>ul.nav>li>a").each(function () {
+            if ($(this).attr("href") != '#' && pgurl.indexOf($(this).attr("href").split("?")[0]) >= 0) {
+                $(this).parent().addClass("active");
+                $(this).parent().parent().parent().closest('li').addClass("active");
+                $(this).parent().parent().parent().parent().closest('li').addClass("active");
+            }
+        });
+        // 二级菜单高亮：ul#side-menu -> li -> ul.nav -> li -> a
+        $("ul#side-menu>li>ul.nav>li>a").each(function () {
+            if ($(this).attr("href") != '#' && pgurl.indexOf($(this).attr("href").split("?")[0]) >= 0) {
+                $(this).parent().addClass("active");
+                $(this).parent().parent().closest('li').addClass("active");
+            }
+        });
+        // 一级菜单高亮：ul#side-menu -> li -> a
+        $("ul#side-menu>li>a").each(function () {
+            if ($(this).attr("href") != '#' && pgurl.indexOf($(this).attr("href").split("?")[0]) >= 0) {
+                $(this).parent().addClass("active");
+            }
+        });
+
+        $(document).on("focus", ".datepicker", function () {
+            WdatePicker({el: $(this).attr("id"), dateFmt: $(this).attr("date-format"), lang: 'zh-cn', qsEnabled: false})
+        });
+
+        $('select').addClass("selectpicker");
+
+        $(document).on("click", "button[type='reset']", function(){
+            var form = $($(this)[0].form);
+            form[0].reset();
+            form.find('select').selectpicker('render');
+        });
+    });
+
+</script>
+
+<!-- Mainly scripts -->
+<script src="${contextPath}/assets/js/plugins/metisMenu/metisMenu.min.js"></script>
+<script src="${contextPath}/assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+<script src="${contextPath}/assets/js/inspinia.js"></script>
+##<script src="assets/js/plugins/pace/pace.min.js"></script>
+<script src="${contextPath}/assets/js/plugins/sweetalert/sweetalert.min.js"></script>
+
+<!-- FooTable -->
+<script src="${contextPath}/assets/js/plugins/footable/footable.all.min.js"></script>
+<script src="${contextPath}/assets/js/plugins/pagination/jquery.twbsPagination.min.js"></script>
+<!-- JS Template -->
+<script src="${contextPath}/assets/js/plugins/artTemplate/template.js"></script>
+<script src="${contextPath}/assets/js/plugins/datepicker/WdatePicker.js"></script>
+<!-- Autocomplete -->
+<script src="${contextPath}/assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
+
+<script src="${contextPath}/assets/js/plugins/select/bootstrap-select.min.js"></script>
+<script src="${contextPath}/assets/js/plugins/highcharts/highcharts-4.1.8.js"></script>
+<script src="${contextPath}/assets/js/lts.js"></script>

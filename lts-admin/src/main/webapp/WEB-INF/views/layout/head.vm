@@ -1,0 +1,25 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+#set($contextPath= $request.getContextPath())
+<title>管理后台</title>
+
+<link rel="shortcut icon" href="${contextPath}/assets/favicon.ico">
+
+<link href="${contextPath}/assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="${contextPath}/assets/font-awesome/css/font-awesome.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/animate.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/plugins/switchery/switchery.css" rel="stylesheet">
+<!-- FooTable -->
+<link href="${contextPath}/assets/css/plugins/footable/footable.core.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/plugins/iCheck/custom.css" rel="stylesheet">
+
+<link href="${contextPath}/assets/css/style.min.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/custom.css" rel="stylesheet">
+<link href="${contextPath}/assets/css/plugins/select/bootstrap-select.min.css" rel="stylesheet">
+
+<script src="${contextPath}/assets/js/jquery-2.1.1.js"></script>
+<script src="${contextPath}/assets/js/bootstrap.min.js"></script>
+<script src="${contextPath}/assets/js/date-util.js"></script>

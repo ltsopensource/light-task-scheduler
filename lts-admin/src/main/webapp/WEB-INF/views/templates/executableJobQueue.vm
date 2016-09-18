@@ -1,0 +1,457 @@
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-12">
+        <h2>等待执行的任务</h2>
+        <ol class="breadcrumb">
+            <li><a>任务队列管理</a></li>
+            <li class="active"><b>等待执行的任务</b></li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <h3><span class="text-navy">等待执行的任务</span></h3>
+                </div>
+                <div class="ibox-content">
+                    <form method="post" id="form" class="form-horizontal" onsubmit="return false">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" style="width:10%">任务ID</label>
+
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" name="realTaskId"
+                                       placeholder="请输入任务ID(TaskId)">
+                            </div>
+
+                            <label class="col-sm-2 control-label" style="width:10%">提交节点组</label>
+
+                            <div class="col-sm-3">
+                                <select name="submitNodeGroup" class="form-control">
+                                    <option value="">-- 不限 --</option>
+                                    #foreach($nodeGroup in $jobClientNodeGroups)
+                                        <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                    #end
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label" style="width:10%">反馈客户端</label>
+
+                            <div class="col-sm-2">
+                                <select name="needFeedback" class="form-control">
+                                    <option value="">-- 不限 --</option>
+                                    <option value="true">需要</option>
+                                    <option value="false">不需要</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label" style="width:10%">执行节点组</label>
+
+                            <div class="col-sm-3">
+                                <select name="taskTrackerNodeGroup" class="form-control">
+                                    #foreach($nodeGroup in $taskTrackerNodeGroups)
+                                        <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                    #end
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label" style="width:10%">任务类型</label>
+
+                            <div class="col-sm-2">
+                                <select name="jobType" class="form-control">
+                                    <option value="">-- 不限 --</option>
+                                    <option value="REAL_TIME">实时任务</option>
+                                    <option value="TRIGGER_TIME">定时任务</option>
+                                    <option value="CRON">Cron任务</option>
+                                    <option value="REPEAT">Repeat任务</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-1" style="width:70px;">
+                                <button class="btn btn-primary" type="button" id="searchBtn">
+                                    搜索
+                                </button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-warning" type="reset" id="resetBtn">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox">
+                <div class="ibox-content" id="ltstableContainer">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal inmodal" id="job-edit-modal" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width: 600px;">
+        <div class="modal-content animated rubberBand">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span
+                        class="sr-only">关闭</span></button>
+                <h2 class="modal-title">编辑任务信息</h2>
+                <h5 style="color:indianred;" id="cronEditNotice">提示：该任务为Cron任务，修改只对当前这次执行有效，如需永久生效，请到《Cron任务》菜单中修改</h5>
+                <h5 style="color:indianred;" id="repeatEditNotice">
+                    提示：该任务为Repeat任务，修改只对当前这次执行有效，如需永久生效，请到《Repeat任务》菜单中修改</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <form method="post" id="editForm" class="form-horizontal" onsubmit="return false">
+                        <input type="hidden" class="form-control" name="jobId"/>
+                        <input type="hidden" class="form-control" name="taskId"/>
+                        <input type="hidden" class="form-control" name="isSchedule"/>
+                        <input type="hidden" class="form-control" name="taskTrackerNodeGroup"/>
+
+                        <div class="form-group" id="triggerTimeInput">
+                            <label class="col-sm-2 control-label w_120">触发时间</label>
+
+                            <div class="col-sm-3">
+                                <input class="form-control datepicker" type="text" style="width:160px"
+                                       id="triggerTime"
+                                       name="triggerTime"
+                                       date-format="yyyy-MM-dd HH:mm:ss"
+                                       placeholder="请输入触发时间"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">反馈客户端</label>
+
+                            <div class="col-sm-3 w_250">
+                                <select name="needFeedback" class="form-control">
+                                    <option value="true">需要</option>
+                                    <option value="false" selected>不需要</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">优先级</label>
+
+                            <div class="col-sm-3 w_250">
+                                <input type="text" class="form-control" name="priority" value="100"
+                                       placeholder="必须为数字，数值越小，优先级越大【必填】">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">最大重试次数</label>
+
+                            <div class="col-sm-3 w_250">
+                                <input type="text" class="form-control" name="maxRetryTimes" value="0"
+                                       placeholder="最大重试次数, 必须为非负数【必填】">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">提交节点组</label>
+
+                            <div class="col-sm-3 w_250">
+                                <select name="submitNodeGroup" class="form-control">
+                                    <option value="">-- 请选择提交节点组 --</option>
+                                    #foreach($nodeGroup in $jobClientNodeGroups)
+                                        <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label w_120">用户参数</label>
+
+                            <div class="col-sm-4 w_340">
+                                <textarea type="text" class="form-control" name="extParams"
+                                          placeholder="请输入用户参数 JSON格式【非必填】"></textarea>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-1 col-sm-offset-3" style="width:70px;">
+                                <button class="btn btn-primary" type="button" id="editBtn">
+                                    修改
+                                </button>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-warning" data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="ltstable" type="text/html">
+    <table class="table table-stripped toggle-arrow-tiny footable" data-page-size="10">
+        <thead>
+        <tr>
+            <th data-toggle="true">任务ID</th>
+            <th data-hide="all">提交节点组</th>
+            <th>类型</th>
+            <th>执行节点组</th>
+            <th>执行时间</th>
+            <th>Cron表达式</th>
+            <th data-hide="phone,tablet">重复时间间隔</th>
+            <th data-hide="all">重复次数</th>
+            <th data-hide="all">优先级</th>
+            <th data-hide="all">重试次数</th>
+            <th>反馈客户端</th>
+            <th data-hide="all">依赖上一周期</th>
+            <th data-hide="all">用户参数</th>
+            <th data-hide="phone,tablet">创建时间</th>
+            <th data-hide="all">修改时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{each rows as row index}}
+        <tr>
+            <td>{{row.realTaskId}}</td>
+            <td>{{row.submitNodeGroup}}</td>
+            <td>{{row.jobType | format: 'jobTypeFormat', row}}</td>
+            <td>{{row.taskTrackerNodeGroup}}</td>
+            <td>{{row.triggerTime | dateFormat:'yyyy-MM-dd HH:mm:ss' }}</td>
+            <td>{{row.cronExpression}}</td>
+            <td>{{row.repeatInterval | format: 'repeatIntervalFormat', row}}</td>
+            <td>{{row.repeatCount | format:'repeatCountFormat', row}}</td>
+            <td>{{row.priority}}</td>
+            <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
+            <td>{{row.needFeedback | format:'needFeedbackLabel',row}}</td>
+            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
+            <td>{{row.extParams | format:'stringifyJSON'}}</td>
+            <td>{{row.gmtCreated | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.gmtModified | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
+            <td>{{row.opt | format:'optFormat',row}}</td>
+        </tr>
+        {{/each}}
+        {{if results == 0}}
+        <tr>
+            <td colspan="15">暂无数据</td>
+        </tr>
+        {{/if}}
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="9">
+                <span>共{{results}}条记录，每页展示{{pageSize}}条</span>
+                <ul class="pagination-sm pull-right"></ul>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</script>
+
+<script>
+    $(document).ready(function () {
+
+        LTS.colFormatter.optFormat = function (v, row) {
+            var logUrl = "job-logger.htm?realTaskId=" + row['realTaskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
+            return '<a class="job-trigger-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '" href="javascript:;"><span class="label label-info"><i class="fa fa-file-code-o"></i> 触发</span></a>&nbsp;' +
+                    '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
+                    '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
+                    '<a href="javascript:;" class="job-del-btn" jobId="' + row['jobId'] + '" cronExpression="' + row['cronExpression'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-primary" style="background-color: #DD6B55;"><i class="fa fa-trash-o"></i> 删除</span></a>';
+        }
+
+        $(document).on("click", ".job-trigger-btn", function () {
+            var that = $(this);
+            var jobId = that.attr("jobId");
+            var taskTrackerNodeGroup = that.attr("taskTrackerNodeGroup");
+
+            var params = {jobId: jobId, taskTrackerNodeGroup: taskTrackerNodeGroup};
+            $.ajax({
+                url: 'api/job-queue/executing-job-trigger',
+                type: 'POST',
+                dataType: 'json',
+                data: params,
+                success: function (json) {
+                    if (json && json.success) {
+                        swal("触发成功!", "等待TaskTracker接收执行", "success");
+                    } else {
+                        json ? swal(json['msg']) : {};
+                    }
+                }
+            });
+        });
+
+        $(document).on("click", ".job-del-btn", function () {
+            var that = $(this);
+
+            var jobId = that.attr("jobId");
+            var taskTrackerNodeGroup = that.attr("taskTrackerNodeGroup");
+            var cronExpression = that.attr("cronExpression");
+            var msg = "确认要删除该条任务吗?";
+
+            swal({
+                title: "确认要删除该任务吗？",
+                text: cronExpression ? "该条是Cron任务，Cron任务队列中的也将该任务删除掉，请谨慎操作。" : null,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确认删除",
+                closeOnConfirm: false
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    $.ajax({
+                        url: 'api/job-queue/executable-job-delete',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            jobId: jobId,
+                            taskTrackerNodeGroup: taskTrackerNodeGroup,
+                            cronExpression: cronExpression
+                        },
+                        success: function (json) {
+                            if (json && json.success) {
+                                swal("删除成功!", "恭喜你", "success");
+                                that.parents("tr").remove();
+                            } else {
+                                json ? swal(json['msg']) : {};
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
+        $(document).on("click", ".job-edit-btn", function () {
+            var jobText = $(this).children("span.lts-data").text();
+            var job = JSON.parse(jobText);
+
+            if (job['cron']) {
+                $("#cronEditNotice").show();
+                $("#repeatEditNotice").hide();
+            } else if (job['repeatable']) {
+                $("#cronEditNotice").hide();
+                $("#repeatEditNotice").show();
+            } else {
+                $("#cronEditNotice").hide();
+                $("#repeatEditNotice").hide();
+            }
+
+            $.each($('#editForm').parent().find(".form-control"), function () {
+                var name = $(this).attr("name");
+                var value = job[name];
+                if (name == 'extParams') {
+                    if (value == null) {
+                        value = ''
+                    } else {
+                        value = JSON.stringify(value);
+                    }
+                } else if (name == 'isSchedule') {
+                    value = job['cronExpression'] ? 'true' : 'false';
+//                    if(value == 'true'){
+//                        $('#triggerTimeInput').hide();
+//                    }else{
+//                        $('#triggerTimeInput').show();
+//                    }
+                } else if (name == 'triggerTime') {
+                    value = DateUtil.formatYMDHMD(job['triggerTime']);
+                } else {
+                    value = value + '';
+                }
+                if ($(this)[0].tagName.toUpperCase() == 'SELECT') {
+                    $(this).selectpicker('val', value);
+                } else {
+                    $(this).val(value);
+                }
+            });
+            $("#job-edit-modal").modal("show");
+        });
+
+        $(document).on("click", "#editBtn", function () {
+            var params = {};
+            $.each($('#editForm').parent().find(".form-control"), function () {
+                var name = $(this).attr("name");
+                var value = $(this).val();
+                params[name] = value;
+            });
+
+            // params['isSchedule'] == 'false' &&
+            if (!params['triggerTime']) {
+                sweetAlert("请输入触发时间", "任务执行时间，格式：yyyy-MM-dd HH:mm:ss【必填】", "error");
+                return;
+            }
+            var priority = params['priority'];
+            if (!priority) {
+                sweetAlert("请输入优先级", "必须为数字，数值越小，优先级越大【必填】", "error");
+                return;
+            }
+            if (!LTS.ReExp.number.test(priority)) {
+                sweetAlert("优先级格式错误", "必须为数字，数值越小，优先级越大【必填】", "error");
+                return;
+            }
+            if (!params['submitNodeGroup'] && params['needFeedback'] == 'true') {
+                sweetAlert("请选择提交节点组", "需要反馈客户端必须选择提交节点组,如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+                return;
+            }
+            if (!params['maxRetryTimes'] || !/^\d+$/.test(params['maxRetryTimes'])) {
+                sweetAlert("最大重试次数必须为非负整数", "最大重试次数必须为非负整数", "error");
+                return;
+            }
+            var extParams = params['extParams'];
+            if (extParams) {
+                try {
+                    JSON.parse(extParams)
+                } catch (e) {
+                    sweetAlert("用户参数格式错误", "必须为JSON格式", "error");
+                    return;
+                }
+            }
+            // 请求修改数据
+            $.ajax({
+                url: 'api/job-queue/executable-job-update',
+                type: 'POST',
+                dataType: 'json',
+                data: params,
+                success: function (json) {
+                    if (json && json.success) {
+                        swal("修改成功!", "恭喜你", "success");
+                        $("#form")[0].reset();
+                        $("#form").find('select').selectpicker('render');
+                        $("input[name='taskId']").val(params['taskId']);
+                        $("#job-edit-modal").modal("hide");
+                        $("#searchBtn").trigger("click");
+                    } else {
+                        if (json && json.code == 'DELETE_OR_RUNNING') {
+                            swal('修改失败，该任务已经删除或者正在执行。');
+                            $("#form")[0].reset();
+                            $("#form").find('select').selectpicker('render');
+                            $("#job-edit-modal").modal("hide");
+                            $("#searchBtn").trigger("click");
+                        } else {
+                            json ? swal(json['msg']) : {};
+                        }
+                    }
+                }
+            });
+        });
+
+        var ltsTable = $("#ltstableContainer").ltsTable({
+            url: 'api/job-queue/executable-job-get',
+            templateId: 'ltstable'
+        });
+
+        $(document).on("click", "#searchBtn", function () {
+            var params = {};
+            $.each($('#form').parent().find(".form-control"), function () {
+                var name = $(this).attr("name");
+                var value = $(this).val();
+                params[name] = value;
+            });
+            var taskTrackerNodeGroup = params['taskTrackerNodeGroup'];
+            if (!taskTrackerNodeGroup) {
+                sweetAlert("请选择执行节点组", "如果列表中没有，请在节点组管理中添加，并启动改节点。", "error");
+                return;
+            }
+            ltsTable.post(params, 1);
+        });
+        $("#searchBtn").trigger("click");
+    });
+</script>

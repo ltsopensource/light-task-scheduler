@@ -7,10 +7,27 @@
 
     <display-name>LTS Admin</display-name>
 
+    <welcome-file-list>
+        <welcome-file>index.htm</welcome-file>
+    </welcome-file-list>
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:spring-core.xml</param-value>
     </context-param>
+
+    <filter>
+        <filter-name>loginAuthFilter</filter-name>
+        <filter-class>com.github.ltsopensource.admin.web.filter.LoginAuthFilter</filter-class>
+        <init-param>
+            <param-name>auth-config</param-name>
+            <param-value>auth.cfg</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>loginAuthFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
 
     <servlet>
         <servlet-name>spring</servlet-name>
@@ -33,7 +50,21 @@
     </servlet-mapping>
 
     <listener>
+        <listener-class>com.github.ltsopensource.admin.support.SystemInitListener</listener-class>
+    </listener>
+
+    <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
+
+    <!--<servlet>-->
+        <!--<servlet-name>H2Console</servlet-name>-->
+        <!--<servlet-class>com.github.ltsopensource.admin.web.support.H2ConsoleWebServlet</servlet-class>-->
+        <!--<load-on-startup>1</load-on-startup>-->
+    <!--</servlet>-->
+    <!--<servlet-mapping>-->
+        <!--<servlet-name>H2Console</servlet-name>-->
+        <!--<url-pattern>/h2/*</url-pattern>-->
+    <!--</servlet-mapping>-->
 
 </web-app>

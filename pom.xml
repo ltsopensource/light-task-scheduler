@@ -4,34 +4,40 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.lts</groupId>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <groupId>com.github.ltsopensource</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.4-SNAPSHOT</version>
+    <version>1.7.0-SNAPSHOT</version>
+    <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
         <module>lts-tasktracker</module>
         <module>lts-jobclient</module>
-        <module>lts-queue</module>
-        <module>lts-logger</module>
-        <module>lts-example</module>
         <module>lts-admin</module>
         <module>lts-spring</module>
+        <module>lts-startup</module>
+        <module>lts-monitor</module>
+        <module>lts</module>
     </modules>
 
     <properties>
-        <jedis.version>2.1.0</jedis.version>
-        <fastjson.version>1.1.41</fastjson.version>
+        <jedis.version>2.7.3</jedis.version>
+        <fastjson.version>1.2.7</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
-        <curator.version>1.1.10</curator.version>
+        <curator.version>2.9.1</curator.version>
         <zkclient.version>0.1</zkclient.version>
         <zk.version>3.4.5</zk.version>
-        <javassist.version>3.19.0-GA</javassist.version>
         <mongo.driver.version>3.0.2</mongo.driver.version>
         <morphia.version>1.0.0-rc1</morphia.version>
         <junit.version>4.11</junit.version>
-        <netty.version>4.0.13.Final</netty.version>
+        <netty.version>4.0.20.Final</netty.version>
         <jcl_version>1.1</jcl_version>
         <slf4j.version>1.7.5</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
@@ -40,9 +46,18 @@
         <mysql.version>5.1.26</mysql.version>
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
-        <reflectasm.version>1.11.0</reflectasm.version>
-        <hsqldb.version>2.3.2</hsqldb.version>
-        <springframework.version>4.1.6.RELEASE</springframework.version>
+        <h2.version>1.4.189</h2.version>
+        <springframework.version>4.2.5.RELEASE</springframework.version>
+        <mina.version>2.0.9</mina.version>
+        <hessian.version>4.0.38</hessian.version>
+        <mapdb.version>2.0-beta10</mapdb.version>
+        <groovy.version>2.4.5</groovy.version>
+        <jackson.version>2.6.3</jackson.version>
+        <aspectj.version>1.7.2</aspectj.version>
+        <javax.mail.version>1.5.4</javax.mail.version>
+        <spring.boot.version>1.3.3.RELEASE</spring.boot.version>
+        <javassist.version>3.20.0-GA</javassist.version>
+        <quartz.version>2.2.2</quartz.version>
     </properties>
 
     <dependencyManagement>
@@ -79,8 +94,8 @@
                 <version>${zkclient.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.netflix.curator</groupId>
-                <artifactId>curator-framework</artifactId>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
                 <version>${curator.version}</version>
             </dependency>
             <dependency>
@@ -103,19 +118,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.hsqldb</groupId>
-                <artifactId>hsqldb</artifactId>
-                <version>${hsqldb.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
                 <version>${mongo.driver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-dbutils</groupId>
-                <artifactId>commons-dbutils</artifactId>
-                <version>${dbutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -163,11 +168,6 @@
                 <version>${jcl_version}</version>
             </dependency>
             <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.sleepycat</groupId>
                 <artifactId>je</artifactId>
                 <version>${sleepycat.version}</version>
@@ -178,45 +178,196 @@
                 <version>${rocksdbjni.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.esotericsoftware</groupId>
-                <artifactId>reflectasm</artifactId>
-                <version>${reflectasm.version}</version>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.mina</groupId>
+                <artifactId>mina-core</artifactId>
+                <version>${mina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.caucho</groupId>
+                <artifactId>hessian</artifactId>
+                <version>${hessian.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mapdb</groupId>
+                <artifactId>mapdb</artifactId>
+                <version>${mapdb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.thoughtworks.xstream</groupId>
+                        <artifactId>xstream</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.codehaus.gpars</groupId>
+                        <artifactId>gpars</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ivy</groupId>
+                        <artifactId>ivy</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.fusesource.jansi</groupId>
+                        <artifactId>jansi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>${javax.mail.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-autoconfigure</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.javassist</groupId>
+                <artifactId>javassist</artifactId>
+                <version>${javassist.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
-                <configuration>
-                    <attach>true</attach>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <configuration>
+                            <attach>true</attach>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <source>1.6</source>
+                            <target>1.6</target>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
+                    </plugin>
+                    <!-- Source -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</connection>
+        <developerConnection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</developerConnection>
+        <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>hugui.hg</id>
+            <name>hugui</name>
+            <email>254963746@qq.com</email>
+        </developer>
+    </developers>
 </project>

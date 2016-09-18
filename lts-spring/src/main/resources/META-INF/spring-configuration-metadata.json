@@ -1,0 +1,207 @@
+{
+  "groups": [
+    {
+      "name": "lts.jobclient",
+      "type": "com.github.ltsopensource.spring.boot.properties.JobClientProperties",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobtracker",
+      "type": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.monitor",
+      "type": "com.github.ltsopensource.spring.boot.properties.MonitorProperties",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.tasktracker",
+      "type": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner",
+      "type": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties$DispatchRunner",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties",
+      "sourceMethod": "getDispatchRunner()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "lts.jobclient.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.data-path",
+      "type": "java.lang.String",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.node-group",
+      "type": "java.lang.String",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties"
+    },
+    {
+      "name": "lts.jobclient.use-retry-client",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobClientProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "lts.jobtracker.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.listen-port",
+      "type": "java.lang.Integer",
+      "description": "监听端口",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.jobtracker.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.JobTrackerProperties"
+    },
+    {
+      "name": "lts.monitor.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.monitor.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.MonitorProperties"
+    },
+    {
+      "name": "lts.tasktracker.bind-ip",
+      "type": "java.lang.String",
+      "description": "执行绑定的本地ip",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.cluster-name",
+      "type": "java.lang.String",
+      "description": "集群名称",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.configs",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "额外参数配置",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.data-path",
+      "type": "java.lang.String",
+      "description": "FailStore数据存储路径",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否使用shardRunner",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties$DispatchRunner",
+      "defaultValue": false
+    },
+    {
+      "name": "lts.tasktracker.dispatch-runner.shard-value",
+      "type": "java.lang.String",
+      "description": "shard的字段,默认taskId",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties$DispatchRunner"
+    },
+    {
+      "name": "lts.tasktracker.identity",
+      "type": "java.lang.String",
+      "description": "节点标识(可选)",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.node-group",
+      "type": "java.lang.String",
+      "description": "节点Group",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.registry-address",
+      "type": "java.lang.String",
+      "description": "zookeeper地址",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties"
+    },
+    {
+      "name": "lts.tasktracker.work-threads",
+      "type": "java.lang.Integer",
+      "description": "工作线程,默认64",
+      "sourceType": "com.github.ltsopensource.spring.boot.properties.TaskTrackerProperties",
+      "defaultValue": 0
+    }
+  ],
+  "hints": []
+}

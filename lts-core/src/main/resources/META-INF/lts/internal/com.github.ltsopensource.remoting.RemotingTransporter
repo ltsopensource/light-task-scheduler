@@ -1,0 +1,3 @@
+netty=com.github.ltsopensource.remoting.netty.NettyRemotingTransporter
+mina=com.github.ltsopensource.remoting.mina.MinaRemotingTransporter
+lts=com.github.ltsopensource.remoting.lts.LtsRemotingTransporter

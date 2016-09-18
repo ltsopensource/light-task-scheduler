@@ -1,0 +1,30 @@
+# 查看远程地址
+git remote -v
+
+# 添加新的远程地址
+git remote add osc https://git.oschina.net/hugui/light-task-scheduler.git
+git remote add github https://github.com/ltsopensource/light-task-scheduler.git
+
+# 推送develop的本地分支git, 所有分支的话使用--all
+git push -u osc develop
+git push -u github develop
+
+#推送所有的标签
+git push osc --tags
+git push github --tags
+
+#从远处拉取标签
+git fetch osc --tags
+git fetch github --tags
+
+# 查询远程标签
+git ls-remote --tags osc
+git ls-remote --tags github
+
+
+
+##
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean install -U -DskipTests
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -DskipTests
+~/Data/Software/apache-maven-3.2.5/bin/mvn clean deploy -P release -Dgpg.passphrase=密码 -DskipTests
+

@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>lts-parent</artifactId>
-        <groupId>com.lts</groupId>
-        <version>1.5.4-SNAPSHOT</version>
+        <groupId>com.github.ltsopensource</groupId>
+        <version>1.7.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,9 +13,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.lts</groupId>
+            <groupId>com.github.ltsopensource</groupId>
             <artifactId>lts-core</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

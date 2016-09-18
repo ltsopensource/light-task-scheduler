@@ -2,13 +2,36 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
         http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-4.0.xsd"
-        >
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd"
+>
 
-    <context:component-scan base-package="com.lts">
-        <context:exclude-filter type="regex" expression="com.lts.web.controller.*"/>
+    <context:component-scan base-package="com.github.ltsopensource.admin">
+        <context:exclude-filter type="regex" expression="com.github.ltsopensource.admin.web.*"/>
     </context:component-scan>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <context:annotation-config/>
+
+    <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+        <property name="basenames">
+            <list>
+                <value>classpath:/i18n/lts-messages</value>
+            </list>
+        </property>
+        <property name="cacheSeconds" value="3"/>
+        <property name="fallbackToSystemLocale" value="false"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <bean class="com.github.ltsopensource.admin.support.I18nManager">
+        <constructor-arg name="messageSource" ref="messageSource"/>
+    </bean>
+
+    <bean id="appContext" class="com.github.ltsopensource.admin.support.BackendAppContextFactoryBean"/>
+
+    <bean class="com.github.ltsopensource.admin.support.LtsAdminDataCleaner"/>
 </beans>

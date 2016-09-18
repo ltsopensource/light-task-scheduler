@@ -1,0 +1,2 @@
+mysql=com.github.ltsopensource.queue.mysql.MysqlJobQueueFactory
+mongo=com.github.ltsopensource.queue.mongo.MongoJobQueueFactory
