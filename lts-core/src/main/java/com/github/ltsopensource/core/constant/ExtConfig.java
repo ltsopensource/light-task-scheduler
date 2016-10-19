@@ -133,6 +133,10 @@ public interface ExtConfig {
      */
     String JOB_TRACKER_PRELOADER_FACTOR = "job.preloader.factor";
     /**
+     * JobTracker端: Job preload 信号检测频率
+     */
+    String JOB_TRACKER_PRELOADER_SIGNAL_CHECK_INTERVAL = "job.preloader.signal.check.interval";
+    /**
      * Netty Frame 的最大长度(自己一般不用设置)
      */
     String NETTY_FRAME_LENGTH_MAX = "netty.frame.length.max";

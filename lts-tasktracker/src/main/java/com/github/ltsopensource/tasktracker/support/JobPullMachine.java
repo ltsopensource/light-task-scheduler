@@ -175,7 +175,7 @@ public class JobPullMachine {
             long maxMemory = runtime.maxMemory();
             long usedMemory = runtime.totalMemory() - runtime.freeMemory();
 
-            Double memoryUsedRate = new BigDecimal(usedMemory / maxMemory, new MathContext(4)).doubleValue();
+            Double memoryUsedRate = new BigDecimal(usedMemory / (maxMemory*1.0), new MathContext(4)).doubleValue();
 
             if (memoryUsedRate >= maxMemoryUsedRate) {
                 LOGGER.info("Pause Pull, MEMORY USAGE is " + memoryUsedRate + " >= " + maxMemoryUsedRate);
@@ -194,5 +194,4 @@ public class JobPullMachine {
             }
         }
     }
-
 }

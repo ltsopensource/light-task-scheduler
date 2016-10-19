@@ -10,11 +10,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * Date转换器
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
 public class DateEditor extends PropertyEditorSupport {
 
-//    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    //    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final DateFormat TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private DateFormat dateFormat;
