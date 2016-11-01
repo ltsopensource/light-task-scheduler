@@ -11,6 +11,8 @@ import com.github.ltsopensource.core.domain.JobType;
 import com.github.ltsopensource.queue.domain.JobFeedbackPo;
 import com.github.ltsopensource.queue.domain.JobPo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -111,6 +113,14 @@ public class JobDomainConverter {
         jobMeta.setRepeatedCount(jobPo.getRepeatedCount());
         jobMeta.setJobType(jobPo.getJobType());
         return jobMeta;
+    }
+
+    public static List<JobMeta> convert(List<JobPo> jobPos) {
+        List<JobMeta> jobMetaList = new ArrayList<JobMeta>(jobPos.size());
+        for (JobPo jobPo : jobPos) {
+            jobMetaList.add(convert(jobPo));
+        }
+        return jobMetaList;
     }
 
     public static JobLogPo convertJobLog(JobMeta jobMeta) {

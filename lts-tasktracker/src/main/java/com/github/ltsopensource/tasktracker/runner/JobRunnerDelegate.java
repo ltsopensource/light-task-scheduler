@@ -1,5 +1,6 @@
 package com.github.ltsopensource.tasktracker.runner;
 
+import com.github.ltsopensource.core.commons.utils.DotLogUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.Action;
 import com.github.ltsopensource.core.domain.Job;
@@ -107,9 +108,7 @@ public class JobRunnerDelegate implements Runnable {
                     response.setMsg(sw.toString());
                     long time = SystemClock.now() - startTime;
                     stat.addRunningTime(time);
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
-                    }
+                    LOGGER.error("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
                 } finally {
                     checkInterrupted();
                     logger.removeJobMeta();
@@ -123,7 +122,7 @@ public class JobRunnerDelegate implements Runnable {
                     response.setReceiveNewJob(false);
                 }
                 this.jobMeta = callback.runComplete(response);
-
+                DotLogUtils.dot("JobRunnerDelegate.run get job " + (this.jobMeta == null ? "NULL" : "NOT_NULL"));
             }
         } finally {
             LtsLoggerFactory.remove();

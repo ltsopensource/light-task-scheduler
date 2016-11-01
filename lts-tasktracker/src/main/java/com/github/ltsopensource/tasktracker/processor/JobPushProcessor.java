@@ -1,17 +1,20 @@
 package com.github.ltsopensource.tasktracker.processor;
 
 import com.github.ltsopensource.core.commons.utils.Callable;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.exception.JobTrackerNotFoundException;
 import com.github.ltsopensource.core.exception.RequestTimeoutException;
 import com.github.ltsopensource.core.failstore.FailStorePathBuilder;
+import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.protocol.JobProtos;
 import com.github.ltsopensource.core.protocol.command.JobCompletedRequest;
 import com.github.ltsopensource.core.protocol.command.JobPushRequest;
+import com.github.ltsopensource.core.protocol.command.JobPushResponse;
 import com.github.ltsopensource.core.remoting.RemotingClientDelegate;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
 import com.github.ltsopensource.core.support.RetryScheduler;
@@ -27,6 +30,7 @@ import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
 import com.github.ltsopensource.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.github.ltsopensource.tasktracker.runner.RunnerCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -78,14 +82,24 @@ public class JobPushProcessor extends AbstractProcessor {
         JobPushRequest requestBody = request.getBody();
 
         // JobTracker 分发来的 job
-        final JobMeta jobMeta = requestBody.getJobMeta();
+        final List<JobMeta> jobMetaList = requestBody.getJobMetaList();
+        List<String> failedJobIds = null;
 
-        try {
-            appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
-        } catch (NoAvailableJobRunnerException e) {
+        for (JobMeta jobMeta : jobMetaList) {
+            try {
+                appContext.getRunnerPool().execute(jobMeta, jobRunnerCallback);
+            } catch (NoAvailableJobRunnerException e) {
+                if (failedJobIds == null) {
+                    failedJobIds = new ArrayList<String>();
+                }
+                failedJobIds.add(jobMeta.getJobId());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(failedJobIds)) {
             // 任务推送失败
-            return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(),
-                    "job push failure , no available job runner!");
+            JobPushResponse jobPushResponse = new JobPushResponse();
+            jobPushResponse.setFailedJobIds(failedJobIds);
+            return RemotingCommand.createResponseCommand(JobProtos.ResponseCode.NO_AVAILABLE_JOB_RUNNER.code(), jobPushResponse);
         }
 
         // 任务推送成功
@@ -127,9 +141,11 @@ public class JobPushProcessor extends AbstractProcessor {
                                 JobPushRequest jobPushRequest = commandResponse.getBody();
                                 if (jobPushRequest != null) {
                                     if (LOGGER.isDebugEnabled()) {
-                                        LOGGER.debug("Get new job :{}", jobPushRequest.getJobMeta());
+                                        LOGGER.debug("Get new job :{}", JSON.toJSONString(jobPushRequest.getJobMetaList()));
                                     }
-                                    returnResponse.setJobMeta(jobPushRequest.getJobMeta());
+                                    if (CollectionUtils.isNotEmpty(jobPushRequest.getJobMetaList())) {
+                                        returnResponse.setJobMeta(jobPushRequest.getJobMetaList().get(0));
+                                    }
                                 }
                             } else {
                                 if (LOGGER.isInfoEnabled()) {

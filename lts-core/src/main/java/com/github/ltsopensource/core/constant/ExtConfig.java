@@ -220,4 +220,8 @@ public interface ExtConfig {
     String JOB_RETRY_TIME_GENERATOR = "jobtracker.retry.time.generator";
 
     String M_STAT_REPORTER_CLOSED  = "mStatReporterClosed";
+
+    String JOB_TRACKER_PUSHER_THREAD_NUM = "lts.job.tracker.pusher.thread.num";
+
+    String JOB_TRACKER_PUSH_BATCH_SIZE = "lts.job.tracker.push.batch.size";
 }

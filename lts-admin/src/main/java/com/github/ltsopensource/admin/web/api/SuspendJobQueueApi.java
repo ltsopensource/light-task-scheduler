@@ -162,11 +162,11 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     }
                 } else {
                     // 不依赖上一周期的
-                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
-                        lastGenerateTriggerTime = SystemClock.now();
-                    }
-                    appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
+//                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+//                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
+//                        lastGenerateTriggerTime = SystemClock.now();
+//                    }
+                    appContext.getNoRelyJobGenerator().generateCronJobForInterval(jobPo, new Date(SystemClock.now()));
                 }
 
             } else {
@@ -204,11 +204,11 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     }
                 } else {
                     // 不依赖上一周期的
-                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
-                        lastGenerateTriggerTime = SystemClock.now();
-                    }
-                    appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
+//                    Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
+//                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
+//                        lastGenerateTriggerTime = SystemClock.now();
+//                    }
+                    appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(jobPo, new Date(SystemClock.now()));
                 }
             } else {
                 return Builder.build(false, "该任务已经无效, 或者已经没有下一轮执行时间点, 请直接删除");

@@ -21,7 +21,7 @@ import java.util.concurrent.*;
  */
 public class RunnerPool {
 
-    private final Logger LOGGER = LoggerFactory.getLogger("LTS.RunnerPool");
+    private final Logger LOGGER = LoggerFactory.getLogger(RunnerPool.class);
 
     private ThreadPoolExecutor threadPoolExecutor = null;
 
@@ -118,7 +118,7 @@ public class RunnerPool {
         }
     }
 
-    public void shutDown(){
+    public void shutDown() {
         try {
             threadPoolExecutor.shutdownNow();
             LOGGER.info("stop working succeed ");
