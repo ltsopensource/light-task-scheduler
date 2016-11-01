@@ -8,11 +8,14 @@ import com.github.ltsopensource.core.constant.Constants;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/30/15.
  */
 public class JobNodeConfigFactory {
+
+    private static final AtomicInteger SEQ = new AtomicInteger(0);
 
     public static Config getDefaultConfig() {
         Config config = new Config();
@@ -32,7 +35,8 @@ public class JobNodeConfigFactory {
                 "_" +
                 getPid() +
                 "_" +
-                DateUtils.format(new Date(), "HH-mm-ss.SSS");
+                DateUtils.format(new Date(), "HH-mm-ss.SSS")
+                + "_" + SEQ.incrementAndGet();
         config.setIdentity(sb);
     }
 

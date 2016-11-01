@@ -8,7 +8,7 @@ import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
  *
  * @author Robert HG (254963746@qq.com) on 5/27/15.
  */
-public interface SuspendJobQueue extends JobQueue{
+public interface SuspendJobQueue extends JobQueue {
 
     /**
      * 添加任务
@@ -24,4 +24,8 @@ public interface SuspendJobQueue extends JobQueue{
      */
     boolean remove(String jobId);
 
+    /**
+     * 得到JobPo
+     */
+    JobPo getJob(String taskTrackerNodeGroup, String taskId);
 }

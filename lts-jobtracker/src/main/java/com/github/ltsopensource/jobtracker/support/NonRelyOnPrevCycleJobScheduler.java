@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
+ * 仅用于不依赖上一周期的任务生成器
  * @author Robert HG (254963746@qq.com) on 4/2/16.
  */
 public class NonRelyOnPrevCycleJobScheduler {
@@ -109,7 +110,7 @@ public class NonRelyOnPrevCycleJobScheduler {
             }
             for (JobPo jobPo : jobPos) {
                 Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                if (lastGenerateTriggerTime == null) {
+                if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                     lastGenerateTriggerTime = new Date().getTime();
                 }
                 addCronJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
@@ -127,7 +128,7 @@ public class NonRelyOnPrevCycleJobScheduler {
             }
             for (JobPo jobPo : jobPos) {
                 Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                if (lastGenerateTriggerTime == null) {
+                if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                     lastGenerateTriggerTime = new Date().getTime();
                 }
                 addRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));

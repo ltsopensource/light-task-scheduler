@@ -2,6 +2,7 @@ package com.github.ltsopensource.store.jdbc.datasource;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.ltsopensource.core.cluster.Config;
+import com.github.ltsopensource.core.commons.utils.PrimitiveTypeUtils;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.logger.Logger;
@@ -69,9 +70,16 @@ public class MysqlDataSourceProvider implements DataSourceProvider {
             if (StringUtils.isNotEmpty(value)) {
                 Method setMethod = null;
                 try {
-                    setMethod = clazz.getMethod("set" + (field.substring(0, 1).toUpperCase() + field.substring(1))
-                            , entry.getValue());
-                    setMethod.invoke(dataSource, value);
+                    try {
+                        setMethod = clazz.getMethod("set" + (field.substring(0, 1).toUpperCase() + field.substring(1))
+                                , entry.getValue());
+                    } catch (NoSuchMethodException e) {
+                        setMethod = clazz.getMethod("set" + (field.substring(0, 1).toUpperCase() + field.substring(1))
+                                , PrimitiveTypeUtils.getUnBoxType(entry.getValue()));
+                    }
+
+                    Object obj = PrimitiveTypeUtils.convert(value, entry.getValue());
+                    setMethod.invoke(dataSource, obj);
                 } catch (Exception e) {
                     LOGGER.warn("set field[{}] failed! value is {}", field, value);
                 }

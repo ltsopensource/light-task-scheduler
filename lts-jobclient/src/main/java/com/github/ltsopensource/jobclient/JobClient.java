@@ -242,22 +242,22 @@ public class JobClient<T extends JobClientNode, Context extends AppContext> exte
 
     public Response submitJob(List<Job> jobs) throws JobSubmitException {
         checkStart();
-        Response response = new Response();
+        final Response response = new Response();
         response.setSuccess(true);
         int size = jobs.size();
-        for (int i = 0; i <= size / BATCH_SIZE; i++) {
-            List<Job> subJobs = BatchUtils.getBatchList(i, BATCH_SIZE, jobs);
 
-            if (CollectionUtils.isNotEmpty(subJobs)) {
-                Response subResponse = protectSubmit(subJobs);
+        BatchUtils.batchExecute(size, BATCH_SIZE, jobs, new BatchUtils.Executor<Job>() {
+            @Override
+            public boolean execute(List<Job> list) {
+                Response subResponse = protectSubmit(list);
                 if (!subResponse.isSuccess()) {
                     response.setSuccess(false);
-                    response.addFailedJobs(subJobs);
+                    response.addFailedJobs(list);
                     response.setMsg(subResponse.getMsg());
                 }
+                return true;
             }
-        }
-
+        });
         return response;
     }
 

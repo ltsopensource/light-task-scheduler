@@ -3,6 +3,8 @@ package com.github.ltsopensource.core.registry;
 import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 
 /**
  * @author Robert HG (254963746@qq.com) on 5/11/15.
@@ -15,6 +17,8 @@ import com.github.ltsopensource.core.commons.utils.StringUtils;
  */
 public class NodeRegistryUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeRegistryUtils.class);
+
     public static String getRootPath(String clusterName) {
         return "/LTS/" + clusterName + "/NODES";
     }
@@ -24,48 +28,56 @@ public class NodeRegistryUtils {
     }
 
     public static Node parse(String fullPath) {
-        Node node = new Node();
-        String[] nodeDir = fullPath.split("/");
-        NodeType nodeType = NodeType.valueOf(nodeDir[4]);
-        node.setNodeType(nodeType);
-        String url = nodeDir[5];
+        try {
+            Node node = new Node();
+            String[] nodeDir = fullPath.split("/");
+            NodeType nodeType = NodeType.valueOf(nodeDir[4]);
+            node.setNodeType(nodeType);
+            String url = nodeDir[5];
 
-        url = url.substring(nodeType.name().length() + 3);
-        String address = url.split("\\?")[0];
-        String ip = address.split(":")[0];
+            url = url.substring(nodeType.name().length() + 3);
+            String address = url.split("\\?")[0];
+            String ip = address.split(":")[0];
 
-        node.setIp(ip);
-        if (address.contains(":")) {
-            String port = address.split(":")[1];
-            if (port != null && !"".equals(port.trim())) {
-                node.setPort(Integer.valueOf(port));
+            node.setIp(ip);
+            if (address.contains(":")) {
+                String port = address.split(":")[1];
+                if (port != null && !"".equals(port.trim())) {
+                    node.setPort(Integer.valueOf(port));
+                }
             }
-        }
-        String params = url.split("\\?")[1];
+            String params = url.split("\\?")[1];
 
-        String[] paramArr = params.split("&");
-        for (String paramEntry : paramArr) {
-            String key = paramEntry.split("=")[0];
-            String value = paramEntry.split("=")[1];
-            if ("clusterName".equals(key)) {
-                node.setClusterName(value);
-            } else if ("group".equals(key)) {
-                node.setGroup(value);
-            } else if ("threads".equals(key)) {
-                node.setThreads(Integer.valueOf(value));
-            } else if ("identity".equals(key)) {
-                node.setIdentity(value);
-            } else if ("createTime".equals(key)) {
-                node.setCreateTime(Long.valueOf(value));
-            } else if ("isAvailable".equals(key)) {
-                node.setAvailable(Boolean.valueOf(value));
-            } else if ("hostName".equals(key)) {
-                node.setHostName(value);
-            } else if ("httpCmdPort".equals(key)) {
-                node.setHttpCmdPort(Integer.valueOf(value));
+            String[] paramArr = params.split("&");
+            for (String paramEntry : paramArr) {
+                if (StringUtils.isEmpty(paramEntry)) {
+                    continue;
+                }
+                String key = paramEntry.split("=")[0];
+                String value = paramEntry.split("=")[1];
+                if ("clusterName".equals(key)) {
+                    node.setClusterName(value);
+                } else if ("group".equals(key)) {
+                    node.setGroup(value);
+                } else if ("threads".equals(key)) {
+                    node.setThreads(Integer.valueOf(value));
+                } else if ("identity".equals(key)) {
+                    node.setIdentity(value);
+                } else if ("createTime".equals(key)) {
+                    node.setCreateTime(Long.valueOf(value));
+                } else if ("isAvailable".equals(key)) {
+                    node.setAvailable(Boolean.valueOf(value));
+                } else if ("hostName".equals(key)) {
+                    node.setHostName(value);
+                } else if ("httpCmdPort".equals(key)) {
+                    node.setHttpCmdPort(Integer.valueOf(value));
+                }
             }
+            return node;
+        } catch (RuntimeException e) {
+            LOGGER.error("Error parse node , path:" + fullPath);
+            throw e;
         }
-        return node;
     }
 
     public static String getFullPath(Node node) {

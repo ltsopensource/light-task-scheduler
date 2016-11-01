@@ -50,6 +50,18 @@ public class MysqlSuspendJobQueue extends AbstractMysqlJobQueue implements Suspe
                 .doDelete() == 1;
     }
 
+    @Override
+    public JobPo getJob(String taskTrackerNodeGroup, String taskId) {
+        return new SelectSql(getSqlTemplate())
+                .select()
+                .all()
+                .from()
+                .table(getTableName())
+                .where("task_id = ?", taskId)
+                .and("task_tracker_node_group = ?", taskTrackerNodeGroup)
+                .single(RshHolder.JOB_PO_RSH);
+    }
+
     private String getTableName() {
         return JobQueueUtils.SUSPEND_JOB_QUEUE;
     }

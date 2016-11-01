@@ -54,7 +54,7 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
             template.ensureIndex(tableName, "idx_taskTrackerIdentity", "taskTrackerIdentity");
             template.ensureIndex(tableName, "idx_jobType", "jobType");
             template.ensureIndex(tableName, "idx_realTaskId_taskTrackerNodeGroup", "realTaskId, taskTrackerNodeGroup");
-            template.ensureIndex(tableName, "idx_triggerTime_priority_gmtCreated", "triggerTime,priority,gmtCreated");
+            template.ensureIndex(tableName, "idx_priority_triggerTime_gmtCreated", "priority,triggerTime,gmtCreated");
             template.ensureIndex(tableName, "idx_isRunning", "isRunning");
             LOGGER.info("create queue " + tableName);
         }
@@ -96,6 +96,15 @@ public class MongoExecutableJobQueue extends AbstractMongoJobQueue implements Ex
         query.field("jobId").equal(jobId);
         WriteResult wr = template.delete(query);
         return wr.getN() == 1;
+    }
+
+    @Override
+    public long countJob(String realTaskId, String taskTrackerNodeGroup) {
+        String tableName = JobQueueUtils.getExecutableQueueName(taskTrackerNodeGroup);
+        Query<JobPo> query = template.createQuery(tableName, JobPo.class);
+        query.field("realTaskId").equal(realTaskId);
+        query.field("taskTrackerNodeGroup").equal(taskTrackerNodeGroup);
+        return query.countAll();
     }
 
     @Override

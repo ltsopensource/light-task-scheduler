@@ -3,14 +3,18 @@ package com.github.ltsopensource.jobtracker.complete;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
 import com.github.ltsopensource.core.constant.ExtConfig;
+import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
+import com.github.ltsopensource.core.spi.ServiceLoader;
 import com.github.ltsopensource.core.support.CronExpressionUtils;
 import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
+import com.github.ltsopensource.jobtracker.complete.retry.DefaultJobRetryTimeGenerator;
+import com.github.ltsopensource.jobtracker.complete.retry.JobRetryTimeGenerator;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
@@ -26,11 +30,13 @@ public class JobRetryHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRetryHandler.class);
 
     private JobTrackerAppContext appContext;
-    private long retryInterval = 30 * 1000;     // 默认30s
+    private int retryInterval = 30 * 1000;     // 默认30s
+    private JobRetryTimeGenerator jobRetryTimeGenerator;
 
     public JobRetryHandler(JobTrackerAppContext appContext) {
         this.appContext = appContext;
         this.retryInterval = appContext.getConfig().getParameter(ExtConfig.JOB_TRACKER_JOB_RETRY_INTERVAL_MILLIS, 30 * 1000);
+        this.jobRetryTimeGenerator = ServiceLoader.load(JobRetryTimeGenerator.class, appContext.getConfig());
     }
 
     public void onComplete(List<JobRunResult> results) {
@@ -47,10 +53,15 @@ public class JobRetryHandler {
                 continue;
             }
 
+            Job job = jobMeta.getJob();
+            if (!(jobRetryTimeGenerator instanceof DefaultJobRetryTimeGenerator)) {
+                job = JobUtils.copy(jobMeta.getJob());
+                job.setTaskId(jobMeta.getRealTaskId());     // 这个对于用户需要转换为用户提交的taskId
+            }
+            // 得到下次重试时间
+            Long nextRetryTriggerTime = jobRetryTimeGenerator.getNextRetryTriggerTime(job, jobPo.getRetryTimes(), retryInterval);
             // 重试次数+1
             jobPo.setRetryTimes((jobPo.getRetryTimes() == null ? 0 : jobPo.getRetryTimes()) + 1);
-            // 1 分钟重试一次吧
-            Long nextRetryTriggerTime = SystemClock.now() + retryInterval;
 
             if (jobPo.isCron()) {
                 // 如果是 cron Job, 判断任务下一次执行时间和重试时间的比较

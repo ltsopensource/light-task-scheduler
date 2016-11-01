@@ -69,5 +69,6 @@ public interface Constants {
 
     String IS_RETRY_JOB = "__LTS_Is_Retry_Job";
 
-    String LOADBALANCE = "loadbalance";
+    // 执行的序号
+    String EXE_SEQ_ID = "__LTS_Seq_Id";
 }

@@ -77,6 +77,9 @@ public class JobDomainConverter {
             }
         }
         if (job.isRepeatable()) {
+            if (jobPo.getTriggerTime() < SystemClock.now()) {
+                jobPo.setTriggerTime(SystemClock.now());
+            }
             jobPo.setInternalExtParam(Constants.FIRST_FIRE_TIME, String.valueOf(jobPo.getTriggerTime()));
         }
         return jobPo;

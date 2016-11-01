@@ -62,5 +62,5 @@
 <script src="${contextPath}/assets/js/plugins/typeahead/bootstrap3-typeahead.min.js"></script>
 
 <script src="${contextPath}/assets/js/plugins/select/bootstrap-select.min.js"></script>
-<script src="${contextPath}/assets/js/lts.js"></script>
 <script src="${contextPath}/assets/js/plugins/highcharts/highcharts-4.1.8.js"></script>
+<script src="${contextPath}/assets/js/lts.js"></script>

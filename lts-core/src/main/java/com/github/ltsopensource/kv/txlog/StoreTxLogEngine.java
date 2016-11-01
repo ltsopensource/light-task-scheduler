@@ -3,9 +3,9 @@ package com.github.ltsopensource.kv.txlog;
 import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.commons.io.UnsafeByteArrayInputStream;
 import com.github.ltsopensource.core.commons.io.UnsafeByteArrayOutputStream;
+import com.github.ltsopensource.core.json.TypeReference;
 import com.github.ltsopensource.kv.*;
 import com.github.ltsopensource.kv.serializer.StoreSerializer;
-import com.github.ltsopensource.core.json.TypeReference;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -135,10 +135,13 @@ public class StoreTxLogEngine<K, V> {
         }
 
         UnsafeByteArrayOutputStream out = new UnsafeByteArrayOutputStream();
-        serializer.serialize(entry, out);
-
-        byte[] entryBytes = out.toByteArray();
-        return storeTxLog.append(entryBytes);
+        try {
+            serializer.serialize(entry, out);
+            byte[] entryBytes = out.toByteArray();
+            return storeTxLog.append(entryBytes);
+        } finally {
+            out.close();
+        }
     }
 
     public Cursor<StoreTxLogCursorEntry<K, V>> cursor(StoreTxLogPosition position) {

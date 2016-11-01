@@ -47,6 +47,7 @@ public class NonRelyJobUtils {
                     jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(nextTriggerTime, "MMdd-HHmmss"));
                     jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                     try {
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         executableJobQueue.add(jobPo);
                     } catch (DupEntryException e) {
                         LOGGER.warn("Cron Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",
@@ -70,13 +71,17 @@ public class NonRelyJobUtils {
             int scheduleIntervalMinute, final JobPo finalJobPo, Date lastGenerateTime) {
         JobPo jobPo = JobUtils.copy(finalJobPo);
         long firstTriggerTime = Long.valueOf(jobPo.getInternalExtParam(Constants.FIRST_FIRE_TIME));
-        // 计算出应该重复的次数
-        int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
 
         Long repeatInterval = jobPo.getRepeatInterval();
         Integer repeatCount = jobPo.getRepeatCount();
 
         long endTime = DateUtils.addMinute(lastGenerateTime, scheduleIntervalMinute).getTime();
+        if (endTime <= firstTriggerTime) {
+            return;
+        }
+        // 计算出应该重复的次数
+        int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
+
         boolean stop = false;
         while (!stop) {
             Long nextTriggerTime = firstTriggerTime + repeatedCount * repeatInterval;
@@ -90,6 +95,7 @@ public class NonRelyJobUtils {
                 jobPo.setRepeatedCount(repeatedCount);
                 jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                 try {
+                    jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                     executableJobQueue.add(jobPo);
                 } catch (DupEntryException e) {
                     LOGGER.warn("Repeat Job[taskId={}, taskTrackerNodeGroup={}] Already Exist in ExecutableJobQueue",

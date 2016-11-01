@@ -9,7 +9,6 @@ import com.github.ltsopensource.core.cluster.Node;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.cmd.HttpCmdNames;
 import com.github.ltsopensource.core.cmd.HttpCmdParamNames;
-import com.github.ltsopensource.core.commons.utils.BatchUtils;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.monitor.MData;
@@ -24,7 +23,9 @@ import com.github.ltsopensource.jvmmonitor.JVMCollector;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/11/16.
@@ -38,7 +39,13 @@ public class MStatReportWorker implements Runnable {
     private AppContext appContext;
     private AbstractMStatReporter reporter;
     // 这里面保存发送失败的，不过有个最大限制，防止内存爆掉
-    private List<MData> mDataQueue = new ArrayList<MData>();
+
+    private PriorityBlockingQueue<MData> queue = new PriorityBlockingQueue<MData>(16, new Comparator<MData>() {
+        @Override
+        public int compare(MData o1, MData o2) {
+            return o1.getTimestamp().compareTo(o2.getTimestamp());
+        }
+    });
     private final static int MAX_RETRY_RETAIN = 500;
     private final static int BATCH_REPORT_SIZE = 10;
     private volatile boolean running = false;
@@ -94,17 +101,18 @@ public class MStatReportWorker implements Runnable {
     }
 
     private void report(MData mData) {
-        // Send monitor data
-        mDataQueue.add(mData);
 
-        // check size
-        int size = mDataQueue.size();
-        if (size > MAX_RETRY_RETAIN) {
-            // delete the oldest
-            mDataQueue = mDataQueue.subList(size - MAX_RETRY_RETAIN, size);
+        int size = queue.size();
+
+        if (size >= MAX_RETRY_RETAIN) {
+            int needRemoveSize = size - (MAX_RETRY_RETAIN - 1);
+            for (int i = 0; i < needRemoveSize; i++) {
+                queue.poll();
+            }
         }
+        queue.add(mData);
 
-        List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
+        final List<Node> monitorNodes = appContext.getSubscribedNodeManager().getNodeList(NodeType.MONITOR);
         if (CollectionUtils.isEmpty(monitorNodes)) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Please Start LTS-Monitor");
@@ -112,37 +120,31 @@ public class MStatReportWorker implements Runnable {
             return;
         }
 
-        int toIndex = 0;
-        size = mDataQueue.size();
-        try {
-            for (int i = 0; i <= size / BATCH_REPORT_SIZE; i++) {
-                List<MData> mDatas = BatchUtils.getBatchList(i, BATCH_REPORT_SIZE, mDataQueue);
-                if (CollectionUtils.isNotEmpty(mDatas)) {
-                    try {
-                        HttpCmd cmd = new DefaultHttpCmd();
-                        cmd.setCommand(HttpCmdNames.HTTP_CMD_ADD_M_DATA);
-                        cmd.addParam(HttpCmdParamNames.M_NODE, JSON.toJSONString(buildMNode()));
-                        cmd.addParam(HttpCmdParamNames.M_DATA, JSON.toJSONString(mDatas));
+        while (queue.size() > 0) {
+            List<MData> list = new ArrayList<MData>();
+            queue.drainTo(list, BATCH_REPORT_SIZE);
 
-                        if (sendReq(monitorNodes, cmd)) {
-                            toIndex = toIndex + CollectionUtils.sizeOf(mDatas);
-                        } else {
-                            break;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("Report monitor data Error : " + e.getMessage(), e);
-                        break;
-                    }
+            boolean success = false;
+            try {
+                HttpCmd cmd = new DefaultHttpCmd();
+                cmd.setCommand(HttpCmdNames.HTTP_CMD_ADD_M_DATA);
+                cmd.addParam(HttpCmdParamNames.M_NODE, JSON.toJSONString(buildMNode()));
+                cmd.addParam(HttpCmdParamNames.M_DATA, JSON.toJSONString(list));
+
+                if (sendReq(monitorNodes, cmd)) {
+                    success = true;
+                }
+            } catch (Throwable t) {
+                LOGGER.warn("Report monitor data Error : " + t.getMessage(), t);
+            } finally {
+                if (!success) {
+                    // 放回去
+                    queue.addAll(list);
                 }
             }
-        } finally {
-            // to delete
-            if (toIndex == 0) {
-                // do nothing
-            } else if (size == toIndex) {
-                mDataQueue.clear();
-            } else {
-                mDataQueue = mDataQueue.subList(toIndex + 1, size);
+            if (!success) {
+                // 停止while
+                break;
             }
         }
     }

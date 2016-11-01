@@ -10,6 +10,9 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.domain.JobPo;
@@ -26,6 +29,7 @@ import java.util.Date;
 @RestController
 public class RepeatJobQueueApi extends AbstractMVC {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepeatJobQueueApi.class);
     @Autowired
     private BackendAppContext appContext;
 
@@ -87,6 +91,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                             // 添加新的任务
                             newJobPo.setTriggerTime(JobUtils.getRepeatNextTriggerTime(oldJobPo));
                             try {
+                                newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(newJobPo));
                                 appContext.getExecutableJobQueue().add(newJobPo);
                             } catch (DupEntryException ignored) {
                             }
@@ -103,6 +108,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                 }
 
             } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
                 return Builder.build(false, "更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
             }
             JobLogUtils.log(LogType.UPDATE, oldJobPo, appContext.getJobLogger());
@@ -124,6 +130,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                 appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
 //                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
             }
         }
@@ -144,13 +151,16 @@ public class RepeatJobQueueApi extends AbstractMVC {
             jobPo.setGmtModified(SystemClock.now());
             appContext.getSuspendJobQueue().add(jobPo);
         } catch (DupEntryException e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "该任务已经被暂停, 请检查暂停队列");
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "移动任务到暂停队列失败, error:" + e.getMessage());
         }
         try {
             appContext.getRepeatJobQueue().remove(request.getJobId());
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "删除Repeat任务失败，请手动删除! error:" + e.getMessage());
         }
         try {
@@ -161,6 +171,7 @@ public class RepeatJobQueueApi extends AbstractMVC {
                 appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             }
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:" + e.getMessage());
         }
 

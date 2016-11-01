@@ -202,14 +202,25 @@ public class Job implements Serializable {
     }
 
     public void checkField() throws JobSubmitException {
-        if (taskId == null) {
-            throw new JobSubmitException("taskId can not be null! job is " + toString());
+        if (StringUtils.isEmpty(taskId)) {
+            throw new JobSubmitException("taskId can not be empty! job is " + toString());
         }
-        if (taskTrackerNodeGroup == null) {
-            throw new JobSubmitException("taskTrackerNodeGroup can not be null! job is " + toString());
+        if (taskId.length() > 64) {
+            throw new JobSubmitException("taskId length should not great than 64! job is " + toString());
         }
-        if (StringUtils.isNotEmpty(cronExpression) && !CronExpression.isValidExpression(cronExpression)) {
-            throw new JobSubmitException("cronExpression invalid! job is " + toString());
+        if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
+            throw new JobSubmitException("taskTrackerNodeGroup can not be empty! job is " + toString());
+        }
+        if (taskTrackerNodeGroup.length() > 64) {
+            throw new JobSubmitException("taskTrackerNodeGroup length should not great than 64! job is " + toString());
+        }
+        if (StringUtils.isNotEmpty(cronExpression)) {
+            if (!CronExpression.isValidExpression(cronExpression)) {
+                throw new JobSubmitException("cronExpression invalid! job is " + toString());
+            }
+            if (cronExpression.length() > 128) {
+                throw new JobSubmitException("cronExpression length should not great than 128! job is " + toString());
+            }
         }
         if (maxRetryTimes < 0) {
             throw new JobSubmitException("maxRetryTimes invalid, must be great than zero! job is " + toString());

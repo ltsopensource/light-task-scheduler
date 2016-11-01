@@ -33,12 +33,12 @@ public class NodeApi extends AbstractMVC {
     @RequestMapping("node-list-get")
     public RestfulResponse getNodeList(NodePaginationReq request) {
         RestfulResponse response = new RestfulResponse();
-
-        List<Node> nodes = appContext.getBackendRegistrySrv().getOnlineNodes(request);
+        request.setLimit(10000);
+        PaginationRsp<Node> paginationRsp = appContext.getBackendRegistrySrv().getOnlineNodes(request);
 
         response.setSuccess(true);
-        response.setResults(CollectionUtils.sizeOf(nodes));
-        response.setRows(nodes);
+        response.setResults(paginationRsp.getResults());
+        response.setRows(paginationRsp.getRows());
 
         return response;
     }

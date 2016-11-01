@@ -10,7 +10,11 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.CronExpression;
+import com.github.ltsopensource.core.support.JobUtils;
 import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.queue.domain.JobPo;
 import com.github.ltsopensource.store.jdbc.exception.DupEntryException;
@@ -27,6 +31,7 @@ import java.util.Date;
 @RestController
 public class CronJobQueueApi extends AbstractMVC {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CronJobQueueApi.class);
     @Autowired
     private BackendAppContext appContext;
 
@@ -87,7 +92,8 @@ public class CronJobQueueApi extends AbstractMVC {
                                 // 添加新的任务
                                 newJobPo.setTriggerTime(nextTriggerTime.getTime());
                                 try {
-                                    appContext.getExecutableJobQueue().add(oldJobPo);
+                                    newJobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(newJobPo));
+                                    appContext.getExecutableJobQueue().add(newJobPo);
                                 } catch (DupEntryException ignored) {
                                 }
                             }
@@ -102,6 +108,7 @@ public class CronJobQueueApi extends AbstractMVC {
                         }
                     }
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
                     return Builder.build(false, "更新等待执行的任务失败，请手动更新! error:" + e.getMessage());
                 }
                 response.setSuccess(true);
@@ -111,6 +118,7 @@ public class CronJobQueueApi extends AbstractMVC {
             JobLogUtils.log(LogType.UPDATE, oldJobPo, appContext.getJobLogger());
             return response;
         } catch (ParseException e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "请输入正确的 CronExpression!" + e.getMessage());
         }
     }
@@ -128,8 +136,8 @@ public class CronJobQueueApi extends AbstractMVC {
         if (success) {
             try {
                 appContext.getExecutableJobQueue().removeBatch(jobPo.getRealTaskId(), jobPo.getTaskTrackerNodeGroup());
-//                appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
                 return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:{}" + e.getMessage());
             }
         }
@@ -151,13 +159,16 @@ public class CronJobQueueApi extends AbstractMVC {
             jobPo.setGmtModified(SystemClock.now());
             appContext.getSuspendJobQueue().add(jobPo);
         } catch (DupEntryException e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "改任务已经被暂停, 请检查暂停队列");
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "移动任务到暂停队列失败, error:" + e.getMessage());
         }
         try {
             appContext.getCronJobQueue().remove(request.getJobId());
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "删除Cron任务失败，请手动删除! error:" + e.getMessage());
         }
         try {
@@ -168,6 +179,7 @@ public class CronJobQueueApi extends AbstractMVC {
                 appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
             }
         } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "删除等待执行的任务失败，请手动删除! error:" + e.getMessage());
         }
 

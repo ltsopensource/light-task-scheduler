@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 主要做了一个去重的操作，当时同一个任务的时候，会覆盖
+ *
  * @author Robert HG (254963746@qq.com) on 10/19/15.
  */
 @SuppressWarnings("unchecked")
@@ -35,11 +36,11 @@ public class JobPriorityBlockingQueue {
                 if (left.getJobId().equals(right.getJobId())) {
                     return 0;
                 }
-                int compare = left.getTriggerTime().compareTo(right.getTriggerTime());
+                int compare = left.getPriority().compareTo(right.getPriority());
                 if (compare != 0) {
                     return compare;
                 }
-                compare = left.getPriority().compareTo(right.getPriority());
+                compare = left.getTriggerTime().compareTo(right.getTriggerTime());
                 if (compare != 0) {
                     return compare;
                 }
@@ -71,7 +72,7 @@ public class JobPriorityBlockingQueue {
             if (JOB_ID_SET.contains(e.getJobId())) {
                 // 如果已经存在了，替换
                 replace(e);
-            }else{
+            } else {
                 siftUpUsingComparator(n, e, queue, comparator);
                 size = n + 1;
                 JOB_ID_SET.add(e.getJobId());
@@ -104,7 +105,7 @@ public class JobPriorityBlockingQueue {
         }
     }
 
-	private <E> void siftDownUsingComparator(int k, E x, Object[] array,
+    private <E> void siftDownUsingComparator(int k, E x, Object[] array,
                                              int n,
                                              Comparator<? super E> cmp) {
         if (n > 0) {
@@ -130,7 +131,7 @@ public class JobPriorityBlockingQueue {
         while (k > 0) {
             int parent = (k - 1) >>> 1;
             Object e = array[parent];
-            int compCode = cmp.compare(x, (E)e);
+            int compCode = cmp.compare(x, (E) e);
             if (compCode >= 0)
                 break;
             array[k] = e;

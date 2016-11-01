@@ -12,14 +12,14 @@ public class JobQueueUtils {
      * 在数据库中就是表名, taskTrackerNodeGroup 是 TaskTracker的 nodeGroup
      */
     public static String getExecutableQueueName(String taskTrackerNodeGroup) {
-        return "lts_executable_job_queue_".concat(taskTrackerNodeGroup);
+        return "lts_wjq_".concat(taskTrackerNodeGroup);
     }
 
     /**
      * 在数据库中就是表名, jobClientNodeGroup 是 JobClient 的 nodeGroup
      */
     public static String getFeedbackQueueName(String jobClientNodeGroup) {
-        return "lts_feedback_job_queue_".concat(jobClientNodeGroup);
+        return "lts_fjq_".concat(jobClientNodeGroup);
     }
 
     public static final String CRON_JOB_QUEUE = "lts_cron_job_queue";

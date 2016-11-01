@@ -3,6 +3,7 @@ package com.github.ltsopensource.jvmmonitor;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
+import com.github.ltsopensource.core.support.CrossClassLoader;
 import com.github.ltsopensource.jvmmonitor.mbean.JVMGC;
 import com.github.ltsopensource.jvmmonitor.mbean.JVMInfo;
 import com.github.ltsopensource.jvmmonitor.mbean.JVMMemory;
@@ -11,6 +12,7 @@ import com.github.ltsopensource.jvmmonitor.mbean.JVMThread;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +28,30 @@ public class JVMMonitor {
 
     private static final MBeanServer MBEAN_SERVER = ManagementFactory.getPlatformMBeanServer();
     private static final AtomicBoolean start = new AtomicBoolean(false);
-    // 保证多个ClassLoader都是同一个类
-    private static final ReferenceCount REF_COUNT = getRefCount();
+
+    private static AtomicLong refCount;
+
+    static {
+        String className = JVMMonitor.class.getName() + "$JVMMonitorReferenceCount";
+        try {
+            Class clazz = CrossClassLoader.loadClass(className);
+            Field refCountField = clazz.getDeclaredField("REF_COUNT");
+            refCountField.setAccessible(true);
+            refCount = (AtomicLong) refCountField.get(null);
+        } catch (Throwable t) {
+            LOGGER.warn("load " + className + " error", t);
+            refCount = new AtomicLong(0);
+        }
+    }
+
+    private static AtomicLong getRefCount() {
+        return refCount;
+    }
 
     private final static Map<String, Object> MONITOR_MAP = new HashMap<String, Object>();
 
     public static void start() {
-        REF_COUNT.incrementAndGet();
+        getRefCount().incrementAndGet();
         if (start.compareAndSet(false, true)) {
             if (CollectionUtils.isEmpty(MONITOR_MAP)) {
                 MONITOR_MAP.put(JVMConstants.JMX_JVM_INFO_NAME, JVMInfo.getInstance());
@@ -55,9 +74,9 @@ public class JVMMonitor {
     }
 
     public static void stop() {
-        REF_COUNT.decrementAndGet();
+        getRefCount().decrementAndGet();
         // 只有启动了,并且引用为0的时候才unregister
-        if (start.compareAndSet(true, false) && REF_COUNT.getCurRefCount() == 0) {
+        if (start.compareAndSet(true, false) && getRefCount().get() == 0) {
             for (Map.Entry<String, Object> entry : MONITOR_MAP.entrySet()) {
                 try {
                     ObjectName objectName = new ObjectName(entry.getKey());
@@ -97,35 +116,11 @@ public class JVMMonitor {
         return null;
     }
 
-    private static ReferenceCount getRefCount() {
-        try {
-            return (ReferenceCount) loadClass("com.github.ltsopensource.jvmmonitor.JVMMonitorReferenceCount").newInstance();
-        } catch (Throwable e) {
-
-            LOGGER.warn("load com.github.ltsopensource.jvmmonitor.JVMMonitorReferenceCount error", e);
-
-            return new ReferenceCount() {
-                private final AtomicLong count = new AtomicLong(0);
-                public long incrementAndGet() {
-                    return count.incrementAndGet();
-                }
-                public long decrementAndGet() {
-                    return count.decrementAndGet();
-                }
-                public long getCurRefCount() {
-                    return count.get();
-                }
-            };
-        }
+    private static class JVMMonitorReferenceCount {
+        // 这里必须为static, 保证所有实例引用的都是一个REF_COUNT
+        private static final AtomicLong REF_COUNT = new AtomicLong(0);
     }
-
-    private static Class loadClass(String classname) throws ClassNotFoundException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-        if (classLoader == null)
-            classLoader = JVMMonitor.class.getClassLoader();
-
-        return (classLoader.loadClass(classname));
-    }
-
 }
+
+
+

@@ -205,10 +205,15 @@ public interface ExtConfig {
      */
     String JOB_TRACKER_FIX_EXECUTING_JOB_WAITING_MILLS = "jobtracker.fix.executing.job.waiting.mills";
 
+    String LOADBALANCE = "loadbalance";
+
     String MAIL_SMTP_HOST = "mail.smtp.host";
     String MAIL_SMTP_PORT = "mail.smtp.port";
     String MAIL_USERNAME = "mail.username";
     String MAIL_PASSWORD = "mail.password";
     String MAIL_ADMIN_ADDR = "mail.adminAddress";
     String MAIL_SSL_ENABLED = "mail.sslEnabled";
+    String JOB_RETRY_TIME_GENERATOR = "jobtracker.retry.time.generator";
+
+    String M_STAT_REPORTER_CLOSED  = "mStatReporterClosed";
 }

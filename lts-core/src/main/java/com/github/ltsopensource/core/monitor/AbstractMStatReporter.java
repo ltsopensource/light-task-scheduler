@@ -3,6 +3,7 @@ package com.github.ltsopensource.core.monitor;
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.cluster.NodeType;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.monitor.MData;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.logger.Logger;
@@ -41,10 +42,12 @@ public abstract class AbstractMStatReporter implements MStatReporter {
         JVMMonitor.start();
 
         try {
-            if (start.compareAndSet(false, true)) {
-                scheduledFuture = executor.scheduleWithFixedDelay(
-                        new MStatReportWorker(appContext, this), 1, 1, TimeUnit.SECONDS);
-                LOGGER.info("MStatReporter start succeed.");
+            if (!config.getParameter(ExtConfig.M_STAT_REPORTER_CLOSED, false)) {
+                if (start.compareAndSet(false, true)) {
+                    scheduledFuture = executor.scheduleWithFixedDelay(
+                            new MStatReportWorker(appContext, this), 1, 1, TimeUnit.SECONDS);
+                    LOGGER.info("MStatReporter start succeed.");
+                }
             }
         } catch (Exception e) {
             LOGGER.error("MStatReporter start failed.", e);

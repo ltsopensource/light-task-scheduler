@@ -2,8 +2,9 @@ package com.github.ltsopensource.queue;
 
 import com.github.ltsopensource.core.AppContext;
 import com.github.ltsopensource.core.commons.concurrent.ConcurrentHashSet;
-import com.github.ltsopensource.core.commons.utils.*;
 import com.github.ltsopensource.core.commons.utils.Callable;
+import com.github.ltsopensource.core.commons.utils.CollectionUtils;
+import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.factory.NamedThreadFactory;
 import com.github.ltsopensource.core.support.NodeShutdownHook;
@@ -29,7 +30,7 @@ public abstract class AbstractPreLoader implements PreLoader {
     private ConcurrentHashSet<String> LOAD_SIGNAL = new ConcurrentHashSet<String>();
     private ScheduledExecutorService LOAD_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-PreLoader", true));
     @SuppressWarnings("unused")
-	private ScheduledFuture<?> scheduledFuture;
+    private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private String FORCE_PREFIX = "force_"; // 强制加载的信号
 
@@ -53,12 +54,16 @@ public abstract class AbstractPreLoader implements PreLoader {
                         }
 
                         JobPriorityBlockingQueue queue = JOB_MAP.get(loadTaskTrackerNodeGroup);
-                        if (force || queue.size() / loadSize < factor) {
+                        if (queue == null) {
+                            continue;
+                        }
+                        if (force || (queue.size() / (loadSize * 1.0)) < factor) {
                             // load
                             List<JobPo> loads = load(loadTaskTrackerNodeGroup, loadSize - queue.size());
                             // 加入到内存中
                             if (CollectionUtils.isNotEmpty(loads)) {
                                 for (JobPo load : loads) {
+                                    // TODO 这里可以优化,对于force这种场景,可以移除执行优先级低的
                                     if (!queue.offer(load)) {
                                         // 没有成功说明已经满了
                                         break;

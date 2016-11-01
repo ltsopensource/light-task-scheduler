@@ -42,10 +42,10 @@ public class DBTest {
 
         long start = System.currentTimeMillis();
 
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 100000; i++) {
             db.put("testKey" + i, "testvalue" + i);
         }
-        // 17458 待优化
+        // 4597 待优化
         System.out.println(System.currentTimeMillis() - start);
     }
 
@@ -65,10 +65,10 @@ public class DBTest {
 
         long start = System.currentTimeMillis();
 
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 100000; i++) {
             db.put(("testKey" + i).getBytes("UTF-8"), ("testvalue" + i).getBytes("UTF-8"));
         }
-        //3856
+        //972
         System.out.println(System.currentTimeMillis() - start);
     }
 

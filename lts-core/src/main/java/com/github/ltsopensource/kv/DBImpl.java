@@ -47,6 +47,7 @@ public class DBImpl<K, V> implements DB<K, V>, Closeable {
             this.index = new MemIndex<K, V>(storeConfig, dataBlockEngine, dataCache);
             this.txLogReplay = new TxLogReplay<K, V>(storeTxLogEngine, dataBlockEngine, index, dataCache);
             this.indexSnapshot = new MemIndexSnapshot<K, V>(txLogReplay, index, storeConfig, serializer);
+            ((MemIndex<K, V>) this.index).setIndexSnapshot(this.indexSnapshot);
         } else {
             throw new IllegalArgumentException("Illegal IndexEngine " + storeConfig.getIndexType());
         }

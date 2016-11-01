@@ -10,6 +10,9 @@ import com.github.ltsopensource.biz.logger.JobLogUtils;
 import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
+import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.logger.Logger;
+import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.core.support.CronExpression;
 import com.github.ltsopensource.core.support.CronExpressionUtils;
 import com.github.ltsopensource.core.support.JobUtils;
@@ -29,6 +32,7 @@ import java.util.Date;
 @RestController
 public class SuspendJobQueueApi extends AbstractMVC {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SuspendJobQueueApi.class);
     @Autowired
     private BackendAppContext appContext;
 
@@ -95,6 +99,7 @@ public class SuspendJobQueueApi extends AbstractMVC {
                 return Builder.build(false, "该任务已经被删除或者执行完成");
             }
         } catch (ParseException e) {
+            LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "请输入正确的 CronExpression");
         }
     }
@@ -135,8 +140,10 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     // 1.add to cron job queue
                     appContext.getCronJobQueue().add(jobPo);
                 } catch (DupEntryException e) {
+                    LOGGER.error(e.getMessage(), e);
                     return Builder.build(false, "Cron队列中任务已经存在，请检查");
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
                     return Builder.build(false, "插入Cron队列中任务错误, error:" + e.getMessage());
                 }
 
@@ -144,10 +151,13 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     try {
                         // 2. add to executable queue
                         jobPo.setTriggerTime(nextTriggerTime.getTime());
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
+                        LOGGER.error(e.getMessage(), e);
                         return Builder.build(false, "等待执行队列中任务已经存在，请检查");
                     } catch (Exception e) {
+                        LOGGER.error(e.getMessage(), e);
                         return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
                     }
                 } else {
@@ -170,8 +180,10 @@ public class SuspendJobQueueApi extends AbstractMVC {
                     // 1.add to cron job queue
                     appContext.getRepeatJobQueue().add(jobPo);
                 } catch (DupEntryException e) {
+                    LOGGER.error(e.getMessage(), e);
                     return Builder.build(false, "Repeat队列中任务已经存在，请检查");
                 } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
                     return Builder.build(false, "插入Repeat队列中任务错误, error:" + e.getMessage());
                 }
 
@@ -181,16 +193,19 @@ public class SuspendJobQueueApi extends AbstractMVC {
                         JobPo repeatJob = appContext.getRepeatJobQueue().getJob(request.getJobId());
                         long nextTriggerTime = JobUtils.getRepeatNextTriggerTime(repeatJob);
                         jobPo.setTriggerTime(nextTriggerTime);
+                        jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                         appContext.getExecutableJobQueue().add(jobPo);
                     } catch (DupEntryException e) {
+                        LOGGER.error(e.getMessage(), e);
                         return Builder.build(false, "等待执行队列中任务已经存在，请检查");
                     } catch (Exception e) {
+                        LOGGER.error(e.getMessage(), e);
                         return Builder.build(false, "插入等待执行队列中任务错误, error:" + e.getMessage());
                     }
                 } else {
                     // 不依赖上一周期的
                     Long lastGenerateTriggerTime = jobPo.getLastGenerateTriggerTime();
-                    if (lastGenerateTriggerTime == null) {
+                    if (lastGenerateTriggerTime == null || lastGenerateTriggerTime == 0) {
                         lastGenerateTriggerTime = SystemClock.now();
                     }
                     appContext.getNoRelyJobGenerator().generateRepeatJobForInterval(jobPo, new Date(lastGenerateTriggerTime));
