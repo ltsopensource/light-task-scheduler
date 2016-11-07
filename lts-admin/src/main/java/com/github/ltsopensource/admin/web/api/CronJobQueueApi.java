@@ -160,7 +160,7 @@ public class CronJobQueueApi extends AbstractMVC {
             appContext.getSuspendJobQueue().add(jobPo);
         } catch (DupEntryException e) {
             LOGGER.error(e.getMessage(), e);
-            return Builder.build(false, "改任务已经被暂停, 请检查暂停队列");
+            return Builder.build(false, "该任务已经被暂停, 请检查暂停队列");
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             return Builder.build(false, "移动任务到暂停队列失败, error:" + e.getMessage());

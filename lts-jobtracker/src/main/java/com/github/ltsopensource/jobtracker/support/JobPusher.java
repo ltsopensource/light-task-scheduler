@@ -251,7 +251,6 @@ public class JobPusher {
         boolean needResume = true;
         try {
             jobPo.setIsRunning(true);
-            jobPo.setGmtModified(SystemClock.now());
             appContext.getExecutableJobQueue().add(jobPo);
         } catch (DupEntryException e) {
             LOGGER.warn("ExecutableJobQueue already exist:" + JSON.toJSONString(jobPo));

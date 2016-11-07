@@ -38,6 +38,7 @@ public class JobSender {
         SendResult sendResult = invoker.invoke(jobPos);
 
         if (sendResult.isSuccess()) {
+            List<JobLogPo> jobLogPos = new ArrayList<JobLogPo>(jobPos.size());
             for (JobPo jobPo : jobPos) {
                 // 记录日志
                 JobLogPo jobLogPo = JobDomainConverter.convertJobLog(jobPo);
@@ -45,8 +46,9 @@ public class JobSender {
                 jobLogPo.setLogType(LogType.SENT);
                 jobLogPo.setLogTime(SystemClock.now());
                 jobLogPo.setLevel(Level.INFO);
-                appContext.getJobLogger().log(jobLogPo);
+                jobLogPos.add(jobLogPo);
             }
+            appContext.getJobLogger().log(jobLogPos);
         }
         return sendResult;
     }
