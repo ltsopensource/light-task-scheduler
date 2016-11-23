@@ -41,6 +41,36 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label class="col-sm-2 control-label">日志类型</label>
+
+                            <div class="col-sm-3">
+                                <select class="form-control selectpicker" name="taskTrackerNodeGroup">
+                                    <option value="">-- 不限 --</option>
+                                    #foreach ($nodeGroup in $taskTrackerNodeGroups)
+                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
+                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
+                                        #else
+                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                        #end
+                                    #end
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">执行结果</label>
+
+                            <div class="col-sm-3">
+                                <select class="form-control selectpicker" name="taskTrackerNodeGroup">
+                                    <option value="">-- 不限 --</option>
+                                    #foreach ($nodeGroup in $taskTrackerNodeGroups)
+                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
+                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
+                                        #else
+                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
+                                        #end
+                                    #end
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label class="col-sm-2 control-label">时间</label>
 
                             <div class="col-sm-2">

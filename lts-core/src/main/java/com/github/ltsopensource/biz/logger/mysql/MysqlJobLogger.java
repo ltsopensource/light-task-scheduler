@@ -14,6 +14,7 @@ import com.github.ltsopensource.store.jdbc.builder.OrderByType;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 import com.github.ltsopensource.store.jdbc.dbutils.JdbcTypeUtils;
+import com.sun.tools.internal.ws.wsdl.document.soap.SOAPUse;
 
 import java.util.List;
 
@@ -147,6 +148,9 @@ public class MysqlJobLogger extends JdbcAbstractAccess implements JobLogger {
                 .andOnNotEmpty("task_id = ?", request.getTaskId())
                 .andOnNotEmpty("real_task_id = ?", request.getRealTaskId())
                 .andOnNotEmpty("task_tracker_node_group = ?", request.getTaskTrackerNodeGroup())
+                .andOnNotEmpty("log_type = ?", request.getLogType())
+                .andOnNotEmpty("level = ?", request.getLevel())
+                .andOnNotEmpty("success = ?", request.getSuccess())
                 .andBetween("log_time", JdbcTypeUtils.toTimestamp(request.getStartLogTime()), JdbcTypeUtils.toTimestamp(request.getEndLogTime()))
                 ;
     }
