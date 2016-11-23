@@ -68,25 +68,25 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
     @Override
     public void debug(String msg) {
         if (level.ordinal() <= Level.DEBUG.ordinal()) {
-            sendMsg(msg);
+            sendMsg(msg, Level.DEBUG);
         }
     }
 
     @Override
     public void info(String msg) {
         if (level.ordinal() <= Level.INFO.ordinal()) {
-            sendMsg(msg);
+            sendMsg(msg, Level.INFO);
         }
     }
 
     @Override
     public void error(String msg) {
         if (level.ordinal() <= Level.ERROR.ordinal()) {
-            sendMsg(msg);
+            sendMsg(msg, Level.ERROR);
         }
     }
 
-    private void sendMsg(String msg) {
+    private void sendMsg(String msg, Level level) {
 
         BizLogSendRequest requestBody = CommandBodyWrapper.wrapper(appContext, new BizLogSendRequest());
 
