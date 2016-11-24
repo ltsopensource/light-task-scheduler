@@ -44,34 +44,34 @@
                             <label class="col-sm-2 control-label">日志类型</label>
 
                             <div class="col-sm-3">
-                                <select class="form-control selectpicker" name="taskTrackerNodeGroup">
+                                <select class="form-control selectpicker" name="logType">
                                     <option value="">-- 不限 --</option>
-                                    #foreach ($nodeGroup in $taskTrackerNodeGroups)
-                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
-                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
-                                        #else
-                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
-                                        #end
+                                    #foreach ($logType in $logTypeList)
+                                        <option value="$logType.name()">$logType.name()</option>
                                     #end
                                 </select>
                             </div>
                             <label class="col-sm-1 control-label">执行结果</label>
 
                             <div class="col-sm-3">
-                                <select class="form-control selectpicker" name="taskTrackerNodeGroup">
+                                <select class="form-control selectpicker" name="success">
                                     <option value="">-- 不限 --</option>
-                                    #foreach ($nodeGroup in $taskTrackerNodeGroups)
-                                        #if ($taskTrackerNodeGroup == $nodeGroup.name)
-                                            <option value="$nodeGroup.name" selected>$nodeGroup.name</option>
-                                        #else
-                                            <option value="$nodeGroup.name">$nodeGroup.name</option>
-                                        #end
-                                    #end
+                                    <option value="1">成功</option>
+                                    <option value="0">失败</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-2 control-label">时间</label>
+                            <label class="col-sm-2 control-label">日志级别</label>
+                            <div class="col-sm-2">
+                                <select class="form-control selectpicker" name="logLevel">
+                                    <option value="">-- 不限 --</option>
+                                    #foreach ($logLevel in $logLevelList)
+                                    <option value="$logLevel.name()">$logLevel.name()</option>
+                                    #end
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">时间</label>
 
                             <div class="col-sm-2">
                                 <input class="form-control datepicker" type="text" style="width:160px"
@@ -91,7 +91,9 @@
                                        placeholder="yyyy-MM-dd HH:mm:ss"
                                        value="$endLogTime"/>
                             </div>
-                            <div class="col-sm-2">
+                        </div>
+                        <div class="form-group row" style="padding-right: 150px">
+                            <div class="col-sm-3" style="float:right">
                                 <div class="col-sm-2">
                                     <button class="btn btn-primary" type="button" id="searchBtn">
                                         搜索
@@ -129,7 +131,7 @@
             <th data-hide="phone,tablet">提交节点组</th>
             <th>日志类型</th>
             <th>执行结果</th>
-            <th data-hide="all">日志级别</th>
+            <th>日志级别</th>
             <th data-hide="all">依赖上一周期</th>
             <th data-hide="all">重试次数</th>
             <th data-hide="all">优先级</th>
@@ -225,6 +227,9 @@
 //                return;
 //            }
             var taskTrackerNodeGroup = $("select[name='taskTrackerNodeGroup']").val();
+            var logType = $("select[name='logType']").val();
+            var logLevel = $("select[name='logLevel']").val();
+            var success = $("select[name='success']").val();
             var startLogTime = $("input[name='startLogTime']").val();
             var endLogTime = $("input[name='endLogTime']").val();
             if (!startLogTime) {
@@ -247,6 +252,9 @@
             var params = {
                 realTaskId: realTaskId,
                 taskTrackerNodeGroup: taskTrackerNodeGroup,
+                logType: logType,
+                level: logLevel,
+                success: success,
                 startLogTime: startLogTime, endLogTime: endLogTime
             };
             if (!realTaskId) {
@@ -285,5 +293,9 @@
             $("#searchBtn").trigger("click");
 //            ltsTable.renderEmpty();
         }
+        //翻译日志类型选择下拉列表
+        $("select[name='logType'] option").each(function(i, v){
+            $(v).text(LOG_TYPE[$(v).val()]);
+        })
     });
 </script>
