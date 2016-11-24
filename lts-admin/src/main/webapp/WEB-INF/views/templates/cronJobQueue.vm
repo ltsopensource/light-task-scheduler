@@ -82,7 +82,6 @@
             </div>
         </div>
     </div>
-    `
 </div>
 
 <div class="modal inmodal" id="job-edit-modal" role="dialog" aria-hidden="true" style="display: none;">
