@@ -49,27 +49,31 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         }
         this.appContext = appContext;
         this.remotingClient = remotingClient;
-        this.retryScheduler = new RetryScheduler<BizLog>(BizLogger.class.getSimpleName(), appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
-            @Override
-            protected boolean isRemotingEnable() {
-                return remotingClient.isServerEnable();
-            }
 
-            @Override
-            protected boolean retry(List<BizLog> list) {
-                return sendBizLog(list);
-            }
-        };
         if (isEnableBizLoggerFailStore()) {
+
+            this.retryScheduler = new RetryScheduler<BizLog>(BizLogger.class.getSimpleName(), appContext, FailStorePathBuilder.getBizLoggerPath(appContext)) {
+                @Override
+                protected boolean isRemotingEnable() {
+                    return remotingClient.isServerEnable();
+                }
+
+                @Override
+                protected boolean retry(List<BizLog> list) {
+                    return sendBizLog(list);
+                }
+            };
+
             this.retryScheduler.start();
+
+            NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+                @Override
+                public void call() throws Exception {
+                    retryScheduler.stop();
+                }
+            });
         }
 
-        NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
-            @Override
-            public void call() throws Exception {
-                retryScheduler.stop();
-            }
-        });
     }
 
     @Override
@@ -112,7 +116,11 @@ public class BizLoggerImpl extends BizLoggerAdapter implements BizLogger {
         requestBody.setBizLogs(Collections.singletonList(bizLog));
 
         if (!remotingClient.isServerEnable()) {
-            retryScheduler.inSchedule(StringUtils.generateUUID(), bizLog);
+            if(isEnableBizLoggerFailStore()){
+                retryScheduler.inSchedule(StringUtils.generateUUID(), bizLog);
+            }else{
+                logger.error("Send Biz Logger to JobTracker Error, server is down, bizLog={}", JSON.toJSONString(bizLog));
+            }
             return;
         }
 
