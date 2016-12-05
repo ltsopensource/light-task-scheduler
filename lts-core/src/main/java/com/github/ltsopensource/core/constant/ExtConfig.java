@@ -224,4 +224,9 @@ public interface ExtConfig {
     String JOB_TRACKER_PUSHER_THREAD_NUM = "lts.job.tracker.pusher.thread.num";
 
     String JOB_TRACKER_PUSH_BATCH_SIZE = "lts.job.tracker.push.batch.size";
+
+    String TASK_TRACKER_BIZ_LOGGER_FAIL_STORE_CLOSE = "lts.task.tracker.biz.logger.failstore.close";
+
+    String TASK_TRACKER_JOB_RESULT_FAIL_STORE_CLOSE = "lts.task.tracker.job.result.failstore.close";
+
 }

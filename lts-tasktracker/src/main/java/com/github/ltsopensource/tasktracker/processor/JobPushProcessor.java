@@ -3,6 +3,7 @@ package com.github.ltsopensource.tasktracker.processor;
 import com.github.ltsopensource.core.commons.utils.Callable;
 import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.domain.JobMeta;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.exception.JobTrackerNotFoundException;
@@ -50,29 +51,32 @@ public class JobPushProcessor extends AbstractProcessor {
     protected JobPushProcessor(TaskTrackerAppContext appContext) {
         super(appContext);
         this.remotingClient = appContext.getRemotingClient();
-        retryScheduler = new RetryScheduler<JobRunResult>(JobPushProcessor.class.getSimpleName(), appContext,
-                FailStorePathBuilder.getJobFeedbackPath(appContext), 3) {
-            @Override
-            protected boolean isRemotingEnable() {
-                return remotingClient.isServerEnable();
-            }
-
-            @Override
-            protected boolean retry(List<JobRunResult> results) {
-                return retrySendJobResults(results);
-            }
-        };
-        retryScheduler.start();
-
         // 线程安全的
         jobRunnerCallback = new JobRunnerCallback();
 
-        NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
-            @Override
-            public void call() throws Exception {
-                retryScheduler.stop();
-            }
-        });
+
+        if (isEnableFailStore()) {
+            retryScheduler = new RetryScheduler<JobRunResult>(JobPushProcessor.class.getSimpleName(), appContext,
+                    FailStorePathBuilder.getJobFeedbackPath(appContext), 3) {
+                @Override
+                protected boolean isRemotingEnable() {
+                    return remotingClient.isServerEnable();
+                }
+
+                @Override
+                protected boolean retry(List<JobRunResult> results) {
+                    return retrySendJobResults(results);
+                }
+            };
+            retryScheduler.start();
+
+            NodeShutdownHook.registerHook(appContext, this.getClass().getName(), new Callable() {
+                @Override
+                public void call() throws Exception {
+                    retryScheduler.stop();
+                }
+            });
+        }
     }
 
     @Override
@@ -152,9 +156,15 @@ public class JobPushProcessor extends AbstractProcessor {
                                     LOGGER.info("Job feedback failed, save local files。{}", jobRunResult);
                                 }
                                 try {
-                                    retryScheduler.inSchedule(
-                                            jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
-                                            jobRunResult);
+                                    if (isEnableFailStore()) {
+                                        retryScheduler.inSchedule(
+                                                jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
+                                                jobRunResult);
+                                    } else {
+                                        LOGGER.error("Send Job Result to JobTracker Error, code={}, jobRunResult={}",
+                                                commandResponse != null ? commandResponse.getCode() : null, JSON.toJSONString(jobRunResult));
+                                    }
+
                                 } catch (Exception e) {
                                     LOGGER.error("Job feedback failed", e);
                                 }
@@ -173,9 +183,14 @@ public class JobPushProcessor extends AbstractProcessor {
             } catch (JobTrackerNotFoundException e) {
                 try {
                     LOGGER.warn("No job tracker available! save local files.");
-                    retryScheduler.inSchedule(
-                            jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
-                            jobRunResult);
+
+                    if (isEnableFailStore()) {
+                        retryScheduler.inSchedule(
+                                jobRunResult.getJobMeta().getJobId().concat("_") + SystemClock.now(),
+                                jobRunResult);
+                    } else {
+                        LOGGER.error("Send Job Result to JobTracker Error, server is down, jobRunResult={}", JSON.toJSONString(jobRunResult));
+                    }
                 } catch (Exception e1) {
                     LOGGER.error("Save files failed, {}", jobRunResult.getJobMeta(), e1);
                 }
@@ -183,6 +198,10 @@ public class JobPushProcessor extends AbstractProcessor {
 
             return returnResponse.getJobMeta();
         }
+    }
+
+    private boolean isEnableFailStore() {
+        return !appContext.getConfig().getParameter(ExtConfig.TASK_TRACKER_JOB_RESULT_FAIL_STORE_CLOSE, false);
     }
 
     /**
