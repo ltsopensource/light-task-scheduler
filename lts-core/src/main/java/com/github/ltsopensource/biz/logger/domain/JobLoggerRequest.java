@@ -1,6 +1,7 @@
 package com.github.ltsopensource.biz.logger.domain;
 
 import com.github.ltsopensource.admin.request.PaginationReq;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.Date;
 
@@ -13,6 +14,12 @@ public class JobLoggerRequest extends PaginationReq {
     private String taskId;
 
     private String taskTrackerNodeGroup;
+
+    private String logType;
+
+    private String level;
+
+    private String success;
 
     private Date startLogTime;
 
@@ -40,6 +47,30 @@ public class JobLoggerRequest extends PaginationReq {
 
     public void setTaskTrackerNodeGroup(String taskTrackerNodeGroup) {
         this.taskTrackerNodeGroup = taskTrackerNodeGroup;
+    }
+
+    public String getLogType() {
+        return logType;
+    }
+
+    public void setLogType(String logType) {
+        this.logType = logType;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public String getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(String success) {
+        this.success = success;
     }
 
     public Date getStartLogTime() {
