@@ -4,17 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>7</version>
-    </parent>
-
     <groupId>com.github.ltsopensource</groupId>
     <artifactId>lts-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.7.0-SNAPSHOT</version>
-    <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
+    <url>ssh://git@zqtgit.jrj.com.cn:62222/stock/light-task-scheduler.git</url>
     <modules>
         <module>lts-core</module>
         <module>lts-jobtracker</module>
@@ -358,11 +352,20 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</connection>
-        <developerConnection>scm:git:https://github.com/ltsopensource/light-task-scheduler.git</developerConnection>
-        <url>https://github.com/ltsopensource/light-task-scheduler.git</url>
+        <connection>scm:git:ssh://git@zqtgit.jrj.com.cn:62222/stock/light-task-scheduler.git</connection>
+        <developerConnection>scm:git:ssh://git@zqtgit.jrj.com.cn:62222/stock/light-task-scheduler.git</developerConnection>
+        <url>ssh://git@zqtgit.jrj.com.cn:62222/stock/light-task-scheduler.git</url>
     </scm>
-
+    <distributionManagement>
+        <repository>
+            <id>repo-jrj-releases</id>
+            <url>http://nexus.jrj.com.cn/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>http://nexus.jrj.com.cn/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
     <developers>
         <developer>
             <id>hugui.hg</id>
@@ -370,4 +373,16 @@
             <email>254963746@qq.com</email>
         </developer>
     </developers>
+    <build>
+        <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.5.3</version>
+            <configuration>
+                <tagNameFormat>v@{project.version}</tagNameFormat>
+            </configuration>
+        </plugin>
+        </plugins>
+    </build>
 </project>
