@@ -120,6 +120,12 @@ public final class BeanCopierFactory {
                 Class<?> targetFieldClass = field.getType();
 
                 Method setMethod = ReflectionUtils.findMethod(targetClass, "set" + methodNameSuffix, targetFieldClass);
+                if (setMethod == null) {
+                    setMethod = ReflectionUtils.findMethod(targetClass, "set" + field.getName(), targetFieldClass);
+                    if (setMethod != null) {
+                        methodNameSuffix = field.getName();
+                    }
+                }
                 if (setMethod != null) {
 
                     // 查看这个属性是否有 PropConverter
