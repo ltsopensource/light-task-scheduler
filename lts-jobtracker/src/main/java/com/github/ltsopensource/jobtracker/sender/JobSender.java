@@ -68,7 +68,7 @@ public class JobSender {
 
             // IMPORTANT: 这里要先切换队列
             try {
-                jobPo.setGmtModified(jobPo.getGmtCreated());
+                jobPo.setGmtModified(SystemClock.now());
                 appContext.getExecutingJobQueue().add(jobPo);
             } catch (DupEntryException e) {
                 LOGGER.warn("ExecutingJobQueue already exist:" + JSON.toJSONString(jobPo));
