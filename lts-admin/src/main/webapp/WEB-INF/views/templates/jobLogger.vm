@@ -123,7 +123,7 @@
             <td>{{row.logType | format:'logTypeLabel'}}</td>
             <td>{{row.success | format:'successLabel'}}</td>
             <td>{{row.level}}</td>
-            <td>{{row.relyOnPrevCycle | format:'formatRelyOnPrevCycle',row}}</td>
+            <td>{{row.depPreCycle | format:'formatRelyOnPrevCycle',row}}</td>
             <td>{{row.retryTimes | format:'formatRetryTimes', row}}</td>
             <td>{{row.priority}}</td>
             <td>{{row.triggerTime | dateFormat:'yyyy-MM-dd HH:mm:ss'}}</td>
