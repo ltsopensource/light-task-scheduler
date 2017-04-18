@@ -3,6 +3,7 @@ package com.github.ltsopensource.store.jdbc;
 import com.github.ltsopensource.core.cluster.Config;
 import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.constant.Constants;
+import com.github.ltsopensource.core.constant.ExtConfig;
 import com.github.ltsopensource.core.exception.LtsRuntimeException;
 import com.github.ltsopensource.store.jdbc.exception.JdbcException;
 
@@ -15,8 +16,10 @@ import java.io.InputStream;
 public abstract class JdbcAbstractAccess {
 
     private SqlTemplate sqlTemplate;
+    private Config config;
 
     public JdbcAbstractAccess(Config config) {
+        this.config = config;
         this.sqlTemplate = SqlTemplateFactory.create(config);
     }
 
@@ -39,10 +42,12 @@ public abstract class JdbcAbstractAccess {
     }
 
     protected void createTable(String sql) throws JdbcException {
-        try {
-            getSqlTemplate().createTable(sql);
-        } catch (Exception e) {
-            throw new JdbcException("Create table error, sql=" + sql, e);
+        if (config.getParameter(ExtConfig.NEED_CREATE_DB_TABLE, true)) {
+            try {
+                getSqlTemplate().createTable(sql);
+            } catch (Exception e) {
+                throw new JdbcException("Create table error, sql=" + sql, e);
+            }
         }
     }
 }
