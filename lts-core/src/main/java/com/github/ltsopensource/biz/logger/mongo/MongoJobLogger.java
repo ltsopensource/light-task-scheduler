@@ -53,6 +53,9 @@ public class MongoJobLogger extends MongoRepository implements JobLogger {
         if(StringUtils.isNotEmpty(request.getTaskId())){
             query.field("taskId").equal(request.getTaskId());
         }
+        if(StringUtils.isNotEmpty(request.getRealTaskId())){
+            query.field("realTaskId").equal(request.getRealTaskId());
+        }   
         if(StringUtils.isNotEmpty(request.getTaskTrackerNodeGroup())){
             query.field("taskTrackerNodeGroup").equal(request.getTaskTrackerNodeGroup());
         }
