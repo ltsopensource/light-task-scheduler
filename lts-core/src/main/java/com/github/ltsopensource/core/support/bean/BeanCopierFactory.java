@@ -88,7 +88,7 @@ public final class BeanCopierFactory {
 
         String beanCopierClassName = sourceClass.getSimpleName() + "2" + targetClass.getSimpleName() + BeanCopier.class.getSimpleName() + sequence;
         String classDefinitionCode = "public class " + beanCopierClassName +
-                " extends " + BeanCopierAdapter.class.getSimpleName();
+                " extends " + BeanCopierAdapter.class.getName();
 
         javaSourceBean.setClassDefinition(classDefinitionCode);
 
@@ -107,8 +107,8 @@ public final class BeanCopierFactory {
 
         StringBuilder methodCode = new StringBuilder();
         methodCode.append("public void copyProps(").append(Object.class.getName()).append(" sourceObj, ").append(Object.class.getName()).append(" targetObj){\n");
-        methodCode.append(sourceClass.getSimpleName()).append(" source = ").append("(").append(sourceClass.getSimpleName()).append(")sourceObj;\n");
-        methodCode.append(targetClass.getSimpleName()).append(" target = ").append("(").append(targetClass.getSimpleName()).append(")targetObj;\n");
+        methodCode.append(sourceClass.getName()).append(" source = ").append("(").append(sourceClass.getName()).append(")sourceObj;\n");
+        methodCode.append(targetClass.getName()).append(" target = ").append("(").append(targetClass.getName()).append(")targetObj;\n");
 
         // 这里查找了包括父类的属性
         Field[] targetFields = ReflectionUtils.findFields(targetClass);
@@ -120,13 +120,19 @@ public final class BeanCopierFactory {
                 Class<?> targetFieldClass = field.getType();
 
                 Method setMethod = ReflectionUtils.findMethod(targetClass, "set" + methodNameSuffix, targetFieldClass);
+                if (setMethod == null) {
+                    setMethod = ReflectionUtils.findMethod(targetClass, "set" + field.getName(), targetFieldClass);
+                    if (setMethod != null) {
+                        methodNameSuffix = field.getName();
+                    }
+                }
                 if (setMethod != null) {
 
                     // 查看这个属性是否有 PropConverter
                     if (propCvtMap != null && propCvtMap.containsKey(field.getName())) {
 
                         String converterName = field.getName() + "Converter";
-                        String converterType = PropConverter.class.getSimpleName();
+                        String converterType = PropConverter.class.getName();
 
                         methodCode.append(converterType).append(" ").append(converterName).append(" = (").append(converterType).append(")")
                                 .append(BeanCopierFactory.class.getName()).append(".getConverter(").append(sequence).append(",").append("\"").append(field.getName()).append("\");\n");

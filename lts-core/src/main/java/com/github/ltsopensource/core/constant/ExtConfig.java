@@ -80,6 +80,8 @@ public interface ExtConfig {
     String JDBC_URL = "jdbc.url";
     String JDBC_USERNAME = "jdbc.username";
     String JDBC_PASSWORD = "jdbc.password";
+
+    String NEED_CREATE_DB_TABLE = "jdbc.create.db.table";
     /**
      * Durid相关数据的配置
      */
