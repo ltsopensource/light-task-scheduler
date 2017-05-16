@@ -19,4 +19,6 @@ public interface HttpCmdNames {
 
     String HTTP_CMD_JOB_TERMINATE = "job_terminate_cmd";
 
+    String HTTP_CMD_NODE_ONLINE_OFFLINE = "node_online_offline_cmd";
+
 }
