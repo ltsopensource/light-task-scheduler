@@ -1,8 +1,10 @@
 package com.github.ltsopensource.admin.web.view;
 
 import com.github.ltsopensource.admin.cluster.BackendAppContext;
+import com.github.ltsopensource.biz.logger.domain.LogType;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.commons.utils.DateUtils;
+import com.github.ltsopensource.core.constant.Level;
 import com.github.ltsopensource.queue.domain.NodeGroupPo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -63,6 +65,11 @@ public class CommonView {
         if (startLogTime == null) {
             startLogTime = DateUtils.addMinute(new Date(), -10);
         }
+
+        model.addAttribute("logTypeList", LogType.values());
+
+        model.addAttribute("logLevelList", Level.values());
+
         model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(startLogTime));
         if (endLogTime == null) {
             endLogTime = new Date();
