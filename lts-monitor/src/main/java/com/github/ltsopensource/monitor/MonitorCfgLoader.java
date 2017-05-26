@@ -1,11 +1,11 @@
 package com.github.ltsopensource.monitor;
 
-import com.github.ltsopensource.core.commons.file.FileUtils;
 import com.github.ltsopensource.core.commons.utils.Assert;
 import com.github.ltsopensource.core.commons.utils.StringUtils;
-import org.apache.log4j.PropertyConfigurator;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -17,21 +17,30 @@ public class MonitorCfgLoader {
 
     public static MonitorCfg load(String confPath) {
 
-        String cfgPath = confPath + "/lts-monitor.cfg";
-        String log4jPath = confPath + "/log4j.properties";
+
+        String monitorConfigName = "lts-monitor.cfg";
+        String cfgPath = confPath + File.separator + monitorConfigName;
+
+//        String log4jConfigName = "log4j.properties";
+//        String log4jPath = confPath + File.separator + log4jConfigName;
 
         Properties conf = new Properties();
-        File file = new File(cfgPath);
         InputStream is = null;
+
         try {
-            is = new FileInputStream(file);
-        } catch (FileNotFoundException e) {
-            throw new CfgException("can not find " + cfgPath);
-        }
-        try {
+            is = MonitorCfgLoader.class.getClassLoader().getResourceAsStream(monitorConfigName);
             conf.load(is);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new CfgException("Read " + cfgPath + " error.", e);
+        }finally {
+            try {
+                if (null != is) {
+                    is.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         MonitorCfg cfg = new MonitorCfg();
@@ -68,10 +77,10 @@ public class MonitorCfgLoader {
             throw new CfgException(e);
         }
 
-        if (FileUtils.exist(log4jPath)) {
-            //  log4j 配置文件路径
-            PropertyConfigurator.configure(log4jPath);
-        }
+//        if (FileUtils.exist(log4jPath)) {
+//            //  log4j 配置文件路径
+//            PropertyConfigurator.configure(log4jPath);
+//        }
 
         return cfg;
     }
