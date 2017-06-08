@@ -294,7 +294,6 @@ public abstract class AbstractRemoting {
                         }
 
                         responseFuture.putResponse(null);
-                        
 						try {
 							responseFuture.executeInvokeCallback();
 						} finally {
