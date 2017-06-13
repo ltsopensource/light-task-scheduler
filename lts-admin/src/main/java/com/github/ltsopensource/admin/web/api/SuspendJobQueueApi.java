@@ -110,9 +110,14 @@ public class SuspendJobQueueApi extends AbstractMVC {
         if (StringUtils.isEmpty(request.getJobId())) {
             return Builder.build(false, "JobId 必须传!");
         }
+
+        JobPo jobPo = appContext.getSuspendJobQueue().getJob(request.getJobId());
+        if (jobPo == null) {
+            return Builder.build(true, "已经删除");
+        }
+
         boolean success = appContext.getSuspendJobQueue().remove(request.getJobId());
         if (success) {
-            JobPo jobPo = appContext.getSuspendJobQueue().getJob(request.getJobId());
             JobLogUtils.log(LogType.DEL, jobPo, appContext.getJobLogger());
         }
         return Builder.build(success);
