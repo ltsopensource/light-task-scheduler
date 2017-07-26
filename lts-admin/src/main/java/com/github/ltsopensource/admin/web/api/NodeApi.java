@@ -94,7 +94,7 @@ public class NodeApi extends AbstractMVC {
     }
 
     @RequestMapping("node-onoffline-log-get")
-    public RestfulResponse delNodeGroup(NodeOnOfflineLogPaginationReq request) {
+    public RestfulResponse getNodeOnofflineLog(NodeOnOfflineLogPaginationReq request) {
         RestfulResponse response = new RestfulResponse();
         Long results = appContext.getBackendNodeOnOfflineLogAccess().count(request);
         response.setResults(results.intValue());
