@@ -228,6 +228,7 @@ public class JobReceiver {
             if (appContext.getExecutingJobQueue().getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId()) == null) {
                 // 2. add to executable queue
                 try {
+                    jobPo.setRepeatedCount(1); //第一次job的repeatedCount为1
                     jobPo.setInternalExtParam(Constants.EXE_SEQ_ID, JobUtils.generateExeSeqId(jobPo));
                     appContext.getExecutableJobQueue().add(jobPo);
                 } catch (DupEntryException e) {

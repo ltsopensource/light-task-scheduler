@@ -81,6 +81,9 @@ public class NonRelyJobUtils {
         }
         // 计算出应该重复的次数
         int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
+        if (repeatedCount <= 0) {
+            repeatedCount = 1; //repeatedCount从1开始
+        }
 
         if (repeatedCount < 0) {
             repeatedCount = 0;
@@ -88,7 +91,7 @@ public class NonRelyJobUtils {
 
         boolean stop = false;
         while (!stop) {
-            Long nextTriggerTime = firstTriggerTime + repeatedCount * repeatInterval;
+            Long nextTriggerTime = firstTriggerTime + (repeatedCount - 1) * repeatInterval; //第一次执行时间点应该是firstTriggerTime
 
             if (nextTriggerTime <= endTime &&
                     (repeatCount == -1 || repeatedCount <= repeatCount)) {
