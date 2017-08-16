@@ -29,7 +29,7 @@ public class ExecutableDeadJobChecker {
     // 1 分钟还锁着的，说明是有问题的
     private static final long MAX_TIME_OUT = 60 * 1000;
 
-    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutableJobQueue-Fix-Executor", true));
+    private ScheduledExecutorService FIXED_EXECUTOR_SERVICE;
 
     private JobTrackerAppContext appContext;
 
@@ -43,6 +43,7 @@ public class ExecutableDeadJobChecker {
     public void start() {
         try {
             if (start.compareAndSet(false, true)) {
+                FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutableJobQueue-Fix-Executor", true));
                 scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {

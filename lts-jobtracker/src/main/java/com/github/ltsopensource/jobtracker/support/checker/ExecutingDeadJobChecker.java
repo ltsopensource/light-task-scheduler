@@ -50,7 +50,7 @@ public class ExecutingDeadJobChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecutingDeadJobChecker.class);
 
-    private final ScheduledExecutorService FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutingJobQueue-Fix-Executor", true));
+    private ScheduledExecutorService FIXED_EXECUTOR_SERVICE;
 
     private JobTrackerAppContext appContext;
     private JobTrackerMStatReporter stat;
@@ -73,6 +73,7 @@ public class ExecutingDeadJobChecker {
                     fixCheckPeriodSeconds = 5 * 60;
                 }
 
+                FIXED_EXECUTOR_SERVICE = Executors.newScheduledThreadPool(1, new NamedThreadFactory("LTS-ExecutingJobQueue-Fix-Executor", true));
                 scheduledFuture = FIXED_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runnable() {
                     @Override
                     public void run() {

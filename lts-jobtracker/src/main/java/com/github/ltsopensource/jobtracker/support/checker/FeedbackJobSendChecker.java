@@ -29,7 +29,7 @@ public class FeedbackJobSendChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeedbackJobSendChecker.class);
 
-    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-FeedbackJobSend-Executor", true));
+    private ScheduledExecutorService RETRY_EXECUTOR_SERVICE;
     private ScheduledFuture<?> scheduledFuture;
     private AtomicBoolean start = new AtomicBoolean(false);
     private ClientNotifier clientNotifier;
@@ -68,6 +68,7 @@ public class FeedbackJobSendChecker {
     public void start() {
         try {
             if (start.compareAndSet(false, true)) {
+                RETRY_EXECUTOR_SERVICE = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("LTS-FeedbackJobSend-Executor", true));
                 scheduledFuture = RETRY_EXECUTOR_SERVICE.scheduleWithFixedDelay(new Runner()
                         , 30, 30, TimeUnit.SECONDS);
             }
