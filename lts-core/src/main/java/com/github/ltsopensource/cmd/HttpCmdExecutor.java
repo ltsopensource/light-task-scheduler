@@ -51,6 +51,11 @@ public class HttpCmdExecutor implements Runnable {
         } catch (Throwable t) {
             LOGGER.error("Error When Execute Command", t);
             sendError(HTTP_INTERNALERROR, JSON.toJSONString(HttpCmdResponse.newResponse(false, "Error:" + t.getMessage())), false);
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+            }
         }
     }
 
@@ -111,6 +116,12 @@ public class HttpCmdExecutor implements Runnable {
         return resolveRequest(uri, params);
     }
 
+    public void abort() {
+        try {
+            this.socket.close();
+        } catch (IOException e) {
+        }
+    }
 
     protected static HttpCmdRequest resolveRequest(String uri, Properties params) {
 
