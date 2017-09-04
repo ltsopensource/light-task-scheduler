@@ -166,7 +166,7 @@ public class JobQueueApi extends AbstractMVC {
 
         boolean success = appContext.getExecutableJobQueue().remove(request.getTaskTrackerNodeGroup(), request.getJobId());
         if (success) {
-            if (StringUtils.isNotEmpty(request.getCronExpression())) {
+            if (StringUtils.isNotEmpty(request.getCronExpression()) && !"null".equals(request.getCronExpression())) {
                 // 是Cron任务, Cron任务队列的也要被删除
                 try {
                     appContext.getCronJobQueue().remove(request.getJobId());
