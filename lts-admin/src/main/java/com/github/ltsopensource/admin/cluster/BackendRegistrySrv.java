@@ -92,8 +92,8 @@ public class BackendRegistrySrv {
                         LOGGER.info("ADD NODE " + nodes);
                         break;
                     case REMOVE:
-                        appContext.getNodeMemCacheAccess().removeNode(nodes);
-                        LOGGER.info("REMOVE NODE " + nodes);
+                        reSubscribe();
+                        LOGGER.info("Resubscribe NODE " );
                         break;
                 }
                 // 记录日志
