@@ -80,15 +80,31 @@ public class JobRetryHandler {
                 JobPo repeatJobPo = appContext.getRepeatJobQueue().getJob(jobMeta.getJobId());
                 if (repeatJobPo != null) {
                     // 比较下一次重复时间和重试时间
-                    if (repeatJobPo.getRepeatCount() == -1 || (repeatJobPo.getRepeatedCount() < repeatJobPo.getRepeatCount())) {
+                    if (repeatJobPo.getRepeatCount() == -1
+                            || (repeatJobPo.getRepeatedCount() < repeatJobPo.getRepeatCount())) {
                         long nexTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
-                        if (nexTriggerTime < nextRetryTriggerTime) {
+                        if (nexTriggerTime < nextRetryTriggerTime
+                                && (repeatJobPo.getRepeatedCount() + 1 < repeatJobPo.getRepeatCount())) {
                             // 表示下次还要执行, 并且下次执行时间比下次重试时间要早, 那么不重试，直接使用下次的执行时间
+                            // 最后一次repeat job的重试不会走到这里，会继续生成retry的job，cool
                             nextRetryTriggerTime = nexTriggerTime;
                             jobPo = repeatJobPo;
+
+                            // 虽然不再执行这次job的retry，但是也要更新repeatQueue的repeatedCount
+                            final int updatedRepeatedCount = appContext.getRepeatJobQueue().incRepeatedCount(
+                                    jobMeta.getJobId());
+                            if (updatedRepeatedCount >= jobPo.getRepeatCount()) {
+                                // 如果更新后的repeatedCount已经达到预定次数，就不再生产可执行job
+                                return;
+                            }
+
+                            if (jobPo.getRelyOnPrevCycle()) {
+                                // 依赖上一周期的repeat job，下次job的repeatedCount要加1
+                                jobPo.setRepeatedCount(updatedRepeatedCount + 1);
+                            }
                         } else {
-                            if(jobPo.getRetryTimes() < repeatJobPo.getMaxRetryTimes()) { //最后一次重试时，这个参数不能设置，为了在finishHandler时能执行到incRepeatedCount
-                               jobPo.setInternalExtParam(Constants.IS_RETRY_JOB, Boolean.TRUE.toString());
+                            if (jobPo.getRetryTimes() < repeatJobPo.getMaxRetryTimes()) { // 最后一次重试时，这个参数不能设置，为了在finish时能执行到incRepeatedCount
+                                jobPo.setInternalExtParam(Constants.IS_RETRY_JOB, Boolean.TRUE.toString());
                             }
                         }
                     }
