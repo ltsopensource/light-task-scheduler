@@ -249,7 +249,7 @@
     $(document).ready(function () {
 
         LTS.colFormatter.optFormat = function (v, row) {
-            var logUrl = "job-logger.htm?taskId=" + row['taskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
+            var logUrl = "job-logger.htm?realTaskId=" + row['taskId'] + "&taskTrackerNodeGroup=" + row['taskTrackerNodeGroup'];
             return '<a target="_blank" href="' + logUrl + '"><span class="label label-info"><i class="fa fa-file-code-o"></i> 日志</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-edit-btn"><span class="label label-success"><i class="fa fa-edit"></i> 编辑</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
                     '<a href="javascript:;" class="job-suspend-btn" jobId="' + row['jobId'] + '" taskTrackerNodeGroup="' + row['taskTrackerNodeGroup'] + '"><span class="label label-success"><i class="fa fa-lock"></i> 暂停</span><span class="hidden lts-data">' + JSON.stringify(row) + '</span></a>&nbsp;' +
