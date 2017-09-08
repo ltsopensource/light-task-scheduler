@@ -15,7 +15,7 @@ oschina地址:
 文档地址(正在更新中,后面以这个为准):
 [https://www.gitbook.com/book/qq254963746/lts/details](https://www.gitbook.com/book/qq254963746/lts/details)
 
-这两个地址都会同步更新。感兴趣，请加QQ群：109500214 一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
+这两个地址都会同步更新。感兴趣，请加QQ群：109500214 (加群密码: hello world)一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
 ##1.7.1-SNAPSHOT(master)变更主要点
 1. 增加  jdbc.create.db.table（boolean）来决定是否需要创建数据库表
