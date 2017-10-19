@@ -21,7 +21,7 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
 
     @Override
     protected String getTableName() {
-        return "lts_admin_node_onoffline_log";
+        return "lts_admin_node_onoffline_log t";
     }
 
     @Override
@@ -95,9 +95,9 @@ public class MysqlBackendNodeOnOfflineLogAccess extends MysqlAbstractJdbcAccess 
 
     private WhereSql buildWhereSql(NodeOnOfflineLogPaginationReq request){
         return new WhereSql()
-                .andOnNotEmpty("identity = ?", request.getIdentity())
-                .andOnNotEmpty("group = ?", request.getGroup())
-                .andOnNotEmpty("event = ?", request.getEvent())
-                .andBetween("log_time", request.getStartLogTime(), request.getEndLogTime());
+                .andOnNotEmpty("t.identity = ?", request.getIdentity())
+                .andOnNotEmpty("t.group = ?", request.getGroup())
+                .andOnNotEmpty("t.event = ?", request.getEvent())
+                .andBetween("t.log_time", request.getStartLogTime(), request.getEndLogTime());
     }
 }
