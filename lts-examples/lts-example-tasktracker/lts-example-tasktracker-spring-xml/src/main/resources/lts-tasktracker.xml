@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd"
+>
+
+    <bean id="springBean" class="com.github.ltsopensource.example.spring.SpringBean"/>
+
+    <!-- 方式1 -->
+    <!-- 注解方式 -->
+    <context:component-scan base-package="com.github.ltsopensource.example"/>
+
+    <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
+        <property name="jobRunnerClass" value="com.github.ltsopensource.example.spring.SpringAnnotationJobRunner"/>
+        <property name="clusterName" value="test_cluster"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+        <property name="nodeGroup" value="test_trade_TaskTracker"/>
+        <property name="workThreads" value="64"/>
+        <property name="configs">
+            <props>
+                <prop key="job.fail.store">mapdb</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- 方式2 -->
+    <!-- xml 配置方式 -->
+    <!--
+    <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerXmlFactoryBean" init-method="start">
+        <property name="bizLoggerLevel" value="INFO"/>
+        <property name="clusterName" value="test_cluster"/>
+        <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+        <property name="nodeGroup" value="test_trade_TaskTracker"/>
+        <property name="workThreads" value="64"/>
+        <property name="configs">
+            <props>
+                <prop key="job.fail.store">mapdb</prop>
+            </props>
+        </property>
+        <lookup-method name="createJobRunner" bean="jobRunner"/>
+    </bean>
+    <bean id="jobRunner" class="com.github.ltsopensource.example.support.SpringXmlJobRunner" scope="prototype">
+        <property name="springBean" ref="springBean"/>
+    </bean>
+    -->
+</beans>
