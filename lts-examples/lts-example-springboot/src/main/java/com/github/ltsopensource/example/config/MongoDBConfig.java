@@ -58,7 +58,7 @@ public class MongoDBConfig {
 		// 通过连接认证获取MongoDB连接
 		@SuppressWarnings("resource")
 		MongoClient client = new MongoClient(seeds, builder.build());
-		if(!StringUtils.isEmpty(username)&&!StringUtils.isEmpty(password)&&!StringUtils.isEmpty(database)){
+		if(!StringUtils.isEmpty(username)){
 			MongoCredential credential = MongoCredential.createScramSha1Credential(username, database,password.toCharArray());
 			List<MongoCredential> credentials = new ArrayList<MongoCredential>();
 			credentials.add(credential);

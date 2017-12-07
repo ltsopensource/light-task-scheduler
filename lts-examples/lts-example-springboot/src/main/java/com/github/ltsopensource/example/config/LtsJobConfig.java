@@ -58,6 +58,14 @@ public class LtsJobConfig implements ApplicationContextAware{
 	private String username;
 	@Value("${lts.jobtracker.configs.jdbc.password}")
 	private String password;
+	@Value("${lts.jobtracker.configs.mongo.addresses}")
+	private String addresses;
+	@Value("${lts.jobtracker.configs.mongo.database}")
+	private String database;
+	@Value("${lts.jobtracker.configs.mongo.username}")
+	private String musername;
+	@Value("${lts.jobtracker.configs.mongo.password}")
+	private String mpassword;
 	/*************************************************************************************/
 	/***************************************TaskTracker***********************************/
 	/*************************************************************************************/
@@ -104,9 +112,17 @@ public class LtsJobConfig implements ApplicationContextAware{
     	Properties configs = new Properties();
     	configs.put("job.logger", jobLogger);
     	configs.put("job.queue", jobQueue);
-    	configs.put("jdbc.url", url);
-    	configs.put("jdbc.username", username);
-    	configs.put("jdbc.password", password);
+    	if(jobLogger.equalsIgnoreCase("mysql")||jobQueue.equalsIgnoreCase("mysql")){
+    		configs.put("jdbc.url", url);
+    		configs.put("jdbc.username", username);
+    		configs.put("jdbc.password", password);
+    	}
+    	if(jobLogger.equalsIgnoreCase("mongo")||jobQueue.equalsIgnoreCase("mongo")){
+    		configs.put("mongo.addresses", addresses);
+    		configs.put("mongo.database", database);
+    		configs.put("mongo.username", musername);
+    		configs.put("mongo.password", mpassword);
+    	}
     	factory.setConfigs(configs);
     	factory.afterPropertiesSet();
     	return factory.getObject();
