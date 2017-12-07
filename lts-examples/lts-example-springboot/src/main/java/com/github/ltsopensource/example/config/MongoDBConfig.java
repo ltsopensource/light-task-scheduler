@@ -25,9 +25,9 @@ public class MongoDBConfig {
     private Logger logger = LoggerFactory.getLogger(MongoDBConfig.class);
     @Value("${lts.mongodb.servers}")
     private String servers;
-    @Value("${lts.mongodb.servers}")
+    @Value("${lts.mongodb.database}")
 	private String database;
-    @Value("${lts.mongodb.servers}")
+    @Value("${lts.mongodb.schema}")
     private String schema;
 	@Value("${lts.mongodb.username}")
 	private String username;
