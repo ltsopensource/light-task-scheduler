@@ -88,7 +88,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 * EXECUTE_SUCCESS: 执行成功,这种情况，直接反馈客户端（如果任务被设置了要反馈给客户端）。
 * EXECUTE_FAILED：执行失败，这种情况，直接反馈给客户端，不进行重试。
 * EXECUTE_LATER：稍后执行（需要重试），这种情况，不反馈客户端，重试策略采用1min，2min，3min的策略，默认最大重试次数为10次，用户可以通过参数设置修改这个重试次数。
-* EXECUTE_EXCEPTION：执行异常, 这中情况也会重试(重试策略，同上)
+* EXECUTE_EXCEPTION：执行异常, 这种情况也会重试(重试策略，同上)
 
 ###7、FailStore容错
 采用FailStore机制来进行节点容错，Fail And Store，不会因为远程通信的不稳定性而影响当前应用的运行。具体FailStore说明，请参考概念说明中的FailStore说明。
