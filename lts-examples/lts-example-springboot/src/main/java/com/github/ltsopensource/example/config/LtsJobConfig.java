@@ -34,7 +34,7 @@ public class LtsJobConfig implements ApplicationContextAware{
     private String clusterName;
     @Value("${lts.job.fail.store}")
 	private String failStore;
-	@Value("${lts.zookeeper.registry-address}")
+	@Value("${lts.registry-address}")
     private String registryAddress;
 	/*************************************************************************************/
 	/***************************************JobClient*************************************/

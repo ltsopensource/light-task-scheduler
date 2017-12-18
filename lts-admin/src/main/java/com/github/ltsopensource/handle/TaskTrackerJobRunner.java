@@ -1,10 +1,10 @@
 package com.github.ltsopensource.handle;
 
 import com.github.ltsopensource.core.domain.Action;
+import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.logger.Logger;
 import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.tasktracker.Result;
-import com.github.ltsopensource.tasktracker.logger.BizLogger;
 import com.github.ltsopensource.tasktracker.runner.JobContext;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
 
@@ -13,23 +13,26 @@ import com.github.ltsopensource.tasktracker.runner.JobRunner;
  */
 public class TaskTrackerJobRunner implements JobRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TaskTrackerJobRunner.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskTrackerJobRunner.class);
 
     @Override
-    public Result run(JobContext jobContext) throws Throwable {
+    public Result run(JobContext ctx) throws Throwable {
         try {
 //            BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
-            BizLogger bizLogger = jobContext.getBizLogger();
-
+//            BizLogger log = ctx.getBizLogger();
+            Job job = ctx.getJob();
             // TODO 业务逻辑
-            LOGGER.info("我要执行：" + jobContext);
+            logger.info("Job Context:" + ctx);
             // 会发送到 LTS (JobTracker上)
-            bizLogger.info("测试，业务日志啊啊啊啊啊");
-
+            System.out.println("\n\n\n---------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------");
+            System.out.println("-admin-task-tracker--"+job.getTaskId()+"-->"+job.getTaskTrackerNodeGroup()+"-->"+job.getSubmitNodeGroup());
+            System.out.println("---------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------\n\n\n");
         } catch (Exception e) {
-            LOGGER.info("Run job failed!", e);
+        	logger.info("Admin Run job failed!", e);
             return new Result(Action.EXECUTE_FAILED, e.getMessage());
         }
-        return new Result(Action.EXECUTE_SUCCESS, "执行成功了，哈哈");
+        return new Result(Action.EXECUTE_SUCCESS, "Admin Excute Success!");
     }
 }

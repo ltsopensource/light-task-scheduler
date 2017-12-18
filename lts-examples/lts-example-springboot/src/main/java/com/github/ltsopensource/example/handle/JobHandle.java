@@ -11,6 +11,7 @@ import com.github.ltsopensource.jobclient.domain.Response;
 @Component
 public class JobHandle {
 	public static String TASK_TRACKER_NODE_GROUP = "css-task-tracker";
+	public static String ADMIN_TASK_TRACKER_NODE_GROUP = "admin-task-tracker";
 	@SuppressWarnings("rawtypes")
 	@Autowired
 	private JobClient jobClient;
@@ -27,7 +28,7 @@ public class JobHandle {
         job.setTaskId("realtime_"+taskId);
         job.setParam("type", type+"");
         job.setParam("table", table);
-        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
+        job.setTaskTrackerNodeGroup(taskId.startsWith("t")?ADMIN_TASK_TRACKER_NODE_GROUP:TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         Response response = jobClient.submitJob(job);
@@ -48,7 +49,7 @@ public class JobHandle {
         job.setTaskId("repeat_"+taskId);
         job.setParam("type", type+"");
         job.setParam("table", table);
-        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
+        job.setTaskTrackerNodeGroup(taskId.startsWith("t")?ADMIN_TASK_TRACKER_NODE_GROUP:TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         job.setRepeatCount(repeatCount);             // 一共执行50次
@@ -70,7 +71,7 @@ public class JobHandle {
         job.setTaskId("cron"+taskId);
         job.setParam("type", type+"");
         job.setParam("table", table);
-        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);     // 执行要执行该任务的taskTracker的节点组名称
+        job.setTaskTrackerNodeGroup(taskId.startsWith("t")?ADMIN_TASK_TRACKER_NODE_GROUP:TASK_TRACKER_NODE_GROUP);     // 执行要执行该任务的taskTracker的节点组名称
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         job.setCronExpression("0 0/1 * * * ?");
@@ -92,7 +93,7 @@ public class JobHandle {
         job.setTaskId("trigger_"+taskId);
         job.setParam("type", type+"");
         job.setParam("table", table);
-        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
+        job.setTaskTrackerNodeGroup(taskId.startsWith("t")?ADMIN_TASK_TRACKER_NODE_GROUP:TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         if(start==null){

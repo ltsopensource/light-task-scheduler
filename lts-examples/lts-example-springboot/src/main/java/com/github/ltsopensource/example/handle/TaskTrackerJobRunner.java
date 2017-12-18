@@ -44,6 +44,11 @@ public class TaskTrackerJobRunner implements JobRunner {
             logger.info("--lts-context:" + jctx);
             // 会发送到 LTS (JobTracker上)
 //            log.info("LTS-JOB, Insert Job.");
+            System.out.println("\n\n\n---------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------");
+            System.out.println("-job-task-tracker--"+job.getTaskId()+"-->"+job.getTaskTrackerNodeGroup()+"-->"+job.getSubmitNodeGroup());
+            System.out.println("---------------------------------------------------------------------------------");
+            System.out.println("---------------------------------------------------------------------------------\n\n\n");
             String table = job.getParam("table");
             int type = Integer.valueOf(job.getParam("type"));
             if(type==1){

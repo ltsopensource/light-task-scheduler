@@ -12,7 +12,7 @@
     
     <bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean" init-method="start" destroy-method="destroy">
 		<property name="clusterName" value="${lts.cluster.name}" />
-		<property name="registryAddress" value="${lts.zookeeper.registry-address}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
 		<property name="nodeGroup" value="${lts.jobclient.node-group}" />
 		<property name="useRetryClient" value="${lts.jobclient.use-retry-client}" />
 		<property name="configs">
@@ -26,7 +26,7 @@
 	</bean>
 	<bean id="jobTracker" class="com.github.ltsopensource.spring.JobTrackerFactoryBean" init-method="start" destroy-method="destroy">
 		<property name="clusterName" value="${lts.cluster.name}" />
-		<property name="registryAddress" value="${lts.zookeeper.registry-address}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
 		<property name="listenPort" value="${lts.jobtracker.listen-port}" />
 		<property name="configs">
 			<props>
@@ -35,13 +35,17 @@
 				<prop key="jdbc.url">${lts.jobtracker.configs.jdbc.url}</prop>
 				<prop key="jdbc.username">${lts.jobtracker.configs.jdbc.username}</prop>
 				<prop key="jdbc.password">${lts.jobtracker.configs.jdbc.password}</prop>
+				<prop key="mongo.addresses">${lts.jobtracker.configs.mongo.addresses}</prop>
+				<prop key="mongo.database">${lts.jobtracker.configs.mongo.database}</prop>
+				<prop key="mongo.username">${lts.jobtracker.configs.mongo.username}</prop>
+				<prop key="mongo.password">${lts.jobtracker.configs.mongo.password}</prop>
 			</props>
 		</property>
 	</bean>
 	<bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start" destroy-method="destroy">
 		<property name="jobRunnerClass" value="com.github.ltsopensource.handle.TaskTrackerJobRunner" />
 		<property name="clusterName" value="${lts.cluster.name}" />
-		<property name="registryAddress" value="${lts.zookeeper.registry-address}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
 		<property name="nodeGroup" value="${lts.tasktracker.node-group}" />
 		<property name="workThreads" value="${lts.tasktracker.work-threads}" />
 		<property name="configs">

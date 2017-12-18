@@ -13,6 +13,8 @@ import com.github.ltsopensource.jobclient.JobClient;
 import com.github.ltsopensource.jobclient.domain.Response;
 @Component
 public class JobHandle {
+	public static String TASK_TRACKER_NODE_GROUP = "admin-task-tracker";
+	@SuppressWarnings("rawtypes")
 	@Autowired
 	private JobClient jobClient;
 	/**
@@ -30,7 +32,7 @@ public class JobHandle {
         	job.setExtParams(params);
         }
         job.setParam("url", url);
-        job.setTaskTrackerNodeGroup("css-task-tracker");
+        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         Response response = jobClient.submitJob(job);
@@ -53,7 +55,7 @@ public class JobHandle {
         	job.setExtParams(params);
         }
         job.setParam("url", url);
-        job.setTaskTrackerNodeGroup("css-task-tracker");
+        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         job.setRepeatCount(repeatCount);             // 一共执行50次
@@ -77,7 +79,7 @@ public class JobHandle {
         	job.setExtParams(params);
         }
         job.setParam("url", url);
-        job.setTaskTrackerNodeGroup("css-task-tracker");      // 执行要执行该任务的taskTracker的节点组名称
+        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);      // 执行要执行该任务的taskTracker的节点组名称
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         job.setCronExpression("0 0/1 * * * ?");
@@ -104,7 +106,7 @@ public class JobHandle {
         	start = new Date();
         }
         job.setParam("url", url);
-        job.setTaskTrackerNodeGroup("css-task-tracker");
+        job.setTaskTrackerNodeGroup(TASK_TRACKER_NODE_GROUP);
         job.setNeedFeedback(true);
         job.setReplaceOnExist(true);        // 当任务队列中存在这个任务的时候，是否替换更新
         job.setTriggerTime(start.getTime()+time * 1000L);   // 1 小时之后执行

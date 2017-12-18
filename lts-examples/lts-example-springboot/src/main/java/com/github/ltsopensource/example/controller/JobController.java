@@ -101,7 +101,7 @@ public class JobController {
         						String taskId = "cycle_"+table+"_"+thread_id+"_"+i+"_"+today;
         						handle.handleCronJob(type, table, taskId, "0 0/1 * * * ?");
         					}else{
-        						String taskId = "cycle_"+table+"_"+thread_id+"_"+i+"_"+today;
+        						String taskId = "single_"+table+"_"+thread_id+"_"+i+"_"+today;
         						handle.handleRealtimeJob(type, table, taskId);
         					}
     					} catch (Exception e) {
@@ -136,7 +136,7 @@ public class JobController {
         						String taskId = "cycle_"+table+"_"+thread_id+"_"+i+"_"+today;
         						handle.handleCronJob(type, table, taskId, "0 0/1 * * * ?");
         					}else{
-        						String taskId = "cycle_"+table+"_"+thread_id+"_"+i+"_"+today;
+        						String taskId = "tsingle_"+table+"_"+thread_id+"_"+i+"_"+today;
         						handle.handleRealtimeJob(type, table, taskId);
         					}
     					} catch (Exception e) {
