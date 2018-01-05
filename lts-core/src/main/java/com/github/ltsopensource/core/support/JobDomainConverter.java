@@ -29,7 +29,6 @@ public class JobDomainConverter {
         jobPo.setPriority(job.getPriority());
         jobPo.setTaskId(job.getTaskId());
         jobPo.setRealTaskId(jobPo.getTaskId());
-        jobPo.setRealTaskId(jobPo.getTaskId());
         jobPo.setGmtCreated(SystemClock.now());
         jobPo.setGmtModified(jobPo.getGmtCreated());
         jobPo.setSubmitNodeGroup(job.getSubmitNodeGroup());

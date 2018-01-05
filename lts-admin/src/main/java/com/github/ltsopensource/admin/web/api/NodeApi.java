@@ -54,11 +54,8 @@ public class NodeApi extends AbstractMVC {
     }
 
     @RequestMapping("node-group-get")
-    public RestfulResponse getNodeGroup(NodeGroupRequest request) {
+    public RestfulResponse getNodeGroup(NodeGroupGetReq nodeGroupGetReq) {
         RestfulResponse response = new RestfulResponse();
-        NodeGroupGetReq nodeGroupGetReq = new NodeGroupGetReq();
-        nodeGroupGetReq.setNodeGroup(request.getNodeGroup());
-        nodeGroupGetReq.setNodeType(request.getNodeType());
         PaginationRsp<NodeGroupPo> paginationRsp = appContext.getNodeGroupStore().getNodeGroup(nodeGroupGetReq);
 
         response.setResults(paginationRsp.getResults());
@@ -94,7 +91,7 @@ public class NodeApi extends AbstractMVC {
     }
 
     @RequestMapping("node-onoffline-log-get")
-    public RestfulResponse delNodeGroup(NodeOnOfflineLogPaginationReq request) {
+    public RestfulResponse getNodeOnofflineLog(NodeOnOfflineLogPaginationReq request) {
         RestfulResponse response = new RestfulResponse();
         Long results = appContext.getBackendNodeOnOfflineLogAccess().count(request);
         response.setResults(results.intValue());

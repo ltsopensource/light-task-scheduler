@@ -117,7 +117,7 @@ public class JobFinishHandler {
             // 可能任务队列中改条记录被删除了
             return;
         }
-        if (jobPo.getRepeatCount() != -1 && jobPo.getRepeatedCount() >= jobPo.getRepeatCount()) {
+        if (jobPo.getRepeatCount() != -1 && (jobPo.getRepeatedCount() + 1) >= jobPo.getRepeatCount()) {  //最后一次执行时 repeatedCount+1=repeatCount
             // 已经重试完成, 那么删除, 这里可以不用check可执行队列是否还有,因为这里依赖的是计数
             appContext.getRepeatJobQueue().remove(jobPo.getJobId());
             jobRemoveLog(jobPo, "Repeat");
@@ -127,7 +127,11 @@ public class JobFinishHandler {
         // 如果当前完成的job是重试的,那么不要增加repeatedCount
         if (!isRetryForThisTime) {
             // 更新repeatJob的重复次数
-            appContext.getRepeatJobQueue().incRepeatedCount(jobPo.getJobId());
+            final int jobQueueRepeatedCount = appContext.getRepeatJobQueue().incRepeatedCount(jobPo.getJobId());
+            if (jobQueueRepeatedCount >= jobPo.getRepeatCount()) {
+                appContext.getRepeatJobQueue().remove(jobPo.getJobId());
+                jobRemoveLog(jobPo, "Repeat");
+            }
         }
     }
 
@@ -137,7 +141,7 @@ public class JobFinishHandler {
             // 可能任务队列中改条记录被删除了
             return;
         }
-        if (jobPo.getRepeatCount() != -1 && jobPo.getRepeatedCount() >= jobPo.getRepeatCount()) {
+        if (jobPo.getRepeatCount() != -1 && (jobPo.getRepeatedCount() + 1) >= jobPo.getRepeatCount()) {  //最后一次执行时 repeatedCount+1=repeatCount
             // 已经重试完成, 那么删除
             appContext.getRepeatJobQueue().remove(jobId);
             jobRemoveLog(jobPo, "Repeat");
@@ -156,7 +160,7 @@ public class JobFinishHandler {
         }
         long nexTriggerTime = JobUtils.getRepeatNextTriggerTime(jobPo);
         try {
-            jobPo.setRepeatedCount(repeatedCount);
+            jobPo.setRepeatedCount(repeatedCount + 1); //再生成可执行job时，从RepeatJobQueue更新后的repeatedCount再加1
             jobPo.setTaskTrackerIdentity(null);
             jobPo.setIsRunning(false);
             jobPo.setTriggerTime(nexTriggerTime);
