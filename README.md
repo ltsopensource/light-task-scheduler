@@ -414,4 +414,5 @@ public class Application {
 ##[和其它解决方案比较](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
 
 
-
+##LTS-Admin使用jetty启动(默认)，不定期挂掉解决方案
+见[issue#389](https://github.com/ltsopensource/light-task-scheduler/issues/389)
