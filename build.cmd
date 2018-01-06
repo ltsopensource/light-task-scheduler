@@ -30,5 +30,8 @@ echo "LTS: After sub window finished, close it , and press any key to continue" 
 xcopy /e /y "%Startup_Dir%\target\lts-bin\lts\lib" "%LTS_Bin_Dir%\war\jetty\lib"
 cd ..\..\
 
-xcopy /e /y "%BASE_HOME%\lts-admin\target\lts-admin-%VERSION%.war" "%LTS_Bin_Dir%\war\lts-admin.war"
+xcopy /e /y "%BASE_HOME%\lts-admin\target\lts-admin-%VERSION%.war" "%LTS_Bin_Dir%\war"
+echo "LTS: rename war finished, close it , and press any key to continue" & pause>nul
+cd %LTS_Bin_Dir%\war
+ren lts-admin-%VERSION%.war lts-admin.war
 cd ..\..\

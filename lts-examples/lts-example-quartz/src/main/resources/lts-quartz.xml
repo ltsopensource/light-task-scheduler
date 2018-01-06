@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd"
+>
+
+    <bean name="quartzTest" class="com.github.ltsopensource.example.QuartzTest"/>
+    <bean id="quartzTestJob" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="quartzTest"/>
+        <property name="targetMethod" value="autoRun"/>
+        <property name="concurrent" value="false"/>
+    </bean>
+
+    <bean id="quartzTestTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail" ref="quartzTestJob"/>
+        <property name="cronExpression" value="*/5 * * * * ?"/> <!-- 5s一次 -->
+        <property name="description" value="测试哈哈哈哈"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean name="quartzTestJob2" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+        <property name="jobClass" value="com.github.ltsopensource.example.QuartzTestJob"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="simpleTriggerTest" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="quartzTestJob2"/>
+        <property name="repeatInterval" value="5000"/>
+        <property name="description" value="测试Repeat任务"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key3" value="v3"/>
+                <entry key="key4" value="v4"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="simpleTriggerTest2" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="quartzTestJob"/>
+        <property name="repeatCount" value="5"/>
+        <property name="repeatInterval" value="5000"/>
+        <property name="description" value="测试Repeat2任务"/>
+        <property name="jobDataAsMap">
+            <map>
+                <entry key="key1" value="v1"/>
+                <entry key="key2" value="v2"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                <ref bean="quartzTestTrigger"/>
+                <ref bean="simpleTriggerTest"/>
+                <ref bean="simpleTriggerTest2"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean class="com.github.ltsopensource.spring.quartz.QuartzLTSProxyBean">
+        <property name="locations" value="lts.properties"/>
+    </bean>
+
+</beans>

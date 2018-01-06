@@ -34,4 +34,6 @@
     <bean id="appContext" class="com.github.ltsopensource.admin.support.BackendAppContextFactoryBean"/>
 
     <bean class="com.github.ltsopensource.admin.support.LtsAdminDataCleaner"/>
+    
+    <!-- <import resource="spring-lts.xml"/> -->
 </beans>

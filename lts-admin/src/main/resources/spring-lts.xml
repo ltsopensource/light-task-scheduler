@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd"
+        >
+	<context:component-scan base-package="com.github.ltsopensource.handle"/>
+	<context:property-placeholder location="classpath:/lts.properties" ignore-unresolvable="true" />
+    
+    <bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean" init-method="start" destroy-method="destroy">
+		<property name="clusterName" value="${lts.cluster.name}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
+		<property name="nodeGroup" value="${lts.jobclient.node-group}" />
+		<property name="useRetryClient" value="${lts.jobclient.use-retry-client}" />
+		<property name="configs">
+			<props>
+				<prop key="job.fail.store">${lts.job.fail.store}</prop>
+			</props>
+		</property>
+		<property name="jobCompletedHandler">
+			<bean class="com.github.ltsopensource.handle.JobClientCompletedHandler" />
+		</property>
+	</bean>
+	<bean id="jobTracker" class="com.github.ltsopensource.spring.JobTrackerFactoryBean" init-method="start" destroy-method="destroy">
+		<property name="clusterName" value="${lts.cluster.name}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
+		<property name="listenPort" value="${lts.jobtracker.listen-port}" />
+		<property name="configs">
+			<props>
+				<prop key="job.logger">${lts.jobtracker.configs.job.logger}</prop>
+				<prop key="job.queue">${lts.jobtracker.configs.job.queue}</prop>
+				<prop key="jdbc.url">${lts.jobtracker.configs.jdbc.url}</prop>
+				<prop key="jdbc.username">${lts.jobtracker.configs.jdbc.username}</prop>
+				<prop key="jdbc.password">${lts.jobtracker.configs.jdbc.password}</prop>
+				<prop key="mongo.addresses">${lts.jobtracker.configs.mongo.addresses}</prop>
+				<prop key="mongo.database">${lts.jobtracker.configs.mongo.database}</prop>
+				<prop key="mongo.username">${lts.jobtracker.configs.mongo.username}</prop>
+				<prop key="mongo.password">${lts.jobtracker.configs.mongo.password}</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start" destroy-method="destroy">
+		<property name="jobRunnerClass" value="com.github.ltsopensource.handle.TaskTrackerJobRunner" />
+		<property name="clusterName" value="${lts.cluster.name}" />
+		<property name="registryAddress" value="${lts.registry-address}" />
+		<property name="nodeGroup" value="${lts.tasktracker.node-group}" />
+		<property name="workThreads" value="${lts.tasktracker.work-threads}" />
+		<property name="configs">
+			<props>
+				<prop key="job.fail.store">${lts.job.fail.store}</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
