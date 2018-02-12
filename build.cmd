@@ -4,7 +4,7 @@ start mvn clean install -DskipTests
 echo "LTS: mvn clean install -DskipTests"
 echo "LTS: After sub window finished, close it , and press any key to continue" & pause>nul
 
-set VERSION=1.7.1-SNAPSHOT
+set VERSION=1.7.2-SNAPSHOT
 set BASE_HOME=%~dp0%
 set DIST_BIN_DIR=lts-%VERSION%-bin
 
