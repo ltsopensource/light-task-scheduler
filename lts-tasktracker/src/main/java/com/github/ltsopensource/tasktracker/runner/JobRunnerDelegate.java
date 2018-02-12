@@ -12,6 +12,7 @@ import com.github.ltsopensource.core.support.SystemClock;
 import com.github.ltsopensource.tasktracker.Result;
 import com.github.ltsopensource.tasktracker.domain.Response;
 import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
+import com.github.ltsopensource.tasktracker.logger.BizLogger;
 import com.github.ltsopensource.tasktracker.logger.BizLoggerAdapter;
 import com.github.ltsopensource.tasktracker.logger.BizLoggerFactory;
 import com.github.ltsopensource.tasktracker.monitor.TaskTrackerMStatReporter;
@@ -34,7 +35,6 @@ public class JobRunnerDelegate implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerDelegate.class);
     private JobMeta jobMeta;
     private RunnerCallback callback;
-    private BizLoggerAdapter logger;
     private TaskTrackerAppContext appContext;
     private TaskTrackerMStatReporter stat;
     private Interruptible interruptor;
@@ -48,9 +48,6 @@ public class JobRunnerDelegate implements Runnable {
         this.callback = callback;
         this.jobMeta = jobMeta;
 
-        this.logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
-                appContext.getBizLogLevel(),
-                appContext.getRemotingClient(), appContext);
         stat = (TaskTrackerMStatReporter) appContext.getMStatReporter();
 
         this.interruptor = new InterruptibleAdapter() {
@@ -71,19 +68,21 @@ public class JobRunnerDelegate implements Runnable {
                 ((InterruptibleAdapter) interruptor).interrupt();
             }
 
-            LtsLoggerFactory.setLogger(logger);
-
             while (jobMeta != null) {
                 long startTime = SystemClock.now();
                 // 设置当前context中的jobId
-                logger.setJobMeta(jobMeta);
                 Response response = new Response();
                 response.setJobMeta(jobMeta);
+
+                BizLoggerAdapter logger = (BizLoggerAdapter) BizLoggerFactory.getLogger(
+                        appContext.getBizLogLevel(),
+                        appContext.getRemotingClient(), appContext);
+
                 try {
                     appContext.getRunnerPool().getRunningJobManager()
                             .in(jobMeta.getJobId(), this);
                     this.curJobRunner = appContext.getRunnerPool().getRunnerFactory().newRunner();
-                    Result result = this.curJobRunner.run(buildJobContext(jobMeta));
+                    Result result = this.curJobRunner.run(buildJobContext(logger, jobMeta));
 
                     if (result == null) {
                         response.setAction(Action.EXECUTE_SUCCESS);
@@ -110,8 +109,7 @@ public class JobRunnerDelegate implements Runnable {
                     stat.addRunningTime(time);
                     LOGGER.error("Job execute error : {}, time: {}, {}", jobMeta.getJob(), time, t.getMessage(), t);
                 } finally {
-                    checkInterrupted();
-                    logger.removeJobMeta();
+                    checkInterrupted(logger);
                     appContext.getRunnerPool().getRunningJobManager()
                             .out(jobMeta.getJobId());
                 }
@@ -125,13 +123,11 @@ public class JobRunnerDelegate implements Runnable {
                 DotLogUtils.dot("JobRunnerDelegate.run get job " + (this.jobMeta == null ? "NULL" : "NOT_NULL"));
             }
         } finally {
-            LtsLoggerFactory.remove();
-
             blockedOn(null);
         }
     }
 
-    private JobContext buildJobContext(JobMeta jobMeta) {
+    private JobContext buildJobContext(BizLoggerAdapter logger, JobMeta jobMeta) {
         JobContext jobContext = new JobContext();
         // 采用deepopy的方式 防止用户修改任务数据
         Job job = JobUtils.copy(jobMeta.getJob());
@@ -147,7 +143,8 @@ public class JobRunnerDelegate implements Runnable {
 
         jobContext.setJobExtInfo(jobExtInfo);
 
-        jobContext.setBizLogger(LtsLoggerFactory.getBizLogger());
+        logger.setJobMeta(jobMeta);
+        jobContext.setBizLogger(logger);
         return jobContext;
     }
 
@@ -206,7 +203,7 @@ public class JobRunnerDelegate implements Runnable {
         return !appContext.getConfig().getInternalData(Constants.MACHINE_RES_ENOUGH, true);
     }
 
-    private void checkInterrupted() {
+    private void checkInterrupted(BizLogger logger) {
         try {
             if (isInterrupted()) {
                 logger.info("SYSTEM:Interrupted");
