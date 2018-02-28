@@ -48,7 +48,7 @@ github地址:[https://github.com/ltsopensource/light-task-scheduler](https://git
      * 采用和dubbo一样的SPI扩展方式，可以实现任务队列扩展，日志记录器扩展等
 
 ###日志记录
-对于任务的分发，执行，还有用户通过 (BizLogger)  【LtsLoggerFactory.getBizLogger()】 输入的业务日志，LTS都有记录，用户可以在LTS Admin 后台界面查看某个任务的所有日志，可以实时查看这个任务的执行情况。 
+对于任务的分发，执行，还有用户通过 (BizLogger)  【JobContext#getBizLogger()】 输入的业务日志，LTS都有记录，用户可以在LTS Admin 后台界面查看某个任务的所有日志，可以实时查看这个任务的执行情况。 
 
 ###开发计划：
 * WEB后台管理：性能统计分析，预警等

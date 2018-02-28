@@ -3,6 +3,7 @@ package com.github.ltsopensource.queue.domain;
 import com.github.ltsopensource.core.domain.JobType;
 import com.github.ltsopensource.core.json.JSON;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import java.util.Map;
  * @author Robert HG (254963746@qq.com) on 8/8/14.
  *         存储的Jod对象
  */
-public class JobPo {
+public class JobPo implements Serializable {
 
     /**
      * 服务端生成的jobId

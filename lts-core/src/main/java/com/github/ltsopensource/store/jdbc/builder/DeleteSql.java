@@ -120,7 +120,7 @@ public class DeleteSql {
         }
 
         if (start != null && end != null) {
-            sql.append(" ADN (").append(column).append(" BETWEEN ? AND ? ").append(")");
+            sql.append(" AND (").append(column).append(" BETWEEN ? AND ? ").append(")");
             params.add(start);
             params.add(end);
             return this;

@@ -45,7 +45,7 @@ public class LtsCodecFactory {
                     RemotingHelper.closeChannel(c);
                 }
             } else {
-                LOGGER.error("Message is instance of " + RemotingCommand.class.getName());
+                LOGGER.error("Message is not instance of " + RemotingCommand.class.getName());
             }
             return null;
         }

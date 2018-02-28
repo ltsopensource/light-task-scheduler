@@ -17,7 +17,7 @@ public abstract class JobRunnerTester {
         // 1. 设置LTS环境为 UNIT_TEST
         LTSConfig.setEnvironment(Environment.UNIT_TEST);
         // 设置 BizLogger
-        LtsLoggerFactory.setLogger(BizLoggerFactory.getLogger(Level.INFO, null, null));
+        jobContext.setBizLogger(BizLoggerFactory.getLogger(Level.INFO, null, null));
         // 2. load context (Spring Context 或者其他的)
         initContext();
         // 3. new jobRunner

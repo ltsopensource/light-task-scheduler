@@ -51,7 +51,7 @@ public class MonitorCfgLoader {
 
             String identity = conf.getProperty("identity");
             if (StringUtils.isNotEmpty(identity)) {
-                cfg.setBindIp(identity);
+                cfg.setIdentity(identity);
             }
 
             Map<String, String> configs = new HashMap<String, String>();

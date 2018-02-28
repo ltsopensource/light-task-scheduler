@@ -80,6 +80,8 @@ public interface ExtConfig {
     String JDBC_URL = "jdbc.url";
     String JDBC_USERNAME = "jdbc.username";
     String JDBC_PASSWORD = "jdbc.password";
+
+    String NEED_CREATE_DB_TABLE = "jdbc.create.db.table";
     /**
      * Durid相关数据的配置
      */
@@ -132,6 +134,10 @@ public interface ExtConfig {
      * JobTracker端: Job preload 的 阀值  默认 0.2 (20%)
      */
     String JOB_TRACKER_PRELOADER_FACTOR = "job.preloader.factor";
+    /**
+     * JobTracker端: Job preload 信号检测频率
+     */
+    String JOB_TRACKER_PRELOADER_SIGNAL_CHECK_INTERVAL = "job.preloader.signal.check.interval";
     /**
      * Netty Frame 的最大长度(自己一般不用设置)
      */
@@ -216,4 +222,13 @@ public interface ExtConfig {
     String JOB_RETRY_TIME_GENERATOR = "jobtracker.retry.time.generator";
 
     String M_STAT_REPORTER_CLOSED  = "mStatReporterClosed";
+
+    String JOB_TRACKER_PUSHER_THREAD_NUM = "lts.job.tracker.pusher.thread.num";
+
+    String JOB_TRACKER_PUSH_BATCH_SIZE = "lts.job.tracker.push.batch.size";
+
+    String TASK_TRACKER_BIZ_LOGGER_FAIL_STORE_CLOSE = "lts.task.tracker.biz.logger.failstore.close";
+
+    String TASK_TRACKER_JOB_RESULT_FAIL_STORE_CLOSE = "lts.task.tracker.job.result.failstore.close";
+
 }

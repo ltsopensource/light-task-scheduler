@@ -294,7 +294,11 @@ public abstract class AbstractRemoting {
                         }
 
                         responseFuture.putResponse(null);
-                        responseFuture.executeInvokeCallback();
+						try {
+							responseFuture.executeInvokeCallback();
+						} finally {
+							responseFuture.release();
+						}
 
                         responseTable.remove(request.getOpaque());
                         LOGGER.warn("send a request command to channel <" + channel.remoteAddress() + "> failed.");

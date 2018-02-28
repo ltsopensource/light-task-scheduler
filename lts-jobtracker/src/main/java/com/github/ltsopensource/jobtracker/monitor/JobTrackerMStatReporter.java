@@ -2,8 +2,8 @@ package com.github.ltsopensource.jobtracker.monitor;
 
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.core.domain.monitor.JobTrackerMData;
-import com.github.ltsopensource.core.monitor.AbstractMStatReporter;
 import com.github.ltsopensource.core.domain.monitor.MData;
+import com.github.ltsopensource.core.monitor.AbstractMStatReporter;
 import com.github.ltsopensource.jobtracker.domain.JobTrackerAppContext;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,31 +32,37 @@ public class JobTrackerMStatReporter extends AbstractMStatReporter {
     // 修复死任务数
     private AtomicLong fixExecutingJobNum = new AtomicLong(0);
 
-    public void incReceiveJobNum(){
+    public void incReceiveJobNum() {
         receiveJobNum.incrementAndGet();
     }
 
-    public void incPushJobNum(){
+    public void incPushJobNum() {
         pushJobNum.incrementAndGet();
     }
 
-    public void incExeSuccessNum(){
+    public void incPushJobNum(int num) {
+        for (int i = 0; i < num; i++) {
+            pushJobNum.incrementAndGet();
+        }
+    }
+
+    public void incExeSuccessNum() {
         exeSuccessNum.incrementAndGet();
     }
 
-    public void incExeFailedNum(){
+    public void incExeFailedNum() {
         exeFailedNum.incrementAndGet();
     }
 
-    public void incExeLaterNum(){
+    public void incExeLaterNum() {
         exeLaterNum.incrementAndGet();
     }
 
-    public void incExeExceptionNum(){
+    public void incExeExceptionNum() {
         exeExceptionNum.incrementAndGet();
     }
 
-    public void incFixExecutingJobNum(){
+    public void incFixExecutingJobNum() {
         fixExecutingJobNum.incrementAndGet();
     }
 

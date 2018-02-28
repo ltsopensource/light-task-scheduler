@@ -236,7 +236,7 @@ public class RedisRegistry extends FailbackRegistry {
                 try {
                     Jedis jedis = jedisPool.getResource();
                     try {
-                        doNotify(jedis, Collections.singletonList(listenNodePath), Collections.singletonList(listener));
+                        doNotify(jedis, Collections.singletonList(listenNodePath), Collections.singletonList(listener), true);
                         success = true;
                         break; // 只需读一个服务器的数据
 
@@ -289,7 +289,7 @@ public class RedisRegistry extends FailbackRegistry {
 
     private ConcurrentHashMap<String/*key*/, List<String>> cachedNodeMap = new ConcurrentHashMap<String, List<String>>();
 
-    private void doNotify(Jedis jedis, Collection<String> keys, Collection<NotifyListener> listeners) {
+    private void doNotify(Jedis jedis, Collection<String> keys, Collection<NotifyListener> listeners, boolean reload) {
         if (CollectionUtils.isEmpty(keys)
                 && CollectionUtils.isEmpty(listeners)) {
             return;
@@ -299,7 +299,7 @@ public class RedisRegistry extends FailbackRegistry {
 
             Map<String, String> values = jedis.hgetAll(key);
             List<String> currentChildren = values == null ? new ArrayList<String>(0) : new ArrayList<String>(values.keySet());
-            List<String> oldChildren = cachedNodeMap.get(key);
+            List<String> oldChildren = reload ? null : cachedNodeMap.get(key);
 
             // 1. 找出增加的 节点
             List<String> addChildren = CollectionUtils.getLeftDiff(currentChildren, oldChildren);
@@ -332,7 +332,7 @@ public class RedisRegistry extends FailbackRegistry {
 
     private void doNotify(Jedis jedis, String key) {
         for (Map.Entry<Node, Set<NotifyListener>> entry : new HashMap<Node, Set<NotifyListener>>(getSubscribed()).entrySet()) {
-            doNotify(jedis, Collections.singletonList(key), new HashSet<NotifyListener>(entry.getValue()));
+            doNotify(jedis, Collections.singletonList(key), new HashSet<NotifyListener>(entry.getValue()), false);
         }
     }
 

@@ -31,12 +31,13 @@ public class BeanUtils {
     }
 
     public static Map<String, String> copyMap(Map<String, String> source) {
+        if (source == null) {
+            return null;
+        }
         int size = CollectionUtils.sizeOf(source);
         Map<String, String> map = new HashMap<String, String>(size);
-        if (source != null) {
-            for (Map.Entry<String, String> entry : source.entrySet()) {
-                map.put(entry.getKey(), entry.getValue());
-            }
+        for (Map.Entry<String, String> entry : source.entrySet()) {
+            map.put(entry.getKey(), entry.getValue());
         }
         return map;
     }

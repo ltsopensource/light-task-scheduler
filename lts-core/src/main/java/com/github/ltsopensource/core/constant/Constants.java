@@ -48,6 +48,8 @@ public interface Constants {
 
     int DEFAULT_PROCESSOR_THREAD = 32 + AVAILABLE_PROCESSOR * 5;
 
+    int DEFAULT_JOB_TRACKER_PUSHER_THREAD_NUM = 32 + AVAILABLE_PROCESSOR * 5;
+
     int LATCH_TIMEOUT_MILLIS = 60 * 1000;      // 60s
 
     int DEFAULT_JOB_MAX_RETRY_TIMES = 10;
@@ -73,4 +75,6 @@ public interface Constants {
 
     // 执行的序号
     String EXE_SEQ_ID = "__LTS_Seq_Id";
+
+    int DEFAULT_JOB_TRACKER_PUSH_BATCH_SIZE = 10;
 }

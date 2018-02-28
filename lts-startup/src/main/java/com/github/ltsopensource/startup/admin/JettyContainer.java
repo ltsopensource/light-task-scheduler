@@ -29,9 +29,15 @@ public class JettyContainer {
                 port = "8081";
             }
 
+            String contextPath = conf.getProperty("contextPath");
+            if (contextPath == null || contextPath.trim().equals("")) {
+                contextPath = "/";
+            }
+
             Server server = new Server(Integer.parseInt(port));
             WebAppContext webapp = new WebAppContext();
             webapp.setWar(confPath + "/war/lts-admin.war");
+            webapp.setContextPath(contextPath);
             Map<String, String> initParams = new HashMap<String, String>();
             initParams.put("lts.admin.config.path", confPath + "/conf");
             webapp.setInitParams(initParams);
@@ -39,7 +45,7 @@ public class JettyContainer {
             server.setStopAtShutdown(true);
             server.start();
 
-            System.out.println("LTS-Admin started. http://" + NetUtils.getLocalHost() + ":" + port + "/index.htm");
+            System.out.println("LTS-Admin started. http://" + NetUtils.getLocalHost() + ":" + port + (contextPath == "/" ? "" : contextPath) + "/index.htm");
 
         } catch (Exception e) {
             e.printStackTrace();
