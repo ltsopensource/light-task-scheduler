@@ -195,10 +195,10 @@ public class LTSSpringConfig {
 ###定义自己的任务执行类
 ```java
 public class MyJobRunner implements JobRunner {
-    private final static BizLogger bizLogger = LtsLoggerFactory.getBizLogger();
     @Override
-    public Result run(Job job) throws Throwable {
+    public Result run(JobContext jobContext) throws Throwable {
         try {
+            BizLogger bizLogger = jobContext.getBizLogger();
             // TODO 业务逻辑
             // 会发送到 LTS (JobTracker上)
             bizLogger.info("测试，业务日志啊啊啊啊啊");

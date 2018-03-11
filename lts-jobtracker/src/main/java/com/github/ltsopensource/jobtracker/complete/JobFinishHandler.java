@@ -127,7 +127,11 @@ public class JobFinishHandler {
         // 如果当前完成的job是重试的,那么不要增加repeatedCount
         if (!isRetryForThisTime) {
             // 更新repeatJob的重复次数
-            appContext.getRepeatJobQueue().incRepeatedCount(jobPo.getJobId());
+            final int jobQueueRepeatedCount = appContext.getRepeatJobQueue().incRepeatedCount(jobPo.getJobId());
+            if (jobQueueRepeatedCount >= jobPo.getRepeatCount()) {
+                appContext.getRepeatJobQueue().remove(jobPo.getJobId());
+                jobRemoveLog(jobPo, "Repeat");
+            }
         }
     }
 

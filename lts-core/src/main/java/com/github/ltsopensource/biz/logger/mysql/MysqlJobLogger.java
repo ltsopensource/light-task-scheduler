@@ -14,7 +14,6 @@ import com.github.ltsopensource.store.jdbc.builder.OrderByType;
 import com.github.ltsopensource.store.jdbc.builder.SelectSql;
 import com.github.ltsopensource.store.jdbc.builder.WhereSql;
 import com.github.ltsopensource.store.jdbc.dbutils.JdbcTypeUtils;
-import com.sun.tools.internal.ws.wsdl.document.soap.SOAPUse;
 
 import java.util.List;
 

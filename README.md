@@ -17,8 +17,8 @@ oschina地址:
 
 这两个地址都会同步更新。感兴趣，请加QQ群：109500214 (加群密码: hello world)一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
-##1.7.1-SNAPSHOT(master)变更主要点
-1. 增加  jdbc.create.db.table（boolean）来决定是否需要创建数据库表
+##1.7.2-SNAPSHOT(master)变更主要点
+1. 优化JobContext中的BizLogger，由原来的去掉了threadlocal，解决taskTracker多线程的问题, 去掉LtsLoggerFactory.getLogger()用法
 
 ## 框架概况
 LTS 有主要有以下四种节点：
@@ -88,7 +88,7 @@ LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`�
 * EXECUTE_SUCCESS: 执行成功,这种情况，直接反馈客户端（如果任务被设置了要反馈给客户端）。
 * EXECUTE_FAILED：执行失败，这种情况，直接反馈给客户端，不进行重试。
 * EXECUTE_LATER：稍后执行（需要重试），这种情况，不反馈客户端，重试策略采用1min，2min，3min的策略，默认最大重试次数为10次，用户可以通过参数设置修改这个重试次数。
-* EXECUTE_EXCEPTION：执行异常, 这中情况也会重试(重试策略，同上)
+* EXECUTE_EXCEPTION：执行异常, 这种情况也会重试(重试策略，同上)
 
 ###7、FailStore容错
 采用FailStore机制来进行节点容错，Fail And Store，不会因为远程通信的不稳定性而影响当前应用的运行。具体FailStore说明，请参考概念说明中的FailStore说明。
@@ -414,4 +414,5 @@ public class Application {
 ##[和其它解决方案比较](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
 
 
-
+##LTS-Admin使用jetty启动(默认)，不定期挂掉解决方案
+见[issue#389](https://github.com/ltsopensource/light-task-scheduler/issues/389)
