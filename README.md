@@ -166,7 +166,7 @@ Response response = jobClient.submitJob(job);
     
 ###Spring XML方式启动
 ```java
-<bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
+<bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean" init-method="start">
     <property name="clusterName" value="test_cluster"/>
     <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
     <property name="nodeGroup" value="test_jobClient"/>
