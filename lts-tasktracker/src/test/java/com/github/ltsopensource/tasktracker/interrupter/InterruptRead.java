@@ -40,7 +40,7 @@ abstract class InterruptSupport {
 
     // -- sun.misc.SharedSecrets --
     static void blockedOn(Interruptible intr) { // package-private
-        sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(), intr);
+        jdk.internal.misc.SharedSecrets.getJavaLangAccess().blockedOn(intr);
     }
 }
 

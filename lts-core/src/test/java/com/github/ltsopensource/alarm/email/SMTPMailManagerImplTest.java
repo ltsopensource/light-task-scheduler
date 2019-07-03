@@ -1,5 +1,6 @@
 package com.github.ltsopensource.alarm.email;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -7,6 +8,7 @@ import org.junit.Test;
  */
 public class SMTPMailManagerImplTest {
 
+    @Ignore("do not test send mail")
     @Test
     public void testSend() throws Exception {
         String host = "smtp.qq.com";

@@ -1,155 +1,156 @@
+# LTS User Documentation
 
-# LTS用户文档
-	
-LTS(light-task-scheduler)主要用于解决分布式任务调度问题，支持实时任务，定时任务和Cron任务。有较好的伸缩性，扩展性，健壮稳定性而被多家公司使用，同时也希望开源爱好者一起贡献。
+LTS (light-task-scheduler) is mainly used to solve distributed task scheduling problems, supporting real-time tasks, timing tasks and Cron tasks. It has good scalability, scalability, robustness and stability and is used by many companies. It also hopes that open source enthusiasts will contribute together.
 
-## ---> 底部有招人帖 
+## ---> There are recruiters at the bottom
 
-## 项目地址
-github地址:
+## project address
+Github address:
 [https://github.com/ltsopensource/light-task-scheduler](https://github.com/ltsopensource/light-task-scheduler)
 
-oschina地址:
+Oschina address:
+
 [http://git.oschina.net/hugui/light-task-scheduler](http://git.oschina.net/hugui/light-task-scheduler)
 
-例子: 
+example:
+
 [https://github.com/ltsopensource/lts-examples](https://github.com/ltsopensource/lts-examples)
 
-文档地址(正在更新中,后面以这个为准):
+Document address (in the process of being updated, whichever is later):
+
 [https://www.gitbook.com/book/qq254963746/lts/details](https://www.gitbook.com/book/qq254963746/lts/details)
 
-这两个地址都会同步更新。感兴趣，请加QQ群：109500214 (加群密码: hello world)一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
+Both addresses will be updated synchronously. Interested, please add QQ group: 109500214 (plus group password: hello world) to explore and improve together. The more people support, the more motivated to update, like to remember the star in the upper right corner.
 
-##1.7.2-SNAPSHOT(master)变更主要点
-1. 优化JobContext中的BizLogger，由原来的去掉了threadlocal，解决taskTracker多线程的问题, 去掉LtsLoggerFactory.getLogger()用法
+##1.7.2-SNAPSHOT (master) change main point
+1. Optimize the BizLogger in the JobContext, remove the threadlocal from the original, solve the problem of taskTracker multithreading, remove the LtsLoggerFactory.getLogger() usage
 
-## 框架概况
-LTS 有主要有以下四种节点：
+## Frame Overview
+LTS has the following four main nodes:
 
-* JobClient：主要负责提交任务, 并接收任务执行反馈结果。
-* JobTracker：负责接收并分配任务，任务调度。
-* TaskTracker：负责执行任务，执行完反馈给JobTracker。
-* LTS-Admin：（管理后台）主要负责节点管理，任务队列管理，监控管理等。
+* `JobClient`: Mainly responsible for submitting tasks and receiving feedback on task execution feedback.
+* `JobTracker`: responsible for receiving and assigning tasks, task scheduling.
+* `TaskTracker`: Responsible for executing tasks and executing feedback to JobTracker.
+* `LTS-Admin`: (Management Background) is mainly responsible for node management, task queue management, monitoring management, etc.
 
-其中JobClient，JobTracker，TaskTracker节点都是`无状态`的。
-可以部署多个并动态的进行删减，来实现负载均衡，实现更大的负载量, 并且框架采用FailStore策略使LTS具有很好的容错能力。 
+The `JobClient`, `JobTracker`, and `TaskTracker` nodes are all `stateless`.
+Multiple and dynamic deletions can be deployed to achieve load balancing and achieve greater load capacity, and the framework uses FailStore strategy to make LTS fault tolerant.
 
-LTS注册中心提供多种实现（Zookeeper，redis等），注册中心进行节点信息暴露，master选举。(Mongo or Mysql)存储任务队列和任务执行日志, netty or mina做底层通信, 并提供多种序列化方式fastjson, hessian2, java等。
+The LTS registry provides multiple implementations (Zookeeper, redis, etc.), the registry performs node information exposure, and the master election. (Mongo or Mysql) stores task queues and task execution logs, netty or mina for underlying communication, and provides a variety of serialization methods fastjson, hessian2, java, etc.
 
-LTS支持任务类型：
+LTS supports task types:
 
-* 实时任务：提交了之后立即就要执行的任务。
-* 定时任务：在指定时间点执行的任务，譬如 今天3点执行（单次）。
-* Cron任务：CronExpression，和quartz类似（但是不是使用quartz实现的）譬如 0 0/1 * * * ?
+* Real-time tasks: Submit tasks that will be executed immediately after they are submitted.
+* Scheduled tasks: Tasks performed at a specified point in time, such as today at 3 o'clock (single).
+* Cron task: CronExpression, similar to quartz (but not using quartz) such as 0 0/1 * * * ?
 
-支持动态修改任务参数,任务执行时间等设置,支持后台动态添加任务,支持Cron任务暂停,支持手动停止正在执行的任务(有条件),支持任务的监控统计,支持各个节点的任务执行监控,JVM监控等等.
+Support dynamic modification of task parameters, task execution time and other settings, support dynamic add tasks in the background, support Cron task pause, support manual stop tasks (conditional), support task monitoring statistics, support task execution monitoring of each node, JVM Monitoring and so on.
 
-## 架构图
+## Architecture
 
 ![LTS architecture](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_architecture.png?dir=0&filepath=docs%2FLTS_architecture.png&oid=262a5234534e2d9fa8862f3e632c5551ebd95e21&sha=d01be5d59e8d768f49bbdc66c8334c37af8f7af5)
 
-## 概念说明
-
-###节点组
-1. 英文名称 NodeGroup,一个节点组等同于一个小的集群，同一个节点组中的各个节点是对等的，等效的，对外提供相同的服务。
-2. 每个节点组中都有一个master节点，这个master节点是由LTS动态选出来的，当一个master节点挂掉之后，LTS会立马选出另外一个master节点，框架提供API监听接口给用户。
-
-###FailStore
-1. 顾名思义，这个主要是用于失败了存储的，主要用于节点容错，当远程数据交互失败之后，存储在本地，等待远程通信恢复的时候，再将数据提交。
-2. FailStore主要用户JobClient的任务提交，TaskTracker的任务反馈，TaskTracker的业务日志传输的场景下。
-3. FailStore目前提供几种实现：leveldb,rocksdb,berkeleydb,mapdb,ltsdb，用于可以自由选择使用哪种,用户也可以采用SPI扩展使用自己的实现。
-
-
-## 流程图
-下图是一个标准的实时任务执行流程。
+## Concept Description
+ 
+ ###node group
+ 1. English name NodeGroup, a node group is equivalent to a small cluster, each node in the same node group is peer-to-peer, equivalent, providing the same service to the outside.
+ 2. Each node group has a master node. This master node is dynamically selected by the LTS. When a master node hangs, the LTS will immediately select another master node. The framework provides an API listening interface to the user.
+ 
+ ###FailStore
+ 1. As the name implies, this is mainly used for failed storage. It is mainly used for node fault tolerance. When the remote data interaction fails, it is stored locally and waits for the remote communication to recover, and then the data is submitted.
+ 2. FailStore main user JobClient task submission, TaskTracker task feedback, TaskTracker business log transmission scenario.
+ 3. FailStore currently provides several implementations: leveldb, rocksdb, berkeleydb, mapdb, ltsdb, which can be used freely, and users can also use SPI extensions to implement their own implementations.
+ 
+ 
+ ## Flowchart
+ The figure below is a standard real-time task execution flow.
 
 ![LTS progress](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS_progress.png?dir=0&filepath=docs%2FLTS_progress.png&oid=22f60a83b51b26bac8dabbb5053ec9913cefc45c&sha=774aa73d186470aedbb8f4da3c04a86a6022be05)
-
-## LTS-Admin新版界面预览
+## LTS-Admin new interface preview
 
 ![LTS Admin](http://git.oschina.net/hugui/light-task-scheduler/raw/master/docs/LTS-Admin/LTS-Admin-cron-job-queue.png?dir=0&filepath=docs%2FLTS-Admin%2FLTS-Admin-cron-job-queue.png&oid=aecaf01bca5270a53b144891baaa3d7e56d47706&sha=a4fd9f31df9e1fc6d389a16bdc8d1964bb854766)
-目前后台带有由[ztajy](https://github.com/ztajy)提供的一个简易的认证功能. 用户名密码在auth.cfg中,用户自行修改.
+Currently the background comes with a simple authentication function provided by [ztajy] (https://github.com/ztajy). The username and password are in auth.cfg and are modified by the user.
 
-##特性
-###1、Spring支持
-LTS可以完全不用Spring框架，但是考虑到很用用户项目中都是用了Spring框架，所以LTS也提供了对Spring的支持，包括Xml和注解，引入`lts-spring.jar`即可。
-###2、业务日志记录器
-在TaskTracker端提供了业务日志记录器，供应用程序使用，通过这个业务日志器，可以将业务日志提交到JobTracker，这些业务日志可以通过任务ID串联起来，可以在LTS-Admin中实时查看任务的执行进度。
-###3、SPI扩展支持
-SPI扩展可以达到零侵入，只需要实现相应的接口，并实现即可被LTS使用，目前开放出来的扩展接口有
+##Characteristic
+###1, Spring support
+LTS can completely eliminate the Spring framework, but considering that the user framework uses the Spring framework, LTS also provides support for Spring, including Xml and annotations, and introduces `lts-spring.jar`.
+###2, business logger
+A service logger is provided on the TaskTracker side, and the application program is used. Through the service logger, the service logs can be submitted to the JobTracker. These service logs can be connected in series through the task ID, and the execution of the task can be viewed in real time in the LTS-Admin. schedule.
+###3, SPI extension support
+SPI extension can achieve zero intrusion, only need to implement the corresponding interface, and can be used by LTS. The open interface that is currently open has
 
-1. 对任务队列的扩展，用户可以不选择使用mysql或者mongo作为队列存储，也可以自己实现。
-2. 对业务日志记录器的扩展，目前主要支持console，mysql，mongo，用户也可以通过扩展选择往其他地方输送日志。
+1. For the extension of the task queue, the user can choose not to use mysql or mongo as the queue storage, or you can implement it yourself.
+2. For the extension of the business logger, currently mainly supports console, mysql, mongo, users can also choose to transfer logs to other places through extension.
 
-###4、故障转移
-当正在执行任务的TaskTracker宕机之后，JobTracker会立马将分配在宕机的TaskTracker的所有任务再分配给其他正常的TaskTracker节点执行。
-###5、节点监控
-可以对JobTracker，TaskTracker节点进行资源监控，任务监控等，可以实时的在LTS-Admin管理后台查看，进而进行合理的资源调配。
-###6、多样化任务执行结果支持
-LTS框架提供四种执行结果支持，`EXECUTE_SUCCESS`，`EXECUTE_FAILED`，`EXECUTE_LATER`，`EXECUTE_EXCEPTION`，并对每种结果采取相应的处理机制，譬如重试。
+###4,Failover
+After the TaskTracker is performing the task, the JobTracker will immediately assign all the tasks assigned to the TaskTracker of the downtime to other normal TaskTracker nodes for execution.
+###5, node monitoring
+You can perform resource monitoring, task monitoring, etc. on the JobTracker and TaskTracker nodes, and you can view them in the LTS-Admin management background in real time, and then perform reasonable resource allocation.
+###6, Diversified task execution result support
+The LTS framework provides four implementation results support, `EXECUTE_SUCCESS`, `EXECUTE_FAILED`, `EXECUTE_LATER`, `EXECUTE_EXCEPTION`, and a corresponding processing mechanism for each result, such as retry.
 
-* EXECUTE_SUCCESS: 执行成功,这种情况，直接反馈客户端（如果任务被设置了要反馈给客户端）。
-* EXECUTE_FAILED：执行失败，这种情况，直接反馈给客户端，不进行重试。
-* EXECUTE_LATER：稍后执行（需要重试），这种情况，不反馈客户端，重试策略采用1min，2min，3min的策略，默认最大重试次数为10次，用户可以通过参数设置修改这个重试次数。
-* EXECUTE_EXCEPTION：执行异常, 这种情况也会重试(重试策略，同上)
+* EXECUTE_SUCCESS: The execution is successful. In this case, the client is directly fed back (if the task is set to be fed back to the client).
+* EXECUTE_FAILED: Execution failed. In this case, it is directly fed back to the client without retrying.
+* EXECUTE_LATER: Execute later (retry required). In this case, the client is not fed back. The retry strategy adopts the strategy of 1min, 2min, 3min. The default maximum retry number is 10 times. The user can modify this weight by parameter setting. The number of trials.
+* EXECUTE_EXCEPTION: Execution exception, this situation will also be retried (retry strategy, ibid.)
 
-###7、FailStore容错
-采用FailStore机制来进行节点容错，Fail And Store，不会因为远程通信的不稳定性而影响当前应用的运行。具体FailStore说明，请参考概念说明中的FailStore说明。
+###7,FailStore fault tolerance
+Using the FailStore mechanism for node fault tolerance, Fail And Store does not affect the operation of the current application due to the instability of remote communication. For details of the FailStore, please refer to the FailStore description in the concept description.
 
-##项目编译打包
-项目主要采用maven进行构建，目前提供shell脚本的打包。
-环境依赖：`Java(jdk1.6+)` `Maven`
+##Project Compilation Packaging
+The project is mainly built using maven, and currently provides shell script packaging.
+Environment dependency: `Java(jdk1.6+)` `Maven`
 
-用户使用一般分为两种：
-###1、Maven构建
-可以通过maven命令将lts的jar包上传到本地仓库中。在父pom.xml中添加相应的repository，并用deploy命令上传即可。具体引用方式可以参考lts中的例子即可。
-###2、直接Jar引用
-需要将lts的各个模块打包成单独的jar包，并且将所有lts依赖包引入。具体引用哪些jar包可以参考lts中的例子即可。
+User usage is generally divided into two types:
+###1, Maven build
+The lts jar package can be uploaded to the local repository via the maven command. Add the corresponding repository in the parent pom.xml and upload it with the deploy command. For specific reference, you can refer to the example in lts.
+###2, direct Jar reference
+It is necessary to package the individual modules of lts into separate jar packages and introduce all lts dependency packages. Specific reference to which jar package can refer to the example in lts.
 
-##JobTracker和LTS-Admin部署
-提供`(cmd)windows`和`(shell)linux`两种版本脚本来进行编译和部署:
+##JobTracker and LTS-Admin deployment
+Provide `(cmd)windows` and `(shell)linux` scripts for compiling and deploying:
 
-1. 运行根目录下的`sh build.sh`或`build.cmd`脚本，会在`dist`目录下生成`lts-{version}-bin`文件夹
+1. Run the `sh build.sh` or `build.cmd` script in the root directory to generate the `lts-{version}-bin` folder in the `dist` directory.
 
-2. 下面是其目录结构，其中bin目录主要是JobTracker和LTS-Admin的启动脚本。`jobtracker` 中是 JobTracker的配置文件和需要使用到的jar包，`lts-admin`是LTS-Admin相关的war包和配置文件。
-lts-{version}-bin的文件结构
+2. The following is the directory structure, where the bin directory is mainly the startup script for JobTracker and LTS-Admin. `jobtracker` is the configuration file of JobTracker and the jar package that needs to be used. `lts-admin` is the war package and configuration file related to LTS-Admin.
+Lts-{version}-bin file structure
 
-```java
+```
 -- lts-${version}-bin
-    |-- bin
-    |   |-- jobtracker.cmd
-    |   |-- jobtracker.sh
-    |   |-- lts-admin.cmd
-    |   |-- lts-admin.sh
-    |   |-- lts-monitor.cmd
-    |   |-- lts-monitor.sh
-    |   |-- tasktracker.sh
-    |-- conf
-    |   |-- log4j.properties
-    |   |-- lts-admin.cfg
-    |   |-- lts-monitor.cfg
-    |   |-- readme.txt
-    |   |-- tasktracker.cfg
-    |   |-- zoo
-    |       |-- jobtracker.cfg
-    |       |-- log4j.properties
-    |       |-- lts-monitor.cfg
-    |-- lib
-    |   |-- *.jar
-    |-- war
-        |-- jetty
-        |   |-- lib
-        |       |-- *.jar
-        |-- lts-admin.war
+    |-- bin
+    | |-- jobtracker.cmd
+    | |-- jobtracker.sh
+    | |-- lts-admin.cmd
+    | |-- lts-admin.sh
+    | |-- lts-monitor.cmd
+    | |-- lts-monitor.sh
+    | |-- tasktracker.sh
+    |-- conf
+    | |-- log4j.properties
+    | |-- lts-admin.cfg
+    | |-- lts-monitor.cfg
+    | |-- readme.txt
+    | |-- tasktracker.cfg
+    | |-- zoo
+    | |-- jobtracker.cfg
+    | |-- log4j.properties
+    | |-- lts-monitor.cfg
+    |-- lib
+    | |-- *.jar
+    |-- war
+        |-- jetty
+        | |-- lib
+        | |-- *.jar
+        |-- lts-admin.war
 
-```	    
-        
-3. JobTracker启动。如果你想启动一个节点，直接修改下`conf/zoo`下的配置文件，然后运行 `sh jobtracker.sh zoo start`即可，如果你想启动两个JobTracker节点，那么你需要拷贝一份zoo,譬如命名为`zoo2`,修改下`zoo2`下的配置文件，然后运行`sh jobtracker.sh zoo2 start`即可。logs文件夹下生成`jobtracker-zoo.out`日志。
-4. LTS-Admin启动.修改`conf/lts-monitor.cfg`和`conf/lts-admin.cfg`下的配置，然后运行`bin`下的`sh lts-admin.sh`或`lts-admin.cmd`脚本即可。logs文件夹下会生成`lts-admin.out`日志，启动成功在日志中会打印出访问地址，用户可以通过这个访问地址访问了。
+```
+        
+3. JobTracker starts. If you want to start a node, directly modify the configuration file under `conf/zoo`, then run `sh jobtracker.sh zoo start`. If you want to start two JobTracker nodes, then you need to copy a zoo. For example, named `zoo2`, modify the configuration file under `zoo2`, and then run `sh jobtracker.sh zoo2 start`. The `jobtracker-zoo.out` log is generated under the logs folder.
+4. LTS-Admin starts. Modify the configuration under `conf/lts-monitor.cfg` and `conf/lts-admin.cfg`, then run `sh lts-admin.sh` or `lts- under `bin`. The admin.cmd` script is fine. The `lts-admin.out` log will be generated in the logs folder. After the startup succeeds, the access address will be printed in the log. The user can access it through this access address.
 
-##JobClient（部署）使用
-需要引入lts的jar包有`lts-jobclient-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-###API方式启动
+##JobClient(Deployment)Use
+The jars that need to introduce lts are `lts-jobclient-{version}.jar`, `lts-core-{version}.jar` and other third-party dependencies.
+###API mode startup
 ```java
 JobClient jobClient = new RetryJobClient();
 jobClient.setNodeGroup("test_jobClient");
@@ -157,39 +158,39 @@ jobClient.setClusterName("test_cluster");
 jobClient.setRegistryAddress("zookeeper://127.0.0.1:2181");
 jobClient.start();
 
-// 提交任务
+// Submit the task
 Job job = new Job();
 job.setTaskId("3213213123");
 job.setParam("shopId", "11111");
 job.setTaskTrackerNodeGroup("test_trade_TaskTracker");
-// job.setCronExpression("0 0/1 * * * ?");  // 支持 cronExpression表达式
-// job.setTriggerTime(new Date()); // 支持指定时间执行
+// job.setCronExpression("0 0/1 * * * ?"); // Support for cronExpression expressions
+// job.setTriggerTime(new Date()); // Support for specified time execution
 Response response = jobClient.submitJob(job);
 ```
-    
-###Spring XML方式启动
-```java
+    
+###Spring XML mode startup
+```xml
 <bean id="jobClient" class="com.github.ltsopensource.spring.JobClientFactoryBean">
-    <property name="clusterName" value="test_cluster"/>
-    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-    <property name="nodeGroup" value="test_jobClient"/>
-    <property name="masterChangeListeners">
-        <list>
-            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
-        </list>
-    </property>
-    <property name="jobFinishedHandler">
-        <bean class="com.github.ltsopensource.example.support.JobFinishedHandlerImpl"/>
-    </property>
-    <property name="configs">
-        <props>
-            <!-- 参数 -->
-            <prop key="job.fail.store">leveldb</prop>
-        </props>
-    </property>
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="test_jobClient"/>
+    <property name="masterChangeListeners">
+        <list>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
+        </list>
+    </property>
+    <property name="jobFinishedHandler">
+        <bean class="com.github.ltsopensource.example.support.JobFinishedHandlerImpl"/>
+    </property>
+    <property name="configs">
+        <props>
+            <!-- Parameters -->
+            <prop key="job.fail.store">leveldb</prop>
+        </props>
+    </property>
 </bean>
-```    
-###Spring 全注解方式
+```
+###Spring Full annotation method
 ```java
 @Configuration
 public class LTSSpringConfig {
@@ -211,9 +212,10 @@ public class LTSSpringConfig {
     }
 }
 ```
-##TaskTracker(部署使用)
-需要引入lts的jar包有`lts-tasktracker-{version}.jar`，`lts-core-{version}.jar` 及其它第三方依赖jar。
-###定义自己的任务执行类
+
+##TaskTracker (deployment use)
+The jars that need to introduce lts are `lts-tasktracker-{version}.jar`, `lts-core-{version}.jar` and other third-party dependencies.
+###Defining your own task execution class
 ```java
 public class MyJobRunner implements JobRunner {
     @Override
@@ -230,8 +232,8 @@ public class MyJobRunner implements JobRunner {
     }
 }
 ```
-###API方式启动
-```java 
+###API mode startup
+```java
 TaskTracker taskTracker = new TaskTracker();
 taskTracker.setJobRunnerClass(MyJobRunner.class);
 taskTracker.setRegistryAddress("zookeeper://127.0.0.1:2181");
@@ -240,28 +242,28 @@ taskTracker.setClusterName("test_cluster");
 taskTracker.setWorkThreads(20);
 taskTracker.start();
 ```
-###Spring XML方式启动
-```java
+###Spring XML mode startup
+```xml
 <bean id="taskTracker" class="com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean" init-method="start">
-    <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
-    <property name="bizLoggerLevel" value="INFO"/>
-    <property name="clusterName" value="test_cluster"/>
-    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-    <property name="nodeGroup" value="test_trade_TaskTracker"/>
-    <property name="workThreads" value="20"/>
-    <property name="masterChangeListeners">
-        <list>
-            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
-        </list>
-    </property>
-    <property name="configs">
-        <props>
-            <prop key="job.fail.store">leveldb</prop>
-        </props>
-    </property>
+    <property name="jobRunnerClass" value="com.github.ltsopensource.example.support.MyJobRunner"/>
+    <property name="bizLoggerLevel" value="INFO"/>
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="test_trade_TaskTracker"/>
+    <property name="workThreads" value="20"/>
+    <property name="masterChangeListeners">
+        <list>
+            <bean class="com.github.ltsopensource.example.support.MasterChangeListenerImpl"/>
+        </list>
+    </property>
+    <property name="configs">
+        <props>
+            <prop key="job.fail.store">leveldb</prop>
+        </props>
+    </property>
 </bean>
 ```
-###Spring注解方式启动
+###Spring annotation mode startup
 ```java
 @Configuration
 public class LTSSpringConfig implements ApplicationContextAware {
@@ -270,7 +272,7 @@ public class LTSSpringConfig implements ApplicationContextAware {
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
     }
-	@Bean(name = "taskTracker")
+    @Bean(name = "taskTracker")
     public TaskTracker getTaskTracker() throws Exception {
         TaskTrackerAnnotationFactoryBean factoryBean = new TaskTrackerAnnotationFactoryBean();
         factoryBean.setApplicationContext(applicationContext);
@@ -288,18 +290,18 @@ public class LTSSpringConfig implements ApplicationContextAware {
         factoryBean.setConfigs(configs);
 
         factoryBean.afterPropertiesSet();
-//        factoryBean.start();
+//      factoryBean.start();
         return factoryBean.getObject();
     }
 }
 ```
-##参数说明
-[参数说明](https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
+##Parameter Description
+[Parameter Description] (https://qq254963746.gitbooks.io/lts/content/use/config-name.html)
 
-##使用建议
-一般在一个JVM中只需要一个JobClient实例即可，不要为每种任务都新建一个JobClient实例，这样会大大的浪费资源，因为一个JobClient可以提交多种任务。相同的一个JVM一般也尽量保持只有一个TaskTracker实例即可，多了就可能造成资源浪费。当遇到一个TaskTracker要运行多种任务的时候，请参考下面的 "一个TaskTracker执行多种任务"。
-##一个TaskTracker执行多种任务
-有的时候，业务场景需要执行多种任务，有些人会问，是不是要每种任务类型都要一个TaskTracker去执行。我的答案是否定的，如果在一个JVM中，最好使用一个TaskTracker去运行多种任务，因为一个JVM中使用多个TaskTracker实例比较浪费资源（当然当你某种任务量比较多的时候，可以将这个任务单独使用一个TaskTracker节点来执行）。那么怎么才能实现一个TaskTracker执行多种任务呢。下面是我给出来的参考例子。
+##Recommendations
+Generally, only one JobClient instance is needed in a JVM. Do not create a new JobClient instance for each task. This will waste a lot of resources, because a JobClient can submit multiple tasks. The same JVM generally tries to keep only one instance of TaskTracker. If it is too much, it may cause waste of resources. When encountering a TaskTracker to run multiple tasks, please refer to "A TaskTracker performs multiple tasks" below.
+##TaskTracker performs multiple tasks
+Sometimes, the business scenario needs to perform a variety of tasks, and some people will ask if it is necessary to have a TaskTracker to execute each task type. My answer is no. If you are in a JVM, it is best to use a TaskTracker to run multiple tasks, because using multiple TaskTracker instances in a JVM is a waste of resources (of course, when you have a certain amount of tasks, you can This task is performed using a TaskTracker node alone). So how can I implement a TaskTracker to perform multiple tasks? Below is a reference example I gave.
 
 ```java
 /**
@@ -340,8 +342,8 @@ class JobRunnerB implements JobRunner {
     }
 }
 ```
-##TaskTracker的JobRunner测试
-一般在编写TaskTracker的时候，只需要测试JobRunner的实现逻辑是否正确，又不想启动LTS进行远程测试。为了方便测试，LTS提供了JobRunner的快捷测试方法。自己的测试类集成`com.github.ltsopensource.tasktracker.runner.JobRunnerTester`即可，并实现`initContext`和`newJobRunner`方法即可。如[lts-examples](https://github.com/ltsopensource/lts-examples)中的例子：
+##TaskTracker's JobRunner test
+Generally, when writing TaskTracker, you only need to test whether JobRunner's implementation logic is correct, and you don't want to start LTS for remote testing. To facilitate testing, LTS provides a quick test method for JobRunner. Your own test class integrates `com.github.ltsopensource.tasktracker.runner.JobRunnerTester` and implements the `initContext` and `newJobRunner` methods. For example, in [lts-examples] (https://github.com/ltsopensource/lts-examples):
 
 ```java
 public class TestJobRunnerTester extends JobRunnerTester {
@@ -377,17 +379,17 @@ public class TestJobRunnerTester extends JobRunnerTester {
 }
 ```
 
-##Spring Quartz Cron任务无缝接入
-对于Quartz的Cron任务只需要在Spring配置中增加一下代码就可以接入LTS平台
+##Spring Quartz Cron task seamless access
+For Quartz's Cron task, you only need to add some code in the Spring configuration to access the LTS platform.
 
 ```xml
 <bean class="com.github.ltsopensource.spring.quartz.QuartzLTSProxyBean">
-    <property name="clusterName" value="test_cluster"/>
-    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
-    <property name="nodeGroup" value="quartz_test_group"/>
+    <property name="clusterName" value="test_cluster"/>
+    <property name="registryAddress" value="zookeeper://127.0.0.1:2181"/>
+    <property name="nodeGroup" value="quartz_test_group"/>
 </bean>
 ```
-##Spring Boot 支持
+##Spring Boot Support
 
 ```java
 @SpringBootApplication
@@ -402,48 +404,50 @@ public class Application {
 }
 ```
 
-剩下的就只是在application.properties中添加相应的配置就行了, 具体见lts-example中的`com.github.ltsopensource.examples.springboot`包下的例子
+All that's left is to add the appropriate configuration in application.properties. See the example under the `com.github.ltsopensource.examples.springboot` package in lts-example.
 
 
-##多网卡选择问题
-当机器有内网两个网卡的时候，有时候，用户想让LTS的流量走外网网卡，那么需要在host中，把主机名称的映射地址改为外网网卡地址即可，内网同理。
+##Multiple network card selection problem
+When the machine has two network cards in the internal network, sometimes, the user wants the LTS traffic to go to the external network card, then in the host, the mapping address of the host name is changed to the external network card address, and the intranet is the same. .
 
-##关于节点标识问题
-如果在节点启动的时候设置节点标识,LTS会默认设置一个UUID为节点标识,可读性会比较差,但是能保证每个节点的唯一性,如果用户能自己保证节点标识的唯一性,可以通过 `setIdentity` 来设置,譬如如果每个节点都是部署在一台机器(一个虚拟机)上,那么可以将identity设置为主机名称
+##About node identification problem
+If the node identifier is set when the node is started, the LTS will set a UUID as the node identifier by default. The readability will be poor, but the uniqueness of each node can be guaranteed. If the user can guarantee the uniqueness of the node identifier, he can pass `setIdentity` to set, for example, if each node is deployed on a machine (a virtual machine), then identity can be set to the host name
 
-##SPI扩展说明
-支持JobLogger,JobQueue等等的SPI扩展
+##SPIExtension Description
+Support SPI extensions for JobLogger, JobQueue, etc.
 
-##[和其它解决方案比较](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
-
-
-##LTS-Admin使用jetty启动(默认)，不定期挂掉解决方案
-见[issue#389](https://github.com/ltsopensource/light-task-scheduler/issues/389)
+##[Compare with other solutions](https://qq254963746.gitbooks.io/lts/content/introduce/compareother.html)
 
 
-# 招人！！！
-工作年限  三年以上
+##LTS-AdminStarts with jetty (default), hangs the solution from time to time
+See [issue#389] (https://github.com/ltsopensource/light-task-scheduler/issues/389)
 
-学历要求  本科
+# hiring! ! !
+Working years, more than three years
 
-期望层级  P6(资深Java工程师)/P7(技术专家)
+Academic qualifications
 
-岗位描述  
+Expectation level P6 (senior Java engineer) / P7 (technical expert)
 
-会员平台，负责阿里巴巴集团的用户体系，支持集团内各线业务线用户类需求，支持集团对外合作的用户通和业务通。
-包括各个端的用户登录&授权、Session体系、注册、账户管理、账户安全等功能，底层的用户信息服务，会话和凭证管理等等，是集团最核心的产品线之一，每天承载千亿次调用量、峰值千万QPS、以及分布全球的混合云架构等等。
+Job description  
 
-作为软件工程师，你将会在我们的核心产品上工作，这些产品为我们的商业基础设施提供关键功能，
-取决于你的兴趣和经验，你可以在如下的一个或多个领域工作：全球化，用户体验，数据安全，机器学习，系统高可用性等等。
+The member platform is responsible for the user system of Alibaba Group, supports the user needs of each line of business lines within the group, and supports the user communication and business communication of the Group's external cooperation.
+Including user login & authorization, session system, registration, account management, account security and other functions at the end, the underlying user information service, session and credential management, etc., is one of the Group's core product lines, carrying hundreds of billions of calls per day. Volume, peak tens of millions of QPS, and distributed global cloud architecture and so on.
 
-1. 独立完成中小型项目的系统分析、设计，并主导完成详细设计和编码的任务，确保项目的进度和质量； 
-2. 能够在团队中完成code review的任务，确保相关代码的有效性和正确性，并能够通过code review提供相关性能以及稳定性的建议； 
-3. 参与建设通用、灵活、智能的业务支撑平台，支撑上层多场景的复杂业务。
-岗位要求  
-1. 扎实的java编程基础，熟悉常用的Java开源框架； 
-2. 具有基于数据库、缓存、分布式存储开发高性能、高可用数据应用的实际经验，熟练掌握LINUX操作系统； 
-3. 具备良好的识别和设计通用框架及模块的能力； 
-4. 热爱技术，工作认真、严谨，对系统质量有近乎苛刻的要求意识，善于沟通与团队协作；     
-5. 具备大型电子商务网站或金融行业核心系统开发、设计工作经验者优先；
-6. 具备大数据处理、算法、机器学习类工作经验优先。
-感兴趣，可以发简历到 hugui.hg@alibaba-inc.com 欢迎投递
+As a software engineer, you will work on our core products that provide key functions for our commercial infrastructure.
+Depending on your interests and experience, you can work in one or more of the following areas: globalization, user experience, data security, machine learning, system high availability, and more.
+
+1. Independently complete the system analysis and design of small and medium-sized projects, and lead the tasks of detailed design and coding to ensure the progress and quality of the project;
+2. Be able to complete the code review task in the team, ensure the validity and correctness of the relevant code, and be able to provide relevant performance and stability recommendations through code review;
+3. Participate in the construction of a versatile, flexible and intelligent business support platform to support complex services in multiple scenarios at the upper level.
+job requirements  
+4. Solid foundation in Java programming, familiar with common Java open source frameworks;
+5. Have practical experience in developing high-performance, high-availability data applications based on database, cache, and 
+distributed storage, and master the LINUX operating system;
+6. Have good ability to identify and design common frameworks and modules;
+7. Love technology, work conscientiously and rigorously, have a near-demanding awareness of system quality, and be good at communication 
+and teamwork;
+8. Experience in large-scale e-commerce website or core system development and design work in the financial industry is preferred;
+9. Experience in working with big data processing, algorithms, and machine learning is preferred.
+Interested, you can send your resume to hugui.hg@alibaba-inc.com Welcome delivery
+

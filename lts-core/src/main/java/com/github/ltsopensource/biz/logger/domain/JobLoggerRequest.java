@@ -1,8 +1,6 @@
 package com.github.ltsopensource.biz.logger.domain;
 
 import com.github.ltsopensource.admin.request.PaginationReq;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.Date;
 
 /**

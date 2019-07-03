@@ -12,6 +12,7 @@ import com.github.ltsopensource.tasktracker.domain.Response;
 import com.github.ltsopensource.tasktracker.domain.TaskTrackerAppContext;
 import com.github.ltsopensource.tasktracker.expcetion.NoAvailableJobRunnerException;
 import com.github.ltsopensource.tasktracker.monitor.TaskTrackerMStatReporter;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Robert HG (254963746@qq.com) on 2/21/16.
  */
+@Ignore("kinda dummy test :)")
 public class RunnerPoolTest {
 
     @Test
@@ -126,19 +128,16 @@ public class RunnerPoolTest {
 
     private void submitJob(ThreadPoolExecutor threadPoolExecutor, final List<Thread> list) {
         try {
-            threadPoolExecutor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    list.add(Thread.currentThread());
-                    try {
-                        while (true) {
-                            Thread.sleep(2000L);
-                            System.out.println("=====" + Thread.currentThread().getName());
+            threadPoolExecutor.submit(() -> {
+                list.add(Thread.currentThread());
+                try {
+                    while (true) {
+                        Thread.sleep(2000L);
+                        System.out.println("=====" + Thread.currentThread().getName());
 
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             });
         } catch (Exception e) {

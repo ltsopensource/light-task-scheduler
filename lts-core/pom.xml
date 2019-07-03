@@ -11,6 +11,10 @@
     <packaging>jar</packaging>
     <artifactId>lts-core</artifactId>
 
+    <properties>
+        <skipTests>true</skipTests>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mongodb.morphia</groupId>

@@ -1,17 +1,18 @@
 package com.github.ltsopensource.core;
 
 import com.github.ltsopensource.core.support.CronExpression;
-import org.junit.Test;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/3/15.
  */
 public class CronExpressionTest {
 
+    @Ignore
     @Test
     public void test1() throws ParseException {
 

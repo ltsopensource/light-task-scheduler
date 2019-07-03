@@ -5,16 +5,17 @@ import com.github.ltsopensource.kv.DB;
 import com.github.ltsopensource.kv.DBBuilder;
 import com.github.ltsopensource.kv.Entry;
 import com.github.ltsopensource.kv.iterator.DBIterator;
-import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.Options;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.Options;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * @author Robert HG (254963746@qq.com) on 12/13/15.
  */
+@Ignore("do not have to test DB")
 public class DBTest {
 
     String path = System.getProperty("user.home") + "/tmp/dbtest";

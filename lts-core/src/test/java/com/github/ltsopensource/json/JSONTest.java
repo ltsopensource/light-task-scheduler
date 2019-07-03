@@ -4,6 +4,7 @@ import com.github.ltsopensource.core.domain.Action;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.core.domain.JobRunResult;
 import com.github.ltsopensource.core.json.TypeReference;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 /**
  * @author Robert HG (254963746@qq.com) on 12/29/15.
  */
+@Ignore("LOL assert with sout :))")
 public class JSONTest {
 
     @Test

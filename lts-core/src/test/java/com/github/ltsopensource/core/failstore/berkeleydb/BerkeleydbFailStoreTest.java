@@ -10,6 +10,7 @@ import com.github.ltsopensource.core.domain.Pair;
 import com.github.ltsopensource.core.failstore.FailStore;
 import com.github.ltsopensource.core.failstore.FailStoreException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -48,6 +49,7 @@ public class BerkeleydbFailStoreTest {
         failStore.close();
     }
 
+    @Ignore
     @Test
     public void fetchTop() throws FailStoreException {
         List<Pair<String, Job>> pairs = failStore.fetchTop(5, Job.class);

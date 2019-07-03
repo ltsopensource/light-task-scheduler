@@ -182,7 +182,7 @@ public class JobRunnerDelegate implements Runnable {
     }
 
     private static void blockedOn(Interruptible interruptible) {
-        sun.misc.SharedSecrets.getJavaLangAccess().blockedOn(Thread.currentThread(), interruptible);
+        jdk.internal.misc.SharedSecrets.getJavaLangAccess().blockedOn(interruptible);
     }
 
     private abstract class InterruptibleAdapter implements Interruptible {
