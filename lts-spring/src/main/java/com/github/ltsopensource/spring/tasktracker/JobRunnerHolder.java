@@ -1,20 +1,17 @@
 package com.github.ltsopensource.spring.tasktracker;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
-import com.github.ltsopensource.core.logger.Logger;
-import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com)on 12/21/15.
  */
+@Log4j2
 public class JobRunnerHolder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JobRunnerHolder.class);
 
     private static final Map<String, JobRunner> JOB_RUNNER_MAP = new ConcurrentHashMap<String, JobRunner>();
 
@@ -35,7 +32,8 @@ public class JobRunnerHolder {
                     JobRunnerItem jobRunnerItem = method.getAnnotation(JobRunnerItem.class);
                     String shardValue = jobRunnerItem.shardValue();
                     if (StringUtils.isEmpty(shardValue)) {
-                        LOGGER.error(clazz.getName() + ":" + method.getName() + " " + JobRunnerItem.class.getName() + " shardValue can not be null");
+                        log.error(
+                            clazz.getName() + ":" + method.getName() + " " + JobRunnerItem.class.getName() + " shardValue can not be null");
                         continue;
                     }
                     JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(bean, method, method.getParameterTypes()));

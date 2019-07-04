@@ -1,27 +1,30 @@
 package com.github.ltsopensource.admin.web.support;
 
-import com.github.ltsopensource.core.json.JSON;
-import com.github.ltsopensource.core.json.TypeReference;
-import org.springframework.util.StringUtils;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.beans.PropertyEditorSupport;
-import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 /**
  * Robert HG (254963746@qq.com) on 6/5/15.
  */
 public class MapEditor extends PropertyEditorSupport {
 
-    public MapEditor() {
-    }
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public void setAsText(String text) throws IllegalArgumentException {
         if (!StringUtils.hasText(text)) {
             setValue(null);
         } else {
-            setValue(JSON.parse(text, new TypeReference<HashMap<String, String>>(){}));
+            try {
+                setValue(objectMapper.writeValueAsString(text));
+            } catch (JsonProcessingException e) {
+                // FIXME
+            }
         }
     }
 
@@ -32,6 +35,11 @@ public class MapEditor extends PropertyEditorSupport {
         if (value == null) {
             return "";
         }
-        return JSON.toJSONString(value);
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            // FIXME
+            return null;
+        }
     }
 }

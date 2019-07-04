@@ -1,8 +1,6 @@
 package com.github.ltsopensource.jobclient.support;
 
 import com.github.ltsopensource.core.domain.Job;
-import com.github.ltsopensource.core.exception.JobSubmitException;
-
 import java.util.List;
 
 /**
@@ -10,6 +8,5 @@ import java.util.List;
  */
 public interface JobSubmitExecutor<T> {
 
-    T execute(List<Job> jobs) throws JobSubmitException;
-
+    T execute(List<Job> jobs);
 }

@@ -1,14 +1,18 @@
 package com.github.ltsopensource.admin.web.filter;
 
 import com.github.ltsopensource.admin.support.AppConfigurer;
-import com.github.ltsopensource.core.commons.utils.Base64;
-import com.github.ltsopensource.core.commons.utils.StringUtils;
-import org.springframework.util.AntPathMatcher;
-
-import javax.servlet.*;
+import java.io.IOException;
+import java.util.Base64;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * Created by ztajy on 2015-11-11.
@@ -53,8 +57,8 @@ public class LoginAuthFilter implements Filter {
 
         String authorization = httpRequest.getHeader("authorization");
         if (null != authorization && authorization.length() > AUTH_PREFIX.length()) {
-            authorization = authorization.substring(AUTH_PREFIX.length(), authorization.length());
-            if ((username + ":" + password).equals(new String(Base64.decodeFast(authorization)))) {
+            authorization = authorization.substring(AUTH_PREFIX.length());
+            if ((username + ":" + password).equals(new String(Base64.getDecoder().decode(authorization)))) {
                 authenticateSuccess(httpResponse);
                 chain.doFilter(httpRequest, httpResponse);
             } else {

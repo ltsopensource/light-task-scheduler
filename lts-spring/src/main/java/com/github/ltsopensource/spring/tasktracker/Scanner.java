@@ -1,7 +1,8 @@
 package com.github.ltsopensource.spring.tasktracker;
 
-import com.github.ltsopensource.core.logger.Logger;
-import com.github.ltsopensource.core.logger.LoggerFactory;
+import java.lang.reflect.Method;
+import java.util.regex.Pattern;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -9,15 +10,11 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 
-import java.lang.reflect.Method;
-import java.util.regex.Pattern;
-
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
  */
+@Log4j2
 public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPostProcessor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Scanner.class);
 
     private String[] annotationPackages;
 
@@ -43,7 +40,7 @@ public class Scanner implements DisposableBean, BeanFactoryPostProcessor, BeanPo
                 Method scan = scannerClass.getMethod("scan", String[].class);
                 scan.invoke(scanner, new Object[]{annotationPackages});
             } catch (Throwable e) {
-                LOGGER.error(e.getMessage(), e);
+               log.error(e.getMessage(), e);
             }
         }
     }

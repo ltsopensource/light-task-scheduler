@@ -1,18 +1,11 @@
 package com.github.ltsopensource.admin.web.view;
 
-import com.github.ltsopensource.admin.cluster.BackendAppContext;
-import com.github.ltsopensource.biz.logger.domain.LogType;
-import com.github.ltsopensource.core.cluster.NodeType;
-import com.github.ltsopensource.core.commons.utils.DateUtils;
 import com.github.ltsopensource.core.constant.Level;
-import com.github.ltsopensource.queue.domain.NodeGroupPo;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Date;
+import org.apache.commons.lang.time.DateUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/6/15.
@@ -20,11 +13,8 @@ import java.util.List;
 @Controller
 public class CommonView {
 
-    @Autowired
-    private BackendAppContext appContext;
-
     @RequestMapping("index")
-    public String index(){
+    public String index() {
         return "index";
     }
 
@@ -40,8 +30,8 @@ public class CommonView {
 
     @RequestMapping("node-onoffline-log")
     public String nodeOnOfflineLogUI(Model model) {
-        model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(DateUtils.addDay(new Date(), -10)));
-        model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(new Date()));
+        model.addAttribute("startLogTime", DateUtils.addDays(new Date(), -10));
+        model.addAttribute("endLogTime", new Date());
         return "nodeOnOfflineLog";
     }
 
@@ -53,78 +43,61 @@ public class CommonView {
 
     @RequestMapping("job-add")
     public String addJobUI(Model model) {
-        setAttr(model);
         return "jobAdd";
     }
 
     @RequestMapping("job-logger")
     public String jobLoggerUI(Model model, String realTaskId, String taskTrackerNodeGroup,
-                              Date startLogTime, Date endLogTime) {
+        Date startLogTime, Date endLogTime) {
         model.addAttribute("realTaskId", realTaskId);
         model.addAttribute("taskTrackerNodeGroup", taskTrackerNodeGroup);
         if (startLogTime == null) {
-            startLogTime = DateUtils.addMinute(new Date(), -10);
+            startLogTime = DateUtils.addMinutes(new Date(), -10);
         }
-
-        model.addAttribute("logTypeList", LogType.values());
 
         model.addAttribute("logLevelList", Level.values());
 
-        model.addAttribute("startLogTime", DateUtils.formatYMD_HMS(startLogTime));
+        model.addAttribute("startLogTime", startLogTime);
         if (endLogTime == null) {
             endLogTime = new Date();
         }
-        model.addAttribute("endLogTime", DateUtils.formatYMD_HMS(endLogTime));
-        setAttr(model);
+        model.addAttribute("endLogTime", endLogTime);
         return "jobLogger";
     }
 
     @RequestMapping("cron-job-queue")
     public String cronJobQueueUI(Model model) {
-        setAttr(model);
         return "cronJobQueue";
     }
 
     @RequestMapping("repeat-job-queue")
     public String repeatJobQueueUI(Model model) {
-        setAttr(model);
         return "repeatJobQueue";
     }
 
     @RequestMapping("executable-job-queue")
     public String executableJobQueueUI(Model model) {
-        setAttr(model);
         return "executableJobQueue";
     }
 
     @RequestMapping("executing-job-queue")
     public String executingJobQueueUI(Model model) {
-        setAttr(model);
         return "executingJobQueue";
     }
 
     @RequestMapping("load-job")
     public String loadJobUI(Model model) {
-        setAttr(model);
         return "loadJob";
     }
 
     @RequestMapping("cron_generator_iframe")
-    public String cronGeneratorIframe(Model model){
+    public String cronGeneratorIframe(Model model) {
         return "cron/cronGenerator";
     }
 
-	@RequestMapping("suspend-job-queue")
-	public String suspendJobQueueUI(Model model) {
-		setAttr(model);
-		return "suspendJobQueue";
-	}
-
-    private void setAttr(Model model) {
-        List<NodeGroupPo> jobClientNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.JOB_CLIENT);
-        model.addAttribute("jobClientNodeGroups", jobClientNodeGroups);
-        List<NodeGroupPo> taskTrackerNodeGroups = appContext.getNodeGroupStore().getNodeGroup(NodeType.TASK_TRACKER);
-        model.addAttribute("taskTrackerNodeGroups", taskTrackerNodeGroups);
+    @RequestMapping("suspend-job-queue")
+    public String suspendJobQueueUI(Model model) {
+        return "suspendJobQueue";
     }
 
 }

@@ -1,8 +1,6 @@
 package com.github.ltsopensource.tasktracker.runner;
 
-import com.github.ltsopensource.core.json.JSON;
 import com.github.ltsopensource.tasktracker.Result;
-
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -16,7 +14,6 @@ public class NormalJobRunner implements JobRunner {
 
     @Override
     public Result run(JobContext jobContext) throws Throwable {
-        System.out.println("我开始执行:" + JSON.toJSONString(jobContext));
         while (!stop) {
             l.incrementAndGet();
         }

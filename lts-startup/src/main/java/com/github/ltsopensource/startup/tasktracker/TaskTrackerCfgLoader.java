@@ -1,15 +1,19 @@
 package com.github.ltsopensource.startup.tasktracker;
 
-import com.github.ltsopensource.core.commons.file.FileUtils;
-import com.github.ltsopensource.core.commons.utils.Assert;
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Level;
-import org.apache.log4j.PropertyConfigurator;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.log4j.PropertyConfigurator;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
@@ -60,23 +64,23 @@ public class TaskTrackerCfgLoader {
             cfg.setDataPath(conf.getProperty("dataPath"));
 
             String useSpring = conf.getProperty("useSpring");
-            if (StringUtils.isNotEmpty(useSpring)) {
+            if (!StringUtils.isEmpty(useSpring)) {
                 cfg.setUseSpring(Boolean.valueOf(useSpring));
             }
 
             String bizLoggerLevel = conf.getProperty("bizLoggerLevel");
-            if (StringUtils.isNotEmpty(bizLoggerLevel)) {
+            if (!StringUtils.isEmpty(useSpring)) {
                 cfg.setBizLoggerLevel(Level.valueOf(bizLoggerLevel));
             }
 
             String springXmlPaths = conf.getProperty("springXmlPaths");
-            if (StringUtils.isNotEmpty(springXmlPaths)) {
+            if (!StringUtils.isEmpty(useSpring)) {
                 // 都好分割
                 String[] tmpArr = springXmlPaths.split(",");
                 if (tmpArr.length > 0) {
                     String[] springXmlPathArr = new String[tmpArr.length];
                     for (int i = 0; i < tmpArr.length; i++) {
-                        springXmlPathArr[i] = StringUtils.trim(tmpArr[i]);
+                        springXmlPathArr[i] = StringUtils.trimWhitespace(tmpArr[i]);
                     }
                     cfg.setSpringXmlPaths(springXmlPathArr);
                 }
@@ -96,7 +100,7 @@ public class TaskTrackerCfgLoader {
             throw new CfgException(e);
         }
 
-        if (FileUtils.exist(log4jPath)) {
+        if (Files.exists(Paths.get(log4jPath))) {
             //  log4j 配置文件路径
             PropertyConfigurator.configure(log4jPath);
         }

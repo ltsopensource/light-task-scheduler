@@ -30,8 +30,4 @@
     <bean class="com.github.ltsopensource.admin.support.I18nManager">
         <constructor-arg name="messageSource" ref="messageSource"/>
     </bean>
-
-    <bean id="appContext" class="com.github.ltsopensource.admin.support.BackendAppContextFactoryBean"/>
-
-    <bean class="com.github.ltsopensource.admin.support.LtsAdminDataCleaner"/>
 </beans>

@@ -1,12 +1,6 @@
 package com.github.ltsopensource.core.domain;
 
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
-import com.github.ltsopensource.core.exception.JobSubmitException;
-import com.github.ltsopensource.core.json.JSON;
-import com.github.ltsopensource.core.support.CronExpression;
-import com.github.ltsopensource.remoting.annotation.NotNull;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +13,6 @@ public class Job implements Serializable {
 
     private static final long serialVersionUID = 7881199011994149340L;
 
-    @NotNull
     private String taskId;
     /**
      * 优先级 (数值越大 优先级越低)
@@ -28,7 +21,6 @@ public class Job implements Serializable {
     // 提交的节点 （可以手动指定）
     private String submitNodeGroup;
     // 执行的节点
-    @NotNull
     private String taskTrackerNodeGroup;
 
     private Map<String, String> extParams;
@@ -37,8 +29,7 @@ public class Job implements Serializable {
     // 该任务最大的重试次数
     private int maxRetryTimes = 0;
     /**
-     * 执行表达式 和 quartz 的一样
-     * 如果这个为空，表示立即执行的
+     * 执行表达式 和 quartz 的一样 如果这个为空，表示立即执行的
      */
     private String cronExpression;
 
@@ -51,8 +42,7 @@ public class Job implements Serializable {
      */
     private Long repeatInterval;
     /**
-     * 任务的最触发发时间
-     * 如果设置了 cronExpression， 那么这个字段没用
+     * 任务的最触发发时间 如果设置了 cronExpression， 那么这个字段没用
      */
     private Long triggerTime;
     /**
@@ -194,39 +184,5 @@ public class Job implements Serializable {
 
     public void setRelyOnPrevCycle(boolean relyOnPrevCycle) {
         this.relyOnPrevCycle = relyOnPrevCycle;
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
-    }
-
-    public void checkField() throws JobSubmitException {
-        if (StringUtils.isEmpty(taskId)) {
-            throw new JobSubmitException("taskId can not be empty! job is " + toString());
-        }
-        if (taskId.length() > 64) {
-            throw new JobSubmitException("taskId length should not great than 64! job is " + toString());
-        }
-        if (StringUtils.isEmpty(taskTrackerNodeGroup)) {
-            throw new JobSubmitException("taskTrackerNodeGroup can not be empty! job is " + toString());
-        }
-        if (taskTrackerNodeGroup.length() > 64) {
-            throw new JobSubmitException("taskTrackerNodeGroup length should not great than 64! job is " + toString());
-        }
-        if (StringUtils.isNotEmpty(cronExpression)) {
-            if (!CronExpression.isValidExpression(cronExpression)) {
-                throw new JobSubmitException("cronExpression invalid! job is " + toString());
-            }
-            if (cronExpression.length() > 128) {
-                throw new JobSubmitException("cronExpression length should not great than 128! job is " + toString());
-            }
-        }
-        if (maxRetryTimes < 0) {
-            throw new JobSubmitException("maxRetryTimes invalid, must be great than zero! job is " + toString());
-        }
-        if (repeatCount < -1) {
-            throw new JobSubmitException("repeatCount invalid, must be great than -1! job is " + toString());
-        }
     }
 }

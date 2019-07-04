@@ -1,17 +1,12 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
-import com.github.ltsopensource.core.commons.utils.CollectionUtils;
-import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.jobclient.JobClient;
-import com.github.ltsopensource.jobclient.JobClientBuilder;
-import com.github.ltsopensource.core.properties.JobClientProperties;
 import com.github.ltsopensource.jobclient.support.JobCompletedHandler;
+import java.util.Properties;
+import lombok.Data;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-
-import java.util.Properties;
 
 /**
  * JobClient Spring Bean 工厂类
@@ -19,8 +14,9 @@ import java.util.Properties;
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
 @SuppressWarnings("rawtypes")
+@Data
 public class JobClientFactoryBean implements FactoryBean<JobClient>,
-        InitializingBean, DisposableBean {
+    InitializingBean, DisposableBean {
 
     private JobClient jobClient;
     private boolean started;
@@ -44,10 +40,6 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
     private String identity;
 
     private String bindIp;
-    /**
-     * master节点变化监听器
-     */
-    private MasterChangeListener[] masterChangeListeners;
     /**
      * 额外参数配置
      */
@@ -80,33 +72,6 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        JobClientProperties properties = null;
-        if (locations == null || locations.length == 0) {
-            properties = new JobClientProperties();
-            properties.setUseRetryClient(useRetryClient);
-            properties.setClusterName(clusterName);
-            properties.setDataPath(dataPath);
-            properties.setNodeGroup(nodeGroup);
-            properties.setRegistryAddress(registryAddress);
-            properties.setBindIp(bindIp);
-            properties.setIdentity(identity);
-            properties.setConfigs(CollectionUtils.toMap(configs));
-
-        } else {
-            properties = PropertiesConfigurationFactory.createPropertiesConfiguration(JobClientProperties.class, locations);
-        }
-
-        jobClient = JobClientBuilder.buildByProperties(properties);
-
-        if (jobCompletedHandler != null) {
-            jobClient.setJobCompletedHandler(jobCompletedHandler);
-        }
-
-        if (masterChangeListeners != null) {
-            for (MasterChangeListener masterChangeListener : masterChangeListeners) {
-                jobClient.addMasterChangeListener(masterChangeListener);
-            }
-        }
     }
 
     /**
@@ -122,49 +87,5 @@ public class JobClientFactoryBean implements FactoryBean<JobClient>,
     @Override
     public void destroy() throws Exception {
         jobClient.stop();
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public void setNodeGroup(String nodeGroup) {
-        this.nodeGroup = nodeGroup;
-    }
-
-    public void setRegistryAddress(String registryAddress) {
-        this.registryAddress = registryAddress;
-    }
-
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
-    }
-
-    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
-        this.masterChangeListeners = masterChangeListeners;
-    }
-
-    public void setConfigs(Properties configs) {
-        this.configs = configs;
-    }
-
-    public void setJobCompletedHandler(JobCompletedHandler jobCompletedHandler) {
-        this.jobCompletedHandler = jobCompletedHandler;
-    }
-
-    public void setUseRetryClient(boolean useRetryClient) {
-        this.useRetryClient = useRetryClient;
-    }
-
-    public void setLocations(String... locations) {
-        this.locations = locations;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
-    public void setBindIp(String bindIp) {
-        this.bindIp = bindIp;
     }
 }

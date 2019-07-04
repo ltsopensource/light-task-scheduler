@@ -1,13 +1,14 @@
 package com.github.ltsopensource.spring.tasktracker;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
-import org.springframework.beans.factory.InitializingBean;
-
 import java.lang.reflect.Method;
+import lombok.Data;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com)on 12/21/15.
  */
+@Data
 public class MethodInvokingJobRunner implements InitializingBean {
 
     private Object targetObject;
@@ -34,7 +35,8 @@ public class MethodInvokingJobRunner implements InitializingBean {
             for (Method m : methods) {
                 if (m.getName().equals(targetMethod)) {
                     if (method != null) {
-                        throw new IllegalArgumentException("Duplicate targetMethod can not be found in " + targetObject.getClass().getName());
+                        throw new IllegalArgumentException(
+                            "Duplicate targetMethod can not be found in " + targetObject.getClass().getName());
                     }
                     method = m;
                 }
@@ -47,18 +49,6 @@ public class MethodInvokingJobRunner implements InitializingBean {
 
         JobRunnerHolder.add(shardValue, JobRunnerBuilder.build(targetObject, method, method.getParameterTypes()));
 
-    }
-
-    public void setTargetObject(Object targetObject) {
-        this.targetObject = targetObject;
-    }
-
-    public void setTargetMethod(String targetMethod) {
-        this.targetMethod = targetMethod;
-    }
-
-    public void setShardValue(String shardValue) {
-        this.shardValue = shardValue;
     }
 
 }

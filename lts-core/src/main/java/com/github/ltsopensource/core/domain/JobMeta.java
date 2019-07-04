@@ -1,7 +1,5 @@
 package com.github.ltsopensource.core.domain;
 
-import com.github.ltsopensource.core.json.JSON;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -93,10 +91,5 @@ public class JobMeta implements Serializable {
 
     public void setRealTaskId(String realTaskId) {
         this.realTaskId = realTaskId;
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
     }
 }

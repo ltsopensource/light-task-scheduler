@@ -1,9 +1,7 @@
 package com.github.ltsopensource.spring.boot;
 
-import com.github.ltsopensource.core.cluster.AbstractJobNode;
 import com.github.ltsopensource.core.cluster.NodeType;
 import com.github.ltsopensource.jobtracker.JobTracker;
-import com.github.ltsopensource.jobtracker.JobTrackerBuilder;
 import com.github.ltsopensource.spring.boot.annotation.EnableJobTracker;
 import com.github.ltsopensource.spring.boot.properties.JobTrackerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ public class JobTrackerAutoConfiguration extends AbstractAutoConfiguration {
 
     @Override
     protected void initJobNode() {
-        jobTracker = JobTrackerBuilder.buildByProperties(properties);
     }
 
     @Override
@@ -33,8 +30,4 @@ public class JobTrackerAutoConfiguration extends AbstractAutoConfiguration {
         return NodeType.JOB_TRACKER;
     }
 
-    @Override
-    protected AbstractJobNode getJobNode() {
-        return jobTracker;
-    }
 }

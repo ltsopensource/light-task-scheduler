@@ -6,17 +6,17 @@ import java.util.List;
 /**
  * @author Robert HG (254963746@qq.com) on 6/7/15.
  */
-public class PaginationRsp<T> {
+public class ListRsp<T> {
 
     private int results = 0;
 
     private List<T> rows;
 
-    public PaginationRsp() {
+    public ListRsp() {
 
     }
 
-    public PaginationRsp(int results, List<T> rows) {
+    public ListRsp(int results, List<T> rows) {
         this.results = results;
         this.rows = rows;
     }
@@ -30,7 +30,7 @@ public class PaginationRsp<T> {
     }
 
     public List<T> getRows() {
-        return rows == null ? new ArrayList<T>(0) : rows;
+        return rows == null ? new ArrayList<>(0) : rows;
     }
 
     public void setRows(List<T> rows) {

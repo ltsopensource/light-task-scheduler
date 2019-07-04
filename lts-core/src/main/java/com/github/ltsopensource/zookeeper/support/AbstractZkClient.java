@@ -1,25 +1,22 @@
 package com.github.ltsopensource.zookeeper.support;
 
 
-import com.github.ltsopensource.core.logger.Logger;
-import com.github.ltsopensource.core.logger.LoggerFactory;
 import com.github.ltsopensource.zookeeper.ChildListener;
 import com.github.ltsopensource.zookeeper.DataListener;
 import com.github.ltsopensource.zookeeper.StateListener;
 import com.github.ltsopensource.zookeeper.ZkClient;
-
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * @author Robert HG (254963746@qq.com) on 7/8/14.
  */
+@Log4j2
 public abstract class AbstractZkClient<TargetChildListener, TargetDataListener> implements ZkClient {
-
-    private static final Logger logger = LoggerFactory.getLogger(AbstractZkClient.class);
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
 
@@ -120,7 +117,7 @@ public abstract class AbstractZkClient<TargetChildListener, TargetDataListener> 
         try {
             doClose();
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            log.warn(e.getMessage(), e);
         }
     }
 

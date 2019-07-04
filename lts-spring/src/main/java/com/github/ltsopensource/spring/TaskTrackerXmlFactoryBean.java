@@ -1,29 +1,22 @@
 package com.github.ltsopensource.spring;
 
-import com.github.ltsopensource.autoconfigure.PropertiesConfigurationFactory;
-import com.github.ltsopensource.core.commons.utils.CollectionUtils;
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.constant.Level;
-import com.github.ltsopensource.core.listener.MasterChangeListener;
 import com.github.ltsopensource.tasktracker.TaskTracker;
-import com.github.ltsopensource.tasktracker.TaskTrackerBuilder;
-import com.github.ltsopensource.core.properties.TaskTrackerProperties;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
-import com.github.ltsopensource.tasktracker.runner.RunnerFactory;
+import java.util.Properties;
+import lombok.Data;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.Properties;
-
 /**
- * TaskTracker Spring Bean 工厂类
- * 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过xml的方式注入
+ * TaskTracker Spring Bean 工厂类 如果用这个工厂类，那么JobRunner中引用SpringBean的话,只有通过xml的方式注入
  *
  * @author Robert HG (254963746@qq.com) on 8/4/15.
  */
+@Data
 public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTracker>,
-        InitializingBean, DisposableBean {
+    InitializingBean, DisposableBean {
 
     private TaskTracker taskTracker;
     private boolean started;
@@ -57,10 +50,6 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
      */
     private Level bizLoggerLevel;
     /**
-     * master节点变化监听器
-     */
-    private MasterChangeListener[] masterChangeListeners;
-    /**
      * 额外参数配置
      */
     private Properties configs = new Properties();
@@ -85,38 +74,6 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        TaskTrackerProperties properties = null;
-        if (locations == null || locations.length == 0) {
-            properties = new TaskTrackerProperties();
-            properties.setClusterName(clusterName);
-            properties.setDataPath(dataPath);
-            properties.setNodeGroup(nodeGroup);
-            properties.setRegistryAddress(registryAddress);
-            properties.setBindIp(bindIp);
-            properties.setIdentity(identity);
-            properties.setBizLoggerLevel(bizLoggerLevel);
-            properties.setWorkThreads(workThreads);
-
-            properties.setConfigs(CollectionUtils.toMap(configs));
-        } else {
-            properties = PropertiesConfigurationFactory.createPropertiesConfiguration(TaskTrackerProperties.class, locations);
-        }
-
-        taskTracker = TaskTrackerBuilder.buildByProperties(properties);
-
-        taskTracker.setRunnerFactory(new RunnerFactory() {
-            @Override
-            public JobRunner newRunner() {
-                return createJobRunner();
-            }
-        });
-
-        if (masterChangeListeners != null) {
-            for (MasterChangeListener masterChangeListener : masterChangeListeners) {
-                taskTracker.addMasterChangeListener(masterChangeListener);
-            }
-        }
-
     }
 
     /**
@@ -134,51 +91,5 @@ public abstract class TaskTrackerXmlFactoryBean implements FactoryBean<TaskTrack
     @Override
     public void destroy() throws Exception {
         taskTracker.stop();
-    }
-
-    public void setClusterName(String clusterName) {
-        this.clusterName = clusterName;
-    }
-
-    public void setNodeGroup(String nodeGroup) {
-        this.nodeGroup = nodeGroup;
-    }
-
-    public void setRegistryAddress(String registryAddress) {
-        this.registryAddress = registryAddress;
-    }
-
-    public void setDataPath(String dataPath) {
-        this.dataPath = dataPath;
-    }
-
-    public void setWorkThreads(int workThreads) {
-        this.workThreads = workThreads;
-    }
-
-    public void setMasterChangeListeners(MasterChangeListener... masterChangeListeners) {
-        this.masterChangeListeners = masterChangeListeners;
-    }
-
-    public void setBizLoggerLevel(String bizLoggerLevel) {
-        if (StringUtils.isNotEmpty(bizLoggerLevel)) {
-            this.bizLoggerLevel = Level.valueOf(bizLoggerLevel);
-        }
-    }
-
-    public void setConfigs(Properties configs) {
-        this.configs = configs;
-    }
-
-    public void setBindIp(String bindIp) {
-        this.bindIp = bindIp;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
-    public void setLocations(String... locations) {
-        this.locations = locations;
     }
 }

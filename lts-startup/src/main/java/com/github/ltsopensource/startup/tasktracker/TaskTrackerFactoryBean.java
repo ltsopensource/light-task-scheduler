@@ -1,10 +1,9 @@
 package com.github.ltsopensource.startup.tasktracker;
 
-import com.github.ltsopensource.core.commons.utils.CollectionUtils;
 import com.github.ltsopensource.spring.TaskTrackerAnnotationFactoryBean;
-
 import java.util.Map;
 import java.util.Properties;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/12/15.
@@ -18,7 +17,6 @@ public class TaskTrackerFactoryBean extends TaskTrackerAnnotationFactoryBean {
         TaskTrackerCfg cfg = TaskTrackerCfgLoader.load(cfgPath);
 
         setJobRunnerClass(cfg.getJobRunnerClass());
-        setBizLoggerLevel(cfg.getBizLoggerLevel() == null ? null : cfg.getBizLoggerLevel().name());
         setClusterName(cfg.getClusterName());
         setRegistryAddress(cfg.getRegistryAddress());
         setNodeGroup(cfg.getNodeGroup());
@@ -26,7 +24,7 @@ public class TaskTrackerFactoryBean extends TaskTrackerAnnotationFactoryBean {
 
         Map<String, String> configMap = cfg.getConfigs();
         Properties configs = new Properties();
-        if(CollectionUtils.isNotEmpty(configMap)){
+        if (!CollectionUtils.isEmpty(configMap)) {
             for (Map.Entry<String, String> entry : configMap.entrySet()) {
                 configs.put(entry.getKey(), entry.getValue());
             }

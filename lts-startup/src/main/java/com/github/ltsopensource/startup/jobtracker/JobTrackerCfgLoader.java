@@ -1,13 +1,17 @@
 package com.github.ltsopensource.startup.jobtracker;
 
-import com.github.ltsopensource.core.commons.file.FileUtils;
-import com.github.ltsopensource.core.commons.utils.StringUtils;
-import org.apache.log4j.PropertyConfigurator;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.log4j.PropertyConfigurator;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
@@ -47,12 +51,12 @@ public class JobTrackerCfgLoader {
         cfg.setClusterName(clusterName);
 
         String bindIp = conf.getProperty("bindIp");
-        if (StringUtils.isNotEmpty(clusterName)) {
+        if (!StringUtils.isEmpty(clusterName)) {
             cfg.setBindIp(bindIp);
         }
 
         String listenPort = conf.getProperty("listenPort");
-        if (StringUtils.isEmpty(listenPort) || !StringUtils.isInteger(listenPort)) {
+        if (StringUtils.isEmpty(listenPort)) { // FIXME and is numeric
             throw new CfgException("listenPort can not be null.");
         }
         cfg.setListenPort(Integer.parseInt(listenPort));
@@ -68,7 +72,7 @@ public class JobTrackerCfgLoader {
 
         cfg.setConfigs(configs);
 
-        if (FileUtils.exist(log4jPath)) {
+        if (Files.exists(Paths.get(log4jPath))) {
             //  log4j 配置文件路径
             PropertyConfigurator.configure(log4jPath);
         }

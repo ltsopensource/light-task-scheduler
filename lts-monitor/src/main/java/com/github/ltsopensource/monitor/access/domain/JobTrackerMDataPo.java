@@ -1,8 +1,11 @@
 package com.github.ltsopensource.monitor.access.domain;
 
+import lombok.Data;
+
 /**
  * @author Robert HG (254963746@qq.com) on 9/1/15.
  */
+@Data
 public class JobTrackerMDataPo extends MDataPo {
 
     /**
@@ -34,60 +37,5 @@ public class JobTrackerMDataPo extends MDataPo {
      */
     private Long fixExecutingJobNum;
 
-    public Long getReceiveJobNum() {
-        return receiveJobNum;
-    }
-
-    public void setReceiveJobNum(Long receiveJobNum) {
-        this.receiveJobNum = receiveJobNum;
-    }
-
-    public Long getPushJobNum() {
-        return pushJobNum;
-    }
-
-    public void setPushJobNum(Long pushJobNum) {
-        this.pushJobNum = pushJobNum;
-    }
-
-    public Long getExeSuccessNum() {
-        return exeSuccessNum;
-    }
-
-    public void setExeSuccessNum(Long exeSuccessNum) {
-        this.exeSuccessNum = exeSuccessNum;
-    }
-
-    public Long getExeFailedNum() {
-        return exeFailedNum;
-    }
-
-    public void setExeFailedNum(Long exeFailedNum) {
-        this.exeFailedNum = exeFailedNum;
-    }
-
-    public Long getExeLaterNum() {
-        return exeLaterNum;
-    }
-
-    public void setExeLaterNum(Long exeLaterNum) {
-        this.exeLaterNum = exeLaterNum;
-    }
-
-    public Long getExeExceptionNum() {
-        return exeExceptionNum;
-    }
-
-    public void setExeExceptionNum(Long exeExceptionNum) {
-        this.exeExceptionNum = exeExceptionNum;
-    }
-
-    public Long getFixExecutingJobNum() {
-        return fixExecutingJobNum;
-    }
-
-    public void setFixExecutingJobNum(Long fixExecutingJobNum) {
-        this.fixExecutingJobNum = fixExecutingJobNum;
-    }
 
 }

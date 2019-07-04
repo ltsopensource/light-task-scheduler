@@ -26,12 +26,7 @@ public class TaskTrackerStartup {
 
             taskTracker.start();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    taskTracker.stop();
-                }
-            }));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> taskTracker.stop()));
 
         } catch (CfgException e) {
             System.err.println("TaskTracker Startup Error: " + e.getMessage());

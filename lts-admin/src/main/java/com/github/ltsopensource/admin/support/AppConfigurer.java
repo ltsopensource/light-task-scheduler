@@ -1,6 +1,5 @@
 package com.github.ltsopensource.admin.support;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 系统的配置信息（lts-admin.cfg）

@@ -1,7 +1,5 @@
 package com.github.ltsopensource.core.domain;
 
-import com.github.ltsopensource.core.json.JSON;
-
 import java.io.Serializable;
 
 /**
@@ -50,10 +48,5 @@ public class JobRunResult implements Serializable{
 
     public void setTime(Long time) {
         this.time = time;
-    }
-
-    @Override
-    public String toString() {
-        return JSON.toJSONString(this);
     }
 }

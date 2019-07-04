@@ -1,10 +1,10 @@
 package com.github.ltsopensource.spring.tasktracker;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
 import com.github.ltsopensource.core.domain.Job;
 import com.github.ltsopensource.tasktracker.Result;
 import com.github.ltsopensource.tasktracker.runner.JobContext;
 import com.github.ltsopensource.tasktracker.runner.JobRunner;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 10/20/15.
@@ -26,7 +26,7 @@ public class JobDispatcher implements JobRunner {
         }
 
         JobRunner jobRunner = null;
-        if (StringUtils.isNotEmpty(value)) {
+        if (!StringUtils.isEmpty(value)) {
             jobRunner = JobRunnerHolder.getJobRunner(value);
         }
         if (jobRunner == null) {
@@ -40,7 +40,7 @@ public class JobDispatcher implements JobRunner {
     }
 
     public void setShardField(String shardField) {
-        if (StringUtils.isNotEmpty(shardField)) {
+        if (!StringUtils.isEmpty(shardField)) {
             this.shardField = shardField;
         }
     }

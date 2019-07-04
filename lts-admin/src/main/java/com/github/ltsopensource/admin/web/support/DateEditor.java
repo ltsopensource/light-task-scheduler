@@ -1,17 +1,15 @@
 package com.github.ltsopensource.admin.web.support;
 
-import com.github.ltsopensource.core.commons.utils.DateUtils;
-import org.springframework.util.StringUtils;
-
 import java.beans.PropertyEditorSupport;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.lang.time.DateUtils;
+import org.springframework.util.StringUtils;
 
 /**
- * Date转换器
- * Robert HG (254963746@qq.com) on 6/5/15.
+ * Date转换器 Robert HG (254963746@qq.com) on 6/5/15.
  */
 public class DateEditor extends PropertyEditorSupport {
 
@@ -43,10 +41,10 @@ public class DateEditor extends PropertyEditorSupport {
             setValue(null);
         } else {
             try {
-                if (this.dateFormat != null)
+                if (this.dateFormat != null) {
                     setValue(this.dateFormat.parse(text));
-                else {
-                    setValue(DateUtils.parse(text));
+                } else {
+                    setValue(DateUtils.parseDate(text, new String[]{"yyyy-MM-dd HH:mm:ss"}));
                 }
             } catch (ParseException ex) {
                 throw new IllegalArgumentException("Could not parse date: " + ex.getMessage(), ex);
@@ -61,8 +59,9 @@ public class DateEditor extends PropertyEditorSupport {
     public String getAsText() {
         Date value = (Date) getValue();
         DateFormat dateFormat = this.dateFormat;
-        if (dateFormat == null)
+        if (dateFormat == null) {
             dateFormat = TIME_FORMAT;
+        }
         return (value != null ? dateFormat.format(value) : "");
     }
 }

@@ -1,12 +1,11 @@
 package com.github.ltsopensource.core.spi;
 
 
-import com.github.ltsopensource.core.commons.utils.Assert;
-
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.springframework.util.Assert;
 
 /**
  * @author Robert HG (254963746@qq.com)on 12/23/15.

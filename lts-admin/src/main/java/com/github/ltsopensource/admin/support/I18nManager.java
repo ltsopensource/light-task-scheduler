@@ -1,18 +1,15 @@
 package com.github.ltsopensource.admin.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Locale;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-
-import java.util.Locale;
 
 /**
  * @author Robert HG (254963746@qq.com) on 3/9/16.
  */
+@Log4j2
 public class I18nManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(I18nManager.class);
 
     private static MessageSource messageSource;
 
@@ -40,7 +37,7 @@ public class I18nManager {
         try {
             return messageSource.getMessage(key, args, locale);
         } catch (Throwable t) {
-            logger.error("i18n error, message not found by key :" + key, t);
+            log.error("i18n error, message not found by key :" + key, t);
             return key;
         }
     }

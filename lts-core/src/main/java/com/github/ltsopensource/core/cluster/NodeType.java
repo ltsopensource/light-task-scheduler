@@ -1,6 +1,6 @@
 package com.github.ltsopensource.core.cluster;
 
-import com.github.ltsopensource.core.commons.utils.StringUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author Robert HG (254963746@qq.com) on 6/22/14.
