@@ -89,13 +89,16 @@ public class TradeService {
 ```
 
 ###maven配置
+```xml
 		<dependency>
 			<groupId>com.github.ltsopensource</groupId>
 			<artifactId>lts</artifactId>
 			<version>1.8.0-SNAPSHOT</version>
 		</dependency>
-		
+```
+
 ###因为很多配置是可选的，默认配置还需要以下依赖(版本号自行调整)
+```
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
@@ -137,3 +140,4 @@ public class TradeService {
 			<artifactId>javassist</artifactId>
 			<version>3.21.0-GA</version>
 		</dependency>
+```
