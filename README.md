@@ -20,8 +20,10 @@ oschina地址:
 
 这两个地址都会同步更新。感兴趣，请加QQ群：109500214 (加群密码: hello world)一起探讨、完善。越多人支持，就越有动力去更新，喜欢记得右上角star哈。
 
-##1.7.2-SNAPSHOT(master)变更主要点
-1. 优化JobContext中的BizLogger，由原来的去掉了threadlocal，解决taskTracker多线程的问题, 去掉LtsLoggerFactory.getLogger()用法
+##1.8.0-SNAPSHOT(master)变更主要点
+1. 简化了使用:@LTSScheduled类似spring的@Scheduled直接自动提交任务
+2. 简化了使用:OneOffClient可用用来提交一次性任务
+3. 简化了使用:提供Docker Image构建脚本和kubernetes部署配置
 
 ## 框架概况
 LTS 有主要有以下四种节点：
