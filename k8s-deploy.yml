@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lts-admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lts-admin
+  template:
+    metadata:
+      labels:
+        app: lts-admin
+    spec:
+      containers:
+      - name: lts-admin
+        image: 10.168.1.136:5000/seahuang/lts:1.8.0-SNAPSHOT
+        command: ["/bin/sh", "-c"]
+        args: ["lts-1.8.0-SNAPSHOT-bin/bin/lts-admin.sh start && tail -n200 -f lts-1.8.0-SNAPSHOT-bin/logs/lts-admin.out"]
+        ports:
+        - containerPort: 8081
+        volumeMounts: 
+        - name: config-volume
+          mountPath: /lts-1.8.0-SNAPSHOT-bin/conf/
+      volumes: 
+      - name: config-volume
+        configMap: 
+          name: lts-config
+          items:
+          - key: lts-admin.cfg
+            path: lts-admin.cfg
+          - key: lts-monitor.cfg
+            path: lts-monitor.cfg
+          - key: log4j.properties
+            path: log4j.properties
+      nodeSelector: 
+        kubernetes.io/hostname: silver.three
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lts-admin
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: lts-admin
+---
+apiVersion: getambassador.io/v1
+kind:  Mapping
+metadata:
+  name:  lts-admin
+spec:
+  prefix: /
+  host: lts-admin.hh:30080
+  service: lts-admin:8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lts-jobtracker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lts-jobtracker
+  template:
+    metadata:
+      labels:
+        app: lts-jobtracker
+    spec:
+      containers:
+      - name: lts-jobtracker
+        image: 10.168.1.136:5000/seahuang/lts:1.8.0-SNAPSHOT
+        command: ["/bin/sh","-c"]
+        args: ["lts-1.8.0-SNAPSHOT-bin/bin/jobtracker.sh zoo start && tail -n200 -f lts-1.8.0-SNAPSHOT-bin/logs/jobtracker-zoo.out"]
+        ports:
+        - containerPort: 3502
+        volumeMounts: 
+        - name: config-volume
+          mountPath: /lts-1.8.0-SNAPSHOT-bin/conf/zoo/
+      volumes: 
+      - name: config-volume
+        configMap: 
+          name: lts-config
+          items:
+          - key: jobtracker.cfg
+            path: jobtracker.cfg
+          - key: lts-monitor.cfg
+            path: lts-monitor.cfg
+          - key: log4j.properties
+            path: log4j.properties
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: lts-config
+data:
+  lts-admin.cfg: |
+    console.username=admin
+    console.password=admin
+    registryAddress=zookeeper://zk-cs:2181
+    clusterName=test_cluster
+    configs.zk.client=zkclient
+    configs.jdbc.url=jdbc:mysql://my-cluster-mysql-master:3306/lts
+    configs.jdbc.username=root
+    configs.jdbc.password=18964603268
+    jdbc.datasource.provider=mysql
+    lts.monitorAgent.enable=true
+    jobT.job.logger=mysql
+    jobT.job.queue=mysql
+  lts-monitor.cfg: |
+    registryAddress=zookeeper://zk-cs:2181
+    clusterName=test_cluster
+    configs.job.logger=mysql
+    configs.job.queue=mysql
+    configs.jdbc.url=jdbc:mysql://my-cluster-mysql-master:3306/lts
+    configs.jdbc.username=root
+    configs.jdbc.password=18964603268
+    jdbc.datasource.provider=mysql
+  jobtracker.cfg: |
+    registryAddress=zookeeper://zk-cs:2181
+    listenPort=3502
+    clusterName=test_cluster
+    configs.job.logger=mysql
+    configs.zk.client=zkclient
+    configs.job.queue=mysql
+    configs.jdbc.url=jdbc:mysql://my-cluster-mysql-master:3306/lts
+    configs.jdbc.username=root
+    configs.jdbc.password=18964603268
+  log4j.properties: |
+    log4j.rootLogger=INFO,stdout
+    log4j.appender.stdout.Threshold=INFO
+    log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+    log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+    log4j.appender.stdout.layout.ConversionPattern=[%-5p] [%d{HH:mm:ss}] %c - %m%n

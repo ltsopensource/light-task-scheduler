@@ -9,7 +9,7 @@ import com.github.ltsopensource.core.properties.TaskTrackerProperties;
 /**
  * @author Robert HG (254963746@qq.com) on 3/16/16.
  */
-class QuartzLTSConfig {
+public class QuartzLTSConfig {
 
     private JobProperties jobProperties;
 
@@ -42,6 +42,7 @@ class QuartzLTSConfig {
     }
 
     @ConfigurationProperties(prefix = "lts.jobProp")
+    @org.springframework.boot.context.properties.ConfigurationProperties(prefix = "lts.jobProp")
     public static class JobProperties {
 
         // 是否要反馈给客户端
