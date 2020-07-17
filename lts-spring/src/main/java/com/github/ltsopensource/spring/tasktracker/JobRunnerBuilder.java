@@ -34,6 +34,7 @@ public class JobRunnerBuilder {
                 }
                 Class<?> returnType = targetMethod.getReturnType();
                 if (returnType != Result.class) {
+                    targetMethod.invoke(targetObject, pTypeValues)；
                     return new Result(Action.EXECUTE_SUCCESS);
                 }
                 return (Result) targetMethod.invoke(targetObject, pTypeValues);
