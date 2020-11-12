@@ -37,7 +37,7 @@
         <mongo.driver.version>3.0.2</mongo.driver.version>
         <morphia.version>1.0.0-rc1</morphia.version>
         <junit.version>4.11</junit.version>
-        <netty.version>4.0.20.Final</netty.version>
+        <netty.version>4.1.42.Final</netty.version>
         <jcl_version>1.1</jcl_version>
         <slf4j.version>1.7.5</slf4j.version>
         <log4j.version>1.2.16</log4j.version>
