@@ -30,5 +30,6 @@ cp -rf $Startup_Dir/target/lts-bin/lts/lib  $Dist_Bin_Dir/war/jetty
 cp -rf $LTS_Bin_Dir/lts-admin/target/lts-admin-$VERSION.war $Dist_Bin_Dir/war/lts-admin.war
 
  cd $LTS_Bin_Dir/dist
- zip -r lts-$VERSION-bin.zip lts-$VERSION-bin/*
+ rm -rf lts-$VERSION-bin/bin/*.cmd
+ tar -zcvf lts-$VERSION-bin.tar.gz lts-$VERSION-bin/*
  rm -rf lts-$VERSION-bin
