@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -32,7 +33,15 @@ public class HttpCmdAcceptor {
         this.executorService = new ThreadPoolExecutor(Constants.AVAILABLE_PROCESSOR,
                 Constants.AVAILABLE_PROCESSOR,
                 0L, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(100), new ThreadPoolExecutor.DiscardPolicy());
+                new LinkedBlockingQueue<Runnable>(100), new RejectedExecutionHandler() {
+            @Override
+            public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                if (r instanceof HttpCmdExecutor) {
+                    HttpCmdExecutor httpCmdExecutor = (HttpCmdExecutor)r;
+                    httpCmdExecutor.abort();
+                }
+            }
+        });
     }
 
     public void start() {
