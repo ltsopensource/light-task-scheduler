@@ -117,7 +117,10 @@ public class MonitorAgent {
         if (StringUtils.isEmpty(config.getIp())) {
             config.setIp(NetUtils.getLocalHost());
         }
-        JobNodeConfigFactory.buildIdentity(config);
+
+        if (StringUtils.isEmpty(config.getIdentity())) {
+            JobNodeConfigFactory.buildIdentity(config);
+        }
 
         // 初始化一些 db access
         MonitorAccessFactory factory = ServiceLoader.load(MonitorAccessFactory.class, config);
