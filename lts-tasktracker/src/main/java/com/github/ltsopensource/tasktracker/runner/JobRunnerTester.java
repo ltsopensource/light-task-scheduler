@@ -19,6 +19,10 @@ public abstract class JobRunnerTester {
         // 设置 BizLogger
         jobContext.setBizLogger(BizLoggerFactory.getLogger(Level.INFO, null, null));
         // 2. load context (Spring Context 或者其他的)
+        
+        //bizlogger设置进jobContext
+        jobContext.setBizLogger(LtsLoggerFactory.getBizLogger());
+ 
         initContext();
         // 3. new jobRunner
         JobRunner jobRunner = newJobRunner();
