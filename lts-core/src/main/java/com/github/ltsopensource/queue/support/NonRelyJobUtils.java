@@ -79,26 +79,33 @@ public class NonRelyJobUtils {
         if (endTime <= firstTriggerTime) {
             return;
         }
-        // 计算出应该重复的次数
-        int repeatedCount = Long.valueOf((lastGenerateTime.getTime() - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
+        
+        // 计算出已经生成的可执行job 起始repeatedCount
+        long initTime = lastGenerateTime.getTime();
+        int repeatedCount = Long.valueOf((initTime - firstTriggerTime) / jobPo.getRepeatInterval()).intValue();
         if (repeatedCount <= 0) {
-            repeatedCount = 1; //repeatedCount从1开始
+            repeatedCount = 1;
         }
 
-        if (repeatedCount < 0) {
-            repeatedCount = 0;
-        }
+        final JobPo repeatJobPjo = repeatJobQueue.getJob(jobPo.getTaskTrackerNodeGroup(), jobPo.getTaskId());
 
         boolean stop = false;
         while (!stop) {
-            Long nextTriggerTime = firstTriggerTime + (repeatedCount - 1) * repeatInterval; //第一次执行时间点应该是firstTriggerTime
+            final Long nextTriggerTime = firstTriggerTime + (repeatedCount - 1) * repeatInterval;
 
-            if (nextTriggerTime <= endTime &&
-                    (repeatCount == -1 || repeatedCount <= repeatCount)) {
+            if (repeatJobPjo.getLastGenerateTriggerTime() == null || repeatJobPjo.getLastGenerateTriggerTime() == 0) {
+                // 说明是第一次生成executable job，默认第一次为0，如果第一次设置为当前时间，那么有可能第一次triggertime小于当前时间，导致少生成一次job
+                initTime = 0;
+            }
+
+            //这里也要大于上次的generateTiggerTime，防止上次生成的job正在执行时，这回又生成成功可执行job，因为这里是通过数据库唯一索引去重的
+            if ((nextTriggerTime > initTime) && (nextTriggerTime <= endTime)
+                    && (repeatCount == -1 || repeatedCount <= repeatCount)) {
                 // 添加任务
                 jobPo.setTriggerTime(nextTriggerTime);
                 jobPo.setJobId(JobUtils.generateJobId());
-                jobPo.setTaskId(finalJobPo.getTaskId() + "_" + DateUtils.format(new Date(nextTriggerTime), "MMdd-HHmmss"));
+                jobPo.setTaskId(finalJobPo.getTaskId() + "_"
+                        + DateUtils.format(new Date(nextTriggerTime), "MMdd-HHmmss"));
                 jobPo.setRepeatedCount(repeatedCount);
                 jobPo.setInternalExtParam(Constants.ONCE, Boolean.TRUE.toString());
                 try {
@@ -109,10 +116,14 @@ public class NonRelyJobUtils {
                             jobPo.getTaskId(), jobPo.getTaskTrackerNodeGroup());
                 }
                 repeatedCount++;
+            } else if (repeatedCount < repeatCount) {
+                //前面的job已经生成过了，继续增加repeatedCount，生成下面的job
+                repeatedCount++;
             } else {
                 stop = true;
             }
         }
+
         // 更新时间
         repeatJobQueue.updateLastGenerateTriggerTime(finalJobPo.getJobId(), endTime);
         if (LOGGER.isDebugEnabled()) {
