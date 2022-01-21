@@ -46,7 +46,7 @@
         <mysql.version>5.1.26</mysql.version>
         <sleepycat.version>5.0.73</sleepycat.version>
         <rocksdbjni.version>3.10.1</rocksdbjni.version>
-        <h2.version>1.4.189</h2.version>
+        <h2.version>2.1.210</h2.version>
         <springframework.version>4.2.5.RELEASE</springframework.version>
         <mina.version>2.0.9</mina.version>
         <hessian.version>4.0.38</hessian.version>
