@@ -33,7 +33,7 @@
         <leveldbjni.version>1.8</leveldbjni.version>
         <curator.version>2.9.1</curator.version>
         <zkclient.version>0.1</zkclient.version>
-        <zk.version>3.4.5</zk.version>
+        <zk.version>3.4.14</zk.version>
         <mongo.driver.version>3.0.2</mongo.driver.version>
         <morphia.version>1.0.0-rc1</morphia.version>
         <junit.version>4.11</junit.version>
