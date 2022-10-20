@@ -29,7 +29,7 @@
 
     <properties>
         <jedis.version>2.7.3</jedis.version>
-        <fastjson.version>1.2.7</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <leveldbjni.version>1.8</leveldbjni.version>
         <curator.version>2.9.1</curator.version>
         <zkclient.version>0.1</zkclient.version>
